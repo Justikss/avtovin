@@ -1,2 +1,1 @@
-from . import tables
-from . import data_requests
+from . import data_requests, tables

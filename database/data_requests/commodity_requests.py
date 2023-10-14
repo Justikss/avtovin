@@ -27,10 +27,10 @@ class CommodityRequester:
 
 
     @staticmethod
-    def get_where_color(color: str):
-        '''Получение моделей с определённым параметром color'''
+    def get_where_state(state: str):
+        '''Получение моделей с определённым параметром state(Б/У or NEW)'''
         with db.atomic():
-            select_request = Commodity.select().where(Commodity.color == color)
+            select_request = Commodity.select().where(Commodity.state == state)
             return list(select_request)
 
 
@@ -45,3 +45,57 @@ class CommodityRequester:
                                                       & (Commodity.mileage < request['mileage'])
                                                       & (Commodity.model == request['model']))
             return list(select_request)
+
+
+toyota = {
+'brand': 'toyota',
+'model': 'supra',
+'mileage': 1000000,
+'state': 'Б/У',
+'color': 'red',
+'engine_type': 'america',
+'year_of_release': 'america',
+'photo_url': 'america',
+'complectation': 'america'
+}
+
+bmw = {
+'brand': 'bmw',
+'model': 'x5',
+'mileage': 20,
+'state': 'новая',
+'color': 'black',
+'engine_type': 'america',
+'year_of_release': 'america',
+'photo_url': 'america',
+'complectation': 'america'
+}
+
+reno = {
+'brand': 'renault',
+'model': 'logan',
+'mileage': 123,
+'state': 'новая',
+'color': 'pink',
+'engine_type': 'america',
+'year_of_release': 'america',
+'photo_url': 'america',
+'complectation': 'america'
+}
+
+
+kamaz = {
+'brand': 'kamaz',
+'model': 'big',
+'mileage': 0,
+'state': 'новая',
+'color': 'orange',
+'engine_type': 'america',
+'year_of_release': 'america',
+'photo_url': 'america',
+'complectation': 'america'
+}
+
+new_cars = [kamaz, toyota, bmw, reno]
+
+a = CommodityRequester.store_data(new_cars)

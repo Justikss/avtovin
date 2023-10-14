@@ -4,11 +4,17 @@ from peewee import CharField, IntegerField
 class Commodity(BaseModel):
     '''Таблица товаров.
     mileage = Числовое поле.'''
-    car_brand = CharField()
+    brand = CharField()
     model = CharField()
+    engine_type = CharField()
+    year_of_release = CharField()
+    complectation = CharField()
     mileage = IntegerField()
-    commodity_state = CharField()
+    state = CharField()
     color = CharField()
+    photo_url = CharField()
 
     class Meta:
         db_table = 'Автомобили на продаже'
+
+
