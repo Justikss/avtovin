@@ -8,13 +8,19 @@ LEXICON = {
     'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
     'main_menu': {'message_text': 'Меню', 'offers_to_user': 'Предложения', 'car_search': 'Поиск Авто', 'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward': 'Назад', 'width': 2},
 
-    'search_auto': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У', 'return_main_menu': 'В меню', 'width': 2},
+    'search_car': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У', 'return_main_menu': 'В меню', 'width': 2},
 
     'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать', 'backward': 'Назад', 'width': 1},
 
-    'choose_brand': {'message_text': 'Выберите марку', 'car_brands': 'car_brands', 'backward': 'Назад', 'width': 1},
-    'choose_model': {'message_text': 'Выберите модель', 'car_models': 'car_models', 'backward': 'Назад', 'width': 1},
-    'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'engine_types': 'engine_types', 'backward': 'Назад', 'width': 1},
-    'choose_complectation': {'message_text': 'Выберите комплектацию', 'complectations': 'complectations', 'backward': 'Назад', 'width': 1},
+    'choose_brand': {'message_text': 'Выберите марку', 'backward': 'Назад', 'width': 1},
+    'choose_model': {'message_text': 'Выберите модель', 'backward': 'Назад', 'width': 1},
+    'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward': 'Назад', 'width': 1},
+    'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward': 'Назад', 'width': 1},
+
+    'choose_year_of_release': {'message_text': 'Выберите год', 'backward': 'Назад', 'width': 1},
+    'choose_mileage': {'message_text': 'Выберите пробег', 'backward': 'Назад', 'width': 1},
+    'choose_color': {'message_text': 'Выберите цвет', 'backward': 'Назад', 'width': 1},
+
+
     'chosen_configuration': {}
                 }

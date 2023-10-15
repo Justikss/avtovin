@@ -21,7 +21,6 @@ class TravelEditor:
             message_object = request
 
         chat_object = message_object.chat
-        print(button_texts)
         if button_texts:
             keyboard = await InlineCreator.create_markup(lexicon_part,
                                                          button_texts=button_texts, callback_sign=callback_sign)

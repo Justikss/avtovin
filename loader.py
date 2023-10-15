@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, F
-from aiogram.filters import Command, StateFilter
+from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from config_data.config import BOT_TOKEN
@@ -10,11 +10,11 @@ from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers import (language_callback_handler, callback_handler_start_buy,
                                         backward_callback_handler, search_auto_handler)
 from handlers.state_handlers import buyer_registration_handlers
-
-
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
-
-from handlers.state_handlers.choose_car_for_buy import hybrid_handlers
+from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_handlers, second_hand_car_handlers
+from states.new_car_choose_states import NewCarChooseStates
+from states.hybrid_choose_states import HybridChooseStates
+from states.second_hand_choose_states import SecondHandChooseStates
 
 
 
@@ -59,9 +59,40 @@ async def start_bot():
     dp.callback_query.register(search_auto_handler.search_configuration_handler,
                                F.data.in_(('second_hand_cars', 'new_cars')))
 
+    '''Состояния поиска машины'''
+    '''hybrid'''
     dp.callback_query.register(hybrid_handlers.choose_brand_handler,
                                F.data == 'start_configuration_search')
+    dp.callback_query.register(hybrid_handlers.choose_model_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_brand'),
+                                     StateFilter(HybridChooseStates.select_model)))
+    dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_model'),
+                                     StateFilter(HybridChooseStates.select_engine_type)))
+    dp.callback_query.register(hybrid_handlers.search_config_output_handler,
+                               or_f(and_f(lambda callback: callback.data.startswith('cars_color'),
+                                          StateFilter(HybridChooseStates.config_output)),
+                                    and_f(lambda callback: callback.data.startswith('cars_complectation'),
+                                          StateFilter(HybridChooseStates.config_output))))
 
+    '''new car'''
+    dp.callback_query.register(new_car_handlers.choose_complectation_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_engine_type'),
+                                     StateFilter(NewCarChooseStates.select_complectation)))
+
+    '''second hand car'''
+    dp.callback_query.register(second_hand_car_handlers.choose_year_of_release_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_engine_type'),
+                                     StateFilter(SecondHandChooseStates.select_year)))
+    dp.callback_query.register(second_hand_car_handlers.choose_mileage_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_year_of_release'),
+                                     StateFilter(SecondHandChooseStates.select_mileage)))
+    dp.callback_query.register(second_hand_car_handlers.choose_color_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_mileage'),
+                                     StateFilter(SecondHandChooseStates.select_color)))
+
+
+    dp.message.register(echo.bot_echo, StateFilter(default_state))
 
 
     dp.message.register(echo.bot_echo, StateFilter(default_state))

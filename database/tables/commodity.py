@@ -13,6 +13,7 @@ class Commodity(BaseModel):
     state = CharField()
     color = CharField()
     photo_url = CharField()
+    price = IntegerField()
 
     class Meta:
         db_table = 'Автомобили на продаже'

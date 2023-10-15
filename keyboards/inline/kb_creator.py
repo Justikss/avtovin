@@ -12,9 +12,13 @@ class InlineCreator:
         kbuilder = InlineKeyboardBuilder()
         buttons = list()
         width = input_data['width']
-        print(button_texts)
         if button_texts:
+            backward_is_exists = input_data.get('backward')
+
             input_data = {callback_sign+text: text for text in button_texts}
+
+            if backward_is_exists:
+                input_data['backward'] = 'Назад'
 
 
         for callback, text in input_data.items():
