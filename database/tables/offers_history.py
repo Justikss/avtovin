@@ -9,7 +9,7 @@ class ActiveOffers(BaseModel):
     '''История Предложений'''
     seller = ForeignKeyField(Seller, backref='offer_seller')
     buyer = ForeignKeyField(User, backref='offer_buyer')
-    car_id = ForeignKeyField(Commodity, backref='offer_commodity')
+    car = ForeignKeyField(Commodity, backref='offer_commodity')
 
     class Meta:
         db_table = 'История Предложений'

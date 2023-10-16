@@ -7,10 +7,12 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_s
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
+from handlers.callback_handlers.language_callback_handler import InlineCreator
+from utils.Lexicon import LEXICON
 
 
 async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
-    await state.set_state(HybridChooseStates.select_brand)
+
 
     redis_key = str(callback.from_user.id) + ':cars_type'
     cars_type = await redis_data.get_data(redis_key)
@@ -54,6 +56,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext)
     memory_storage = await state.get_data()
     user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
     await state.update_data(cars_model=user_answer)
+    print(user_answer)
 
     models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
                                                       brand=memory_storage['cars_brand'],
@@ -83,6 +86,14 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
                                                           mileage=memory_storage['cars_mileage'],
                                                           color=user_answer)
 
+        brand = str(memory_storage['cars_brand'])
+        model = str(memory_storage['cars_model'])
+        engine = str(memory_storage['cars_engine_type'])
+        year = str(memory_storage['cars_year_of_release'])
+        mileage = str(memory_storage['cars_mileage'])
+        color = str(user_answer)
+        complectation = None
+
     elif memory_storage['cars_class'] == 'Новая':
         await state.update_data(cars_complectation=user_answer)
 
@@ -92,14 +103,36 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
                                                           engine_type=memory_storage['cars_engine_type'],
                                                           complectation=user_answer)
 
+        brand = str(memory_storage['cars_brand'])
+        model = str(memory_storage['cars_model'])
+        engine = str(memory_storage['cars_engine_type'])
+        complectation = str(user_answer)
+        year = None
+        mileage = None
+        color = None
 
-    middle_cost = sum(car.price for car in result_model) // len(result_model)
+    average_cost = sum(car.price for car in result_model) // len(result_model)
+    print(model)
+    formatted_config_output = await string_for_output(callback=callback,
+                                                      average_cost=average_cost,
+                                                      year=year, mileage=mileage,
+                                                      color=color, brand=brand,
+                                                      model=model, engine=engine,
+                                                      complectation=complectation)
+
+    range_car_id = [str(car.car_id) for car in result_model]
+    await state.update_data(offer_cars_range=range_car_id)
+    await state.update_data(buyer_id=str(callback.from_user.id))
+
     result_car = result_model[0]
     car_photo = result_car.photo_url
-    print(car_photo)
-    text_to_output = await string_for_output(callback=callback, car_photo=car_photo, middle_cost=middle_cost)
 
-    await callback.message.answer(text=text_to_output)
+    await callback.message.delete()
+
+    photo = car_photo
+    keyboard = await InlineCreator.create_markup(input_data=LEXICON.get('chosen_configuration'))
+    message_object = await callback.message.answer_photo(photo=photo, caption=formatted_config_output, reply_markup=keyboard)
+    await redis_data.set_data(str(callback.from_user.id) + ':last_message', message_object.message_id)
 
     await callback.answer()
 

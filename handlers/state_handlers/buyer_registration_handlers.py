@@ -10,7 +10,7 @@ from handlers.callback_handlers.main_menu import main_menu
 from utils.Lexicon import LEXICON
 from keyboards.inline.kb_creator import InlineCreator
 from handlers.callback_handlers.language_callback_handler import redis_data
-from database.data_requests.user_requests import UserRequester
+from database.data_requests.person_requests import PersonRequester
 
 
 class BuyerRegistationStates(StatesGroup):
@@ -40,7 +40,7 @@ async def load_user_in_database(memory_dict, number, message: Message):
         patronymic_value = None
     struct_for_database['patronymic'] = patronymic_value
     struct_for_database['phone_number'] = number
-    UserRequester.store_data(struct_for_database)
+    PersonRequester.store_data(struct_for_database, user=True)
 
 '''ДАЛЬШЕ ОБРАБОТЧИКИ СОСТОЯНИЙ'''
 

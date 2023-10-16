@@ -8,7 +8,7 @@ from utils.Lexicon import LEXICON
 
 class TravelEditor:
     @staticmethod
-    async def edit_message(lexicon_key: str, request, delete_mode=False,
+    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
                            button_texts: Set[str] = None, callback_sign: str = None):
         '''Высылальщик сообщений, '''
         lexicon_part = LEXICON[lexicon_key]
@@ -33,6 +33,9 @@ class TravelEditor:
             await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
             new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
             await redis_data.set_data(redis_key, new_message.message_id)
+        # elif media_markup_mode and formatted_config_output:
+        #     await request.chat.bot.send_media_group(chat_id=request.chat.id,
+        #                                                      media=formatted_config_output, reply_markup=keyboard)
         else:
             await message_object.edit_text(text=message_text, reply_markup=keyboard)
 

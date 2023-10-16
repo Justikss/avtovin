@@ -1,27 +1,26 @@
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InputMedia, InputMediaPhoto
 
 from handlers.callback_handlers.main_menu import redis_data
+from utils.Lexicon import LEXICON
 
-async def string_for_output(callback: CallbackQuery, car_photo: str, middle_cost: int):
+async def string_for_output(callback: CallbackQuery, engine, model,
+                            brand, complectation=None, average_cost=None,
+                            color=None, year=None, mileage=None):
+
     redis_key = str(callback.from_user.id) + ':cars_type'
     cars_state = await redis_data.get_data(redis_key)
 
+    lexicon_part = LEXICON.get('chosen_configuration')
+    message_text = lexicon_part.get('message_text')
 
-    '''Распилить строкии в лексикон'''
 
     if cars_state == 'second_hand_cars':
-        result_string = '''     Ваши настройки:
-        Тип двигателя:
-        Модель:
-        Марка:
-        Комплектация:
-        Стоимость: '''
+        result_string = f'''
+            {message_text['your_configs']}\n{message_text['engine_type']} {engine}\n{message_text['color']} {color}\n{message_text['model']} {model}\n{message_text['brand']} {brand}\n{message_text['year']} {year}\n{message_text['mileage']} {mileage}'''
+
     elif cars_state == 'new_cars':
-        result_string = '''     Ваши настройки:
-        Тип двигателя:
-        Модель:
-        Марка:
-        Комплектация:
-        Стоимость: '''
+        result_string = f'''
+            {message_text['your_configs']}\n{message_text['engine_type']} {engine}\n{message_text['model']} {model}\n{message_text['brand']} {brand}\n{message_text['complectation']} {complectation}\n{message_text['cost']} {average_cost}'''
+
 
     return result_string

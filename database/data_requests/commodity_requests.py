@@ -1,8 +1,10 @@
 from typing import Union, List
 
+from peewee import IntegrityError
+
 from database.tables.commodity import Commodity
 from database.tables.start_tables import db
-
+from database.data_requests.person_requests import seller_one
 
 class CommodityRequester:
     @staticmethod
@@ -25,13 +27,29 @@ class CommodityRequester:
             return True
 
 
-
     @staticmethod
     def get_where_state(state: str):
         '''Получение моделей с определённым параметром state(Б/У or NEW)'''
         with db.atomic():
             select_request = Commodity.select().where(Commodity.state == state)
             return list(select_request)
+
+    @staticmethod
+    def get_car_for_offer(seller_id: int, car_range_id: tuple):
+        '''Получение моделей с определённым параметром state(Б/У or NEW)'''
+        with db.atomic():
+            select_request = Commodity.select().where(Commodity.seller_id == seller_id, Commodity.car_id in car_range_id)
+            return list(select_request)
+
+    @staticmethod
+    def get_where_id(car_id: str):
+        '''Получение моделей с определённым параметром id'''
+        try:
+            with db.atomic():
+                select_request = Commodity.select().where(Commodity.car_id == int(car_id))
+                return list(select_request)
+        except Exception:
+            return False
 
     @staticmethod
     def get_for_request(state: str, brand=None, model=None, engine_type=None,
@@ -72,54 +90,58 @@ class CommodityRequester:
 
 
 toyota = {
+'seller_id': seller_one,
 'brand': 'toyota',
 'model': 'supra',
-'mileage': 1000000,
+'mileage': '1000000',
 'state': 'Б/У',
 'color': 'red',
 'engine_type': 'engine_type-america',
 'year_of_release': 'year_of_release-america',
-'photo_url': 'america',
+'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Ftopworldauto.com%2Fphotos%2Fcd%2F03%2F2013-toyota-corolla-sport-car_b4380.jpg&lr=172&pos=2&rpt=simage&text=toyota',
 'complectation': 'complectation-america',
 'price': '750000'
 }
 
 bmw = {
+'seller_id': seller_one,
 'brand': 'bmw',
 'model': 'x5',
-'mileage': 20,
+'mileage': '20',
 'state': 'Новая',
 'color': 'black',
 'engine_type': 'engine_type-lena',
 'year_of_release': 'year_of_release-vasya',
-'photo_url': 'petya',
+'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fbipbap.ru%2Fwp-content%2Fuploads%2F2018%2F08%2Fhamman-bmw-x5-1.jpg&lr=172&pos=0&rpt=simage&text=bmw%20x5',
 'complectation': 'complectation-kolya',
 'price': '1500000'
 }
 
 reno = {
+'seller_id': seller_one,
 'brand': 'renault',
 'model': 'logan',
-'mileage': 123,
+'mileage': '123',
 'state': 'Новая',
 'color': 'pink',
 'engine_type': 'engine_type-china',
 'year_of_release': 'year_of_release-madrid',
-'photo_url': 'africa',
+'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fcarsweek.ru%2Fupload%2F2021%2F%25D0%259E%25D0%25BA%25D1%2582%25D1%258F%25D0%25B1%25D1%2580%25D1%258C%2F10%2F2.jpg&lr=172&pos=0&rpt=simage&text=reno',
 'complectation': 'complectation-uzbekistan',
 'price': '300000'
 }
 
 
 kamaz = {
+'seller_id': seller_one,
 'brand': 'kamaz',
 'model': 'big',
-'mileage': 0,
+'mileage': '0',
 'state': 'Новая',
 'color': 'orange',
 'engine_type': 'engine_type-europa',
 'year_of_release': 'year_of_release-america',
-'photo_url': 'russia',
+'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fautobagi.lt%2Fimages%2FKamaz%2Fsavivarciai%2F65115%2F3.jpg&lr=172&pos=2&rpt=simage&text=kamaz',
 'complectation': 'complectation-francia',
 'price': '20000000'
 }

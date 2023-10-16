@@ -14,7 +14,6 @@ class InlineCreator:
         width = input_data['width']
         if button_texts:
             backward_is_exists = input_data.get('backward')
-
             input_data = {callback_sign+text: text for text in button_texts}
 
             if backward_is_exists:

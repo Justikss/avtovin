@@ -8,13 +8,16 @@ from handlers.custom_filters.correct_name import CorrectName
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers import (language_callback_handler, callback_handler_start_buy,
-                                        backward_callback_handler, search_auto_handler)
+                                        backward_callback_handler, search_auto_handler, confirm_search_config,
+                                        main_menu, confirm_from_seller_callback_handler)
 from handlers.state_handlers import buyer_registration_handlers
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_handlers, second_hand_car_handlers
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
+
+
 
 
 
@@ -59,6 +62,15 @@ async def start_bot():
     dp.callback_query.register(search_auto_handler.search_configuration_handler,
                                F.data.in_(('second_hand_cars', 'new_cars')))
 
+    dp.callback_query.register(confirm_search_config.confirm_settings_handler,
+                               F.data == 'confirm_buy_settings')
+    dp.callback_query.register(main_menu.main_menu,
+                               F.data == 'return_main_menu')
+    dp.callback_query.register(confirm_from_seller_callback_handler.confirm_from_seller,
+                               lambda callback: callback.data.startswith('confirm_from_seller'))
+
+
+
     '''Состояния поиска машины'''
     '''hybrid'''
     dp.callback_query.register(hybrid_handlers.choose_brand_handler,
@@ -91,6 +103,8 @@ async def start_bot():
                                and_f(lambda callback: callback.data.startswith('cars_mileage'),
                                      StateFilter(SecondHandChooseStates.select_color)))
 
+
+    # dp.message.register(echo.bot_echo, StateFilter(default_state))
 
     dp.message.register(echo.bot_echo, StateFilter(default_state))
 

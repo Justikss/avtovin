@@ -22,5 +22,15 @@ LEXICON = {
     'choose_color': {'message_text': 'Выберите цвет', 'backward': 'Назад', 'width': 1},
 
 
-    'chosen_configuration': {}
+    'chosen_configuration': {'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
+                                              'model': 'Модель: ',
+                                               'brand': 'Марка: ', 'complectation': 'Комплектация: ',
+                                               'cost': 'Стоимость: ',  'mileage': 'Пробег: ', 'year': 'Год: ',
+                                               'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
+                             'backward': 'Назад', 'width': 1},
+    'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!', 'return_main_menu': 'В меню', 'width': 1},
+
+
+    'button_confirm_from_seller': 'Подтвердить'
+
                 }

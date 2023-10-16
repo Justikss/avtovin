@@ -1,7 +1,7 @@
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from database.data_requests.user_requests import UserRequester
+from database.data_requests.person_requests import PersonRequester
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.buyer_registration_handlers import input_full_name
 from handlers.state_handlers.buyer_registration_handlers import main_menu
@@ -9,7 +9,7 @@ from handlers.state_handlers.buyer_registration_handlers import main_menu
 
 
 async def start_buy(callback: CallbackQuery, state: FSMContext):
-    user_from_db = UserRequester.get_user_for_id(str(callback.from_user.id))
+    user_from_db = PersonRequester.get_user_for_id(str(callback.from_user.id), user=True)
     if user_from_db:
         await callback.answer('Зареган')
         await main_menu(request=callback)
