@@ -1,15 +1,43 @@
+from typing import List, Tuple, Any
+
 from aiogram.types import Message, CallbackQuery
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import redis_data
 from database.data_requests.offers_requests import OffersRequester
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import InlineCreator
 from utils.Lexicon import LEXICON
 
+async def pagination_state_data_unpack(callback: CallbackQuery, coding_in=False, vector: str = None) -> Tuple[int, Any]:
+    redis_key = str(callback.from_user.id) + ':history_stack'
+    if not coding_in:
+        all_history = await redis_data.get_data(key=redis_key, use_json=True)
+        history_stack = list(all_history.values())[0]
+        stack_position = int(list(all_history.keys())[0])
+
+        return stack_position, history_stack
+
+    else:
+        all_history = await redis_data.get_data(key=redis_key, use_json=True)
+        history_stack = list(all_history.values())[0]
+        stack_position = int(list(all_history.keys())[0])
+        if vector == 'right':
+            #current_page = (stack_position - 1) // 3 + 1
+            #total_pages = (n - 1) // 3 + 1
+
+            stack_position = stack_position+(len(history_stack) - int((stack_position % 3)))
+            output_history_code = {stack_position: history_stack}
+
+        elif vector == 'left':
+            stack_position = stack_position-(len(history_stack) - int((stack_position % 3)))
+
+            output_history_code = {stack_position: history_stack}
+
+
+        await redis_data.set_data(key=redis_key, value=output_history_code)
 
 async def history_view_system(callback, redis_key, edit_mode=False):
-    all_history = await redis_data.get_data(key=redis_key, use_json=True)
+    pagination_redis_key = str(callback.from_user.id) + ':history_requests_pagination'
     # print('histor', type(all_history), all_history)
-    history_stack = list(all_history.values())[0]
-    stack_position = int(list(all_history.keys())[0])
+    stack_position, history_stack = await pagination_state_data_unpack(callback)
     history_part = history_stack[stack_position:]
     print('st', history_stack)
     print('part', history_part)
@@ -20,16 +48,42 @@ async def history_view_system(callback, redis_key, edit_mode=False):
         print(block_position % 3, history_stack.index(history_block))
         if block_position != len(history_stack) and block_position % 3 != 0:
             print('yos:')
+
+            if block_position == 1:
+                pagination_redis_key += ':first'
+            elif block_position == 2:
+                pagination_redis_key += ':second'
+
             if not edit_mode:
                 pre_message = await callback.message.answer(text=history_block)
+                await redis_data.set_data(key=pagination_redis_key, value=pre_message.message_id)
+            else:
+                editable_message = await redis_data.get_data(key=pagination_redis_key)
+                await callback.message.bot.edit_message_text(self=callback.message.bot,
+                                                             chat_id=callback.message.chat.id,
+                                                             message_id=int(editable_message),
+                                                             text=history_block)
+
+            print(await redis_data.get_data(key=pagination_redis_key))
         else:
-            print('last', history_block)
+
             keyboard = await InlineCreator.create_markup(input_data=LEXICON['buttons_history_output'])
+            pagination_redis_key += ':head'
 
-            head_message = await callback.message.answer(text=history_block, reply_markup=keyboard)
+            if not edit_mode:
+                head_message = await callback.message.answer(text=history_block, reply_markup=keyboard)
+                await redis_data.set_data(key=pagination_redis_key, value=head_message.message_id)
+            else:
+                editable_message = await redis_data.get_data(key=pagination_redis_key)
+                await callback.message.bot.edit_message_text(self=callback.message.bot,
+                                                             chat_id=callback.message.chat.id,
+                                                             message_id=int(editable_message),
+                                                             text=history_block,
+                                                             reply_markup=keyboard)
 
-            history_cache_value = {stack_position+len(history_part): history_stack}
-            await redis_data.set_data(key=redis_key, value=history_cache_value)
+            print(await redis_data.get_data(key=pagination_redis_key))
+            # history_cache_value = {stack_position+len(history_part): history_stack}
+            # await redis_data.set_data(key=redis_key, value=history_cache_value)
             return
 
 
@@ -72,3 +126,14 @@ async def get_offers_history(callback: CallbackQuery):
     await history_view_system(callback=callback, redis_key=redis_key)
 
     await callback.answer(last_message)
+
+'''Обработчики пагинации'''
+async def history_pagination_right(callback: CallbackQuery):
+    stack_position, history_stack = await pagination_state_data_unpack(callback)
+    if stack_position == len(history_stack):
+        await callback.answer('Больше сделок не планировалось.')
+    else:
+        await redis_data.set_data()
+
+
+    await history_view_system

@@ -9,7 +9,7 @@ from database.tables.offers_history import ActiveOffers
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[0])
+# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[3])
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[1])
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[2])
 
