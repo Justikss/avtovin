@@ -12,3 +12,12 @@ class OffersRequester:
         except Exception:
             return False
 
+    @staticmethod
+    def get_for_buyer_id(buyer_id: int):
+        with db.atomic():
+            buyer_offers = ActiveOffers.select().where(ActiveOffers.buyer == buyer_id)
+            buyer_offers = list(buyer_offers)
+        if buyer_offers:
+            return buyer_offers
+        else:
+            return False

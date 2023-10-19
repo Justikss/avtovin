@@ -1,3 +1,4 @@
+import json
 from typing import Union
 
 import redis
@@ -18,6 +19,9 @@ class RedisRequester:
         :rtype: bool
         :key[str]: Ключ для записи в базу Redis
         :value[Union[set, list, str, float, dict]]: значение для записи в базу Redis'''
+        if type(value) in (set, list, dict):
+            value = json.dumps(value)
+
         self.redis_base.set(key, value)
         if self.redis_base.get(key) == value:
             return True
@@ -26,7 +30,7 @@ class RedisRequester:
 
         redis_base.close()
 
-    async def get_data(self, key: str) -> Union[bool, Union[set, list, str, float, dict]]:
+    async def get_data(self, key: str, use_json=False) -> Union[bool, Union[set, list, str, float, dict]]:
         '''Ассинхронный метод выдаёт значение по входящему ключу в Redis
         Даёт обратную связь
         :return: False | result
@@ -34,6 +38,10 @@ class RedisRequester:
         :key: Ключ для записи в базу Redis
         '''
         result = self.redis_base.get(key)
+        print('redisult type', type(result))
+        if use_json:
+            result = json.loads(result)
+
         if result:
             return result
         else:

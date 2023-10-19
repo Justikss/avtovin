@@ -64,6 +64,7 @@ seller = [{'telegram_id': '902230076',
 'phone_number': '2312342',
 'entity': 'fisycal',
 'dealship_address': None,
+'dealship_name': None,
 'name': 'Bo',  # поле ограничено символами(название столбца)
 'surname': 'Ri',  # поле ограничено символами(возможно нулевое значение, название столбца)
 'patronymic': 'S'},
@@ -71,9 +72,9 @@ seller = [{'telegram_id': '902230076',
 
 
 
-PersonRequester.store_data(seller, seller=True)
+# PersonRequester.store_data(seller, seller=True)
 
 sellers = PersonRequester.retrieve_all_data(seller=True)
 
-seller_one = sellers[0]
 
+buyer = PersonRequester.retrieve_all_data(user=True)

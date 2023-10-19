@@ -31,6 +31,7 @@ LEXICON = {
     'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!', 'return_main_menu': 'В меню', 'width': 1},
 
 
-    'button_confirm_from_seller': 'Подтвердить'
+    'button_confirm_from_seller': 'Подтвердить',
+    'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>', 'return_main_menu': 'В меню', 'width': 2}
 
                 }

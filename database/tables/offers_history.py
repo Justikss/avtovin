@@ -13,3 +13,5 @@ class ActiveOffers(BaseModel):
 
     class Meta:
         db_table = 'История Предложений'
+
+

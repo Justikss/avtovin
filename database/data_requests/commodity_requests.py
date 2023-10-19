@@ -4,7 +4,7 @@ from peewee import IntegrityError
 
 from database.tables.commodity import Commodity
 from database.tables.start_tables import db
-from database.data_requests.person_requests import seller_one
+from database.data_requests.person_requests import sellers, buyer
 
 class CommodityRequester:
     @staticmethod
@@ -90,7 +90,7 @@ class CommodityRequester:
 
 
 toyota = {
-'seller_id': seller_one,
+'seller_id': sellers[0],
 'brand': 'toyota',
 'model': 'supra',
 'mileage': '1000000',
@@ -104,7 +104,7 @@ toyota = {
 }
 
 bmw = {
-'seller_id': seller_one,
+'seller_id': sellers[0],
 'brand': 'bmw',
 'model': 'x5',
 'mileage': '20',
@@ -118,7 +118,7 @@ bmw = {
 }
 
 reno = {
-'seller_id': seller_one,
+'seller_id': sellers[0],
 'brand': 'renault',
 'model': 'logan',
 'mileage': '123',
@@ -133,7 +133,7 @@ reno = {
 
 
 kamaz = {
-'seller_id': seller_one,
+'seller_id': sellers[0],
 'brand': 'kamaz',
 'model': 'big',
 'mileage': '0',
@@ -146,6 +146,9 @@ kamaz = {
 'price': '20000000'
 }
 
-new_cars = [kamaz, toyota, bmw, reno]
+# new_cars = [kamaz, toyota, bmw, reno]
+#
+# a = CommodityRequester.store_data(new_cars)
 
-a = CommodityRequester.store_data(new_cars)
+
+cars = CommodityRequester.retrieve_all_data()
