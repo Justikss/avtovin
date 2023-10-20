@@ -13,13 +13,13 @@ LEXICON = {
     'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать', 'backward': 'Назад', 'width': 1},
 
     'choose_brand': {'message_text': 'Выберите марку', 'backward': 'Назад', 'width': 1},
-    'choose_model': {'message_text': 'Выберите модель', 'backward': 'Назад', 'width': 1},
-    'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward': 'Назад', 'width': 1},
-    'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward': 'Назад', 'width': 1},
+    'choose_model': {'message_text': 'Выберите модель', 'backward_in_carpooling': 'Назад', 'width': 1},
+    'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward_in_carpooling': 'Назад', 'width': 1},
+    'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward_in_carpooling': 'Назад', 'width': 1},
 
-    'choose_year_of_release': {'message_text': 'Выберите год', 'backward': 'Назад', 'width': 1},
-    'choose_mileage': {'message_text': 'Выберите пробег', 'backward': 'Назад', 'width': 1},
-    'choose_color': {'message_text': 'Выберите цвет', 'backward': 'Назад', 'width': 1},
+    'choose_year_of_release': {'message_text': 'Выберите год', 'backward_in_carpooling': 'Назад', 'width': 1},
+    'choose_mileage': {'message_text': 'Выберите пробег', 'backward_in_carpooling': 'Назад', 'width': 1},
+    'choose_color': {'message_text': 'Выберите цвет', 'backward_in_carpooling': 'Назад', 'width': 1},
 
 
     'chosen_configuration': {'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
@@ -27,15 +27,17 @@ LEXICON = {
                                                'brand': 'Марка: ', 'complectation': 'Комплектация: ',
                                                'cost': 'Стоимость: ',  'mileage': 'Пробег: ', 'year': 'Год: ',
                                                'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
-                             'backward': 'Назад', 'width': 1},
+                             'backward_in_carpooling:': 'Назад', 'width': 1},
     'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!', 'return_main_menu': 'В меню', 'width': 1},
 
 
     'button_confirm_from_seller': 'Подтвердить',
     'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>', 'return_from_offers_history': 'В меню', 'width': 2},
+    'backward_name': 'Назад',
 
     'show_offers_history': {'no_more_pages': 'Больше нет страниц', 'no_less_pages': 'Позади нет страниц', 'history_not_found': 'История запросов пуста'},
     'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Стоимость', 'dealship_contacts': 'Контакты салона',
                     'individual': 'Частное лицо', 'individual_contacts': 'Контакты'}
+
 }
 

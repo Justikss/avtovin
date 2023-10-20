@@ -1,12 +1,16 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from handlers.state_handlers.buyer_registration_handlers import InlineCreator, LEXICON
+from handlers.state_handlers.buyer_registration_handlers import LEXICON
 from handlers.callback_handlers.language_callback_handler import redis_data
 
 
 async def backward_button_handler(callback: CallbackQuery, state: FSMContext = None):
     '''Кнопка назад, ориентируется на запись в редис: прошлый лексикон код,
                                                         прошлое состояние'''
+    inline_creator = importlib.import_module('keyboards.inline.kb_creator')  # Ленивый импорт
+
     memory_data = await state.get_data()
     if memory_data.get('last_lexicon_code'):
         last_lexicon_code = memory_data['last_lexicon_code']
@@ -22,7 +26,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
 
     lexicon_part = LEXICON[last_lexicon_code]
     message_text = lexicon_part['message_text']
-    keyboard = await InlineCreator.create_markup(lexicon_part)
+    keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
     await callback.message.edit_text(text=message_text, reply_markup=keyboard)
 
     await state.update_data(last_lexicon_code=None)

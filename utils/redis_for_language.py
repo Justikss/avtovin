@@ -12,23 +12,46 @@ class RedisRequester:
             decode_responses=True
         )
 
-    async def set_data(self, key: str,
-                       value: Union[set, list, str, float, dict]) -> bool:
+    async def set_data(self, key: str = None,
+                       value: Union[set, list, str, float, dict] = None,
+                       dicted_data: dict = None) -> bool:
         '''Ассинхронный метод устанавливает значение языковому ключу в Redis
         Даёт обратную связь
         :rtype: bool
         :key[str]: Ключ для записи в базу Redis
         :value[Union[set, list, str, float, dict]]: значение для записи в базу Redis'''
-        if type(value) in (set, list, dict, tuple):
-            value = json.dumps(value)
+        if dicted_data:
+            for key, value in dicted_data.items():
+                if type(value) not in (int, float, str):
 
-        self.redis_base.set(key, value)
-        if self.redis_base.get(key) == value:
-            return True
+                    value = json.dumps(value)
+
+                self.redis_base.set(key, value)
+                if self.redis_base.get(key) == value:
+                    print('good', {key: value})
+                    pass
+                else:
+                    print('error', {key: value})
+                    self.redis_base.close()
+                    return False
+
+            self.redis_base.close()
+
         else:
-            return False
+            if type(value) not in (int, float, str):
+                value = json.dumps(value)
 
-        redis_base.close()
+            self.redis_base.set(key, value)
+            if self.redis_base.get(key) == value:
+                self.redis_base.close()
+                print('good', {key: value})
+                return True
+            else:
+                self.redis_base.close()
+                print('error', {key: value})
+                return False
+
+
 
     async def get_data(self, key: str, use_json=False) -> Union[bool, Union[set, list, str, float, dict]]:
         '''Ассинхронный метод выдаёт значение по входящему ключу в Redis
@@ -43,11 +66,15 @@ class RedisRequester:
             result = json.loads(result)
 
         if result:
+            self.redis_base.close()
+            print('good_get', {key: result})
             return result
         else:
+            self.redis_base.close()
+            print('error_get', key)
             return False
 
-        redis_base.close()
+
 
 
 redis_data = RedisRequester()

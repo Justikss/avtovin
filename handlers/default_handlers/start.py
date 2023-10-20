@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from utils.Lexicon import LEXICON
-from keyboards.inline.kb_creator import InlineCreator
+from handlers.message_editor import InlineCreator
 from handlers.callback_handlers.language_callback_handler import redis_data
 
 

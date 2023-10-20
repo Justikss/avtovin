@@ -1,21 +1,26 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.commodity_requests import CommodityRequester
-from handlers.callback_handlers.search_auto_handler import travel_editor, redis_data
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import string_for_output
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.states_cacher import cache_state
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
-from handlers.callback_handlers.language_callback_handler import InlineCreator
+
 from utils.Lexicon import LEXICON
 
 
-async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
 
+async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
+    await cache_state(callback=callback, state=state, first=True)
 
     redis_key = str(callback.from_user.id) + ':cars_type'
-    cars_type = await redis_data.get_data(redis_key)
+    cars_type = await message_editor.redis_data.get_data(redis_key)
 
 
     if cars_type == 'second_hand_cars':
@@ -29,42 +34,64 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
     await state.update_data(cars_class=commodity_state)
 
     button_texts = {car.brand for car in models_range}
-    await travel_editor.edit_message(request=callback, lexicon_key='choose_brand',
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_brand',
                                      button_texts=button_texts, callback_sign='cars_brand:')
+
+    '''Кэширование для кнопки НАЗАД'''
+    # await backward_in_carpooling_controller(callback=callback, state=state)
 
     await state.set_state(HybridChooseStates.select_model)
 
 
-async def choose_model_handler(callback: CallbackQuery, state: FSMContext):
+async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
+    await cache_state(callback=callback, state=state)
+
     memory_storage = await state.get_data()
     commodity_state = memory_storage['cars_state']
 
-    user_answer = callback.data.split(':')[1] #Второе слово - ключевое к значению бд
-    brand = user_answer
-    await state.update_data(cars_brand=brand)
+    if first_call:
+        user_answer = callback.data.split(':')[1] #Второе слово - ключевое к значению бд
+        brand = user_answer
+        await state.update_data(cars_brand=brand)
+    else:
+        brand = memory_storage['cars_brand']
+
 
     models_range = CommodityRequester.get_for_request(state=commodity_state, brand=brand)
 
     button_texts = {car.model for car in models_range}
-    await travel_editor.edit_message(request=callback, lexicon_key='choose_model', button_texts=button_texts,
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_model', button_texts=button_texts,
                                      callback_sign='cars_model:')
 
+    '''Кэширование для кнопки НАЗАД'''
+    # await backward_in_carpooling_controller(callback=callback, state=state)
     await state.set_state(HybridChooseStates.select_engine_type)
 
+async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext):
+    await cache_state(callback=callback, state=state)
+
     memory_storage = await state.get_data()
-    user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
-    await state.update_data(cars_model=user_answer)
-    print(user_answer)
+    if first_call:
+        user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
+        await state.update_data(cars_model=user_answer)
+        print(user_answer)
+    else:
+        user_answer = memory_storage['cars_model']
 
     models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
                                                       brand=memory_storage['cars_brand'],
                                                       model=user_answer)
 
     button_texts = {car.engine_type for car in models_range}
-    await travel_editor.edit_message(request=callback, lexicon_key='choose_engine_type', button_texts=button_texts,
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_engine_type', button_texts=button_texts,
                                      callback_sign='cars_engine_type:')
+
+    '''Кэширование для кнопки НАЗАД'''
+    #await backward_in_carpooling_controller(callback=callback, state=state)
 
     if memory_storage['cars_class'] == 'Б/У':
         await state.set_state(SecondHandChooseStates.select_year)
@@ -73,6 +100,10 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext)
         await state.set_state(NewCarChooseStates.select_complectation)
 
 async def search_config_output_handler(callback: CallbackQuery, state: FSMContext):
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
+    await cache_state(callback=callback, state=state)
+
     memory_storage = await state.get_data()
     user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
     if memory_storage['cars_class'] == 'Б/У':
@@ -130,9 +161,12 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
     await callback.message.delete()
 
     photo = car_photo
-    keyboard = await InlineCreator.create_markup(input_data=LEXICON.get('chosen_configuration'))
+    keyboard = await message_editor.InlineCreator.create_markup(input_data=LEXICON.get('chosen_configuration'))
     message_object = await callback.message.answer_photo(photo=photo, caption=formatted_config_output, reply_markup=keyboard)
-    await redis_data.set_data(str(callback.from_user.id) + ':last_message', message_object.message_id)
+    await message_editor.redis_data.set_data(str(callback.from_user.id) + ':last_message', message_object.message_id)
+
+    '''Кэширование для кнопки НАЗАД'''
+    #await backward_in_carpooling_controller(callback=callback, state=state)
 
     await callback.answer()
 

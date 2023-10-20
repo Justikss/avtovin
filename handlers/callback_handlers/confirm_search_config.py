@@ -1,18 +1,20 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from handlers.state_handlers.choose_car_for_buy.new_car_handlers import travel_editor
 from config_data.config import DEAL_CHAT
 from utils.Lexicon import LEXICON
 
 
 
 async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
     memory_data = await state.get_data()
     cars_id_range = memory_data.get('offer_cars_range')
     buyer_id = memory_data.get('buyer_id')
     await state.clear()
-    await travel_editor.edit_message(lexicon_key='confirm_buy_configuration', request=callback, delete_mode=True)
-
+    await message_editor.travel_editor.edit_message(lexicon_key='confirm_buy_configuration', request=callback, delete_mode=True)
 
     cars_id_range = ':'.join(cars_id_range)
 

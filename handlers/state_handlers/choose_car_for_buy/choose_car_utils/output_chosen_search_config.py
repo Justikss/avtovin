@@ -1,14 +1,16 @@
-from aiogram.types import CallbackQuery, InputMedia, InputMediaPhoto
+import importlib
 
-from handlers.callback_handlers.main_menu import redis_data
+from aiogram.types import CallbackQuery
 from utils.Lexicon import LEXICON
 
 async def string_for_output(callback: CallbackQuery, engine, model,
                             brand, complectation=None, average_cost=None,
                             color=None, year=None, mileage=None):
+    redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+
 
     redis_key = str(callback.from_user.id) + ':cars_type'
-    cars_state = await redis_data.get_data(redis_key)
+    cars_state = await redis_module.redis_data.get_data(redis_key)
 
     lexicon_part = LEXICON.get('chosen_configuration')
     message_text = lexicon_part.get('message_text')

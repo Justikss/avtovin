@@ -10,7 +10,7 @@ from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers import (language_callback_handler, callback_handler_start_buy,
                                         backward_callback_handler, search_auto_handler, confirm_search_config,
                                         main_menu, confirm_from_seller_callback_handler, show_offers_history,
-                                        return_main_menu_from_offers_history)
+                                        return_main_menu_from_offers_history, callback_handler_backward_in_carpooling)
 from handlers.state_handlers import buyer_registration_handlers
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_handlers, second_hand_car_handlers
@@ -77,8 +77,8 @@ async def start_bot():
     dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
                                F.data == 'return_from_offers_history')
 
-
-
+    dp.callback_query.register(callback_handler_backward_in_carpooling.backward_in_carpooling_handler,
+                               F.data == 'backward_in_carpooling')
 
     '''Состояния поиска машины'''
     '''hybrid'''
