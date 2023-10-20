@@ -9,7 +9,8 @@ from handlers.custom_filters.correct_name import CorrectName
 from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers import (language_callback_handler, callback_handler_start_buy,
                                         backward_callback_handler, search_auto_handler, confirm_search_config,
-                                        main_menu, confirm_from_seller_callback_handler, show_offers_history)
+                                        main_menu, confirm_from_seller_callback_handler, show_offers_history,
+                                        return_main_menu_from_offers_history)
 from handlers.state_handlers import buyer_registration_handlers
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_handlers, second_hand_car_handlers
@@ -71,6 +72,11 @@ async def start_bot():
                                lambda callback: callback.data.startswith('confirm_from_seller'))
 
     dp.callback_query.register(show_offers_history.get_offers_history, F.data == 'offers_to_user')
+    dp.callback_query.register(show_offers_history.history_pagination_left, F.data == 'pagination_left')
+    dp.callback_query.register(show_offers_history.history_pagination_right, F.data == 'pagination_right')
+    dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
+                               F.data == 'return_from_offers_history')
+
 
 
 

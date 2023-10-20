@@ -19,7 +19,7 @@ class RedisRequester:
         :rtype: bool
         :key[str]: Ключ для записи в базу Redis
         :value[Union[set, list, str, float, dict]]: значение для записи в базу Redis'''
-        if type(value) in (set, list, dict):
+        if type(value) in (set, list, dict, tuple):
             value = json.dumps(value)
 
         self.redis_base.set(key, value)

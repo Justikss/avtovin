@@ -4,7 +4,7 @@ from peewee import IntegrityError
 
 from database.tables.commodity import Commodity
 from database.tables.start_tables import db
-from database.data_requests.person_requests import sellers, buyer
+# from database.data_requests.person_requests import sellers, buyer
 
 class CommodityRequester:
     @staticmethod
@@ -89,66 +89,66 @@ class CommodityRequester:
 
 
 
-toyota = {
-'seller_id': sellers[0],
-'brand': 'toyota',
-'model': 'supra',
-'mileage': '1000000',
-'state': 'Б/У',
-'color': 'red',
-'engine_type': 'engine_type-america',
-'year_of_release': 'year_of_release-america',
-'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Ftopworldauto.com%2Fphotos%2Fcd%2F03%2F2013-toyota-corolla-sport-car_b4380.jpg&lr=172&pos=2&rpt=simage&text=toyota',
-'complectation': 'complectation-america',
-'price': '750000'
-}
-
-bmw = {
-'seller_id': sellers[0],
-'brand': 'bmw',
-'model': 'x5',
-'mileage': '20',
-'state': 'Новая',
-'color': 'black',
-'engine_type': 'engine_type-lena',
-'year_of_release': 'year_of_release-vasya',
-'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fbipbap.ru%2Fwp-content%2Fuploads%2F2018%2F08%2Fhamman-bmw-x5-1.jpg&lr=172&pos=0&rpt=simage&text=bmw%20x5',
-'complectation': 'complectation-kolya',
-'price': '1500000'
-}
-
-reno = {
-'seller_id': sellers[0],
-'brand': 'renault',
-'model': 'logan',
-'mileage': '123',
-'state': 'Новая',
-'color': 'pink',
-'engine_type': 'engine_type-china',
-'year_of_release': 'year_of_release-madrid',
-'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fcarsweek.ru%2Fupload%2F2021%2F%25D0%259E%25D0%25BA%25D1%2582%25D1%258F%25D0%25B1%25D1%2580%25D1%258C%2F10%2F2.jpg&lr=172&pos=0&rpt=simage&text=reno',
-'complectation': 'complectation-uzbekistan',
-'price': '300000'
-}
-
-
-kamaz = {
-'seller_id': sellers[0],
-'brand': 'kamaz',
-'model': 'big',
-'mileage': '0',
-'state': 'Новая',
-'color': 'orange',
-'engine_type': 'engine_type-europa',
-'year_of_release': 'year_of_release-america',
-'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fautobagi.lt%2Fimages%2FKamaz%2Fsavivarciai%2F65115%2F3.jpg&lr=172&pos=2&rpt=simage&text=kamaz',
-'complectation': 'complectation-francia',
-'price': '20000000'
-}
-
+# toyota = {
+# 'seller_id': sellers[0],
+# 'brand': 'toyota',
+# 'model': 'supra',
+# 'mileage': '1000000',
+# 'state': 'Б/У',
+# 'color': 'red',
+# 'engine_type': 'engine_type-america',
+# 'year_of_release': 'year_of_release-america',
+# 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Ftopworldauto.com%2Fphotos%2Fcd%2F03%2F2013-toyota-corolla-sport-car_b4380.jpg&lr=172&pos=2&rpt=simage&text=toyota',
+# 'complectation': 'complectation-america',
+# 'price': '750000'
+# }
+#
+# bmw = {
+# 'seller_id': sellers[0],
+# 'brand': 'bmw',
+# 'model': 'x5',
+# 'mileage': '20',
+# 'state': 'Новая',
+# 'color': 'black',
+# 'engine_type': 'engine_type-lena',
+# 'year_of_release': 'year_of_release-vasya',
+# 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fbipbap.ru%2Fwp-content%2Fuploads%2F2018%2F08%2Fhamman-bmw-x5-1.jpg&lr=172&pos=0&rpt=simage&text=bmw%20x5',
+# 'complectation': 'complectation-kolya',
+# 'price': '1500000'
+# }
+#
+# reno = {
+# 'seller_id': sellers[0],
+# 'brand': 'renault',
+# 'model': 'logan',
+# 'mileage': '123',
+# 'state': 'Новая',
+# 'color': 'pink',
+# 'engine_type': 'engine_type-china',
+# 'year_of_release': 'year_of_release-madrid',
+# 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fcarsweek.ru%2Fupload%2F2021%2F%25D0%259E%25D0%25BA%25D1%2582%25D1%258F%25D0%25B1%25D1%2580%25D1%258C%2F10%2F2.jpg&lr=172&pos=0&rpt=simage&text=reno',
+# 'complectation': 'complectation-uzbekistan',
+# 'price': '300000'
+# }
+#
+#
+# kamaz = {
+# 'seller_id': sellers[0],
+# 'brand': 'kamaz',
+# 'model': 'big',
+# 'mileage': '0',
+# 'state': 'Новая',
+# 'color': 'orange',
+# 'engine_type': 'engine_type-europa',
+# 'year_of_release': 'year_of_release-america',
+# 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fautobagi.lt%2Fimages%2FKamaz%2Fsavivarciai%2F65115%2F3.jpg&lr=172&pos=2&rpt=simage&text=kamaz',
+# 'complectation': 'complectation-francia',
+# 'price': '20000000'
+# }
+#
 # new_cars = [kamaz, toyota, bmw, reno]
 #
 # a = CommodityRequester.store_data(new_cars)
 
 
-cars = CommodityRequester.retrieve_all_data()
+# cars = CommodityRequester.retrieve_all_data()

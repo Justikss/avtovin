@@ -32,6 +32,10 @@ LEXICON = {
 
 
     'button_confirm_from_seller': 'Подтвердить',
-    'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>', 'return_main_menu': 'В меню', 'width': 2}
+    'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>', 'return_from_offers_history': 'В меню', 'width': 2},
 
-                }
+    'show_offers_history': {'no_more_pages': 'Больше нет страниц', 'no_less_pages': 'Позади нет страниц', 'history_not_found': 'История запросов пуста'},
+    'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Стоимость', 'dealship_contacts': 'Контакты салона',
+                    'individual': 'Частное лицо', 'individual_contacts': 'Контакты'}
+}
+
