@@ -1,7 +1,7 @@
 import asyncio
 
 from loader import *
-import handlers  # noqa
+import handlers
 
 
 

@@ -2,6 +2,7 @@ import json
 from typing import Union
 
 import redis
+import aioredis
 
 
 class RedisRequester:
@@ -26,13 +27,14 @@ class RedisRequester:
 
                     value = json.dumps(value)
 
-                self.redis_base.set(key, value)
-                if self.redis_base.get(key) == value:
+                await self.redis_base.set(key, value)
+                value_is_set = await self.redis_base.get(key) == value
+                if value_is_set:
                     print('good', {key: value})
                     pass
                 else:
                     print('error', {key: value})
-                    self.redis_base.close()
+                    await self.redis_base.close()
                     return False
 
             self.redis_base.close()
@@ -41,13 +43,14 @@ class RedisRequester:
             if type(value) not in (int, float, str):
                 value = json.dumps(value)
 
-            self.redis_base.set(key, value)
-            if self.redis_base.get(key) == value:
-                self.redis_base.close()
+            await self.redis_base.set(key, value)
+            value_is_set = await self.redis_base.get(key) == value
+            if value_is_set:
+                await self.redis_base.close()
                 print('good', {key: value})
                 return True
             else:
-                self.redis_base.close()
+                await self.redis_base.close()
                 print('error', {key: value})
                 return False
 

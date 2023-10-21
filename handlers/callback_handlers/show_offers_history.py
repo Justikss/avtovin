@@ -167,26 +167,27 @@ async def get_offers_history(callback: CallbackQuery):
     last_message = await redis_module.redis_data.get_data(
         key=str(callback.from_user.id) + ':last_message')
 
-
-
     offers = OffersRequester.get_for_buyer_id(buyer_id=callback.from_user.id)
-    offers_stack = await format_history_data(offers_for_user=offers)
-    redis_value = (0, False, offers_stack)
-    redis_key = str(callback.from_user.id) + ':history_stack'
-
-    if offers:
-        await callback.message.chat.delete_message(message_id=last_message)  # Зарегать сюда собщение кнопочного оутпута
-
-        await redis_module.redis_data.set_data(key=redis_key, value=redis_value)
-
-        # test_res = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
-        # print(test_res)
-
-        await history_view_system(callback=callback, vector='right', start_flag=True)
-
-        await callback.answer(last_message)
+    if not offers:
+        await callback.answer(LEXICON["buyer_haven't_confirm_offers"])
     else:
-        await callback.answer(lexicon_part['history_not_found'])
+        offers_stack = await format_history_data(offers_for_user=offers)
+        redis_value = (0, False, offers_stack)
+        redis_key = str(callback.from_user.id) + ':history_stack'
+
+        if offers:
+            await callback.message.chat.delete_message(message_id=last_message)  # Зарегать сюда собщение кнопочного оутпута
+
+            await redis_module.redis_data.set_data(key=redis_key, value=redis_value)
+
+            # test_res = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
+            # print(test_res)
+
+            await history_view_system(callback=callback, vector='right', start_flag=True)
+
+            await callback.answer(last_message)
+        else:
+            await callback.answer(lexicon_part['history_not_found'])
 
 
 '''Обработчики пагинации'''

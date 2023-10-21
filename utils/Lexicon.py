@@ -1,3 +1,5 @@
+from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
+
 LEXICON = {
     'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': 'Uzb', 'language_ru': "Rus", 'width': 2},
     'hello_text': {'message_text': 'Приветственное сообщение', 'start_sell': 'Продажа', 'start_buy': 'Покупка', 'width': 2},
@@ -7,6 +9,10 @@ LEXICON = {
     'write_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +', 'backward': 'Назад', 'width': 1},
     'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
     'main_menu': {'message_text': 'Меню', 'offers_to_user': 'Предложения', 'car_search': 'Поиск Авто', 'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward': 'Назад', 'width': 2},
+    'f_a_q': {'message_text': 'Ответы на часто задаваемые вопросы:', 'return_main_menu': 'В меню', 'width': 1},
+    'tech_support': {'message_text': 'Выберите ваше действие', 'write_to_support': 'Написать', 'call_to_support': 'Позвонить', 'width': 2, 'return_main_menu': 'В меню'},
+    'write_to_support': {'message_text': SUPPORT_TELEGRAM, 'backward:support': 'Назад', 'width': 1},
+    'call_to_support': {'message_text': SUPPORT_NUMBER, 'backward:support': 'Назад', 'width': 1},
 
     'search_car': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У', 'return_main_menu': 'В меню', 'width': 2},
     'cars_not_found': {'message_text': 'К сожалению автомобилей этого класса нет на витрине.', 'backward': 'Назад', 'return_main_menu': 'В меню', 'width': 1},
@@ -41,7 +47,7 @@ LEXICON = {
                     'individual': 'Частное лицо', 'individual_contacts': 'Контакты'},
 
 
-
+    "buyer_haven't_confirm_offers": 'История запросов пуста',
     "seller_haven't_this_car": 'У вас не продаётся такой автомобиль'
 }
 
