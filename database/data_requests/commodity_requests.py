@@ -4,7 +4,7 @@ from peewee import IntegrityError
 
 from database.tables.commodity import Commodity
 from database.tables.start_tables import db
-# from database.data_requests.person_requests import sellers, buyer
+from database.data_requests.person_requests import sellers, buyer
 
 class CommodityRequester:
     @staticmethod
@@ -102,7 +102,7 @@ class CommodityRequester:
 # 'complectation': 'complectation-america',
 # 'price': '750000'
 # }
-#
+
 # bmw = {
 # 'seller_id': sellers[0],
 # 'brand': 'bmw',
@@ -145,10 +145,10 @@ class CommodityRequester:
 # 'complectation': 'complectation-francia',
 # 'price': '20000000'
 # }
-#
+
 # new_cars = [kamaz, toyota, bmw, reno]
 #
 # a = CommodityRequester.store_data(new_cars)
 
 
-# cars = CommodityRequester.retrieve_all_data()
+cars = CommodityRequester.retrieve_all_data()

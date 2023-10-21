@@ -9,6 +9,7 @@ LEXICON = {
     'main_menu': {'message_text': 'Меню', 'offers_to_user': 'Предложения', 'car_search': 'Поиск Авто', 'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward': 'Назад', 'width': 2},
 
     'search_car': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У', 'return_main_menu': 'В меню', 'width': 2},
+    'cars_not_found': {'message_text': 'К сожалению автомобилей этого класса нет на витрине.', 'backward': 'Назад', 'return_main_menu': 'В меню', 'width': 1},
 
     'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать', 'backward': 'Назад', 'width': 1},
 
@@ -37,7 +38,10 @@ LEXICON = {
 
     'show_offers_history': {'no_more_pages': 'Больше нет страниц', 'no_less_pages': 'Позади нет страниц', 'history_not_found': 'История запросов пуста'},
     'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Стоимость', 'dealship_contacts': 'Контакты салона',
-                    'individual': 'Частное лицо', 'individual_contacts': 'Контакты'}
+                    'individual': 'Частное лицо', 'individual_contacts': 'Контакты'},
 
+
+
+    "seller_haven't_this_car": 'У вас не продаётся такой автомобиль'
 }
 

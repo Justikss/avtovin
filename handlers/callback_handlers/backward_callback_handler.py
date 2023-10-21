@@ -12,8 +12,10 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
     inline_creator = importlib.import_module('keyboards.inline.kb_creator')  # Ленивый импорт
 
     memory_data = await state.get_data()
-    if memory_data.get('last_lexicon_code'):
-        last_lexicon_code = memory_data['last_lexicon_code']
+    last_lexicon_code = memory_data.get('last_lexicon_code')
+    if last_lexicon_code:
+        if last_lexicon_code.endswith('(incorrect)'):
+            last_lexicon_code = str(last_lexicon_code.split('(')[0])
         last_state = memory_data['last_state']
         await state.set_state(last_state)
         await state.update_data(last_lexicon_code=None)

@@ -4,9 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 
-from database.data_requests.commodity_requests import CommodityRequester #, cars
-# from database.data_requests.person_requests import buyer, sellers
-# from database.tables.offers_history import ActiveOffers
+from database.data_requests.commodity_requests import CommodityRequester, cars
+from database.data_requests.person_requests import buyer, sellers
+from database.tables.offers_history import ActiveOffers
 
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
@@ -14,8 +14,8 @@ from handlers.state_handlers.choose_car_for_buy.new_car_handlers import cache_st
 
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[0])
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[3])
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[1])
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[2])
+#ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[1])
+#ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[2])
 
 async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт

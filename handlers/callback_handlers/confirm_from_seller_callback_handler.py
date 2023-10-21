@@ -2,6 +2,7 @@ from aiogram.types import CallbackQuery
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import CommodityRequester
 from handlers.callback_handlers.callback_handler_start_buy import PersonRequester
 from database.data_requests.offers_requests import OffersRequester
+from utils.Lexicon import LEXICON
 
 
 async def confirm_from_seller(callback: CallbackQuery):
@@ -16,7 +17,7 @@ async def confirm_from_seller(callback: CallbackQuery):
 
     need_car = CommodityRequester.get_car_for_offer(seller_id=seller_id, car_range_id=cars_id_range)
     if not need_car:
-        await callback.answer(text='У вас не продаётся такой автомобиль')
+        await callback.answer(text=LEXICON["seller_haven't_this_car"])
         return
 
     buyer_person = PersonRequester.get_user_for_id(user_id=buyer_id, user=True)

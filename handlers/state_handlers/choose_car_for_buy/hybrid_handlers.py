@@ -29,6 +29,10 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
         commodity_state = 'Новая'
 
     models_range = CommodityRequester.get_for_request(state=commodity_state)
+    if not models_range:
+        return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found')
+
+
     await state.update_data(cars_state=commodity_state)
 
     await state.update_data(cars_class=commodity_state)
