@@ -2,6 +2,9 @@ import importlib
 
 from aiogram.types import CallbackQuery
 
+async def testor(callback: CallbackQuery):
+    print(callback.data)
+
 async def call_to_support_callback_handler(callback: CallbackQuery):
     '''Обработчик кнопки "позвонить в поддержку"'''
     message_editor = importlib.import_module('handlers.message_editor')

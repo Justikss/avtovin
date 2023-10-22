@@ -13,7 +13,7 @@ async def bot_start(message: Message, state: FSMContext):
 
     await state.clear()
     await message.delete()
-    user_id = message.from_user.id
+    # user_id = message.from_user.id
     # redis_key = str(user_id) + ':last_message'
     #
 

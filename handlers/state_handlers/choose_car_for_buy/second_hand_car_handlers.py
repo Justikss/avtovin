@@ -14,8 +14,8 @@ from handlers.state_handlers.choose_car_for_buy.new_car_handlers import cache_st
 
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[0])
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[3])
-#ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[1])
-#ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[2])
+# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[1])
+# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[2])
 
 async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -35,7 +35,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
 
     button_texts = {car.year_of_release for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_year_of_release', button_texts=button_texts,
-                                     callback_sign='cars_year_of_release:')
+                                     callback_sign='cars_year_of_release:', lexicon_cache=False)
 
     await state.set_state(SecondHandChooseStates.select_mileage)
 
@@ -59,12 +59,13 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
 
     button_texts = {str(car.mileage) for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_mileage', button_texts=button_texts,
-                                     callback_sign='cars_mileage:')
+                                     callback_sign='cars_mileage:', lexicon_cache=False)
 
     await state.set_state(SecondHandChooseStates.select_color)
 
 
 async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
+    print('pre-true')
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await cache_state(callback=callback, state=state)
@@ -84,6 +85,6 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
     button_texts = {car.color for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_color', button_texts=button_texts,
-                                     callback_sign='cars_color:')
+                                     callback_sign='cars_color:', lexicon_cache=False)
 
     await state.set_state(HybridChooseStates.config_output)

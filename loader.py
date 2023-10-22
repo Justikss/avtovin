@@ -1,3 +1,4 @@
+# import aioredis
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
@@ -43,8 +44,8 @@ async def start_bot():
 
 
     '''обраюотка Сообщений'''
-    dp.message.register(start.bot_start, Command(commands=["start"]))
-    dp.message.register(help.bot_help, Command(commands=["help"]))
+    dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))
+    # dp.message.register(help.bot_help, Command(commands=["help"]))
 
     '''Состояния ргеистрации'''
     dp.callback_query.register(buyer_registration_handlers.input_full_name,
@@ -54,17 +55,20 @@ async def start_bot():
     dp.message.register(buyer_registration_handlers.finish_check_phone_number,
                         StateFilter(BuyerRegistationStates.finish_check_phone_number))
     '''обработка Коллбэков'''
+    # dp.callback_query.register(FAQ_tech_support.testor)
     dp.callback_query.register(FAQ_tech_support.tech_support_callback_handler, F.data == 'support')
     dp.callback_query.register(FAQ_tech_support.write_to_support_callback_handler, F.data == 'write_to_support')
     dp.callback_query.register(FAQ_tech_support.call_to_support_callback_handler, F.data == 'call_to_support')
     dp.callback_query.register(FAQ_tech_support.FAQ_callback_handler, F.data == 'faq')
 
+    dp.callback_query.register(callback_handler_backward_in_carpooling.backward_in_carpooling_handler,
+                               F.data == 'backward_in_carpooling')
     dp.callback_query.register(language_callback_handler.set_language,
                                F.data.in_(('language_uz', 'language_ru')))
     dp.callback_query.register(callback_handler_start_buy.start_buy,
                                F.data == 'start_buy')
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
-                               F.data.in_(('backward', 'backward:support')))
+                               lambda callback: callback.data.startswith('backward'))
     dp.callback_query.register(search_auto_handler.search_auto_callback_handler,
                                F.data == 'car_search')
     dp.callback_query.register(search_auto_handler.search_configuration_handler,
@@ -83,8 +87,7 @@ async def start_bot():
     dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
                                F.data == 'return_from_offers_history')
 
-    dp.callback_query.register(callback_handler_backward_in_carpooling.backward_in_carpooling_handler,
-                               F.data == 'backward_in_carpooling')
+
 
     '''Состояния поиска машины'''
     '''hybrid'''

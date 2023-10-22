@@ -42,24 +42,40 @@ async def load_user_in_database(memory_dict, number, message: Message):
 
 
 async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext, current_is_incorrect=False):
+    redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+
     if isinstance(request, Message):
         message = request
     else:
         message = request.message
 
     memory_data = await state.get_data()
-    last_user_answer = memory_data.get('last_user_answer')
+    if message.message_id:
+        await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
+        last_user_answer = message.message_id
+    else:
+        last_user_answer = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':current_user_message')
+
     incorrect_flag = memory_data.get('incorrect_answer')
     print(memory_data)
-    if last_user_answer:
-        print('try delete last')
-        await message.bot.delete_message(chat_id=message.chat.id, message_id=last_user_answer)
-        await state.update_data(last_user_answer=0)
+    # if last_user_answer:
+    #     print('try delete last')
+    #     await message.bot.delete_message(chat_id=message.chat.id, message_id=last_user_answer)
+
+
+
     # if not incorrect_flag:
     #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     if incorrect_flag:
+        if last_user_answer:
+            await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
+                                                    value=message.message_id)
+        #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+
         print('current_add')
-        await state.update_data(last_user_answer=message.message_id)
+        await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
+
+        # await state.update_data(last_user_answer=message.message_id)
         await state.update_data(incorrect_answer=False)
 
     print(current_is_incorrect, last_user_answer)
@@ -74,9 +90,12 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
 async def input_full_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False):
     await state.update_data(incorrect_answer=False)
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+
 
     memory_storage = await state.get_data()
-    message_id = memory_storage['last_message']
+    message_id = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_message')
+
     if incorrect:
         lexicon_code = 'write_full_name(incorrect)'
         await state.update_data(incorrect_answer=True)
@@ -84,6 +103,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
 
     else:
         lexicon_code = 'write_full_name'
+        await state.update_data(incorrect_answer=False)
 
         await chat.Chat.delete_message(self=request.message.chat, message_id=message_id)
 
@@ -106,10 +126,12 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
         message = request
     if incorrect:
         message_object = await message.reply(text=message_text, reply_markup=keyboard)
+        await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message', value=message.message_id)
+
     else:
         message_object = await message.answer(text=message_text, reply_markup=keyboard)
 
-    await state.update_data(last_message=message_object.message_id)
+    await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_message', value=message_object.message_id)
     await state.set_state(BuyerRegistationStates.input_phone_number)
 
 async def input_phone_number(message: Message, state: FSMContext, incorrect=False, user_name: str = None):
@@ -117,7 +139,7 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=Fals
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
     memory_storage = await state.get_data()
-    message_id = memory_storage['last_message']
+    message_id = await redis_module.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
 
     await chat.Chat.delete_message(self=message.chat, message_id=message_id)
 
@@ -130,6 +152,7 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=Fals
 
     else:
         await message.delete()
+        await state.update_data(incorrect_answer=False)
         lexicon_code = 'write_phone_number'
 
     await registartion_view_corrector(request=message, state=state)
@@ -146,14 +169,17 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=Fals
     keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
     if incorrect:
         message_object = await message.reply(text=message_text, reply_markup=keyboard)
+        await redis_module.redis_data.set_data(key=str(message.from_user.id) + ':last_user_message',
+                                               value=message.message_id)
     else:
         message_object = await message.answer(text=message_text, reply_markup=keyboard)
+
+
 
     user_id = message.from_user.id
     redis_key = str(user_id) + ':last_message'
     await redis_module.redis_data.set_data(redis_key, message_object.message_id)
 
-    await state.update_data(last_message=message_object.message_id)
     await state.set_state(BuyerRegistationStates.finish_check_phone_number)
 
 
@@ -163,6 +189,7 @@ async def finish_check_phone_number(message: Message, state: FSMContext):
     user_id = message.from_user.id
     redis_key = str(user_id) + ':language'
     country = await redis_module.redis_data.get_data(key=redis_key)
+    print(country)
 
     try:
         input_number = phonenumbers.parse(message.text, country)

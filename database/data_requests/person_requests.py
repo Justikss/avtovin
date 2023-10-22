@@ -72,8 +72,8 @@ seller = [{'telegram_id': '902230076',
 
 
 
-# PersonRequester.store_data(seller, seller=True)
-#
+PersonRequester.store_data(seller, seller=True)
+
 sellers = PersonRequester.retrieve_all_data(seller=True)
 
 

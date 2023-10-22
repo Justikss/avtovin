@@ -14,7 +14,7 @@ from utils.Lexicon import LEXICON
 
 
 
-async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
+async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await cache_state(callback=callback, state=state, first=True)
@@ -30,7 +30,7 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
 
     models_range = CommodityRequester.get_for_request(state=commodity_state)
     if not models_range:
-        return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found')
+        return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found', lexicon_cache=False)
 
 
     await state.update_data(cars_state=commodity_state)
@@ -39,7 +39,7 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext):
 
     button_texts = {car.brand for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_brand',
-                                     button_texts=button_texts, callback_sign='cars_brand:')
+                                     button_texts=button_texts, callback_sign='cars_brand:', lexicon_cache=False)
 
     '''Кэширование для кнопки НАЗАД'''
     # await backward_in_carpooling_controller(callback=callback, state=state)
@@ -67,7 +67,7 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
 
     button_texts = {car.model for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_model', button_texts=button_texts,
-                                     callback_sign='cars_model:')
+                                     callback_sign='cars_model:', lexicon_cache=False)
 
     '''Кэширование для кнопки НАЗАД'''
     # await backward_in_carpooling_controller(callback=callback, state=state)
@@ -92,7 +92,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
     button_texts = {car.engine_type for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_engine_type', button_texts=button_texts,
-                                     callback_sign='cars_engine_type:')
+                                     callback_sign='cars_engine_type:', lexicon_cache=False)
 
     '''Кэширование для кнопки НАЗАД'''
     #await backward_in_carpooling_controller(callback=callback, state=state)

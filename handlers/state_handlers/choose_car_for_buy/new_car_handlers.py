@@ -10,7 +10,7 @@ from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_sta
 
 async def choose_complectation_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    print('pre-tarue')
     await cache_state(callback=callback, state=state)
 
     memory_storage = await state.get_data()
@@ -27,6 +27,6 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
 
     button_texts = {car.complectation for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_complectation', button_texts=button_texts,
-                                     callback_sign='cars_complectation:')
+                                     callback_sign='cars_complectation:', lexicon_cache=False)
 
     await state.set_state(HybridChooseStates.config_output)

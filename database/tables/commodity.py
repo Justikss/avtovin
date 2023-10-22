@@ -17,7 +17,7 @@ class Commodity(BaseModel):
     state = CharField()
     color = CharField(null=True)
     photo_url = CharField()
-    price = IntegerField(null=True)
+    price = IntegerField()
 
 
     class Meta:

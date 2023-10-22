@@ -2,6 +2,7 @@ import importlib
 import math
 from typing import List, Tuple, Any
 
+import aiogram.exceptions
 from aiogram.types import Message, CallbackQuery
 from database.data_requests.offers_requests import OffersRequester
 from utils.Lexicon import LEXICON
@@ -88,7 +89,6 @@ async def history_view_system(callback, vector=None, start_flag=None):
                                                               message_id=int(second_last_message_id))
 
 
-
                 pagination_redis_key = str(callback.from_user.id) + ':history_requests_pagination' + ':head'
                 keyboard = await inline_creator.InlineCreator.create_markup(input_data=LEXICON['buttons_history_output'])
 
@@ -102,13 +102,15 @@ async def history_view_system(callback, vector=None, start_flag=None):
                     head_message = await callback.message.answer(text=history_stack[message_block_index], reply_markup=keyboard)
                     await redis_module.redis_data.set_data(key=pagination_redis_key, value=head_message.message_id)
                 else:
-
-                    editable_message = await redis_module.redis_data.get_data(key=pagination_redis_key)
-                    await callback.message.bot.edit_message_text(
-                        chat_id=callback.message.chat.id,
-                        message_id=int(editable_message),
-                        text=history_stack[message_block_index],
-                        reply_markup=keyboard)
+                    try:
+                        editable_message = await redis_module.redis_data.get_data(key=pagination_redis_key)
+                        await callback.message.bot.edit_message_text(
+                            chat_id=callback.message.chat.id,
+                            message_id=int(editable_message),
+                            text=history_stack[message_block_index],
+                            reply_markup=keyboard)
+                    except aiogram.exceptions.TelegramBadRequest:
+                        await callback.answer()
 
                 if block_position_index in (0, 1):
                     resend_head_message = True
@@ -174,7 +176,7 @@ async def get_offers_history(callback: CallbackQuery):
         offers_stack = await format_history_data(offers_for_user=offers)
         redis_value = (0, False, offers_stack)
         redis_key = str(callback.from_user.id) + ':history_stack'
-
+        print('last', last_message)
         if offers:
             await callback.message.chat.delete_message(message_id=last_message)  # Зарегать сюда собщение кнопочного оутпута
 

@@ -19,7 +19,7 @@ async def search_auto_callback_handler(callback: CallbackQuery):
 async def search_configuration_handler(callback: CallbackQuery, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-    await message_editor.travel_editor.edit_message(lexicon_key='search_configuration', request=callback)
+    await message_editor.travel_editor.edit_message(lexicon_key='search_configuration', request=callback, lexicon_cache=False)
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':cars_type'
     await message_editor.redis_data.set_data(redis_key, callback.data)
