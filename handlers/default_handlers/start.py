@@ -13,6 +13,16 @@ async def bot_start(message: Message, state: FSMContext):
 
     await state.clear()
     await message.delete()
+
+    last_user_message = await redis_module.redis_data.get_data(key=str(message.from_user.id) + ':last_user_message')
+    if last_user_message:
+        try:
+            await message.chat.delete_message(message_id=last_user_message)
+        except:
+            await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
+
+        await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
+
     # user_id = message.from_user.id
     # redis_key = str(user_id) + ':last_message'
     #

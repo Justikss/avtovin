@@ -54,8 +54,8 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
                 lexicon_part = LEXICON[last_lexicon_code]
                 message_text = lexicon_part['message_text']
                 keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
-                await callback.message.answer(text=message_text, reply_markup=keyboard)
-
+                message_object = await callback.message.answer(text=message_text, reply_markup=keyboard)
+                await redis_storage.redis_data.set_data(key=str(user_id) + ':last_message', value = message_object.message_id)
 
     else:
 

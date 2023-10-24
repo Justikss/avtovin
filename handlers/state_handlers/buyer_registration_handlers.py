@@ -41,7 +41,7 @@ async def load_user_in_database(memory_dict, number, message: Message):
     PersonRequester.store_data(struct_for_database, user=True)
 
 
-async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext, current_is_incorrect=False):
+async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext):
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     if isinstance(request, Message):
@@ -50,11 +50,10 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
         message = request.message
 
     memory_data = await state.get_data()
-    if message.message_id:
-        await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
-        last_user_answer = message.message_id
-    else:
-        last_user_answer = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':current_user_message')
+    # if message.message_id:
+    #     last_user_answer = message.message_id
+    # else:
+    last_user_answer = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_user_message')
 
     incorrect_flag = memory_data.get('incorrect_answer')
     print(memory_data)
@@ -66,19 +65,31 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
 
     # if not incorrect_flag:
     #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    if incorrect_flag:
-        if last_user_answer:
+    if last_user_answer:
+        if incorrect_flag:
+            await message.chat.delete_message(message_id=last_user_answer)
             await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
                                                     value=message.message_id)
-        #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
 
-        print('current_add')
-        await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
+            # await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
+                #                                         value=message.message_id)
+            #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
 
-        # await state.update_data(last_user_answer=message.message_id)
-        await state.update_data(incorrect_answer=False)
+            print('current_add')
+            #await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
 
-    print(current_is_incorrect, last_user_answer)
+            # await state.update_data(last_user_answer=message.message_id)
+            await state.update_data(incorrect_answer=False)
+        else:
+            try:
+                await message.chat.delete_message(message_id=last_user_answer)
+                await redis_storage.redis_data.delete_key(key=str(request.from_user.id) + ':last_user_message')
+
+            except:
+                await message.chat.delete_message(message_id=message.message_id)
+    # elif not incorrect_flag:
+
+    print(last_user_answer)
 
     # await state.update_data(current_user_answer=message.message_id)
 
@@ -104,9 +115,10 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
     else:
         lexicon_code = 'write_full_name'
         await state.update_data(incorrect_answer=False)
-
+        #try:
         await chat.Chat.delete_message(self=request.message.chat, message_id=message_id)
-
+        # except:
+        #     pass
 
     lexicon_part = LEXICON[lexicon_code]
 
