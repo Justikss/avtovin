@@ -49,7 +49,7 @@ LEXICON = {
                 'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
                                  'model': 'Модель: ',
                                  'brand': 'Марка: ', 'complectation': 'Комплектация: ',
-                                 'cost': 'Стоимость: ~', 'mileage': 'Пробег: ', 'year': 'Год: ',
+                                 'cost': 'Ориентировочная стоимость: ~', 'mileage': 'Пробег: ', 'year': 'Год: ',
                                  'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
                 'backward_in_carpooling': 'Назад', 'width': 1},
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!',
@@ -60,9 +60,10 @@ LEXICON = {
                                        'return_from_offers_history': 'В меню', 'width': 2},
             'backward_name': 'Назад',
 
+
             'show_offers_history': {'no_more_pages': 'Больше нет страниц', 'no_less_pages': 'Позади нет страниц',
                                     'history_not_found': 'История запросов пуста'},
-            'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Стоимость',
+            'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Примерная цена',
                             'dealship_contacts': 'Контакты салона',
                             'individual': 'Частное лицо', 'individual_contacts': 'Контакты'},
 

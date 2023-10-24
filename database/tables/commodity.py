@@ -6,7 +6,7 @@ from database.tables.seller import Seller
 class Commodity(BaseModel):
     '''Таблица товаров.
     mileage = Числовое поле.'''
-    car_id = AutoField()
+    car_id = PrimaryKeyField()
     seller_id = ForeignKeyField(Seller, backref='commodities') #вставляется модель селлера
     brand = CharField()
     model = CharField()
@@ -21,6 +21,6 @@ class Commodity(BaseModel):
 
 
     class Meta:
-        db_table = 'Автомобили на продаже'
+        db_table = 'Автомобили'
 
 

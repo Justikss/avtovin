@@ -5,6 +5,7 @@ from peewee import IntegrityError
 from database.tables.commodity import Commodity
 from database.tables.start_tables import db
 from database.data_requests.person_requests import sellers, buyer
+import sqlite3
 
 class CommodityRequester:
     @staticmethod
@@ -13,7 +14,8 @@ class CommodityRequester:
         with db.atomic():
             '''Контекстный менеджер with обеспечит авто-закрытие после запроса.'''
             select_request = Commodity.select()
-            if list:
+            print(select_request)
+            if list(select_request):
                 return list(select_request)
             else:
                 return False
@@ -38,18 +40,42 @@ class CommodityRequester:
     def get_car_for_offer(seller_id: int, car_range_id: list):
         '''Получение моделей с определённым параметром state(Б/У or NEW)'''
         with db.atomic():
+            models = list()
             for car_id in car_range_id:
-                select_request = (
-                    Commodity
-                    .select()
-                    .where((Commodity.seller_id == seller_id) & (Commodity.car_id == car_id))
-                    # .order_by(-Commodity.id)  # Сортировка по убыванию ID для обратного порядка
-                )
-                if select_request:
-                    return list(select_request)
-        return False
+                models.append(Commodity.get_by_id(car_id))
+                print('pre-yes', models)
+            if models:
+                print(type(models[0].seller_id), models[0].seller_id)
+                models = [model for model in models if model.seller_id.telegram_id == seller_id]
+                print('pre-yes', models, type(seller_id), seller_id)
+
+                if models:
+                    print('yes', models)
+                    return models
+
+            return False
+
+            #
+            #
+            # result = list()
+            # for current_car_id in car_range_id:
+            #     print(current_car_id)
+            #     select_request = Commodity.select().where(
+            #                                     (Commodity.seller_id == seller_id) &
+            #                                     (Commodity.car_id == current_car_id)
+            #             )
+            #         # .order_by(-Commodity.id)  # Сортировка по убыванию ID для обратного порядка
+            #     print(select_request)
+            #     if list(select_request):
+            #         result.append(list(select_request)[0])
+            # if result:
+            #     return result
+            # else:
+            #     return False
         # print('res', list(select_request))
         # return list(select_request)
+
+
 
     @staticmethod
     def get_where_id(car_id: str):
@@ -57,6 +83,7 @@ class CommodityRequester:
         try:
             with db.atomic():
                 select_request = Commodity.select().where(Commodity.car_id == int(car_id))
+
                 return list(select_request)
         except Exception:
             return False
@@ -231,7 +258,20 @@ www = {
 
 new_cars = [bmww, ebw, bmw, bmwww, mbw, www, bmwA]
 
-a = CommodityRequester.store_data(new_cars)
+double_cars = www = {
+'seller_id': sellers[0],
+'brand': 'bmw',
+'model': 'e34',
+'engine_type': 'DWS',
+'state': 'Новая',
+'color': None,
+'mileage': None,
+'year_of_release': None,
+'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fsun9-39.userapi.com%2Fimpg%2F4RKwjC-Bqw_4qYk_yet0wkebDRKF-l29yGnGbA%2FuKCqfz0g8Ko.jpg%3Fsize%3D1280x853%26quality%3D96%26sign%3D288da2c93ca8f1ebd7b0bf11fb39825d%26c_uniq_tag%3D2bNkumiVDgQ36iCCoBJOHqFr6yhtVLrcLER_sYR15Jo%26type%3Dalbum&lr=172&pos=24&rpt=simage&text=BMW%20e34',
+'complectation': 'complectation1',
+'price': '200'
+}
+#a = CommodityRequester.store_data(double_cars)
 
 
 cars = CommodityRequester.retrieve_all_data()

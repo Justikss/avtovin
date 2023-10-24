@@ -138,11 +138,15 @@ async def format_history_data(offers_for_user: list) -> list:
     result_stack = list()
     lexicon_part = LEXICON['offer_parts']
     for offer in offers_for_user:
-        formatted_price = '{:,}'.format(offer.car.price).replace(',', '.')
+        offer_wire = await OffersRequester.get_wire_by_offer_id(offer.id)
+        offer_cars = [offer.car_id for offer in offer_wire]
+        car_price_sum = sum(car.price for car in offer_cars)
+        average_price = car_price_sum // len(offer_cars)
+        formatted_price = '{:,}'.format(average_price).replace(',', '.')
         dealship_name = offer.seller.dealship_name
         if dealship_name:
             result_text = f'''
-          🚘 {lexicon_part['dealship_name']}: {dealship_name}\n💰 {lexicon_part['car_price']}: {formatted_price}\n{lexicon_part['dealship_contacts']}:\n  - {offer.seller.phone_number}\n  - {offer.seller.dealship_address}
+          🚘 {lexicon_part['dealship_name']}: {dealship_name}\n💰 {lexicon_part['car_price']}: ~ {formatted_price}\n{lexicon_part['dealship_contacts']}:\n  - {offer.seller.phone_number}\n  - {offer.seller.dealship_address}
                         '''
         else:
             seller_full_name = offer.seller.surname + ' ' + offer.seller.name + ' ' + offer.seller.patronymic
@@ -169,7 +173,7 @@ async def get_offers_history(callback: CallbackQuery):
     last_message = await redis_module.redis_data.get_data(
         key=str(callback.from_user.id) + ':last_message')
 
-    offers = OffersRequester.get_for_buyer_id(buyer_id=callback.from_user.id)
+    offers = await OffersRequester.get_for_buyer_id(buyer_id=callback.from_user.id)
     if not offers:
         await callback.answer(LEXICON["buyer_haven't_confirm_offers"])
     else:

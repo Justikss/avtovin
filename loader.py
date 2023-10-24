@@ -4,6 +4,7 @@ from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from config_data.config import BOT_TOKEN
+from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from handlers.custom_filters.correct_name import CorrectName
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
@@ -19,13 +20,19 @@ from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
+from database.data_requests.offers_requests import OffersRequester
 
+# a = OffersRequester.store_data(buyer_id=902230076, seller_id=902230076, cars=[1, 2, 5])
+# print(a)
 
+# offer = ActiveOffers.get(ActiveOffers.id == 1)
+# related_cars = offer.offer_id
+# print(type(offer))
 
+#active_offer_to_car = [offer_wire for offer_wire in ActiveOffersToCars.get(ActiveOffersToCars.offer_id == 4)]
+# related_offer = active_offer_to_car.offer_id
 
-
-
-
+#print(active_offer_to_car)
 
 '''echo.router обязан последней позици.'''
 
