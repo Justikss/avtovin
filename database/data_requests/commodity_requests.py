@@ -95,29 +95,29 @@ class CommodityRequester:
         :request[dict]: Желаемый диапазон параметров модели'''
         print('infa', state, brand, model, engine_type, year_of_release, complectation, mileage, color)
         with db.atomic():
-            if not brand:
-                print('yes not brand')
+            if not engine_type:
+                print('yes not engine_type')
                 select_request = Commodity.select().where(Commodity.state == state)
 
-            elif brand and not model:
+            elif engine_type and not brand:
                 print('yes brand')
                 select_request = Commodity.select().where((Commodity.state == state) &
-                                                          (Commodity.brand == brand))
+                                                          (Commodity.engine_type == engine_type))
 
-            elif model and not engine_type:
+            elif brand and not model:
                 print('yes model')
                 select_request = Commodity.select().where((Commodity.state == state) &
                                                           (Commodity.brand == brand) &
-                                                          (Commodity.model == model))
+                                                          (Commodity.engine_type == engine_type))
 
-            elif engine_type and not complectation or year_of_release:
+            elif model and not complectation:
                 print('yes engine')
                 select_request = Commodity.select().where((Commodity.state == state) &
                                  (Commodity.brand == brand) &
                                  (Commodity.model == model) &
                                  (Commodity.engine_type == engine_type))
 
-            elif complectation:
+            elif complectation and not color:
 
                 print('yes_complectation')
                 select_request = Commodity.select().where((Commodity.state == state) &
@@ -125,22 +125,24 @@ class CommodityRequester:
                                  (Commodity.model == model) &
                                  (Commodity.engine_type == engine_type) &
                                  (Commodity.complectation == complectation))
-            elif year_of_release and not mileage:
+
+            elif color and not mileage:
                 print('yes year realise')
                 select_request = Commodity.select().where((Commodity.state == state) &
                                  (Commodity.brand == brand) &
                                  (Commodity.model == model) &
                                  (Commodity.engine_type == engine_type) &
-                                 (Commodity.year_of_release == year_of_release))
-            elif mileage and not color:
+                                 (Commodity.color == color))
+
+            elif mileage and not year_of_release:
                 print('yes mileage')
                 select_request = Commodity.select().where((Commodity.state == state) &
                                  (Commodity.brand == brand) &
                                  (Commodity.model == model) &
                                  (Commodity.engine_type == engine_type) &
-                                 (Commodity.year_of_release == year_of_release) &
+                                 (Commodity.color == color) &
                                  (Commodity.mileage == mileage))
-            elif color:
+            elif year_of_release:
                 print('yes color')
                 select_request = Commodity.select().where((Commodity.state == state) &
                                  (Commodity.brand == brand) &
@@ -150,9 +152,7 @@ class CommodityRequester:
                                  (Commodity.mileage == mileage) &
                                  (Commodity.color == color))
             else:
-                print('yes no')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                 (Commodity.brand == brand))
+                print('COMMMODITY REQUEEEEST ELSEEEEEEEEEE')
             print([comm.model for comm in list(select_request)])
             return list(select_request)
 
@@ -166,7 +166,7 @@ bmwA = {
 'engine_type': 'DWS',
 'year_of_release': '23',
 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fnetcarflix.sfo2.cdn.digitaloceanspaces.com%2F0000%2Fv3%2FBMW%2F64366b3d31a7f6873c2f1ed0%2F2020-x6-bmw-3jrus3llln10rxvy5no88s.jpeg&lr=172&pos=0&rpt=simage&text=bmw%20x6',
-'complectation': None,
+'complectation': 'complectation2',
 'price': '750000'
 }
 
@@ -180,7 +180,7 @@ bmww = {
 'engine_type': 'DWS',
 'year_of_release': '21',
 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fwallpapershome.com%2Fimages%2Fwallpapers%2Fbmw-m5-5120x2880-cars-2018-5k-17134.jpg&lr=172&noreask=1&pos=0&rpt=simage&text=BMW%20M5',
-'complectation': None,
+'complectation': 'complectation7',
 'price': '750000'
 }
 
@@ -194,7 +194,7 @@ ebw = {
 'engine_type': 'Hybrid',
 'year_of_release': '21',
 'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fhips.hearstapps.com%2Fhmg-prod%2Fimages%2F2020-bmw-m8-coupe-105-1559695155.jpg%3Fcrop%3D1.00xw%3A0.753xh%3B0%2C0.247xh%26amp%3Bresize%3D640%3A*&lr=172&pos=0&rpt=simage&text=BMW%20M8',
-'complectation': None,
+'complectation': 'complectation7',
 'price': '7000'
 }
 
@@ -271,7 +271,7 @@ double_cars = www = {
 'complectation': 'complectation1',
 'price': '200'
 }
-#a = CommodityRequester.store_data(double_cars)
-
+a = CommodityRequester.store_data(double_cars)
+b = CommodityRequester.store_data(new_cars)
 
 cars = CommodityRequester.retrieve_all_data()

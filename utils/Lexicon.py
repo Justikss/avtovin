@@ -33,10 +33,11 @@ LEXICON = {
             'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать',
                                      'backward': 'Назад', 'width': 1},
 
-            'choose_brand': {'message_text': 'Выберите марку', 'backward': 'Назад', 'width': 1},
+            'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward': 'Назад',
+                                               'width': 1},
+            'choose_brand': {'message_text': 'Выберите марку', 'backward_in_carpooling': 'Назад', 'width': 1},
             'choose_model': {'message_text': 'Выберите модель', 'backward_in_carpooling': 'Назад', 'width': 1},
-            'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward_in_carpooling': 'Назад',
-                                   'width': 1},
+
             'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward_in_carpooling': 'Назад',
                                      'width': 1},
 

@@ -23,5 +23,5 @@ async def search_configuration_handler(callback: CallbackQuery, state: FSMContex
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':cars_type'
     await message_editor.redis_data.set_data(redis_key, callback.data)
-    await state.set_state(HybridChooseStates.select_brand)
+    await state.set_state(HybridChooseStates.select_engine_type)
 

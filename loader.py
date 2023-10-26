@@ -98,35 +98,40 @@ async def start_bot():
 
     '''Состояния поиска машины'''
     '''hybrid'''
+    dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,
+                               and_f(F.data == 'start_configuration_search',
+                                     StateFilter(HybridChooseStates.select_engine_type)))
     dp.callback_query.register(hybrid_handlers.choose_brand_handler,
-                               F.data == 'start_configuration_search')
+                               and_f(lambda callback: callback.data.startswith('cars_engine_type'),
+                                    StateFilter(HybridChooseStates.select_brand)))
     dp.callback_query.register(hybrid_handlers.choose_model_handler,
                                and_f(lambda callback: callback.data.startswith('cars_brand'),
                                      StateFilter(HybridChooseStates.select_model)))
-    dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,
+    dp.callback_query.register(hybrid_handlers.choose_complectation_handler,
                                and_f(lambda callback: callback.data.startswith('cars_model'),
-                                     StateFilter(HybridChooseStates.select_engine_type)))
+                                     StateFilter(HybridChooseStates.select_complectation)))
+
     dp.callback_query.register(hybrid_handlers.search_config_output_handler,
-                               or_f(and_f(lambda callback: callback.data.startswith('cars_color'),
+                               or_f(and_f(lambda callback: callback.data.startswith('cars_year_of_release'),
                                           StateFilter(HybridChooseStates.config_output)),
                                     and_f(lambda callback: callback.data.startswith('cars_complectation'),
                                           StateFilter(HybridChooseStates.config_output))))
 
     '''new car'''
-    dp.callback_query.register(new_car_handlers.choose_complectation_handler,
-                               and_f(lambda callback: callback.data.startswith('cars_engine_type'),
-                                     StateFilter(NewCarChooseStates.select_complectation)))
+
 
     '''second hand car'''
-    dp.callback_query.register(second_hand_car_handlers.choose_year_of_release_handler,
-                               and_f(lambda callback: callback.data.startswith('cars_engine_type'),
-                                     StateFilter(SecondHandChooseStates.select_year)))
-    dp.callback_query.register(second_hand_car_handlers.choose_mileage_handler,
-                               and_f(lambda callback: callback.data.startswith('cars_year_of_release'),
-                                     StateFilter(SecondHandChooseStates.select_mileage)))
     dp.callback_query.register(second_hand_car_handlers.choose_color_handler,
-                               and_f(lambda callback: callback.data.startswith('cars_mileage'),
+                               and_f(lambda callback: callback.data.startswith('cars_complectation'),
                                      StateFilter(SecondHandChooseStates.select_color)))
+    dp.callback_query.register(second_hand_car_handlers.choose_mileage_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_color'),
+                                     StateFilter(SecondHandChooseStates.select_mileage)))
+    dp.callback_query.register(second_hand_car_handlers.choose_year_of_release_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_mileage'),
+                                     StateFilter(SecondHandChooseStates.select_year)))
+
+
 
 
     # dp.message.register(echo.bot_echo, StateFilter(default_state))

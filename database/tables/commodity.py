@@ -12,12 +12,13 @@ class Commodity(BaseModel):
     model = CharField()
     engine_type = CharField()
     year_of_release = CharField(null=True)
-    complectation = CharField(null=True)
+    complectation = CharField()
     mileage = IntegerField(null=True)
     state = CharField()
     color = CharField(null=True)
-    photo_url = CharField()
     price = IntegerField()
+    photo_url = CharField()
+
 
 
     class Meta:

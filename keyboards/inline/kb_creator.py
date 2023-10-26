@@ -20,7 +20,7 @@ class InlineCreator:
                 backward = {'backward_in_carpooling': input_data.get('backward_in_carpooling')}
             else:
                 backward = {'backward': input_data.get('backward')}
-
+            print(callback_sign, button_texts)
             input_data = {callback_sign+text: text for text in button_texts}
 
             if backward:
