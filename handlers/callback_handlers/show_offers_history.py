@@ -13,7 +13,6 @@ async def history_view_system(callback, vector=None, start_flag=None):
     inline_creator = importlib.import_module('keyboards.inline.kb_creator')  # Ленивый импорт
 
 
-
     lexicon_part = LEXICON['show_offers_history']
     print(lexicon_part)
     redis_key = str(callback.from_user.id) + ':history_stack'

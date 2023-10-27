@@ -53,8 +53,11 @@ LEXICON = {
                                  'cost': 'Ориентировочная стоимость: ~', 'mileage': 'Пробег: ', 'year': 'Год: ',
                                  'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
                 'backward_in_carpooling': 'Назад', 'width': 1},
+                
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!',
                                           'return_main_menu': 'В меню', 'width': 1},
+            'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.', 
+                                        'return_main_menu': 'В меню', 'width': 1},
 
             'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил заявку:',
             'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},

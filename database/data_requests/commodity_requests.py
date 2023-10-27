@@ -258,7 +258,7 @@ www = {
 
 new_cars = [bmww, ebw, bmw, bmwww, mbw, www, bmwA]
 
-double_cars = www = {
+double_cars = {
 'seller_id': sellers[0],
 'brand': 'bmw',
 'model': 'e34',
@@ -271,7 +271,24 @@ double_cars = www = {
 'complectation': 'complectation1',
 'price': '200'
 }
+
+truple_car = {
+'seller_id': sellers[0],
+'brand': 'bmw',
+'model': 'e34',
+'engine_type': 'DWS',
+'state': 'Новая',
+'color': None,
+'mileage': None,
+'year_of_release': None,
+'photo_url': 'https://yandex.ru/images/search?from=tabbar&img_url=https%3A%2F%2Fsun9-39.userapi.com%2Fimpg%2F4RKwjC-Bqw_4qYk_yet0wkebDRKF-l29yGnGbA%2FuKCqfz0g8Ko.jpg%3Fsize%3D1280x853%26quality%3D96%26sign%3D288da2c93ca8f1ebd7b0bf11fb39825d%26c_uniq_tag%3D2bNkumiVDgQ36iCCoBJOHqFr6yhtVLrcLER_sYR15Jo%26type%3Dalbum&lr=172&pos=24&rpt=simage&text=BMW%20e34',
+'complectation': 'complectation1',
+'price': '200000'
+}
+
 # a = CommodityRequester.store_data(double_cars)
 # b = CommodityRequester.store_data(new_cars)
+c = CommodityRequester.store_data(truple_car)
+
 
 cars = CommodityRequester.retrieve_all_data()

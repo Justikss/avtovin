@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardBut
 from config_data.config import DEAL_CHAT
 from utils.Lexicon import LEXICON
 from database.data_requests.person_requests import PersonRequester
+from database.data_requests.offers_requests import OffersRequester
 
 
 
@@ -41,14 +42,26 @@ async def output_for_seller_formater(callback: CallbackQuery, state: FSMContext)
 
 
 async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
+    '''Обработка подтверждения(от пользователя) поисковых настроек на покупку автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     redis_data = importlib.import_module('utils.redis_for_language')
-
     memory_data = await state.get_data()
     cars_id_range = memory_data.get('offer_cars_range')
+
+    match_result = await OffersRequester.match_check(user_id=callback.from_user.id, cars_id_range=cars_id_range)
+
+    if not match_result:
+        print('match was be')
+        lexicon_key = 'buy_configuration_error'
+    else:
+        lexicon_key = 'confirm_buy_configuration'
+        cars_id_range = match_result
+
     buyer_id = memory_data.get('buyer_id')
     await state.clear()
-    await message_editor.travel_editor.edit_message(lexicon_key='confirm_buy_configuration', request=callback, delete_mode=True)
+    await message_editor.travel_editor.edit_message(lexicon_key=lexicon_key, request=callback, delete_mode=True)
+    if not match_result:
+        return
 
     cars_id_range = ':'.join(cars_id_range)
     lexicon_part = LEXICON['confirm_from_seller']
