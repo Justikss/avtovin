@@ -12,6 +12,7 @@ from database.data_requests.offers_requests import OffersRequester
 async def output_for_seller_formater(callback: CallbackQuery, state: FSMContext) -> str:
     '''Формирование строки для вывода запроса в чат селлера'''
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
 
     lexicon_part = LEXICON['chosen_configuration']['message_text']
@@ -22,6 +23,9 @@ async def output_for_seller_formater(callback: CallbackQuery, state: FSMContext)
     print(for_seller_lexicon_part)
     print(lexicon_part['cost'], memory_storage['average_cost'])
     person_model = PersonRequester.get_user_for_id(user_id=callback.from_user.id, user=True)
+    if not person_model:
+        await message_editor.travel_editor.edit_message(requet=callback, lexicon_key='buy_configuration_non_registration')
+        return
     person_model = person_model[0]
     contact_number = person_model.phone_number
     redis_key = str(callback.from_user.id) + ':cars_type'

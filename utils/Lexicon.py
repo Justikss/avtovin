@@ -58,6 +58,7 @@ LEXICON = {
                                           'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.', 
                                         'return_main_menu': 'В меню', 'width': 1},
+            'buy_configuration_non_registration': {'message_text': 'Ошибка. Ваш аккаунт незарегестрирован\nНажмите /start'},
 
             'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил заявку:',
             'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},

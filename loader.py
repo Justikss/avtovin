@@ -20,7 +20,8 @@ from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
-from database.data_requests.offers_requests import OffersRequester
+# from database.data_requests.offers_requests import OffersRequester
+# from database.data_requests.person_requests import PersonRequester
 
 # a = OffersRequester.store_data(buyer_id=902230076, seller_id=902230076, cars=[1, 2, 5])
 # print(a)
@@ -33,6 +34,7 @@ from database.data_requests.offers_requests import OffersRequester
 # related_offer = active_offer_to_car.offer_id
 
 #print(active_offer_to_car)
+
 
 '''echo.router обязан последней позици.'''
 

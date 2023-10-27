@@ -286,9 +286,9 @@ truple_car = {
 'price': '200000'
 }
 
-# a = CommodityRequester.store_data(double_cars)
-# b = CommodityRequester.store_data(new_cars)
-c = CommodityRequester.store_data(truple_car)
+a = CommodityRequester.store_data(double_cars)
+b = CommodityRequester.store_data(new_cars)
+# c = CommodityRequester.store_data(truple_car)
 
 
 cars = CommodityRequester.retrieve_all_data()
