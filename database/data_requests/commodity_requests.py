@@ -271,7 +271,7 @@ double_cars = www = {
 'complectation': 'complectation1',
 'price': '200'
 }
-a = CommodityRequester.store_data(double_cars)
-b = CommodityRequester.store_data(new_cars)
+# a = CommodityRequester.store_data(double_cars)
+# b = CommodityRequester.store_data(new_cars)
 
 cars = CommodityRequester.retrieve_all_data()

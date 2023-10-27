@@ -17,6 +17,25 @@ class BuyerRegistationStates(StatesGroup):
     finish_check_phone_number = State()
 
 
+# async def number_is_valid(number, country):
+#     '''Проверка номера на валидность, учитывая выбранный регион
+#     [number]: Вводимый номер
+#     [country]: Выбраная страна'''
+#     input_number = phonenumbers.parse(number, country)
+#     number_is_valid = phonenumbers.is_valid_number(input_number)
+#     if number_is_valid:
+#
+#         number = [element for element in number if (element.isdigit() or element == '+')]
+#         number = ''.join(number)
+#         if number.startswith('+7') and country.lower() == 'ru' and len(number) == 12:
+#             formatted_phone_number = ' '.join([number[:4], number[4:7], number[7:]])
+#             return formatted_phone_number
+#         elif number.startswith('+998') and country.lower() == 'uz' and len(number) == 14:
+#             formatted_phone_number = ' '.join([number[:2], number[2:5], number[5:]])
+#             return formatted_phone_number
+#
+#     return False
+
 async def elements_is_alpha(string: list) -> bool:
     '''Проверка списка из слов: состоян ли они только из букв'''
     for word in string:
@@ -201,16 +220,23 @@ async def finish_check_phone_number(message: Message, state: FSMContext):
     user_id = message.from_user.id
     redis_key = str(user_id) + ':language'
     country = await redis_module.redis_data.get_data(key=redis_key)
+    number = message.text
+
     print(country)
 
     try:
-        input_number = phonenumbers.parse(message.text, country)
+
+        input_number = phonenumbers.parse(number, country)
         number_is_valid = phonenumbers.is_valid_number(input_number)
+
+
+
         if number_is_valid:
+
             await message.delete()
             await registartion_view_corrector(request=message, state=state)
             memory_storage = await state.get_data()
-            await load_user_in_database(memory_storage, input_number, message)
+            await load_user_in_database(memory_storage, number, message)
 
             await state.clear()
 

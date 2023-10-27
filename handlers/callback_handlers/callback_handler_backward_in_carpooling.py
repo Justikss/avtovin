@@ -17,6 +17,7 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
 
     states_stack.pop()
     last_state = states_stack[-1]
+    print('last state', last_state)
     await redis_module.redis_data.set_data(key=redis_key, value=states_stack)
     await state.set_state(last_state)
     if last_state == 'HybridChooseStates:select_engine_type':
@@ -38,8 +39,10 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
     elif last_state == 'SecondHandChooseStates:select_mileage':
         await second_hand_car_handlers.choose_mileage_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'SecondHandChooseStates:select_color':
+        print('select_color')
         await second_hand_car_handlers.choose_color_handler(callback=callback, state=state, first_call=False)
-    elif last_state == 'NewCarChooseStates:select_complectation':
+    elif last_state == 'HybridChooseStates:select_complectation':
+        print('select_complect')
         await hybrid_handlers.choose_complectation_handler(callback=callback, state=state, first_call=False)
 
     await callback.answer()

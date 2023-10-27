@@ -180,8 +180,10 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
 
 async def search_config_output_handler(callback: CallbackQuery, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    redis_module = importlib.import_module('utils.redis_for_language')
 
     await cache_state(callback=callback, state=state)
+    redis_key = str(callback.from_user.id) + ':selected_search_buy_config'
 
     memory_storage = await state.get_data()
     user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
@@ -194,7 +196,8 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
                                                           engine_type=memory_storage['cars_engine_type'],
                                                           year_of_release=user_answer,
                                                           mileage=memory_storage['cars_mileage'],
-                                                          color=memory_storage['cars_color'])
+                                                          color=memory_storage['cars_color'],
+                                                          complectation=str(memory_storage['cars_complectation']))
 
         brand = str(memory_storage['cars_brand'])
         model = str(memory_storage['cars_model'])
@@ -203,6 +206,8 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
         mileage = str(memory_storage['cars_mileage'])
         color = str(memory_storage['cars_color'])
         complectation = str(memory_storage['cars_complectation'])
+
+        redis_value = {'cars_year_of_release': year, 'cars_brand': brand, 'cars_model': model, 'cars_engine_type': engine, 'cars_mileage': mileage, 'cars_color': color, 'cars_complectation': complectation}
 
     elif memory_storage['cars_class'] == 'Новая':
         await state.update_data(cars_complectation=user_answer)
@@ -221,7 +226,11 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
         mileage = None
         color = None
 
+        redis_value = {'cars_year_of_release': None, 'cars_brand': brand, 'cars_model': model, 'cars_engine_type': engine, 'cars_mileage': None, 'cars_color': None, 'cars_complectation': complectation}
+        
+    
     average_cost = sum(car.price for car in result_model) // len(result_model)
+    await state.update_data(average_cost=average_cost)
     print(model)
     formatted_config_output = await string_for_output(callback=callback,
                                                       average_cost=average_cost,
@@ -229,6 +238,10 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
                                                       color=color, brand=brand,
                                                       model=model, engine=engine,
                                                       complectation=complectation)
+
+    redis_value['average_cost'] = average_cost
+    await redis_module.redis_data.set_data(key=redis_key, value=redis_value)
+
 
     range_car_id = [str(car.car_id) for car in result_model]
     await state.update_data(offer_cars_range=range_car_id)

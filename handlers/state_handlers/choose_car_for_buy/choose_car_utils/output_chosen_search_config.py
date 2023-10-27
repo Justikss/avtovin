@@ -18,7 +18,7 @@ async def string_for_output(callback: CallbackQuery, engine, model,
 
     if cars_state == 'second_hand_cars':
         result_string = f'''
-            {message_text['your_configs']}\n{message_text['engine_type']} {engine}\n{message_text['color']} {color}\n{message_text['model']} {model}\n{message_text['brand']} {brand}\n{message_text['year']} {year}\n{message_text['mileage']} {mileage}'''
+            {message_text['your_configs']}\n{message_text['engine_type']} {engine}\n{message_text['color']} {color}\n{message_text['model']} {model}\n{message_text['brand']} {brand}\n{message_text['complectation']} {complectation}\n{message_text['year']} {year}\n{message_text['mileage']} {mileage}\n{message_text['cost']} {average_cost}'''
 
     elif cars_state == 'new_cars':
         result_string = f'''

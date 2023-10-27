@@ -56,7 +56,9 @@ LEXICON = {
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!',
                                           'return_main_menu': 'В меню', 'width': 1},
 
-            'button_confirm_from_seller': 'Подтвердить',
+            'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил заявку:',
+            'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},
+
             'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>',
                                        'return_from_offers_history': 'В меню', 'width': 2},
             'backward_name': 'Назад',
@@ -69,7 +71,9 @@ LEXICON = {
                             'individual': 'Частное лицо', 'individual_contacts': 'Контакты'},
 
             "buyer_haven't_confirm_offers": 'История запросов пуста',
-            "seller_haven't_this_car": 'У вас не продаётся такой автомобиль'
+            "seller_haven't_this_car": 'У вас не продаётся такой автомобиль',
+
+
         }
 
 # class LEXICON:

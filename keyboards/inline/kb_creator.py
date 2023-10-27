@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple, Set
+from typing import List, Dict, Tuple, Set, Union
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -8,7 +8,7 @@ from utils.Lexicon import LEXICON
 
 class InlineCreator:
     @staticmethod
-    async def create_markup(input_data: Dict[str, str | int],
+    async def create_markup(input_data: Dict[str, Union[str, int]],
                             button_texts: Set[str] = None, callback_sign: str = None):
         kbuilder = InlineKeyboardBuilder()
         buttons = list()
