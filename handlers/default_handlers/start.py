@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from utils.Lexicon import LEXICON
 from handlers.message_editor import InlineCreator
-from handlers.callback_handlers.language_callback_handler import redis_data
+from handlers.callback_handlers.buy_part.language_callback_handler import redis_data
 
 
 async def bot_start(message: Message, state: FSMContext):

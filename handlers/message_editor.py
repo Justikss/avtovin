@@ -2,7 +2,7 @@ from typing import Set
 
 from aiogram.types import Message, chat, CallbackQuery
 
-from handlers.callback_handlers.language_callback_handler import InlineCreator, redis_data
+from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
 from utils.Lexicon import LEXICON
 
 

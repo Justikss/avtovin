@@ -3,7 +3,7 @@ import time
 
 from aiogram.types import CallbackQuery
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import CommodityRequester
-from handlers.callback_handlers.callback_handler_start_buy import PersonRequester
+from handlers.callback_handlers.buy_part.callback_handler_start_buy import PersonRequester
 from database.data_requests.offers_requests import OffersRequester
 from utils.Lexicon import LEXICON
 

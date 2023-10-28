@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message, chat
 from phonenumbers import NumberParseException
-from handlers.callback_handlers.main_menu import main_menu
+from handlers.callback_handlers.buy_part.main_menu import main_menu
 from utils.Lexicon import LEXICON
 from database.data_requests.person_requests import PersonRequester
 

@@ -3,11 +3,11 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from handlers.callback_handlers.search_auto_handler import search_auto_callback_handler
+from handlers.callback_handlers.buy_part.search_auto_handler import search_auto_callback_handler
 from handlers.state_handlers.buyer_registration_handlers import LEXICON, input_full_name, BuyerRegistationStates
-from handlers.callback_handlers.language_callback_handler import redis_data, set_language
+from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
 
-from handlers.callback_handlers.FAQ_tech_support import tech_support_callback_handler
+from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
 
 
 async def backward_button_handler(callback: CallbackQuery, state: FSMContext = None):
