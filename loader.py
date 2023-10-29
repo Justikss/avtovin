@@ -70,10 +70,24 @@ async def start_bot():
     '''Состояния регистрации продавцов'''
     dp.callback_query.register(start_seller_registration_callback_handlers.seller_type_identifier,
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
+
     dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
-                        StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName())
+                        or_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName(),
+                        and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                        F.data == 'rewrite_seller_number')))
+
+    dp.callback_query.register(seller_registration_handlers.input_seller_name,
+                              and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                              F.data == 'rewrite_seller_name'))
+
     dp.message.register(seller_registration_handlers.check_your_config,
-                        StateFilter(HybridSellerRegistrationStates.check_input_number), correct_number.CheckInputNumber())
+                        StateFilter(HybridSellerRegistrationStates.check_input_data), correct_number.CheckInputNumber())
+
+
+    
+      # rewrite_seller_name
+      # rewrite_seller_number
+      # confirm_registration_from_seller
 
     '''обработка Коллбэков'''
     # dp.callback_query.register(FAQ_tech_support.testor)

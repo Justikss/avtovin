@@ -8,4 +8,4 @@ class CarDealerShipRegistrationStates(StatesGroup):
 
 class HybridSellerRegistrationStates(StatesGroup):
     input_number = State()
-    check_input_number = State()
+    check_input_data = State()

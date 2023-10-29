@@ -111,7 +111,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
                                                              lexicon_cache=False, 
                                                              reply_mode = message_reply_mode)
     
-    await state.set_state(HybridSellerRegistrationStates.check_input_number)
+    await state.set_state(HybridSellerRegistrationStates.check_input_data)
 
 
 #Фильтр CorrectNumber
@@ -119,6 +119,8 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     '''Обработчик конечного состояния регистрации пользовтаеля:
     Сверка введённых рег. данных'''
     message_editor_module = importlib.import_module('handlers.message_editor')
+    redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+
 
     if input_number:
         await state.update_data(seller_number=input_number)
@@ -133,6 +135,8 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']
     lexicon_part['rewrite_seller_number'] = memory_storage['seller_number']
     print(lexicon_part)
+
+    await redis_module.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data', value='true')
 
     await message_editor_module.travel_editor.edit_message(lexicon_key=None, request=request, lexicon_part=lexicon_part, delete_mode=True)
 
