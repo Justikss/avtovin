@@ -76,8 +76,20 @@ LEXICON = {
 
             "buyer_haven't_confirm_offers": 'История запросов пуста',
             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль',
-
-
+            
+            
+            'who_is_seller': {'message_text': 'Выберите пункты ниже:', 'i_am_private_person': 'Частное лицо', 'i_am_car_dealership': 'Автосалон', 'width': 2},
+            'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration': 'Назад', 'width': 1},
+            'write_full_seller_name(incorrect)': {
+                'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
+                'backward:user_registration': 'Назад', 'width': 2},
+            'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration': 'Назад', 'width': 1},
+            'write_dealership_name(incorrect)': {'message_text': 'Название автосалона должно быть длинной < 250 символов\nИ Только из букв и цифр:', 'backward:seller_registration': 'Назад', 'width': 1},
+            
+            'write_seller_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
+                                   'backward:seller_registration_number': 'Назад', 'width': 1},
+            'write_seller_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
+                                              'backward:seller_registration_number': 'Назад', 'width': 1}
         }
 
 # class LEXICON:

@@ -29,10 +29,10 @@ class RedisRequester:
                     pass
                 else:
                     print('error', {key: value})
-                    await self.redis_base.close()
+                    await self.redis_base.aclose()
                     return False
 
-            await self.redis_base.close()
+            await self.redis_base.aclose()
 
         else:
             if type(value) not in (int, float, str):
@@ -45,11 +45,11 @@ class RedisRequester:
             else:
                 value_is_set = await self.redis_base.get(key) == value
             if value_is_set:
-                await self.redis_base.close()
+                await self.redis_base.aclose()
                 print('good', {key: value})
                 return True
             else:
-                await self.redis_base.close()
+                await self.redis_base.aclose()
                 print('error', {key: value})
                 return False
 
@@ -60,11 +60,11 @@ class RedisRequester:
             result = json.loads(result)
 
         if result:
-            await self.redis_base.close()
+            await self.redis_base.aclose()
             print('good_get', {key: result})
             return result
         else:
-            await self.redis_base.close()
+            await self.redis_base.aclose()
             print('error_get', key)
             return False
 
@@ -79,7 +79,7 @@ class RedisRequester:
             return False
 
         # Закрываем соединение
-        await self.redis_base.close()
+        await self.redis_base.aclose()
 
 
 redis_data = RedisRequester()

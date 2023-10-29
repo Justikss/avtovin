@@ -3,12 +3,12 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
+'''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
+
 from config_data.config import BOT_TOKEN
 from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, confirm_from_seller_callback_handler, confirm_search_config, language_callback_handler, main_menu, search_auto_handler, show_offers_history
-from handlers.custom_filters.correct_name import CorrectName
-
-'''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
+from handlers.custom_filters import correct_name, correct_number
 from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_history)
 from handlers.state_handlers import buyer_registration_handlers
@@ -17,6 +17,12 @@ from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
+
+from states.seller_registration_states import HybridSellerRegistrationStates
+from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
+from handlers.state_handlers.seller_states_handler import seller_registration
+
+
 # from database.data_requests.offers_requests import OffersRequester
 # from database.data_requests.person_requests import PersonRequester
 
@@ -36,10 +42,11 @@ from states.second_hand_choose_states import SecondHandChooseStates
 '''echo.router обязан последней позици.'''
 
 redis = None
+bot = None
 
 
 async def start_bot():
-    global redis, edit_last_message
+    global redis, edit_last_message, bot
     bot = Bot(token=BOT_TOKEN)
 
     redis = Redis(host='localhost')
@@ -53,13 +60,21 @@ async def start_bot():
     dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))
     # dp.message.register(help.bot_help, Command(commands=["help"]))
 
-    '''Состояния ргеистрации'''
+    '''Состояния ргеистрации покупателя'''
     dp.callback_query.register(buyer_registration_handlers.input_full_name,
                                StateFilter(BuyerRegistationStates.input_full_name))
     dp.message.register(buyer_registration_handlers.input_phone_number,
-                        StateFilter(BuyerRegistationStates.input_phone_number), CorrectName())
+                        StateFilter(BuyerRegistationStates.input_phone_number), correct_name.CheckInputName())
     dp.message.register(buyer_registration_handlers.finish_check_phone_number,
                         StateFilter(BuyerRegistationStates.finish_check_phone_number))
+    '''Состояния регистрации продавцов'''
+    dp.callback_query.register(start_seller_registration_callback_handlers.seller_type_identifier,
+                                    F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
+    dp.message.register(seller_registration.hybrid_input_seller_number, 
+                        StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName())
+    dp.message.register(seller_registration.check_your_config,
+                        StateFilter(HybridSellerRegistrationStates.check_input_number), correct_number.CheckInputNumber())
+
     '''обработка Коллбэков'''
     # dp.callback_query.register(FAQ_tech_support.testor)
     dp.callback_query.register(FAQ_tech_support.tech_support_callback_handler, F.data == 'support')
@@ -92,6 +107,9 @@ async def start_bot():
     dp.callback_query.register(show_offers_history.history_pagination_right, F.data == 'pagination_right')
     dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
                                F.data == 'return_from_offers_history')
+
+    '''Seller'''
+    dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler, F.data == 'start_sell')
 
 
 

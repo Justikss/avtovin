@@ -61,6 +61,7 @@ async def load_user_in_database(memory_dict, number, message: Message):
 
 
 async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext):
+    
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     if isinstance(request, Message):
@@ -236,7 +237,9 @@ async def finish_check_phone_number(message: Message, state: FSMContext):
             await message.delete()
             await registartion_view_corrector(request=message, state=state)
             memory_storage = await state.get_data()
-            await load_user_in_database(memory_storage, number, message)
+            formatted_number = phonenumbers.format_number(input_number, phonenumbers.PhoneNumberFormat.NATIONAL)
+
+            await load_user_in_database(memory_storage, formatted_number, message)
 
             await state.clear()
 

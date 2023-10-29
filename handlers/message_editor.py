@@ -9,8 +9,10 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True):
-        '''Высылальщик сообщений, '''
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False):
+        '''Высылальщик сообщений
+        [reply_mode[bool]]: Работает только при удалении сообщений '''
+        
         new_message = None
         lexicon_part = LEXICON[lexicon_key]
         redis_key = str(request.from_user.id) + ':last_message'
@@ -47,7 +49,12 @@ class TravelEditor:
 
         if delete_mode and last_message_id:
             await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
-            new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
+            if reply_mode:
+                print('reply_mode2')
+                new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
+            else:
+                print('NOreply_mode2')
+                new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
             await redis_data.set_data(redis_key, new_message.message_id)
             print('new last', new_message.message_id)
         # elif media_markup_mode and formatted_config_output:
@@ -59,11 +66,20 @@ class TravelEditor:
             except:
                 try:
                     await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
+
                 except:
                     pass
                 finally:
-                    new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
+                    if reply_mode:
+                        print('reply_mode2')
+                        new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
+                        await redis_data.set_data(redis_key, new_message.message_id)
+                    else:
+                        
+                    
+                        new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
                     await redis_data.set_data(redis_key, new_message.message_id)
+                    print('SET: ', new_message.message_id)
 
         if new_message:
             print('message = ', new_message.message_id)
