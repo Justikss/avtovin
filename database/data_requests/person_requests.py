@@ -65,12 +65,13 @@ class PersonRequester:
 
 seller = [{'telegram_id': '902230076',
 'phone_number': '2312342',
-'entity': 'fisycal',
-'dealship_address': None,
-'dealship_name': None,
-'name': 'Bo',  # поле ограничено символами(название столбца)
-'surname': 'Ri',  # поле ограничено символами(возможно нулевое значение, название столбца)
-'patronymic': 'S'},
+'entity': 'legal',
+'dealship_address': 'Шмеля 15',
+'dealship_name': 'MultyReSale',
+'name': None,  # поле ограничено символами(название столбца)
+'surname': None,  # поле ограничено символами(возможно нулевое значение, название столбца)
+'patronymic': None,
+'authorized': True}
           ]
 
 

@@ -9,12 +9,13 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False):
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
         
         new_message = None
-        lexicon_part = LEXICON[lexicon_key]
+        if not lexicon_part:
+            lexicon_part = LEXICON[lexicon_key]
         redis_key = str(request.from_user.id) + ':last_message'
         last_message_id = await redis_data.get_data(redis_key)
 

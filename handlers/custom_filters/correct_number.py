@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 
 from handlers.state_handlers.buyer_registration_handlers import input_phone_number
-from handlers.state_handlers.seller_states_handler.seller_registration import hybrid_input_seller_number
+from handlers.state_handlers.seller_states_handler.seller_registration_handlers import hybrid_input_seller_number
 
 
 

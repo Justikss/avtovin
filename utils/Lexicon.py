@@ -89,7 +89,8 @@ LEXICON = {
             'write_seller_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
                                    'backward:seller_registration_number': 'Назад', 'width': 1},
             'write_seller_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
-                                              'backward:seller_registration_number': 'Назад', 'width': 1}
+                                              'backward:seller_registration_number': 'Назад', 'width': 1},
+            'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1}
         }
 
 # class LEXICON:

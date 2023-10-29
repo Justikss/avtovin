@@ -12,7 +12,7 @@ print(sys.path)
 #from handlers.state_handlers.seller_states_handler.seller_registration import hybrid_input_seller_number
 from tests.utils import TEST_USER, TEST_USER_CHAT, TEST_MESSAGE
 sys.path.insert(0, '..')
-from loader import seller_registration
+from loader import seller_registration_handlers
 
 
 
@@ -29,7 +29,7 @@ from loader import seller_registration
 async def test_callback_handler(bot, storage):
     #callback = AsyncMock()
     message = AsyncMock()
-    hybrid_input_seller_number = seller_registration.hybrid_input_seller_number
+    hybrid_input_seller_number = seller_registration_handlers.hybrid_input_seller_number
     
 
     message = Message(

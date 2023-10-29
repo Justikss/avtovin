@@ -5,7 +5,8 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from aiogram import Bot
 
-
+from utils.Lexicon import LEXICON
+from handlers.state_handlers.seller_states_handler import utils
 from handlers.state_handlers.buyer_registration_handlers import registartion_view_corrector
 from states.seller_registration_states import HybridSellerRegistrationStates, PersonSellerRegistrationStates, CarDealerShipRegistrationStates
 
@@ -71,7 +72,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     
-    await state.update_data(seller_person_name=user_name)
+    await state.update_data(seller_name=user_name)
 
     if isinstance(request, CallbackQuery):
         request = request.message
@@ -114,24 +115,40 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
 
 #Фильтр CorrectNumber
-async def check_your_config(message: Message, state: FSMContext, input_number=None, person=True, dealership=False):
-    bot = message.chat.bot
-    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    await state.update_data(seller_number=input_number)
+async def check_your_config(request: Union[CallbackQuery, Message], state: FSMContext, input_number=None, person=True, dealership=False):
+    '''Обработчик конечного состояния регистрации пользовтаеля:
+    Сверка введённых рег. данных'''
+    message_editor_module = importlib.import_module('handlers.message_editor')
+
+    if input_number:
+        await state.update_data(seller_number=input_number)
+
+    bot = request.chat.bot
+    await bot.delete_message(chat_id=request.chat.id, message_id=request.message_id)
     memory_storage = await state.get_data()
-    await registartion_view_corrector(request=message, state=state)
+    await registartion_view_corrector(request=request, state=state)
     
-    await message.answer('final anal')
+    await request.answer('final GOO')
+    lexicon_part = LEXICON['checking_seller_entered_data']
+    lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']
+    lexicon_part['rewrite_seller_number'] = memory_storage['seller_number']
+    print(lexicon_part)
+
+    await message_editor_module.travel_editor.edit_message(lexicon_key=None, request=request, lexicon_part=lexicon_part, delete_mode=True)
+
+    # if data_is_valid:
+    #     await utils.load_seller_in_database(callback=request)
 
     #person=True
-    if person:
-        person_fullname = memory_storage.get('seller_person_name')
-        person_number = input_number
+    # if person:
+    #     person_fullname = memory_storage.get('seller_person_name')
+    #     person_number = input_number
 
-    elif dealership:
-        dealership_name = memory_storage.get('dealership_name')
-        dealership_number = memory_storage.get('dealership_number')
-        
+    # elif dealership:
+    #     dealership_name = memory_storage.get('dealership_name')
+    #     dealership_number = memory_storage.get('dealership_number')
+    
+
 
     
 

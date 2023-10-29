@@ -287,7 +287,7 @@ truple_car = {
 }
 
 # a = CommodityRequester.store_data(double_cars)
-# b = CommodityRequester.store_data(new_cars)
+#b = CommodityRequester.store_data(new_cars)
 # c = CommodityRequester.store_data(truple_car)
 
 

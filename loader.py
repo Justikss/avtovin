@@ -20,7 +20,7 @@ from states.second_hand_choose_states import SecondHandChooseStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
-from handlers.state_handlers.seller_states_handler import seller_registration
+from handlers.state_handlers.seller_states_handler import seller_registration_handlers
 
 
 # from database.data_requests.offers_requests import OffersRequester
@@ -70,9 +70,9 @@ async def start_bot():
     '''Состояния регистрации продавцов'''
     dp.callback_query.register(start_seller_registration_callback_handlers.seller_type_identifier,
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
-    dp.message.register(seller_registration.hybrid_input_seller_number, 
+    dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
                         StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName())
-    dp.message.register(seller_registration.check_your_config,
+    dp.message.register(seller_registration_handlers.check_your_config,
                         StateFilter(HybridSellerRegistrationStates.check_input_number), correct_number.CheckInputNumber())
 
     '''обработка Коллбэков'''
