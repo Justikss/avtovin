@@ -23,7 +23,7 @@ from states.second_hand_choose_states import SecondHandChooseStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
-from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin
+from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 
 
 
@@ -78,7 +78,7 @@ async def start_bot():
     dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
                         and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName()))
 
-    dp.message.register(seller_registration_handlers.check_your_config,
+    dp.message.register(check_your_registration_config.check_your_config,
                         StateFilter(HybridSellerRegistrationStates.check_input_data), correct_number.CheckInputNumber())
 
     dp.callback_query.register(seller_registration_handlers.hybrid_input_seller_number, 
