@@ -19,12 +19,13 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
     print('seller_mode: ', seller_mode)
 
     if seller_mode == 'dealership':
+        address = memory_storage['dealership_address']
         formatted_load_pattern = {
             'telegram_id': user_id,
             'phone_number': phonenumber,
             'dealship_name': fullname,
             'entity': 'legal',
-            'dealship_address': None,
+            'dealship_address': address,
             'name': None,
             'surname': None,
             'patronymic': None,

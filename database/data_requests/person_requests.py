@@ -59,6 +59,8 @@ class PersonRequester:
                 patronymic = name[2]
             elif len(name) == 2:
                 patronymic = None
+            elif len(name) == 1:
+                return False
             
             surname = name[0]
             name = name[1]

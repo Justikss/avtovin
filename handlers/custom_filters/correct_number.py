@@ -20,7 +20,7 @@ class CheckInputNumber(BaseFilter):
 
         
         current_state = str(await state.get_state())
-        if current_state.startswith('HybridSellerRegistrationStates'):
+        if current_state.startswith('CarDealerShipRegistrationStates'):
             current_method = seller_registration_module.hybrid_input_seller_number
             buyer_use = None
             seller_use = True

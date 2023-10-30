@@ -110,7 +110,10 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
                 await redis_storage.redis_data.delete_key(key=str(request.from_user.id) + ':last_user_message')
 
             except:
-                await message.chat.delete_message(message_id=message.message_id)
+                try:
+                    await message.chat.delete_message(message_id=message.message_id)
+                except TelegramBadRequest:
+                    pass
     # elif not incorrect_flag:
 
     print(last_user_answer)

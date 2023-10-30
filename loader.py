@@ -11,7 +11,7 @@ from aiogram.fsm.context import FSMContext
 from config_data.config import BOT_TOKEN
 from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, confirm_from_seller_callback_handler, confirm_search_config, language_callback_handler, main_menu, search_auto_handler, show_offers_history
-from handlers.custom_filters import correct_name, correct_number
+from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address
 from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_history)
 from handlers.state_handlers import buyer_registration_handlers
@@ -21,7 +21,7 @@ from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 
-from states.seller_registration_states import HybridSellerRegistrationStates
+from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 
@@ -72,14 +72,19 @@ async def start_bot():
     dp.message.register(buyer_registration_handlers.finish_check_phone_number,
                         StateFilter(BuyerRegistationStates.finish_check_phone_number))
     '''Состояния регистрации продавцов'''
+    dp.callback_query.register(await_confirm_from_admin.seller_await_confirm_by_admin,
+                              F.data == 'confirm_registration_from_seller')
+
     dp.callback_query.register(start_seller_registration_callback_handlers.seller_type_identifier,
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
 
     dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
                         and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName()))
 
-    dp.message.register(check_your_registration_config.check_your_config,
-                        StateFilter(HybridSellerRegistrationStates.check_input_data), correct_number.CheckInputNumber())
+    dp.message.register(seller_registration_handlers.dealership_input_address,
+                        and_f(StateFilter(CarDealerShipRegistrationStates.input_dealship_name), correct_number.CheckInputNumber()))
+
+
 
     dp.callback_query.register(seller_registration_handlers.hybrid_input_seller_number, 
                         and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
@@ -89,8 +94,16 @@ async def start_bot():
                               and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
                               F.data == 'rewrite_seller_name'))
 
-    dp.callback_query.register(await_confirm_from_admin.seller_await_confirm_by_admin,
-                              F.data == 'confirm_registration_from_seller')
+    dp.callback_query.register(seller_registration_handlers.dealership_input_address,
+                              and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                               F.data == 'rewrite_dealership_address'))
+    
+    dp.message.register(check_your_registration_config.check_your_config,
+                        and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                        pass_on_dealership_address.GetDealershipAddress()))
+
+
+
     
       # rewrite_seller_name
       # rewrite_seller_number

@@ -99,8 +99,12 @@ LEXICON = {
             'write_seller_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
                                               'backward:seller_registration_number': 'Назад', 'width': 1},
             'write_seller_phone_number(exists)': {'message_text': 'Некорректный ввод номера!\nОн уже зарегистрирован\nожидается иной',
-                                              'backward:seller_registration_number': 'Назад', 'width': 1},                                              
-            'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},
+                                              'backward:seller_registration_number': 'Назад', 'width': 1},          
+            'write_dealership_address': {'message_text': 'Введите адрес автосалона', 'backward:seller_registration_number': 'Назад', 'width': 1},
+            'write_dealership_address(novalid)': {'message_text': 'Ошибка\n Адрес автосалона должен содержать буквы', 'backward:seller_registration_number': 'Назад', 'width': 1},
+
+
+            'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},
             'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь одобрения от администрации', 'return_to_sell_zone': 'К покупкам', 'width': 1},
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1}
         }

@@ -5,6 +5,7 @@ class PersonSellerRegistrationStates(StatesGroup):
 
 class CarDealerShipRegistrationStates(StatesGroup):
     input_dealship_name = State()
+    input_dealship_address = State()
 
 class HybridSellerRegistrationStates(StatesGroup):
     input_number = State()
