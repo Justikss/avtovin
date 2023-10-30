@@ -173,7 +173,7 @@ async def start_bot():
 
     @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
-      await callback.message.answer('lox')
+      await callback.message.answer('Пролёт коллбэка')
       
 
 
