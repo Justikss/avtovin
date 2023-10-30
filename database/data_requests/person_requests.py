@@ -38,7 +38,53 @@ class PersonRequester:
                     Seller.insert_many(*data).execute()
                     return True
 
-        except IntegrityError:
+        except IntegrityError as ex:
+            print('IntegrityError', ex)
+            return False
+
+    @staticmethod
+    def this_name_is_exists(name: str, user=None, seller=None):
+        '''Проверка на сущестование имени в базе данных'''
+        need_model = Seller if seller else User
+        
+        with db.atomic():
+            if seller:
+                select_request = list(Seller.select().where(Seller.dealship_name == name))
+                if select_request:
+                    return True
+
+            
+            name = name.split(' ')
+            if len(name) == 3:
+                patronymic = name[2]
+            elif len(name) == 2:
+                patronymic = None
+            
+            surname = name[0]
+            name = name[1]
+
+            select_request = list(need_model.select().where((need_model.name == name) &
+                                                            (need_model.surname == surname) &
+                                                            (need_model.patronymic == patronymic)))
+        if select_request:
+            return True
+        else:
+            return False
+
+            
+
+    @staticmethod
+    def this_number_is_exists(number: str, user=None, seller=None):
+        '''Проверка на существование номера телефона в базе данных'''
+        need_model = Seller if seller else User
+
+        with db.atomic():
+            select_request = need_model.select().where(need_model.phone_number == number)
+            select_request = list(select_request)
+
+        if select_request:
+            return True
+        else:
             return False
 
     @staticmethod
@@ -76,7 +122,7 @@ seller = [{'telegram_id': '902230076',
 
 
 
-PersonRequester.store_data(seller, seller=True)
+#PersonRequester.store_data(seller, seller=True)
 
 sellers = PersonRequester.retrieve_all_data(seller=True)
 

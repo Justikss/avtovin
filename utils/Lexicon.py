@@ -8,13 +8,16 @@ LEXICON = {
             'hello_text': {'message_text': 'Приветственное сообщение', 'start_sell': 'Продажа',
                            'start_buy': 'Покупка', 'width': 2},
             'write_full_name': {'message_text': 'Укажите ФИО', 'backward:user_registration': 'Назад', 'width': 1},
-            'write_full_name(incorrect)': {
+            'write_full_name(novalid)': {
                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
                 'backward:user_registration': 'Назад', 'width': 2},
             'write_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
                                    'backward:user_registration_number': 'Назад', 'width': 1},
-            'write_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
+            'write_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
                                               'backward:user_registration_number': 'Назад', 'width': 1},
+            'write_phone_number(exists)': {'message_text': 'Некорректный ввод номера!\nОн уже зарегистрирован\nожидается иной',
+                                              'backward:user_registration_number': 'Назад', 'width': 1},
+
             # 'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
             'main_menu': {'message_text': 'Меню', 'offers_to_user': 'Предложения', 'car_search': 'Поиск Авто',
                           'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward:set_language': 'Назад', 'width': 2},
@@ -80,17 +83,26 @@ LEXICON = {
             
             'who_is_seller': {'message_text': 'Выберите пункты ниже:', 'i_am_private_person': 'Частное лицо', 'i_am_car_dealership': 'Автосалон', 'width': 2},
             'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration': 'Назад', 'width': 1},
-            'write_full_seller_name(incorrect)': {
+            'write_full_seller_name(novalid)': {
                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
                 'backward:user_registration': 'Назад', 'width': 2},
-            'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration': 'Назад', 'width': 1},
-            'write_dealership_name(incorrect)': {'message_text': 'Название автосалона должно быть длинной < 250 символов\nИ Только из букв и цифр:', 'backward:seller_registration': 'Назад', 'width': 1},
+            'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration': 'Назад', 'width': 1},
             
+            
+            'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration': 'Назад', 'width': 1},
+            'write_dealership_name(novalid)': {'message_text': 'Название автосалона должно быть длинной < 250 символов\nИ Только из букв и цифр:', 'backward:seller_registration': 'Назад', 'width': 1},
+            'write_dealership_name(exists)': {'message_text': 'Это название уже зарегестрировано\nожидается иное', 'backward:seller_registration': 'Назад', 'width': 1},
+            
+
             'write_seller_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
                                    'backward:seller_registration_number': 'Назад', 'width': 1},
-            'write_seller_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
+            'write_seller_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
                                               'backward:seller_registration_number': 'Назад', 'width': 1},
-            'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1}
+            'write_seller_phone_number(exists)': {'message_text': 'Некорректный ввод номера!\nОн уже зарегистрирован\nожидается иной',
+                                              'backward:seller_registration_number': 'Назад', 'width': 1},                                              
+            'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},
+            'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь одобрения от администрации', 'return_to_sell_zone': 'К покупкам', 'width': 1},
+            'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1}
         }
 
 # class LEXICON:

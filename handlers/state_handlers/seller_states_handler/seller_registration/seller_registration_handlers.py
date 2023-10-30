@@ -7,13 +7,13 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 
 from utils.Lexicon import LEXICON
-from handlers.state_handlers.seller_states_handler import utils
+from handlers.state_handlers.seller_states_handler.seller_registration import utils
 from handlers.state_handlers.buyer_registration_handlers import registartion_view_corrector
 from states.seller_registration_states import HybridSellerRegistrationStates, PersonSellerRegistrationStates, CarDealerShipRegistrationStates
 from handlers.custom_filters import correct_name, correct_number
 
 
-async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = False):
+async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
@@ -33,9 +33,9 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
     if incorrect:
         await state.update_data(incorrect_answer=True)
         if seller_mode == 'dealership':
-            lexicon_code = 'write_dealership_name(incorrect)'
+            lexicon_code = 'write_dealership_name' + incorrect
         elif seller_mode == 'person':
-            lexicon_code = 'write_full_seller_name(incorrect)'
+            lexicon_code = 'write_full_seller_name' + incorrect
 
         message_reply_mode = True
         print('reply_mode1')
@@ -70,7 +70,7 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
     
 
 #Фильтр CorrectName()
-async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], state: FSMContext, user_name=None, incorrect = False):
+async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], state: FSMContext, user_name=None, incorrect = None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     print('user_name', user_name)
@@ -91,7 +91,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
     if incorrect:
         await state.update_data(incorrect_answer=True)
-        lexicon_code = 'write_seller_phone_number(incorrect)'
+        lexicon_code = 'write_seller_phone_number' + incorrect
         message_reply_mode = True
         print('reply_mode1')
         delete_last_message_mode = True
@@ -135,13 +135,14 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
 
     if input_number:
         await state.update_data(seller_number=input_number)
+        print('seller_number', input_number)
 
     bot = request.chat.bot
     await bot.delete_message(chat_id=request.chat.id, message_id=request.message_id)
     memory_storage = await state.get_data()
     await registartion_view_corrector(request=request, state=state)
     
-    await request.answer('final GOO')
+
     lexicon_part = LEXICON['checking_seller_entered_data']
     lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']
     lexicon_part['rewrite_seller_number'] = memory_storage['seller_number']

@@ -23,7 +23,9 @@ from states.second_hand_choose_states import SecondHandChooseStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
-from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers
+from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin
+
+
 
 
 # from database.data_requests.offers_requests import OffersRequester
@@ -74,24 +76,21 @@ async def start_bot():
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
 
     dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
-                        and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName())
-                        )
+                        and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName()))
 
     dp.message.register(seller_registration_handlers.check_your_config,
                         StateFilter(HybridSellerRegistrationStates.check_input_data), correct_number.CheckInputNumber())
-
-
 
     dp.callback_query.register(seller_registration_handlers.hybrid_input_seller_number, 
                         and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
                         F.data == 'rewrite_seller_number'))
 
-
-
-
     dp.callback_query.register(seller_registration_handlers.input_seller_name,
                               and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
                               F.data == 'rewrite_seller_name'))
+
+    dp.callback_query.register(await_confirm_from_admin.seller_await_confirm_by_admin,
+                              F.data == 'confirm_registration_from_seller')
     
       # rewrite_seller_name
       # rewrite_seller_number
@@ -109,7 +108,7 @@ async def start_bot():
     dp.callback_query.register(language_callback_handler.set_language,
                                F.data.in_(('language_uz', 'language_ru')))
     dp.callback_query.register(callback_handler_start_buy.start_buy,
-                               F.data == 'start_buy')
+                               or_f(F.data == 'start_buy', F.data == 'return_to_sell_zone'))
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
                                lambda callback: callback.data.startswith('backward'))
     dp.callback_query.register(search_auto_handler.search_auto_callback_handler,
@@ -131,7 +130,8 @@ async def start_bot():
                                F.data == 'return_from_offers_history')
 
     '''Seller'''
-    dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler, F.data == 'start_sell')
+    dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
+                              or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
 
 

@@ -13,12 +13,16 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
     memory_storage = await state.get_data()
     formatted_load_pattern = dict()
     user_id = request.from_user.id
+    phonenumber = memory_storage['seller_number']
+    fullname = memory_storage['seller_name']
+    print('number:', phonenumber, '\nname: ', fullname)
+    print('seller_mode: ', seller_mode)
 
     if seller_mode == 'dealership':
         formatted_load_pattern = {
             'telegram_id': user_id,
-            'phone_number': memory_storage['seller_number'],
-            'dealship_name': memory_storage['seller_name'],
+            'phone_number': phonenumber,
+            'dealship_name': fullname,
             'entity': 'legal',
             'dealship_address': None,
             'name': None,
@@ -27,7 +31,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
             'authorized': authorized_state
         }
     elif seller_mode == 'person':
-        person_full_name = memory_storage['seller_name'].split(' ')
+        person_full_name = fullname.split(' ')
         
         if len(person_full_name) == 3:
             patronymic = person_full_name[2]
@@ -38,7 +42,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
 
         formatted_load_pattern = {
             'telegram_id': user_id,
-            'phone_number': memory_storage['seller_number'],
+            'phone_number': phonenumber,
             'dealship_name': None,
             'entity': 'natural',
             'dealship_address': None,
@@ -47,8 +51,8 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
             'patronymic': patronymic,
             'authorized': authorized_state
         }
-
-    try_load = await PersonRequester.store_data([formatted_load_pattern], seller=True)
+    print(formatted_load_pattern)
+    try_load = PersonRequester.store_data(formatted_load_pattern, seller=True)
     if try_load:
         return True
     else:
