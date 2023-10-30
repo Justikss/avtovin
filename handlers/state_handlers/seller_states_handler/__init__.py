@@ -1,1 +1,1 @@
-from . import seller_registration_handlers, utils
+from . import seller_registration

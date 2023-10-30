@@ -28,6 +28,7 @@ async def bot_start(message: Message, state: FSMContext):
     #
 
     await travel_editor.travel_editor.edit_message(lexicon_key='choose_language', request=message)
+    await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':can_edit_seller_registration_data')
 
     # lexicon_part = LEXICON['choose_language']
     # message_text = lexicon_part['message_text']

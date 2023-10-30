@@ -1,6 +1,7 @@
 import importlib
 from typing import Union
 
+from aiogram.exceptions import TelegramBadRequest
 import phonenumbers
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -87,7 +88,10 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
     #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     if last_user_answer:
         if incorrect_flag:
-            await message.chat.delete_message(message_id=last_user_answer)
+            try:
+                await message.chat.delete_message(message_id=last_user_answer)
+            except TelegramBadRequest:
+                pass
             await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
                                                     value=message.message_id)
 

@@ -3,7 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 
 
-from handlers.state_handlers.seller_states_handler.seller_registration_handlers import input_seller_name
+from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import input_seller_name
 
 
 

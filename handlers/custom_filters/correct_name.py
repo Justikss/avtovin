@@ -3,12 +3,14 @@ import importlib
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
-from handlers.state_handlers.seller_states_handler.seller_registration_handlers import input_seller_name
+import importlib
+
 from handlers.state_handlers.buyer_registration_handlers import input_full_name
 
 
 class CheckInputName(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        seller_registration_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration_handlers')
         memory_storage = await state.get_data()
         redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         message_id = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
@@ -18,7 +20,7 @@ class CheckInputName(BaseFilter):
 
         current_state = str(await state.get_state())
         if current_state.startswith('HybridSellerRegistrationStates'):
-            current_object = input_seller_name
+            current_object = seller_registration_module.input_seller_name
         elif current_state.startswith('BuyerRegistationStates'):
             current_object = input_full_name
 
@@ -35,6 +37,7 @@ class CheckInputName(BaseFilter):
                     await chat.Chat.delete_message(self=message.chat, message_id=message_id)
                     return await current_object(request=message, state=state, incorrect=True)
             # await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
+            print('drop_name', full_name)
             return {'user_name': full_name}
         else:
             await chat.Chat.delete_message(self=message.chat, message_id=message_id)

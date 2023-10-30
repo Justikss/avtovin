@@ -3,6 +3,9 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
+
+from aiogram.types import CallbackQuery
+from aiogram.fsm.context import FSMContext
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 
 from config_data.config import BOT_TOKEN
@@ -20,7 +23,7 @@ from states.second_hand_choose_states import SecondHandChooseStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
-from handlers.state_handlers.seller_states_handler import seller_registration_handlers
+from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers
 
 
 # from database.data_requests.offers_requests import OffersRequester
@@ -55,7 +58,6 @@ async def start_bot():
     dp = Dispatcher(storage=storage)
 
 
-
     '''обраюотка Сообщений'''
     dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))
     # dp.message.register(help.bot_help, Command(commands=["help"]))
@@ -72,18 +74,24 @@ async def start_bot():
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
 
     dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
-                        or_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName(),
-                        and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
-                        F.data == 'rewrite_seller_number')))
-
-    dp.callback_query.register(seller_registration_handlers.input_seller_name,
-                              and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
-                              F.data == 'rewrite_seller_name'))
+                        and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName())
+                        )
 
     dp.message.register(seller_registration_handlers.check_your_config,
                         StateFilter(HybridSellerRegistrationStates.check_input_data), correct_number.CheckInputNumber())
 
 
+
+    dp.callback_query.register(seller_registration_handlers.hybrid_input_seller_number, 
+                        and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                        F.data == 'rewrite_seller_number'))
+
+
+
+
+    dp.callback_query.register(seller_registration_handlers.input_seller_name,
+                              and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                              F.data == 'rewrite_seller_name'))
     
       # rewrite_seller_name
       # rewrite_seller_number
@@ -163,6 +171,10 @@ async def start_bot():
                                      StateFilter(SecondHandChooseStates.select_year)))
 
 
+    @dp.callback_query()
+    async def checker(callback: CallbackQuery, state: FSMContext):
+      await callback.message.answer('lox')
+      
 
 
     # dp.message.register(echo.bot_echo, StateFilter(default_state))

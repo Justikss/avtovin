@@ -4,11 +4,13 @@ from typing import Union
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from aiogram import Bot
+from aiogram.exceptions import TelegramBadRequest
 
 from utils.Lexicon import LEXICON
 from handlers.state_handlers.seller_states_handler import utils
 from handlers.state_handlers.buyer_registration_handlers import registartion_view_corrector
 from states.seller_registration_states import HybridSellerRegistrationStates, PersonSellerRegistrationStates, CarDealerShipRegistrationStates
+from handlers.custom_filters import correct_name, correct_number
 
 
 async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = False):
@@ -71,15 +73,21 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
 async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], state: FSMContext, user_name=None, incorrect = False):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
-    
-    await state.update_data(seller_name=user_name)
+    print('user_name', user_name)
+    if user_name:
+        await state.update_data(seller_name=user_name)
 
     if isinstance(request, CallbackQuery):
-        request = request.message
+        message = request.message
     elif isinstance(request, Message):
-        pass
+        message = request
+
+    edit_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data')
+    if user_name and edit_mode=='true':
+        await state.set_state(HybridSellerRegistrationStates.check_input_data)
+        return await check_your_config(request=request, state=state)
     
-    bot = request.chat.bot
+    bot = message.chat.bot
 
     if incorrect:
         await state.update_data(incorrect_answer=True)
@@ -94,15 +102,18 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
         await redis_module.redis_data.set_data(
             key=str(request.from_user.id) + ':last_user_message',
-            value=request.message_id)
+            value=message.message_id)
         
     else:
         redis_key = str(request.from_user.id) + ':last_user_message'
-        last_user_message = await redis_module.redis_data.get_data(key=redis_key)
+        try:
+            last_user_message = await redis_module.redis_data.get_data(key=redis_key)
+        except TelegramBadRequest:
+            pass
         if last_user_message:
-            await bot.delete_message(chat_id=request.chat.id, message_id=last_user_message)
+            await bot.delete_message(chat_id=message.chat.id, message_id=last_user_message)
             await redis_module.redis_data.delete_key(key=redis_key)
-        await bot.delete_message(chat_id=request.chat.id, message_id = request.message_id)
+        await bot.delete_message(chat_id=message.chat.id, message_id = message.message_id)
         lexicon_code = 'write_seller_phone_number'
         message_reply_mode = False
         delete_last_message_mode = False
@@ -115,7 +126,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
 
 #Фильтр CorrectNumber
-async def check_your_config(request: Union[CallbackQuery, Message], state: FSMContext, input_number=None, person=True, dealership=False):
+async def check_your_config(request: Union[CallbackQuery, Message], state: FSMContext, input_number=None):
     '''Обработчик конечного состояния регистрации пользовтаеля:
     Сверка введённых рег. данных'''
     message_editor_module = importlib.import_module('handlers.message_editor')
@@ -136,9 +147,18 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     lexicon_part['rewrite_seller_number'] = memory_storage['seller_number']
     print(lexicon_part)
 
-    await redis_module.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data', value='true')
+    edit_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data')
+
+    if edit_mode == 'true':
+        delete_mode = False
+    else:
+        delete_mode = True
+
 
     await message_editor_module.travel_editor.edit_message(lexicon_key=None, request=request, lexicon_part=lexicon_part, delete_mode=True)
+
+    await redis_module.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data', value='true')
+
 
     # if data_is_valid:
     #     await utils.load_seller_in_database(callback=request)

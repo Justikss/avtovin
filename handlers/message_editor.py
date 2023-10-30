@@ -1,6 +1,7 @@
 from typing import Set
 
 from aiogram.types import Message, chat, CallbackQuery
+from aiogram.exceptions import TelegramBadRequest
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
 from utils.Lexicon import LEXICON
@@ -12,11 +13,12 @@ class TravelEditor:
                            button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
-        
+        user_id = request.from_user.id
+        print('user_id =', user_id)
         new_message = None
         if not lexicon_part:
             lexicon_part = LEXICON[lexicon_key]
-        redis_key = str(request.from_user.id) + ':last_message'
+        redis_key = str(user_id) + ':last_message'
         last_message_id = await redis_data.get_data(redis_key)
 
         if isinstance(request, CallbackQuery):
@@ -34,7 +36,7 @@ class TravelEditor:
         message_text = lexicon_part['message_text']
 
 
-        user_id = request.from_user.id
+        
         redis_key_current_lexicon = str(user_id) + ':current_lexicon_code'
         current_lexicon = await redis_data.get_data(key=redis_key_current_lexicon)
         if current_lexicon:
@@ -46,17 +48,19 @@ class TravelEditor:
             redis_key = str(user_id) + ':current_lexicon_code'
             await redis_data.set_data(redis_key, lexicon_key)
 
-            redis_key = str(request.from_user.id) + ':last_message'
+            redis_key = str(user_id) + ':last_message'
 
         if delete_mode and last_message_id:
+           
             await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
+
             if reply_mode:
                 print('reply_mode2')
                 new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
             else:
                 print('NOreply_mode2')
                 new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
-            await redis_data.set_data(redis_key, new_message.message_id)
+
             print('new last', new_message.message_id)
         # elif media_markup_mode and formatted_config_output:
         #     await request.chat.bot.send_media_group(chat_id=request.chat.id,
@@ -74,15 +78,17 @@ class TravelEditor:
                     if reply_mode:
                         print('reply_mode2')
                         new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
-                        await redis_data.set_data(redis_key, new_message.message_id)
+                        #await redis_data.set_data(redis_key, new_message.message_id)
                     else:
                         
                     
                         new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
-                    await redis_data.set_data(redis_key, new_message.message_id)
+                    #await redis_data.set_data(redis_key, new_message.message_id)
                     print('SET: ', new_message.message_id)
 
         if new_message:
-            print('message = ', new_message.message_id)
+            await redis_data.set_data(redis_key, new_message.message_id)
+
+            print('add+message = ', new_message.message_id)
 
 travel_editor = TravelEditor()
