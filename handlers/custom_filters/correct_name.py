@@ -35,11 +35,6 @@ class CheckInputName(BaseFilter):
         elif dealership_mode:
             formatted_full_name = full_name
 
-        name_is_exists = PersonRequester.this_name_is_exists(name=full_name.strip(), user=buyer_use, seller=seller_use)
-        if name_is_exists:
-            await chat.Chat.delete_message(self=message.chat, message_id=message_id)
-            return await current_object(request=message, state=state, incorrect='(exists)')
-
 
         print('correct_name,', dealership_mode, seller_mode)
         if not dealership_mode and 1 < len(formatted_full_name) < 4 or dealership_mode and len(formatted_full_name) <= 250:
@@ -49,7 +44,14 @@ class CheckInputName(BaseFilter):
                     return await current_object(request=message, state=state, incorrect='(novalid)')
             # await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
             print('drop_name', full_name)
-            return {'user_name': full_name}
+
+            
+            name_is_exists = PersonRequester.this_name_is_exists(name=full_name.strip(), user=buyer_use, seller=seller_use)
+            if name_is_exists:
+                await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                return await current_object(request=message, state=state, incorrect='(exists)')
+            else:
+                return {'user_name': full_name}
         else:
             await chat.Chat.delete_message(self=message.chat, message_id=message_id)
             return await current_object(request=message, state=state, incorrect='(novalid)')

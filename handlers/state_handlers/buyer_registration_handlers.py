@@ -122,7 +122,7 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
 '''ДАЛЬШЕ ОБРАБОТЧИКИ СОСТОЯНИЙ'''
 
 
-async def input_full_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False):
+async def input_full_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=None):
     await state.update_data(incorrect_answer=False)
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -132,7 +132,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
     message_id = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_message')
 
     if incorrect:
-        lexicon_code = 'write_full_name(incorrect)'
+        lexicon_code = 'write_full_name' + incorrect
         await state.update_data(incorrect_answer=True)
         await registartion_view_corrector(request=request, state=state)
 
@@ -170,7 +170,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
     await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_message', value=message_object.message_id)
     await state.set_state(BuyerRegistationStates.input_phone_number)
 
-async def input_phone_number(message: Message, state: FSMContext, incorrect=False, user_name: str = None):
+async def input_phone_number(message: Message, state: FSMContext, incorrect=None, user_name: str = None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
@@ -183,7 +183,7 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=Fals
         await state.update_data(username=user_name)
 
     if incorrect:
-        lexicon_code = 'write_phone_number(incorrect)'
+        lexicon_code = 'write_phone_number' + incorrect
         await state.update_data(incorrect_answer=True)
 
     else:
@@ -249,7 +249,7 @@ async def finish_check_phone_number(message: Message, state: FSMContext):
 
             await main_menu(request=message)
         else:
-            await input_phone_number(message=message, state=state, incorrect=True)
+            await input_phone_number(message=message, state=state, incorrect=('(novalid)'))
     except NumberParseException:
-        await input_phone_number(message=message, state=state, incorrect=True)
+        await input_phone_number(message=message, state=state, incorrect='(novalid)')
 
