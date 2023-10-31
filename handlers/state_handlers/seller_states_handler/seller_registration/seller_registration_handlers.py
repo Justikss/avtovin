@@ -15,11 +15,19 @@ from handlers.custom_filters import correct_name, correct_number
 async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
-
+    
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
     print('seller_mode', seller_mode)
 
-    if str(await state.get_state()) != 'PersonSellerRegistrationStates:input_fullname':
+    if not await state.get_state():
+        if seller_mode == 'dealership':
+            await state.set_state(CarDealerShipRegistrationStates.input_dealship_name)
+        elif seller_mode == 'person':
+            await state.set_state(PersonSellerRegistrationStates.input_fullname)
+
+  
+
+    if not await state.get_state():
         await state.set_state(PersonSellerRegistrationStates.input_fullname)
 
     travel_object = request
@@ -28,8 +36,6 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
         request = request.message
     elif isinstance(request, Message):
         pass
-    
-
 
     if incorrect:
         await state.update_data(incorrect_answer=True)
@@ -62,8 +68,8 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
 
         message_reply_mode = False
         delete_last_message_mode = False
-    print('req_type', type(request))
-    print('reply_mod', message_reply_mode)
+    # print('req_type', type(request))
+    # print('reply_mod', message_reply_mode)
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key=lexicon_code, lexicon_cache=False,
                                                             reply_mode=message_reply_mode)
 

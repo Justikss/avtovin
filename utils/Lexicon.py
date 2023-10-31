@@ -86,26 +86,25 @@ LEXICON = {
             
             
             'who_is_seller': {'message_text': 'Выберите пункты ниже:', 'i_am_private_person': 'Частное лицо', 'i_am_car_dealership': 'Автосалон', 'width': 2},
-            'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration': 'Назад', 'width': 1},
+            'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration_seller_person_name': 'Назад', 'width': 1},
             'write_full_seller_name(novalid)': {
                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
-                'backward:user_registration': 'Назад', 'width': 2},
-            'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration': 'Назад', 'width': 1},
+                'backward:seller_registration_seller_person_name': 'Назад', 'width': 2},
+            'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration_seller_person_name': 'Назад', 'width': 1},
             
+            'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration_dealership_name': 'Назад', 'width': 1},
+            'write_dealership_name(novalid)': {'message_text': 'Название автосалона должно быть длинной < 250 символов\nИ Только из букв и цифр:', 'backward:seller_registration_dealership_name': 'Назад', 'width': 1},
+            'write_dealership_name(exists)': {'message_text': 'Это название уже зарегестрировано\nожидается иное', 'backward:seller_registration_dealership_name': 'Назад', 'width': 1},
             
-            'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration': 'Назад', 'width': 1},
-            'write_dealership_name(novalid)': {'message_text': 'Название автосалона должно быть длинной < 250 символов\nИ Только из букв и цифр:', 'backward:seller_registration': 'Назад', 'width': 1},
-            'write_dealership_name(exists)': {'message_text': 'Это название уже зарегестрировано\nожидается иное', 'backward:seller_registration': 'Назад', 'width': 1},
-            
-
             'write_seller_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
                                    'backward:seller_registration_number': 'Назад', 'width': 1},
             'write_seller_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
                                               'backward:seller_registration_number': 'Назад', 'width': 1},
             'write_seller_phone_number(exists)': {'message_text': 'Некорректный ввод номера!\nОн уже зарегистрирован\nожидается иной',
                                               'backward:seller_registration_number': 'Назад', 'width': 1},          
-            'write_dealership_address': {'message_text': 'Введите адрес автосалона', 'backward:seller_registration_number': 'Назад', 'width': 1},
-            'write_dealership_address(novalid)': {'message_text': 'Ошибка\n Адрес автосалона должен содержать буквы', 'backward:seller_registration_number': 'Назад', 'width': 1},
+            
+            'write_dealership_address': {'message_text': 'Введите адрес автосалона', 'backward:seller_registration_dealership_address': 'Назад', 'width': 1},
+            'write_dealership_address(novalid)': {'message_text': 'Ошибка\n Адрес автосалона должен содержать буквы', 'backward:seller_registration_dealership_address': 'Назад', 'width': 1},
 
 
             'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},

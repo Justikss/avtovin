@@ -11,6 +11,7 @@ from database.data_requests.person_requests import PersonRequester
 
 class CheckInputName(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        print('iamcorrect_name')
         seller_registration_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers')
         memory_storage = await state.get_data()
         redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт

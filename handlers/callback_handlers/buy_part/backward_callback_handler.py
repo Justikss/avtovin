@@ -8,6 +8,12 @@ from handlers.state_handlers.buyer_registration_handlers import LEXICON, input_f
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
 
 from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
+from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import hybrid_input_seller_number, dealership_input_address
+from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
+from handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config import check_your_config
+from handlers.callback_handlers.sell_part.start_sell_button_handler import start_sell_callback_handler
+
+from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates, PersonSellerRegistrationStates
 
 
 async def backward_button_handler(callback: CallbackQuery, state: FSMContext = None):
@@ -21,8 +27,62 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
     if ':' in callback.data:
         mode = callback.data.split(':')
         mode = mode[1]
+        if mode.startswith('seller_registration'):
+            incorrect_case = mode.split('(')
+            if incorrect_case:
+                last_user_message = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':last_user_message')
+                if last_user_message:
+                    await redis_storage.redis_data.delete_key(key=str(callback.from_user.id) + ':last_user_message')
+                    try:
+                        await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=last_user_message)
+                    except:
+                        pass
+                # delete_mode = True
+                # await callback.message.delete()
+            # else:
+            #     delete_mode = False
+            seller_mode = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':seller_registration_mode')
+            edit_mode = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_registration_data')
 
-        if mode == 'support':
+            need_method = None
+            need_state = None
+
+            if edit_mode == 'true':
+                await state.set_state(HybridSellerRegistrationStates.check_input_data)
+                need_method = check_your_config
+
+            elif mode.startswith('seller_registration_seller_person_name'):
+                await state.clear()
+                callback_method = start_sell_callback_handler
+                
+                
+            elif mode.startswith('seller_registration_dealership_name'):
+                await state.clear()
+                callback_method = start_sell_callback_handler
+                
+                
+            elif mode.startswith('seller_registration_number'):
+                # if seller_mode == 'dealership':
+                #     need_state = CarDealerShipRegistrationStates.input_dealship_name
+                # elif seller_mode == 'person':
+                #     need_state = PersonSellerRegistrationStates.input_fullname
+                    
+                await state.clear()
+                need_method = input_seller_name  
+                
+                
+            elif mode.startswith('seller_registration_dealership_address'):
+                await state.set_state(HybridSellerRegistrationStates.input_number)
+                need_method = hybrid_input_seller_number
+
+
+            if need_method:
+                await need_method(request=callback, state=state)
+            elif callback_method:
+                await callback_method(callback=callback, state=state)
+
+
+        elif mode == 'support':
             await tech_support_callback_handler(callback=callback)
 
         elif mode == 'choose_car_category':

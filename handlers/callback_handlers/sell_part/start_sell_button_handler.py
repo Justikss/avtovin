@@ -24,4 +24,4 @@ async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext
             await seller_main_menu(callback=callback)
     else:
         lexicon_code = 'who_is_seller'
-        await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code)
+        await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code, delete_mode=True)
