@@ -79,7 +79,7 @@ async def confirm_from_seller(callback: CallbackQuery):
             print('cars_id_range', ':'.join(cars_id_range))
             active_non_confirm_offers.pop(need_message_id)
             print(need_message_id)
-            await callback.answer('Принято')
+            await callback.answer(LEXICON['success_notification'])
             await callback.message.chat.delete_message(message_id=need_message_id)
 
             await redis_data.redis_data.set_data(

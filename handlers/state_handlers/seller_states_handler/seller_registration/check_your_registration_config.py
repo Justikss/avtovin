@@ -31,8 +31,8 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
     if seller_mode == 'dealership':
         lexicon_part['rewrite_dealership_address'] = memory_storage['dealership_address']
-    else:
-        lexicon_part.pop('dealership_address')
+    # else:
+    #     lexicon_part.pop('dealership_address')
     print(lexicon_part)
 
     edit_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data')

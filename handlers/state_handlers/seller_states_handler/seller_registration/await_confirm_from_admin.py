@@ -49,7 +49,7 @@ async def send_message_to_admins(callback: CallbackQuery):
 
     message_for_admins = await callback.message.bot.send_message(chat_id=ADMIN_CHAT, text=output_text, reply_markup=keyboard)
 
-    await utils.update_non_confirm_seller_registrations(callback=callback, message_for_admins_id=message_for_admins.message_id)
+    await utils.update_non_confirm_seller_registrations(callback=callback, message_for_admins=message_for_admins.message_id)
 
 
 async def seller_await_confirm_by_admin(callback: CallbackQuery, state: FSMContext):

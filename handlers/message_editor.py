@@ -56,9 +56,10 @@ class TravelEditor:
             redis_key = str(user_id) + ':last_message'
 
         if delete_mode and last_message_id:
-           
-            await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
-
+            try:
+                await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
+            except:
+                pass
             if reply_mode:
                 print('reply_mode2')
                 new_message = await message_object.reply(text=message_text, reply_markup=keyboard)

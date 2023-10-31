@@ -13,24 +13,33 @@ async def seller_are_registrated_notification(callback: CallbackQuery):
     await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='success_seller_registration_notice')
 
     
-async def update_non_confirm_seller_registrations(callback: CallbackQuery, message_for_admins_id=None, get_by_message_id=None, set_data=None):
-    '''Метод обновляет стэк ожидающих одобрение продавцов'''
+async def update_non_confirm_seller_registrations(callback: CallbackQuery, message_for_admins=None, get_by_seller_id=None):
+    '''Метод обновляет стэк ожидающих одобрение продавцов
+    :message_for_admins: Отправить оповещение о попытке регистрации администрации.
+    :get_by_seller_id: Получить пару со стэка( в случае одобрения или отказа регистрации )'''
 
     redis_module = importlib.import_module('utils.redis_for_language')
 
     redis_key = str(callback.from_user.id) + ':active_non_confirm_seller_registrations'
-    seller_registration_stack = await redis_module.redis_data.get_data(key=redis_key)
+    seller_registration_stack = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
 
-    if get_by_message_id:
-        current_data_pair
-
-
-    if message_for_admins_id:
-        add_to_seller_registration_stack = {message_for_admins_id: callback.from_user.id}
-        if seller_registration_stack:
-            seller_registration_stack += add_to_seller_registration_stack
+    if get_by_seller_id:
+        if not seller_registration_stack:
+            return False
         else:
-            seller_registration_stack = add_to_seller_registration_stack
+            for key, value in seller_registration_stack.items():
+                if str(value) == get_by_seller_id:
+                    exists_message_id = (key, value)
+                    current_data_pair = seller_registration_stack.pop(key)
+                    await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
+                    return exists_message_id
+
+
+    if message_for_admins:
+        if seller_registration_stack:
+            seller_registration_stack[message_for_admins] = str(callback.from_user.id)
+        else:
+            seller_registration_stack = {message_for_admins: callback.from_user.id}
 
     await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
 

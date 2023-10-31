@@ -22,7 +22,7 @@ from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
-from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers
+from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 
 
@@ -103,8 +103,6 @@ async def start_bot():
                         pass_on_dealership_address.GetDealershipAddress()))
 
 
-
-    
       # rewrite_seller_name
       # rewrite_seller_number
       # confirm_registration_from_seller
@@ -146,7 +144,10 @@ async def start_bot():
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
+    dp.callback_query(accept_registration_request_button.accept_registraiton,
+                        lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))
 
+    
 
     '''Состояния поиска машины'''
     '''hybrid'''
@@ -186,7 +187,12 @@ async def start_bot():
 
     @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
-      await callback.message.answer('Пролёт коллбэка')
+      print('may')
+      await accept_registration_request_button.accept_registraiton(callback=callback)
+      # a = await state.get_state()
+      # a = a if a else ' '
+      # prek = callback.data.startswith('confirm_new_seller_registration_from')
+      # await callback.message.answer('Пролёт коллбэка ' + callback.data + ' ' + a + prek)
       
 
 

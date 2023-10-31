@@ -43,6 +43,18 @@ class PersonRequester:
             return False
 
     @staticmethod
+    async def change_authorized_state(telegram_id, boolean: bool):
+        '''Метод для изменения состояния авторизации продавца.'''
+        try:
+            with db.atomic():
+                query = Seller.update(authorized=boolean).where(Seller.telegram_id == telegram_id)
+                query.execute()
+                return True
+        except IntegrityError as ex:
+            print(ex)
+            return False
+
+    @staticmethod
     def this_name_is_exists(name: str, user=None, seller=None):
         '''Проверка на сущестование имени в базе данных'''
         need_model = Seller if seller else User

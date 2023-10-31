@@ -3,6 +3,9 @@ import importlib
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
 
 LEXICON = {
+            'unexpected_behavior': 'Неожиданное поведение',
+            'too_late': 'Вы опоздали',
+            'success_notification': 'Принято',
             'user_in_system': {'message_text': 'Вы в системе'},
             'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': '🇺🇿 Uzb',
                                 'language_ru': "🇷🇺 Rus", 'width': 2},
@@ -110,7 +113,7 @@ LEXICON = {
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
             'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'width': 2},
 
-            'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_advert_from:'},
+            'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_seller_registration_from:'},
             'seller_waiting_registration_confirm': {'start_text_legal': 'Заявка на регистрацию автосалона:', 'start_text_natural': 'Заявка на регистрацию частного продавца:',
                                                  'legal_message': {'name': 'Название автосалона: ', 'address': 'Адрес: '},
                                                   'natural_message': {'name': 'Имя: ', 'surname': 'Фамилия: ', 'patronymic': 'Отчество: '},

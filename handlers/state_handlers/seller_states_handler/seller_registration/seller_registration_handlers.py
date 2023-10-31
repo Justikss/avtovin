@@ -7,7 +7,6 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 
 from utils.Lexicon import LEXICON
-from handlers.state_handlers.seller_states_handler.seller_registration import utils
 from handlers.state_handlers.buyer_registration_handlers import registartion_view_corrector
 from states.seller_registration_states import HybridSellerRegistrationStates, PersonSellerRegistrationStates, CarDealerShipRegistrationStates
 from handlers.custom_filters import correct_name, correct_number
@@ -102,8 +101,11 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         message_reply_mode = True
         print('reply_mode1')
         delete_last_message_mode = False
-
-        await registartion_view_corrector(request=request, state=state, delete_mode=True)
+        if edit_mode == 'true': 
+            delete_mode = False
+        else:
+            delete_mode = True
+        await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode)
         
         
 
@@ -177,11 +179,11 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
         await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code, reply_mode=message_reply_mode, delete_mode=message_delete_mode)
     else:
         await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
-
+        await check_reg_config_module.check_your_config(request=request, state=state)
     await state.set_state(HybridSellerRegistrationStates.check_input_data)
     
-    if seller_mode == 'seller':
-        await check_reg_config_module.check_your_config(request=request, state=state)
+    # if seller_mode == 'seller':
+    #     await check_reg_config_module.check_your_config(request=request, state=state)
 
     print('this', await state.get_state())
     if isinstance(request, CallbackQuery):
