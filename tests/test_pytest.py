@@ -10,9 +10,9 @@ sys.path.insert(0, '..')
 print(sys.path)
 
 #from handlers.state_handlers.seller_states_handler.seller_registration import hybrid_input_seller_number
-from tests.utils import TEST_USER, TEST_USER_CHAT, TEST_MESSAGE
+from tests import utils
 sys.path.insert(0, '..')
-from loader import seller_registration_handlers
+from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
 
 
 
@@ -29,16 +29,13 @@ from loader import seller_registration_handlers
 async def test_callback_handler(bot, storage):
     #callback = AsyncMock()
     message = AsyncMock()
-    hybrid_input_seller_number = seller_registration_handlers.hybrid_input_seller_number
+    current_method = seller_main_menu
     
 
-    message = Message(
-        message_id=123,
-        date=datetime.now(),
-        chat=TEST_USER_CHAT,
-        text='america'
-    )
-
+    TEST_MESSAGE = utils.get_message('america')
+    TEST_CALLBACK = utils.get_callback('oa')
+    TEST_USER = utils.TEST_USER
+    TEST_USER_CHAT = utils.TEST_USER_CHAT
 
     state = FSMContext(
         
@@ -50,6 +47,6 @@ async def test_callback_handler(bot, storage):
         )
     )
 
-    await hybrid_input_seller_number(request=TEST_MESSAGE, state=state, bot=bot)
-    await bot.method.assert_called_with(incorrect=True)
+    await seller_main_menu(callback=TEST_CALLBACK)
+    await TEST_CALLBACK.message.assert_any_call()
     

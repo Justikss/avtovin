@@ -3,6 +3,7 @@ import importlib
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
 
 LEXICON = {
+            'user_in_system': {'message_text': 'Вы в системе'},
             'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': '🇺🇿 Uzb',
                                 'language_ru': "🇷🇺 Rus", 'width': 2},
             'hello_text': {'message_text': 'Приветственное сообщение', 'start_sell': 'Продажа',
@@ -106,7 +107,9 @@ LEXICON = {
 
             'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},
             'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь одобрения от администрации', 'return_to_sell_zone': 'К покупкам', 'width': 1},
-            'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1}
+            'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
+            'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'width': 2}
+            
         }
 
 # class LEXICON:
