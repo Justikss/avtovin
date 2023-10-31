@@ -7,6 +7,6 @@ from config_data.config import DEFAULT_COMMANDS
 
 async def bot_echo(message: Message):
     '''Ответ на сообщения, не попавшие в обработки.'''
-    await message.chat.bot.send_message(chat_id=-4006110220,
+    await message.chat.bot.send_message(chat_id=message.chat.id,
         text=str(message.chat.id)
     )

@@ -5,6 +5,35 @@ from typing import Union
 
 from database.data_requests.person_requests import PersonRequester
 
+async def seller_are_registrated_notification(callback: CallbackQuery):
+    '''Метод уведомляющий продавца о подтверждении его регистрации'''
+
+    message_editor_module = importlib.import_module('handlers.message_editor')
+
+    await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='success_seller_registration_notice')
+
+    
+async def update_non_confirm_seller_registrations(callback: CallbackQuery, message_for_admins_id=None, get_by_message_id=None, set_data=None):
+    '''Метод обновляет стэк ожидающих одобрение продавцов'''
+
+    redis_module = importlib.import_module('utils.redis_for_language')
+
+    redis_key = str(callback.from_user.id) + ':active_non_confirm_seller_registrations'
+    seller_registration_stack = await redis_module.redis_data.get_data(key=redis_key)
+
+    if get_by_message_id:
+        current_data_pair
+
+
+    if message_for_admins_id:
+        add_to_seller_registration_stack = {message_for_admins_id: callback.from_user.id}
+        if seller_registration_stack:
+            seller_registration_stack += add_to_seller_registration_stack
+        else:
+            seller_registration_stack = add_to_seller_registration_stack
+
+    await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
+
 async def load_seller_in_database(request: Union[CallbackQuery, Message], state: FSMContext, authorized_state: bool):
     '''Метод подготовки аргументов(данных продавца) к загрузке в базу данных'''
 

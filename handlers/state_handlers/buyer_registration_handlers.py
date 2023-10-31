@@ -61,14 +61,19 @@ async def load_user_in_database(memory_dict, number, message: Message):
     PersonRequester.store_data(struct_for_database, user=True)
 
 
-async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext):
+async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext, delete_mode=False):
     
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     if isinstance(request, Message):
         message = request
     else:
-        message = request.message
+        return
+
+    if delete_mode:
+        last_message_id = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
+        if last_message_id:
+            await message.chat.delete_message(message_id=last_message_id)
 
     memory_data = await state.get_data()
     # if message.message_id:

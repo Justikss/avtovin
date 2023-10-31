@@ -9,7 +9,7 @@ TEST_USER_CHAT = Chat(id=12, type='private', username=TEST_USER.username, first_
 
 
 def get_message(text:str):
-    return Message(chat=TEST_USER_CHAT, message_id=2, text=text, from_user=TEST_USER, date=datetime.datetime.now(), sender_chat=TEST_USER_CHAT )
+    return Message(chat=TEST_USER_CHAT, message_id=2, text=text, from_user=TEST_USER, date=datetime.datetime.now(), sender_chat=TEST_USER_CHAT)
     
 def get_callback(data: str):
     message = get_message(text=None)

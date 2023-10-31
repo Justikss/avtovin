@@ -10,7 +10,7 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None):
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
         user_id = request.from_user.id
@@ -20,11 +20,16 @@ class TravelEditor:
             lexicon_part = LEXICON[lexicon_key]
         redis_key = str(user_id) + ':last_message'
         last_message_id = await redis_data.get_data(redis_key)
+        print('last_mas', last_message_id)
 
         if isinstance(request, CallbackQuery):
             message_object = request.message
         else:
             message_object = request
+
+        if not bot:
+            bot = message_object.bot
+
 
         chat_object = message_object.chat
         if button_texts:
@@ -66,25 +71,39 @@ class TravelEditor:
         #     await request.chat.bot.send_media_group(chat_id=request.chat.id,
         #                                                      media=formatted_config_output, reply_markup=keyboard)
         else:
-            try:
-                await message_object.edit_text(text=message_text, reply_markup=keyboard)
-            except:
+            if reply_mode:
+                last_user_message = await redis_data.get_data(key=str(request.from_user.id) + ':last_user_message')
+                print('reply_mode2')
+                #new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
+                new_message = await bot.send_message(chat_id=message_object.chat.id, reply_to_message_id=last_user_message, text=message_text, reply_markup=keyboard)
+                print('new_repl', last_message_id)
+                #await redis_data.set_data(redis_key, new_message.message_id)
+                
+            elif last_message_id:
+                try:
+                    #await message_object.edit_text(text=message_text, reply_markup=keyboard)
+                    return await bot.edit_message_text(chat_id=message_object.chat.id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
+
+                except Exception as ex:
+                    pass
+                
                 try:
                     await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
-
                 except:
-                    pass
-                finally:
-                    if reply_mode:
-                        print('reply_mode2')
-                        new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
-                        #await redis_data.set_data(redis_key, new_message.message_id)
-                    else:
-                        
+                    pass    
+                
+            if not reply_mode:
+                #new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
+                new_message = await bot.send_message(chat_id=message_object.chat.id, text=message_text, reply_markup=keyboard)
+            print('new_send', last_message_id)
+        
                     
-                        new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
+
+                   
+
+                    
                     #await redis_data.set_data(redis_key, new_message.message_id)
-                    print('SET: ', new_message.message_id)
+                    # print('SET: ', new_message.message_id)
 
         if new_message:
             await redis_data.set_data(redis_key, new_message.message_id)

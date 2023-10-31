@@ -108,7 +108,15 @@ LEXICON = {
             'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},
             'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь одобрения от администрации', 'return_to_sell_zone': 'К покупкам', 'width': 1},
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
-            'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'width': 2}
+            'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'width': 2},
+
+            'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_advert_from:'},
+            'seller_waiting_registration_confirm': {'start_text_legal': 'Заявка на регистрацию автосалона:', 'start_text_natural': 'Заявка на регистрацию частного продавца:',
+                                                 'legal_message': {'name': 'Название автосалона: ', 'address': 'Адрес: '},
+                                                  'natural_message': {'name': 'Имя: ', 'surname': 'Фамилия: ', 'patronymic': 'Отчество: '},
+                                                   'phone_number': 'Телефонный номер: '},
+            'success_seller_registration_notice': {'message_text': 'Вы зарегестрированы в системе', 'return_seller_main_menu': 'В меню продавца', 'width': 1}
+            
             
         }
 

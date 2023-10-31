@@ -23,6 +23,8 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
     if str(await state.get_state()) != 'PersonSellerRegistrationStates:input_fullname':
         await state.set_state(PersonSellerRegistrationStates.input_fullname)
 
+    travel_object = request
+
     if isinstance(request, CallbackQuery):
         request = request.message
     elif isinstance(request, Message):
@@ -61,9 +63,9 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
 
         message_reply_mode = False
         delete_last_message_mode = False
-
-    print('start_editor_with', lexicon_code)
-    await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code, lexicon_cache=False,
+    print('req_type', type(request))
+    print('reply_mod', message_reply_mode)
+    await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key=lexicon_code, lexicon_cache=False,
                                                             reply_mode=message_reply_mode)
 
     await state.set_state(HybridSellerRegistrationStates.input_number)
@@ -79,6 +81,9 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
     if user_name:
         await state.update_data(seller_name=user_name)
 
+    travel_object = request
+
+
     if isinstance(request, CallbackQuery):
         message = request.message
     elif isinstance(request, Message):
@@ -90,15 +95,15 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         return await check_reg_config_module.check_your_config(request=request, state=state)
     
     bot = message.chat.bot
-
+    print('inc1', incorrect)
     if incorrect:
         await state.update_data(incorrect_answer=True)
         lexicon_code = 'write_seller_phone_number' + incorrect
         message_reply_mode = True
         print('reply_mode1')
-        delete_last_message_mode = True
+        delete_last_message_mode = False
 
-        await registartion_view_corrector(request=request, state=state)
+        await registartion_view_corrector(request=request, state=state, delete_mode=True)
         
         
 
@@ -119,10 +124,12 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         await bot.delete_message(chat_id=message.chat.id, message_id = message.message_id)
         lexicon_code = 'write_seller_phone_number'
         message_reply_mode = False
-        delete_last_message_mode = False
+        delete_last_message_mode = True
 
-    await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code,
-                                                             reply_mode = message_reply_mode)
+
+    print('reply_mome', message_reply_mode)
+    await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key=lexicon_code,
+                                                             reply_mode = message_reply_mode, delete_mode=delete_last_message_mode)
     
     await state.set_state(CarDealerShipRegistrationStates.input_dealship_name)
 
@@ -134,6 +141,10 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
 
+    if incorrect:
+        delete_mode = True
+    else:
+        delete_mode = False
 
     if input_number:
         await state.update_data(seller_number=input_number)
@@ -149,21 +160,23 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
     if seller_mode == 'dealership':
         if incorrect:
             await state.update_data(incorrect_answer=True)
-            await registartion_view_corrector(request=request, state=state)
+            await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
 
             message_reply_mode = True
+            message_delete_mode = False
             await redis_module.redis_data.set_data(
                                         key=str(request.from_user.id) + ':last_user_message',
                                         value=request.message_id)
             lexicon_code = 'write_dealership_address' + incorrect
         else:
-            await registartion_view_corrector(request=request, state=state)
-            message_reply_mode=False
+            await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
+            message_delete_mode = True
+            message_reply_mode = False
             lexicon_code = 'write_dealership_address'
 
-        await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code, reply_mode=message_reply_mode)
+        await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code, reply_mode=message_reply_mode, delete_mode=message_delete_mode)
     else:
-        await registartion_view_corrector(request=request, state=state)
+        await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
 
     await state.set_state(HybridSellerRegistrationStates.check_input_data)
     
