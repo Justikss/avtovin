@@ -148,9 +148,10 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
         lexicon_code = 'write_full_name'
         await state.update_data(incorrect_answer=False)
         #try:
-        await chat.Chat.delete_message(self=request.message.chat, message_id=message_id)
-        # except:
-        #     pass
+        try:
+            await chat.Chat.delete_message(self=request.message.chat, message_id=message_id)
+        except:
+            pass
 
     lexicon_part = LEXICON[lexicon_code]
 

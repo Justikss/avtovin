@@ -12,10 +12,10 @@ from states.seller_registration_states import HybridSellerRegistrationStates, Pe
 from handlers.custom_filters import correct_name, correct_number
 
 
-async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = None):
+async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = None, from_backward_Delete_mode=None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
-    
+    delete_mode = False
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
     print('seller_mode', seller_mode)
 
@@ -70,14 +70,17 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
         delete_last_message_mode = False
     # print('req_type', type(request))
     # print('reply_mod', message_reply_mode)
+    if from_backward_Delete_mode:
+        delete_mode = from_backward_Delete_mode
+
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key=lexicon_code, lexicon_cache=False,
-                                                            reply_mode=message_reply_mode)
+                                                            reply_mode=message_reply_mode, delete_mode=delete_mode)
 
     await state.set_state(HybridSellerRegistrationStates.input_number)
     
 
 #Фильтр CorrectName()
-async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], state: FSMContext, user_name=None, incorrect = None):
+async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], state: FSMContext, user_name=None, incorrect = None, from_backward_Delete_mode=None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
@@ -126,18 +129,26 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         except TelegramBadRequest:
             pass
         if last_user_message:
-            await bot.delete_message(chat_id=message.chat.id, message_id=last_user_message)
+            try:
+                await bot.delete_message(chat_id=message.chat.id, message_id=last_user_message)
+            except:
+                pass
             await redis_module.redis_data.delete_key(key=redis_key)
             
         await bot.delete_message(chat_id=message.chat.id, message_id = message.message_id)
         lexicon_code = 'write_seller_phone_number'
         message_reply_mode = False
         delete_last_message_mode = True
+    
+    if from_backward_Delete_mode:
+        delete_mode = from_backward_Delete_mode
+    else:
+        delete_mode = False
 
 
     print('reply_mome', message_reply_mode)
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key=lexicon_code,
-                                                             reply_mode = message_reply_mode, delete_mode=delete_last_message_mode)
+                                                             reply_mode = message_reply_mode, delete_mode=True)
     
     await state.set_state(CarDealerShipRegistrationStates.input_dealship_name)
 
@@ -184,7 +195,7 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
 
         await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code, reply_mode=message_reply_mode, delete_mode=message_delete_mode)
     else:
-        await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
+        await registartion_view_corrector(request=request, state=state, delete_mode=True)
         await check_reg_config_module.check_your_config(request=request, state=state)
     await state.set_state(HybridSellerRegistrationStates.check_input_data)
     

@@ -8,19 +8,31 @@ from utils.Lexicon import LEXICON
 
 
 #Фильтр Dealership_name
-async def check_your_config(request: Union[CallbackQuery, Message], state: FSMContext, dealership_address=None):
+async def check_your_config(request: Union[CallbackQuery, Message], state: FSMContext, dealership_address=None, from_backward_Delete_mode=None):
     '''Обработчик конечного состояния регистрации пользовтаеля:
     Сверка введённых рег. данных'''
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+
+    if isinstance(request, CallbackQuery):
+        chat_id = request.message.chat.id
+        bot = request.message.chat.bot
+        message_id = request.message.message_id
+    else:
+        message_id = request.message_id
+
+        chat_id = request.chat.id
+        bot = request.chat.bot
+
 
 
     if dealership_address:
         await state.update_data(dealership_address=dealership_address)
         print('dealership_address', dealership_address)
 
-    bot = request.chat.bot
-    await bot.delete_message(chat_id=request.chat.id, message_id=request.message_id)
+
+    await bot.delete_message(chat_id=chat_id, message_id=message_id)
+
     memory_storage = await state.get_data()
     await registartion_view_corrector(request=request, state=state)
     

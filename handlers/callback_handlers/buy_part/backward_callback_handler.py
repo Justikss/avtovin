@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery
 from handlers.callback_handlers.buy_part.search_auto_handler import search_auto_callback_handler
 from handlers.state_handlers.buyer_registration_handlers import LEXICON, input_full_name, BuyerRegistationStates
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
+from handlers.callback_handlers.buy_part.callback_handler_start_buy import start_buy
 
 from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
 from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import hybrid_input_seller_number, dealership_input_address
@@ -77,7 +78,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
 
 
             if need_method:
-                await need_method(request=callback, state=state)
+                await need_method(request=callback, state=state, from_backward_Delete_mode=True)
             elif callback_method:
                 await callback_method(callback=callback, state=state)
 
@@ -103,14 +104,18 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
             if mode == 'user_registration_number':
                 await state.set_state(BuyerRegistationStates.input_full_name)
                 await input_full_name(request=callback, state=state)
-            else:
+            elif mode == 'user_registration':
                 await state.clear()
                 await callback.message.delete()
+                await set_language(callback=callback)
+            else:
+                print("LEXICON_CACHA")
 
                 user_id = callback.from_user.id
                 redis_key = str(user_id) + ':last_lexicon_code'
                 last_lexicon_code = await redis_data.get_data(redis_key)
-
+                await state.clear()
+                await callback.message.delete()
                 lexicon_part = LEXICON[last_lexicon_code]
                 message_text = lexicon_part['message_text']
                 keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
@@ -118,7 +123,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
                 await redis_storage.redis_data.set_data(key=str(user_id) + ':last_message', value = message_object.message_id)
 
     else:
-
+        print("LEXICON_CACHA")
         memory_data = await state.get_data()
         last_lexicon_code = memory_data.get('last_lexicon_code')
         if last_lexicon_code:
