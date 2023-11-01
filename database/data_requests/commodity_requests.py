@@ -5,7 +5,7 @@ from peewee import IntegrityError
 from database.tables.commodity import Commodity
 from database.tables.start_tables import db
 from database.data_requests.person_requests import sellers, buyer
-import sqlite3
+
 
 class CommodityRequester:
     @staticmethod
