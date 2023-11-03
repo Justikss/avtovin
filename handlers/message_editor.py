@@ -10,10 +10,10 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, photo=None):
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, photo=None, seller_boot=None):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
-        user_id = request.from_user.id
+        user_id = str(request.from_user.id)
         print('user_id =', user_id)
         new_message = None
         if not lexicon_part:
@@ -77,10 +77,19 @@ class TravelEditor:
                         await message_object.delete()
                     except:
                         pass
-                    new_message = await bot.send_photo(chat_id=message_object.chat.id, photo=photo, caption=message_text, reply_markup=keyboard)
+                    if not reply_mode and photo:
+                        print('NOTRM')
+                        new_message = await bot.send_photo(chat_id=message_object.chat.id, photo=photo, caption=message_text, reply_markup=keyboard)
 
-            elif reply_mode:
-                last_user_message = await redis_data.get_data(key=str(request.from_user.id) + ':last_user_message')
+            if reply_mode:
+                print('ph: ', photo)
+                if not seller_boot:
+                    redis_reply_key=str(request.from_user.id) + ':last_user_message'
+                elif seller_boot:
+                    print('YESSM')
+                    redis_reply_key = str(request.from_user.id) + ':last_seller_message'
+                print("YESRM")
+                last_user_message = await redis_data.get_data(key=redis_reply_key)
                 print('reply_mode2')
                 #new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
                 new_message = await bot.send_message(chat_id=message_object.chat.id, reply_to_message_id=last_user_message, text=message_text, reply_markup=keyboard)

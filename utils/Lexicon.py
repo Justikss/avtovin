@@ -125,7 +125,10 @@ LEXICON = {
             'create_seller_request': {'message_text': 'Заявки', 'create_new_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
 
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'width': 1},
-            'seller_load_notification_button': {'return_main_menu': 'В меню'}
+            'seller_load_notification_button': {'return_main_menu': 'В меню'},
+
+            'message_not_digit': ' должна состоять только из цифр',
+            'message_not_photo': '\nПришлите url-ссылку или прикрепите фотографию\n(значок скрепки в левом углу чата)'
             
         }
 

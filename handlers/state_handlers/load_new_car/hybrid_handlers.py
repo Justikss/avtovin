@@ -1,9 +1,10 @@
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 import importlib
+from typing import Union
 
 from states.load_commodity_states import LoadCommodityStates
-from utils.Lexicon import LexiconCommodityLoader
+from utils.Lexicon import LexiconCommodityLoader, LEXICON
 
 async def get_load_car_state(state: FSMContext):
     '''Метод-помощник для определения категории состояния авто в обработке FSM'''
@@ -80,33 +81,55 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
 
     elif cars_state == 'second_hand':
         await state.set_state(LoadCommodityStates.input_to_load_year)
+    
+    # await message_editor.redis_data.set_data(key=str(callback.from_user.id) + ':load_car_state',
+    #                                         value=cars_state)
 
 
-async def input_price_to_load(callback: CallbackQuery, state: FSMContext):
+async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False):
     '''Выбрать цену добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-    
-    cars_state = await get_load_car_state(state=state)
-    if cars_state == 'new':
-        await state.update_data(complectation_for_load=callback.data)
 
-    elif cars_state == 'second_hand':
-        await state.update_data(color_for_load=callback.data)
-    
     lexicon_part = LexiconCommodityLoader.load_commodity_price
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
+    print('bpart ', lexicon_part)
+
+    if not incorrect:
+        cars_state = await get_load_car_state(state=state)
+        if cars_state == 'new':
+            await state.update_data(complectation_for_load=request.data)
+
+        elif cars_state == 'second_hand':
+            await state.update_data(color_for_load=request.data)
+        reply_mode = False
+    else:
+        reply_mode = True
+        if lexicon_part['message_text'].endswith(LEXICON['message_not_digit']):
+            pass
+        else:
+            lexicon_part['message_text'] += LEXICON['message_not_digit']
+    print('replm: ', reply_mode)
+
+    await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True)
 
     await state.set_state(LoadCommodityStates.input_to_load_photo)
 
 
-async def input_photo_to_load(message: Message, state: FSMContext):
+async def input_photo_to_load(message: Message, state: FSMContext, incorrect=False, car_price=None):
     '''Вставить фото добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-    await message.delete()
-    await state.update_data(load_price=message.text)
-
     lexicon_part = LexiconCommodityLoader.load_commodity_photo
-    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part)
+
+    if not incorrect:
+        await state.update_data(load_price=car_price)
+        reply_mode = False
+    else:
+        reply_mode  = True
+        if lexicon_part['message_text'].endswith(LEXICON['message_not_photo']):
+            pass
+        else:
+            lexicon_part += LEXICON['message_not_photo']
+
+    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True)
 
     await state.set_state(LoadCommodityStates.load_config_output)

@@ -11,7 +11,7 @@ from aiogram.fsm.context import FSMContext
 from config_data.config import BOT_TOKEN
 from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, confirm_from_seller_callback_handler, confirm_search_config, language_callback_handler, main_menu, search_auto_handler, show_offers_history
-from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address
+from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address, price_is_digit, message_is_photo
 from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_history)
 from handlers.state_handlers import buyer_registration_handlers
@@ -229,9 +229,9 @@ async def start_bot():
                               or_f(lambda callback: callback.data.startswith('load_complectation_'),
                               lambda callback: callback.data.startswith('load_color_'))))
     dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
-                              StateFilter(LoadCommodityStates.input_to_load_photo))
+                              StateFilter(LoadCommodityStates.input_to_load_photo),  price_is_digit.PriceIsDigit())
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
-                              StateFilter(LoadCommodityStates.load_config_output))
+                              StateFilter(LoadCommodityStates.load_config_output), message_is_photo.MessageIsPhoto())
 
 
     @dp.callback_query()

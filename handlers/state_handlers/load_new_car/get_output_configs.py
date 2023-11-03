@@ -6,11 +6,11 @@ from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from handlers.state_handlers.load_new_car.hybrid_handlers import get_load_car_state
 from handlers.state_handlers.load_new_car.load_data_fromatter import data_formatter
 
-async def output_load_config_for_seller(message: Message, state: FSMContext):
+async def output_load_config_for_seller(message: Message, state: FSMContext, photo_url):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await message.delete()
-    await state.update_data(load_photo=message.text)
+    await state.update_data(load_photo=photo_url)
 
     structured_boot_data = await data_formatter(request=message, state=state)
 
