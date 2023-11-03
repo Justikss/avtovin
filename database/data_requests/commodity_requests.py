@@ -25,8 +25,8 @@ class CommodityRequester:
     def store_data(*data: Union[List[dict], dict], db=db) -> bool:
         '''Загрузка моделей в таблицу товаров'''
         with db.atomic():
-            Commodity.insert_many(*data).execute()
-            return True
+            model = Commodity.insert_many(*data).execute()
+            return model
 
 
     @staticmethod

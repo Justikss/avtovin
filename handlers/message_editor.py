@@ -10,7 +10,7 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None):
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, photo=None):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
         user_id = request.from_user.id
@@ -72,7 +72,14 @@ class TravelEditor:
         #     await request.chat.bot.send_media_group(chat_id=request.chat.id,
         #                                                      media=formatted_config_output, reply_markup=keyboard)
         else:
-            if reply_mode:
+            if photo:
+                    try:
+                        await message_object.delete()
+                    except:
+                        pass
+                    new_message = await bot.send_photo(chat_id=message_object.chat.id, photo=photo, caption=message_text, reply_markup=keyboard)
+
+            elif reply_mode:
                 last_user_message = await redis_data.get_data(key=str(request.from_user.id) + ':last_user_message')
                 print('reply_mode2')
                 #new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
@@ -80,20 +87,21 @@ class TravelEditor:
                 print('new_repl', last_message_id)
                 #await redis_data.set_data(redis_key, new_message.message_id)
                 
-            elif last_message_id:
-                try:
-                    #await message_object.edit_text(text=message_text, reply_markup=keyboard)
-                    return await bot.edit_message_text(chat_id=message_object.chat.id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
+            if last_message_id:
+                if not photo:
+                    try:
+                        #await message_object.edit_text(text=message_text, reply_markup=keyboard)
+                        return await bot.edit_message_text(chat_id=message_object.chat.id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
 
-                except Exception as ex:
-                    pass
-                
+                    except Exception as ex:
+                        pass
+                    
                 try:
                     await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
                 except:
                     pass    
                 
-            if not reply_mode:
+            if not reply_mode and not photo:
                 #new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
                 new_message = await bot.send_message(chat_id=message_object.chat.id, text=message_text, reply_markup=keyboard)
             print('new_send', last_message_id)

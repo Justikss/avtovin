@@ -4,23 +4,37 @@ import importlib
 
 from config_data.config import ADMIN_CHAT
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
+from database.data_requests.commodity_requests import CommodityRequester
+from handlers.state_handlers.load_new_car.get_output_configs import data_formatter
 
 async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMContext):
+    '''Обработчик одобрения собственных конфигураций загрузки нового авто от селлера.'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-    await state.clear()
-    notification_string = await LexiconCommodityLoader.create_notification_for_seller(request_number='1')
-    lexicon_part = LEXICON['seller_load_notification_button']
-    for key, value in lexicon_part:
-        notification_string[key] = value
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=notification_string)
+    boot_data = await data_formatter(request=callback, state=state)
 
-    message_for_admin_chat = await LexiconCommodityLoader.get_output_string(mode='to_admins_from_' + callback.from_user.username)
+    await state.clear()
+
+    car_model = CommodityRequester.store_data([boot_data])
+    print('carmod', car_model)
+
+    notification_string = await LexiconCommodityLoader.create_notification_for_seller(request_number='1')
+    mock_lexicon_part = {'message_text': notification_string}
+    lexicon_part = LEXICON['seller_load_notification_button']
+    for key, value in lexicon_part.items():
+        mock_lexicon_part[key] = value
+    mock_lexicon_part['width'] = 1
+
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=mock_lexicon_part)
 
     last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
     boot_config_string_startswith = LexiconCommodityLoader.config_for_admins + callback.from_user.username + ' :'
 
-    message_for_admin_chat = message_for_admin_chat.split('\n')
+    message_for_admin_chat = last_output_boot_config_string.split('\n')[:-1]
     message_for_admin_chat[0] = boot_config_string_startswith
+    message_for_admin_chat = '\n'.join(message_for_admin_chat)
 
-    await callback.message.bot.send_message(chat_id=ADMIN_CHAT, text=message_for_admin_chat)
+
+
+
+    await callback.message.bot.send_photo(chat_id=ADMIN_CHAT, caption=message_for_admin_chat, photo=boot_data['photo_url'])

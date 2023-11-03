@@ -217,6 +217,8 @@ async def start_bot():
     dp.callback_query.register(load_new_car.hybrid_handlers.input_price_to_load,
                               and_f(StateFilter(LoadCommodityStates.input_to_load_price),
                               lambda callback: callback.data.startswith('load_complectation_')))
+    dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
+                              StateFilter(LoadCommodityStates.input_to_load_photo))
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
                               StateFilter(LoadCommodityStates.load_config_output))
 

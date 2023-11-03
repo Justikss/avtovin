@@ -125,7 +125,7 @@ LEXICON = {
             'create_seller_request': {'message_text': 'Заявки', 'create_new_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
 
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'width': 1},
-            'seller_load_notification_button': {'return_main_menu'}
+            'seller_load_notification_button': {'return_main_menu': 'В меню'}
             
         }
 
@@ -141,6 +141,8 @@ class LexiconCommodityLoader:
     load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_25000': '25000', 'load_mileage_50000': '50000', 'load_mileage_100000': '100000', 'load_mileage_35000': '35000', 'width': 2}}
     load_commodity_color = {'message_text': 'Цвет', 'buttons': {'load_color_black': 'Чёрный', 'load_color_red': 'Красный', 'load_color_pink': 'Розовый', 'load_color_white': 'Белый', 'width': 2}}
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
+    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
+
 
     config_for_seller = 'Ваши конфигурации:'
     config_for_admins = 'Заявка от продавца @'
@@ -149,7 +151,7 @@ class LexiconCommodityLoader:
 
     
     @classmethod
-    async def get_output_string(cls, mode, state, engine, brand, model, price, complectation, year=None, mileage=None, color=None) -> str:
+    async def get_output_string(cls, mode, boot_data: dict) -> str:
         '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
         if mode == 'to_seller':
             start_sub_string = cls.config_for_seller
@@ -157,21 +159,24 @@ class LexiconCommodityLoader:
             seller_link = mode.split('_')[3]
             start_sub_string = cls.config_for_admins + seller_link
 
-        top_layer = f'''{start_sub_string}\
-            \n{cls.load_commodity_state['message_text']}: {cls.load_commodity_state['buttons'][state]}\
-            \n{cls.load_engine_type['message_text']}: {cls.load_engine_type['buttons'][engine]}\
-            \n{cls.load_commodity_brand['message_text']}: {cls.load_commodity_brand['buttons'][brand]}\
-            \n{cls.load_commodity_model['message_text']}: {cls.load_commodity_model['buttons'][model]}\
-            \n{cls.load_commodity_complectation['message_text']}: {cls.load_commodity_complectation['buttons'][complectation]}\n'''
 
-        if None not in (year, mileage, color):
-            middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {cls.load_commodity_year_of_realise['buttons'][year]}\
-                \n{cls.load_commodity_mileage['message_text']}: {cls.load_commodity_mileage['buttons'][mileage]}\
-                \n{cls.load_commodity_color['message_text']}: {cls.load_commodity_color['buttons'][color]}\n'''
+
+        top_layer = f'''{start_sub_string}\
+            \n{cls.load_commodity_state['message_text']}: {boot_data['state']}\
+            \n{cls.load_engine_type['message_text']}: {boot_data['engine_type']}\
+            \n{cls.load_commodity_brand['message_text']}: {boot_data['brand']}\
+            \n{cls.load_commodity_model['message_text']}: {boot_data['model']}\
+            \n{cls.load_commodity_complectation['message_text']}: {boot_data['complectation']}\n'''
+
+        if None not in (boot_data['year_of_release'], boot_data['mileage'], boot_data['color']):
+            middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {boot_data['year_of_release']}\
+                \n{cls.load_commodity_mileage['message_text']}: {boot_data['mileage']}\
+                \n{cls.load_commodity_color['message_text']}: {boot_data['color']}\n'''
         else:
             middle_layer = ''
         
-        bottom_layer = f'''{cls.load_commodity_price['message_text']}: {price}'''
+        bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
+            \n{boot_data['photo_url']}'''
 
         output_load_commodity_config = top_layer + middle_layer + bottom_layer
 

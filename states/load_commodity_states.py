@@ -14,5 +14,5 @@ class LoadCommodityStates(StatesGroup):
     input_to_load_color = State()
 
     input_to_load_price = State()
-
+    input_to_load_photo = State()
     load_config_output = State()

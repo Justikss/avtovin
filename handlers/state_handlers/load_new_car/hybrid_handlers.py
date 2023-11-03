@@ -1,4 +1,4 @@
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 import importlib
 
@@ -24,8 +24,8 @@ async def input_state_to_load(callback: CallbackQuery, state: FSMContext):
     await state.set_state(LoadCommodityStates.input_to_load_state)
 
     lexicon_part = LexiconCommodityLoader.load_commodity_state
-
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
+    
     await state.set_state(LoadCommodityStates.input_to_load_engine_type)
 
 
@@ -34,8 +34,8 @@ async def input_engine_type_to_load(callback: CallbackQuery, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await state.update_data(state_for_load=callback.data)
+    
     lexicon_part = LexiconCommodityLoader.load_engine_type
-
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
     await state.set_state(LoadCommodityStates.input_to_load_brand)
@@ -45,8 +45,8 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await state.update_data(engine_for_load=callback.data)
+    
     lexicon_part = LexiconCommodityLoader.load_commodity_brand
-
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
     await state.set_state(LoadCommodityStates.input_to_load_model)
@@ -59,7 +59,6 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext):
     await state.update_data(brand_for_load=callback.data)
 
     lexicon_part = LexiconCommodityLoader.load_commodity_model
-
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
     await state.set_state(LoadCommodityStates.input_to_load_complectation)
@@ -70,8 +69,8 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     
     await state.update_data(model_for_load=callback.data)
+    
     lexicon_part = LexiconCommodityLoader.load_commodity_complectation
-
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
     cars_state = await get_load_car_state(state=state)
@@ -95,8 +94,18 @@ async def input_price_to_load(callback: CallbackQuery, state: FSMContext):
         await state.update_data(color_for_load=callback.data)
     
     lexicon_part = LexiconCommodityLoader.load_commodity_price
-
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
-    await state.set_state(LoadCommodityStates.load_config_output)
+    await state.set_state(LoadCommodityStates.input_to_load_photo)
 
+async def input_photo_to_load(message: Message, state: FSMContext):
+    '''Вставить фото добавляемого автомобиля'''
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
+    await message.delete()
+    await state.update_data(load_price=message.text)
+
+    lexicon_part = LexiconCommodityLoader.load_commodity_photo
+    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part)
+
+    await state.set_state(LoadCommodityStates.load_config_output)
