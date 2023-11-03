@@ -12,15 +12,19 @@ class InlineCreator:
                             button_texts: Set[str] = None, callback_sign: str = None):
         kbuilder = InlineKeyboardBuilder()
         buttons = list()
+        print(input_data.keys())
+        if 'buttons' in input_data.keys():
+            print('shpo')
+            input_data = input_data['buttons']
+            print(input_data)
+
         width = input_data['width']
         if button_texts:
             backward_is_exists = input_data.get('backward')
             if not backward_is_exists:
-                print('NOT')
                 backward = {'backward_in_carpooling': input_data.get('backward_in_carpooling')}
             else:
                 backward = {'backward': input_data.get('backward')}
-            print(callback_sign, button_texts)
             input_data = {callback_sign+text: text for text in button_texts}
 
             if backward:
@@ -28,9 +32,9 @@ class InlineCreator:
                     input_data[callback_data] = text
 
 
+
         for callback, text in input_data.items():
             if callback != 'message_text' and callback != 'width':
-                print('PLUS', text)
                 buttons.append(InlineKeyboardButton(text=text, callback_data=callback))
 
 

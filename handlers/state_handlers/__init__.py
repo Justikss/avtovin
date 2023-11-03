@@ -1,1 +1,1 @@
-from . import buyer_registration_handlers, choose_car_for_buy, seller_states_handler
+from . import buyer_registration_handlers, choose_car_for_buy, seller_states_handler, load_new_car

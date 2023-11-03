@@ -1,5 +1,7 @@
 import importlib
 
+from dataclasses import dataclass
+
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
 
 LEXICON = {
@@ -117,152 +119,70 @@ LEXICON = {
                                                  'legal_message': {'name': 'Название автосалона: ', 'address': 'Адрес: '},
                                                   'natural_message': {'name': 'Имя: ', 'surname': 'Фамилия: ', 'patronymic': 'Отчество: '},
                                                    'phone_number': 'Телефонный номер: '},
-            'success_seller_registration_notice': {'message_text': 'Вы зарегестрированы в системе', 'return_seller_main_menu': 'В меню продавца', 'width': 1}
-            
+            'success_seller_registration_notice': {'message_text': 'Вы зарегестрированы в системе', 'return_main_menu': 'В меню продавца', 'width': 1},
+
+            'seller_faq': {'message_text': 'Самые частые вопросы: ', 'return_main_menu': 'В меню', 'width': 1},
+            'create_seller_request': {'message_text': 'Заявки', 'create_new_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
+
+            'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'width': 1},
+            'seller_load_notification_button': {'return_main_menu'}
             
         }
 
-# class LEXICON:
-#     def __init__(self, input_language):
-#         self.language = input_language
-#         self.LEXICON = {
-#             'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': '🇺🇿 Uzb',
-#                                 'language_ru': "🇷🇺 Rus", 'width': 2},
-#             'hello_text': {'message_text': 'Приветственное сообщение', 'start_sell': 'Продажа',
-#                            'start_buy': 'Покупка', 'width': 2},
-#             'write_full_name': {'message_text': 'Укажите ФИО', 'backward:user_registration': 'Назад', 'width': 1},
-#             'write_full_name(incorrect)': {
-#                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
-#                 'backward:user_registration': 'Назад', 'width': 2},
-#             'write_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
-#                                    'backward:user_registration_number': 'Назад', 'width': 1},
-#             'write_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
-#                                               'backward:user_registration_number': 'Назад', 'width': 1},
-#             # 'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
-#             'main_menu': {'message_text': 'Меню', 'offers_to_user': 'Предложения', 'car_search': 'Поиск Авто',
-#                           'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward:set_language': 'Назад', 'width': 2},
-#             'f_a_q': {'message_text': 'Ответы на часто задаваемые вопросы:', 'return_main_menu': 'В меню',
-#                       'width': 1},
-#             'tech_support': {'message_text': 'Выберите ваше действие', 'write_to_support': 'Написать',
-#                              'call_to_support': 'Позвонить', 'width': 2, 'return_main_menu': 'В меню'},
-#             'write_to_support': {'message_text': SUPPORT_TELEGRAM, 'backward:support': 'Назад', 'width': 1},
-#             'call_to_support': {'message_text': SUPPORT_NUMBER, 'backward:support': 'Назад', 'width': 1},
-#
-#             'search_car': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У',
-#                            'return_main_menu': 'В меню', 'width': 2},
-#             'cars_not_found': {'message_text': 'К сожалению автомобилей этого класса нет на витрине.',
-#                                'backward:choose_car_category': 'Назад', 'return_main_menu': 'В меню', 'width': 1},
-#
-#             'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать',
-#                                      'backward': 'Назад', 'width': 1},
-#
-#             'choose_brand': {'message_text': 'Выберите марку', 'backward': 'Назад', 'width': 1},
-#             'choose_model': {'message_text': 'Выберите модель', 'backward_in_carpooling': 'Назад', 'width': 1},
-#             'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward_in_carpooling': 'Назад',
-#                                    'width': 1},
-#             'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward_in_carpooling': 'Назад',
-#                                      'width': 1},
-#
-#             'choose_year_of_release': {'message_text': 'Выберите год', 'backward_in_carpooling': 'Назад',
-#                                        'width': 1},
-#             'choose_mileage': {'message_text': 'Выберите пробег', 'backward_in_carpooling': 'Назад', 'width': 1},
-#             'choose_color': {'message_text': 'Выберите цвет', 'backward_in_carpooling': 'Назад', 'width': 1},
-#
-#             'chosen_configuration': {
-#                 'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
-#                                  'model': 'Модель: ',
-#                                  'brand': 'Марка: ', 'complectation': 'Комплектация: ',
-#                                  'cost': 'Стоимость: ', 'mileage': 'Пробег: ', 'year': 'Год: ',
-#                                  'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
-#                 'backward_in_carpooling': 'Назад', 'width': 1},
-#             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!',
-#                                           'return_main_menu': 'В меню', 'width': 1},
-#
-#             'button_confirm_from_seller': 'Подтвердить',
-#             'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>',
-#                                        'return_from_offers_history': 'В меню', 'width': 2},
-#             'backward_name': 'Назад',
-#
-#             'show_offers_history': {'no_more_pages': 'Больше нет страниц', 'no_less_pages': 'Позади нет страниц',
-#                                     'history_not_found': 'История запросов пуста'},
-#             'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Стоимость',
-#                             'dealship_contacts': 'Контакты салона',
-#                             'individual': 'Частное лицо', 'individual_contacts': 'Контакты'},
-#
-#             "buyer_haven't_confirm_offers": 'История запросов пуста',
-#             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль'
-#         }
-#         if input_language == 'ru':
-#             pass
-#         elif input_language == 'uz':
-#             self.LEXICON = {
-#             'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': '🇺🇿 Uzb',
-#                                 'language_ru': "🇷🇺 Rus", 'width': 2},
-#             'hello_text': {'message_text': 'Приветственное сообщение', 'start_sell': 'Продажа',
-#                            'start_buy': 'Покупка', 'width': 2},
-#             'write_full_name': {'message_text': 'Укажите ФИО', 'backward:user_registration': 'Назад', 'width': 1},
-#             'write_full_name(incorrect)': {
-#                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
-#                 'backward:user_registration': 'Назад', 'width': 2},
-#             'write_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
-#                                    'backward:user_registration_number': 'Назад', 'width': 1},
-#             'write_phone_number(incorrect)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
-#                                               'backward:user_registration_number': 'Назад', 'width': 1},
-#             # 'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
-#             'main_menu': {'message_text': 'Меню', 'offers_to_user': 'Предложения', 'car_search': 'Поиск Авто',
-#                           'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward:set_language': 'Назад', 'width': 2},
-#             'f_a_q': {'message_text': 'Ответы на часто задаваемые вопросы:', 'return_main_menu': 'В меню',
-#                       'width': 1},
-#             'tech_support': {'message_text': 'Выберите ваше действие', 'write_to_support': 'Написать',
-#                              'call_to_support': 'Позвонить', 'width': 2, 'return_main_menu': 'В меню'},
-#             'write_to_support': {'message_text': SUPPORT_TELEGRAM, 'backward:support': 'Назад', 'width': 1},
-#             'call_to_support': {'message_text': SUPPORT_NUMBER, 'backward:support': 'Назад', 'width': 1},
-#
-#             'search_car': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У',
-#                            'return_main_menu': 'В меню', 'width': 2},
-#             'cars_not_found': {'message_text': 'К сожалению автомобилей этого класса нет на витрине.',
-#                                'backward:choose_car_category': 'Назад', 'return_main_menu': 'В меню', 'width': 1},
-#
-#             'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать',
-#                                      'backward': 'Назад', 'width': 1},
-#
-#             'choose_brand': {'message_text': 'Выберите марку', 'backward': 'Назад', 'width': 1},
-#             'choose_model': {'message_text': 'Выберите модель', 'backward_in_carpooling': 'Назад', 'width': 1},
-#             'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward_in_carpooling': 'Назад',
-#                                    'width': 1},
-#             'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward_in_carpooling': 'Назад',
-#                                      'width': 1},
-#
-#             'choose_year_of_release': {'message_text': 'Выберите год', 'backward_in_carpooling': 'Назад',
-#                                        'width': 1},
-#             'choose_mileage': {'message_text': 'Выберите пробег', 'backward_in_carpooling': 'Назад', 'width': 1},
-#             'choose_color': {'message_text': 'Выберите цвет', 'backward_in_carpooling': 'Назад', 'width': 1},
-#
-#             'chosen_configuration': {
-#                 'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
-#                                  'model': 'Модель: ',
-#                                  'brand': 'Марка: ', 'complectation': 'Комплектация: ',
-#                                  'cost': 'Стоимость: ', 'mileage': 'Пробег: ', 'year': 'Год: ',
-#                                  'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
-#                 'backward_in_carpooling:': 'Назад', 'width': 1},
-#             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!',
-#                                           'return_main_menu': 'В меню', 'width': 1},
-#
-#             'button_confirm_from_seller': 'Подтвердить',
-#             'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>',
-#                                        'return_from_offers_history': 'В меню', 'width': 2},
-#             'backward_name': 'Назад',
-#
-#             'show_offers_history': {'no_more_pages': 'Больше нет страниц', 'no_less_pages': 'Позади нет страниц',
-#                                     'history_not_found': 'История запросов пуста'},
-#             'offer_parts': {'dealship_name': 'Салон', 'car_price': 'Стоимость',
-#                             'dealship_contacts': 'Контакты салона',
-#                             'individual': 'Частное лицо', 'individual_contacts': 'Контакты'},
-#
-#             "buyer_haven't_confirm_offers": 'История запросов пуста',
-#             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль'
-#         }
 
+class LexiconCommodityLoader:
+    load_commodity_state = {'message_text': 'Бу/Новое', 'buttons': {'load_state_new': 'Новое', 'load_state_second_hand': 'Бу', 'width': 2}}
+    load_engine_type = {'message_text': 'Тип двигателя', 'buttons': {'load_engine_hybrid': 'Гибрид', 'load_engine_DWS': 'ДВС', 'load_engine_electro': 'Электро', 'width': 2}}
+    load_commodity_brand = {'message_text': 'Марка', 'buttons': {'load_brand_bmw': 'BMW', 'load_brand_mercedes': 'Mercedes', 'load_brand_renault': 'Renault', 'load_brand_skoda': 'Skoda', 'width': 2}}
+    load_commodity_model = {'message_text': 'Модель', 'buttons': {'load_model_1': 'model_1', 'load_model_2': 'model_2', 'load_model_3': 'model_3', 'load_model_4': 'model_4', 'width': 2}}
+    load_commodity_complectation = {'message_text': 'Комплектация', 'buttons': {'load_complectation_1': 'complectation_1', 'load_complectation_2': 'complectation_2', 'load_complectation_3': 'complectation_3', 'load_complectation_4': 'complectation_4', 'width': 2}}
 
+    load_commodity_year_of_realise = {'message_text': 'Год выпуска', 'buttons': {'load_year_2005': '2005', 'load_year_2020': '2020', 'load_year_2015': '2015', 'load_year_2001': '2001', 'width': 2}}
+    load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_25000': '25000', 'load_mileage_50000': '50000', 'load_mileage_100000': '100000', 'load_mileage_35000': '35000', 'width': 2}}
+    load_commodity_color = {'message_text': 'Цвет', 'buttons': {'load_color_black': 'Чёрный', 'load_color_red': 'Красный', 'load_color_pink': 'Розовый', 'load_color_white': 'Белый', 'width': 2}}
+    load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
 
+    config_for_seller = 'Ваши конфигурации:'
+    config_for_admins = 'Заявка от продавца @'
+
+    seller_notification = {'message_text': 'Заявка №_ создана!'}
+
+    
+    @classmethod
+    async def get_output_string(cls, mode, state, engine, brand, model, price, complectation, year=None, mileage=None, color=None) -> str:
+        '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
+        if mode == 'to_seller':
+            start_sub_string = cls.config_for_seller
+        elif mode.startswith('to_admins_from_'):
+            seller_link = mode.split('_')[3]
+            start_sub_string = cls.config_for_admins + seller_link
+
+        top_layer = f'''{start_sub_string}\
+            \n{cls.load_commodity_state['message_text']}: {cls.load_commodity_state['buttons'][state]}\
+            \n{cls.load_engine_type['message_text']}: {cls.load_engine_type['buttons'][engine]}\
+            \n{cls.load_commodity_brand['message_text']}: {cls.load_commodity_brand['buttons'][brand]}\
+            \n{cls.load_commodity_model['message_text']}: {cls.load_commodity_model['buttons'][model]}\
+            \n{cls.load_commodity_complectation['message_text']}: {cls.load_commodity_complectation['buttons'][complectation]}\n'''
+
+        if None not in (year, mileage, color):
+            middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {cls.load_commodity_year_of_realise['buttons'][year]}\
+                \n{cls.load_commodity_mileage['message_text']}: {cls.load_commodity_mileage['buttons'][mileage]}\
+                \n{cls.load_commodity_color['message_text']}: {cls.load_commodity_color['buttons'][color]}\n'''
+        else:
+            middle_layer = ''
+        
+        bottom_layer = f'''{cls.load_commodity_price['message_text']}: {price}'''
+
+        output_load_commodity_config = top_layer + middle_layer + bottom_layer
+
+        return output_load_commodity_config
+
+    @classmethod
+    async def create_notification_for_seller(cls, request_number) -> str:
+        '''Плашка "Заявка №XXXX Создана"'''
+        create_request_notification= cls.seller_notification['message_text']
+        create_request_notification = create_request_notification.split('_')
+        create_request_notification = f'{request_number}'.join(create_request_notification)
+
+        return create_request_notification
 

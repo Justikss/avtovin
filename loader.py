@@ -22,8 +22,13 @@ from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
-from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button
+from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, seller_faq, commodity_requests
+from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
+from handlers.state_handlers import load_new_car
+from states.load_commodity_states import LoadCommodityStates
+
+from handlers.callback_handlers.hybrid_part import return_main_menu
 
 
 
@@ -129,8 +134,6 @@ async def start_bot():
     dp.callback_query.register(confirm_search_config.confirm_settings_handler,
                                F.data == 'confirm_buy_settings')
 
-    dp.callback_query.register(main_menu.main_menu,
-                               F.data == 'return_main_menu')
     dp.callback_query.register(confirm_from_seller_callback_handler.confirm_from_seller,
                                lambda callback: callback.data.startswith('confirm_from_seller'))
 
@@ -144,10 +147,21 @@ async def start_bot():
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
-    dp.callback_query(accept_registration_request_button.accept_registraiton,
+    dp.callback_query.register(accept_registration_request_button.accept_registraiton,
                         lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))
 
+    dp.callback_query.register(seller_faq.seller_faq, F.data == 'seller_faq')
+
+    dp.callback_query.register(sell_part.commodity_requests.commodity_requests_handler.commodity_reqests_by_seller,
+                        F.data == 'create_seller_request')
+
+    dp.callback_query.register(commodity_requests.confirm_load_config_from_seller.confirm_load_config_from_seller,
+                              F.data == 'confirm_load_config_from_seller')
+
+    '''hybrid'''
     
+    dp.callback_query.register(return_main_menu.return_main_menu_callback_handler,
+                               F.data == 'return_main_menu')
 
     '''Состояния поиска машины'''
     '''hybrid'''
@@ -184,16 +198,35 @@ async def start_bot():
                                and_f(lambda callback: callback.data.startswith('cars_mileage'),
                                      StateFilter(SecondHandChooseStates.select_year)))
 
+    '''Состояния загрузки новых машин'''
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_state_to_load,
+                              F.data == 'create_new_request')
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_engine_type_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_engine_type),
+                              lambda callback: callback.data.startswith('load_state_')))
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_brand_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_brand), 
+                              lambda callback: callback.data.startswith('load_engine_')))
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_model_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_model), 
+                              lambda callback: callback.data.startswith('load_brand_')))
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_complectation_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_complectation), 
+                              lambda callback: callback.data.startswith('load_model_')))
+
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_price_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_price),
+                              lambda callback: callback.data.startswith('load_complectation_')))
+    dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
+                              StateFilter(LoadCommodityStates.load_config_output))
+
 
     @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
       print('may')
-      await accept_registration_request_button.accept_registraiton(callback=callback)
-      # a = await state.get_state()
-      # a = a if a else ' '
-      # prek = callback.data.startswith('confirm_new_seller_registration_from')
-      # await callback.message.answer('Пролёт коллбэка ' + callback.data + ' ' + a + prek)
-      
+      await callback.message.answer('Пролёт ' + callback.data)
+      #await sell_part.commodity_requests.commodity_requests.commodity_reqests_by_seller(callback=callback)
+      # await accept_registration_request_button.accept_registraiton(callback=callback)
 
 
     # dp.message.register(echo.bot_echo, StateFilter(default_state))
