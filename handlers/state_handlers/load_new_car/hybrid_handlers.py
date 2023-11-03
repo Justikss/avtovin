@@ -98,6 +98,7 @@ async def input_price_to_load(callback: CallbackQuery, state: FSMContext):
 
     await state.set_state(LoadCommodityStates.input_to_load_photo)
 
+
 async def input_photo_to_load(message: Message, state: FSMContext):
     '''Вставить фото добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт

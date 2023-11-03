@@ -214,9 +214,20 @@ async def start_bot():
                               and_f(StateFilter(LoadCommodityStates.input_to_load_complectation), 
                               lambda callback: callback.data.startswith('load_model_')))
 
+    dp.callback_query.register(load_new_car.second_hand_handlers.input_year_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_year),
+                              lambda callback: callback.data.startswith('load_complectation_')))
+    dp.callback_query.register(load_new_car.second_hand_handlers.input_mileage_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_mileage),
+                              lambda callback: callback.data.startswith('load_year_')))
+    dp.callback_query.register(load_new_car.second_hand_handlers.input_color_to_load,
+                              and_f(StateFilter(LoadCommodityStates.input_to_load_color),
+                              lambda callback: callback.data.startswith('load_mileage_')))
+
     dp.callback_query.register(load_new_car.hybrid_handlers.input_price_to_load,
                               and_f(StateFilter(LoadCommodityStates.input_to_load_price),
-                              lambda callback: callback.data.startswith('load_complectation_')))
+                              or_f(lambda callback: callback.data.startswith('load_complectation_'),
+                              lambda callback: callback.data.startswith('load_color_'))))
     dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
                               StateFilter(LoadCommodityStates.input_to_load_photo))
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,

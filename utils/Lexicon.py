@@ -159,7 +159,8 @@ class LexiconCommodityLoader:
             seller_link = mode.split('_')[3]
             start_sub_string = cls.config_for_admins + seller_link
 
-
+        bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
+            \n{boot_data['photo_url']}'''
 
         top_layer = f'''{start_sub_string}\
             \n{cls.load_commodity_state['message_text']}: {boot_data['state']}\
@@ -168,17 +169,14 @@ class LexiconCommodityLoader:
             \n{cls.load_commodity_model['message_text']}: {boot_data['model']}\
             \n{cls.load_commodity_complectation['message_text']}: {boot_data['complectation']}\n'''
 
-        if None not in (boot_data['year_of_release'], boot_data['mileage'], boot_data['color']):
+        is_second_hand = (boot_data['year_of_release'], boot_data['mileage'], boot_data['color'])
+        if None not in is_second_hand:
             middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {boot_data['year_of_release']}\
                 \n{cls.load_commodity_mileage['message_text']}: {boot_data['mileage']}\
                 \n{cls.load_commodity_color['message_text']}: {boot_data['color']}\n'''
+            output_load_commodity_config = top_layer + middle_layer + bottom_layer
         else:
-            middle_layer = ''
-        
-        bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
-            \n{boot_data['photo_url']}'''
-
-        output_load_commodity_config = top_layer + middle_layer + bottom_layer
+            output_load_commodity_config = top_layer + bottom_layer
 
         return output_load_commodity_config
 

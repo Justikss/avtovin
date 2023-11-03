@@ -15,10 +15,9 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     await state.clear()
 
-    car_model = CommodityRequester.store_data([boot_data])
-    print('carmod', car_model)
+    commodity_number = CommodityRequester.store_data([boot_data])
 
-    notification_string = await LexiconCommodityLoader.create_notification_for_seller(request_number='1')
+    notification_string = await LexiconCommodityLoader.create_notification_for_seller(request_number=commodity_number)
     mock_lexicon_part = {'message_text': notification_string}
     lexicon_part = LEXICON['seller_load_notification_button']
     for key, value in lexicon_part.items():
