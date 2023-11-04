@@ -2,9 +2,9 @@ import importlib
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from utils.Lexicon import LEXICON
 from handlers.message_editor import InlineCreator
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data
+from handlers.custom_filters.message_is_photo import MessageIsPhoto
 
 
 async def bot_start(message: Message, state: FSMContext):
@@ -14,14 +14,16 @@ async def bot_start(message: Message, state: FSMContext):
     await state.clear()
     await message.delete()
 
-    last_user_message = await redis_module.redis_data.get_data(key=str(message.from_user.id) + ':last_user_message')
-    if last_user_message:
-        try:
-            await message.chat.delete_message(message_id=last_user_message)
-        except:
-            await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
+    await MessageIsPhoto.chat_cleaner(self=MessageIsPhoto,
+                                    trash_redis_keys=(':last_seller_message', ':last_user_message', ':last_message'), message=message)
 
-        await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
+    # if last_user_message:
+    #     try:
+    #         await message.chat.delete_message(message_id=last_user_message)
+    #     except:
+    #         await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
+
+    #     await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
 
     # user_id = message.from_user.id
     # redis_key = str(user_id) + ':last_message'

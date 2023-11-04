@@ -10,7 +10,7 @@ from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 
-from utils.Lexicon import LEXICON
+from utils.Lexicon import LEXICON, LexiconCommodityLoader
 
 
 async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
@@ -23,9 +23,9 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
 
     if cars_type == 'second_hand_cars':
-        commodity_state = 'Б/У'
+        commodity_state = 'Б/у'
     elif cars_type == 'new_cars':
-        commodity_state = 'Новая'
+        commodity_state = 'Новое'
 
     models_range = CommodityRequester.get_for_request(state=commodity_state)
     if not models_range:
@@ -169,9 +169,9 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
 
     cars_type = memory_storage['cars_state']
 
-    if cars_type == 'Б/У':
+    if cars_type == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_second_hand']:
         await state.set_state(SecondHandChooseStates.select_color)
-    elif cars_type == 'Новая':
+    elif cars_type == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_new']:
         await state.set_state(HybridChooseStates.config_output)
 
 
@@ -187,7 +187,7 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
 
     memory_storage = await state.get_data()
     user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
-    if memory_storage['cars_class'] == 'Б/У':
+    if memory_storage['cars_class'] == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_second_hand']:
         await state.update_data(cars_year_of_release=user_answer)
 
         result_model = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
@@ -209,7 +209,7 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
 
         redis_value = {'cars_year_of_release': year, 'cars_brand': brand, 'cars_model': model, 'cars_engine_type': engine, 'cars_mileage': mileage, 'cars_color': color, 'cars_complectation': complectation}
 
-    elif memory_storage['cars_class'] == 'Новая':
+    elif memory_storage['cars_class'] == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_new']:
         await state.update_data(cars_complectation=user_answer)
 
         result_model = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
@@ -248,7 +248,7 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
     await state.update_data(buyer_id=str(callback.from_user.id))
 
     result_car = result_model[0]
-    car_photo = result_car.photo_url
+    car_photo = result_car.photo_id
 
     await callback.message.delete()
 

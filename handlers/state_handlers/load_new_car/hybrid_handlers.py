@@ -131,6 +131,7 @@ async def input_photo_to_load(message: Message, state: FSMContext, incorrect=Fal
         await state.update_data(load_price=car_price)
         reply_mode = False
         await state.update_data(incorrect_flag=False)
+        new_lexicon_part = lexicon_part
     else:
         await state.update_data(incorrect_flag=True)
         reply_mode  = True

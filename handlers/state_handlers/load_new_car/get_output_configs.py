@@ -26,12 +26,14 @@ async def output_load_config_for_seller(message: Message, state: FSMContext, pho
 
     await message_editor.redis_data.set_data(key=str(message.from_user.id) + ':boot_config', value=output_string)
 
-    output_string = '\n'.join(output_string.split('\n')[:-1])
+    output_string = '\n'.join(output_string.split('\n')[:-3])
 
     lexicon_button_part = LEXICON['confirm_load_config_from_seller_button']
     lexicon_part = {'message_text': output_string}
     for key, value in lexicon_button_part.items():
         lexicon_part[key] = value
     
-    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, photo=structured_boot_data['photo']['id'], delete_mode=delete_mode, seller_boot=True)
+    photo = structured_boot_data['photo_id'] #if not None else structured_boot_data['photo_url']
+    print('photo_id: ', photo)
+    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, photo=photo, delete_mode=delete_mode, seller_boot=True)
 

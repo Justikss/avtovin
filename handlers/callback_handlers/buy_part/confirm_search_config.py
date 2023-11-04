@@ -55,7 +55,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     match_result = await OffersRequester.match_check(user_id=callback.from_user.id, cars_id_range=cars_id_range)
 
     if not match_result:
-        print('match was be')
+        # print('match was be')
         lexicon_key = 'buy_configuration_error'
     else:
         lexicon_key = 'confirm_buy_configuration'
