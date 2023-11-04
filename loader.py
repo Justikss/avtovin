@@ -25,7 +25,7 @@ from states.seller_registration_states import HybridSellerRegistrationStates, Ca
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, seller_faq, commodity_requests
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
-from handlers.state_handlers import load_new_car
+from handlers.state_handlers.seller_states_handler import load_new_car
 from states.load_commodity_states import LoadCommodityStates
 
 from handlers.callback_handlers.hybrid_part import return_main_menu

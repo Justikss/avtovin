@@ -5,7 +5,7 @@ import importlib
 from config_data.config import ADMIN_CHAT
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from database.data_requests.commodity_requests import CommodityRequester
-from handlers.state_handlers.load_new_car.get_output_configs import data_formatter
+from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
 async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMContext):
     '''Обработчик одобрения собственных конфигураций загрузки нового авто от селлера.'''

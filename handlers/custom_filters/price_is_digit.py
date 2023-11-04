@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 import importlib
 
-from handlers.state_handlers.load_new_car.hybrid_handlers import input_price_to_load
+from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_price_to_load
 
 
 class PriceIsDigit(BaseFilter):

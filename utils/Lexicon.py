@@ -128,7 +128,7 @@ LEXICON = {
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
             'message_not_digit': ' должна состоять только из цифр',
-            'message_not_photo': '\nПришлите url-ссылку или прикрепите фотографию\n(значок скрепки в левом углу чата)'
+            'message_not_photo': '\Прикрепите фотографию\n(значок скрепки в левом углу чата)'
             
         }
 

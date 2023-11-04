@@ -1,1 +1,1 @@
-from . import seller_registration
+from . import seller_registration, load_new_car
