@@ -101,7 +101,9 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
         elif cars_state == 'second_hand':
             await state.update_data(color_for_load=request.data)
         reply_mode = False
+        await state.update_data(incorrect_flag=False)
     else:
+        await state.update_data(incorrect_flag=True)
         reply_mode = True
         if lexicon_part['message_text'].endswith(LEXICON['message_not_digit']):
             pass
@@ -120,16 +122,27 @@ async def input_photo_to_load(message: Message, state: FSMContext, incorrect=Fal
 
     lexicon_part = LexiconCommodityLoader.load_commodity_photo
 
+    delete_mode = False
+
     if not incorrect:
+        memory_storage = await state.get_data()
+        if memory_storage['incorrect_flag']:
+            delete_mode=True
         await state.update_data(load_price=car_price)
         reply_mode = False
+        await state.update_data(incorrect_flag=False)
     else:
+        await state.update_data(incorrect_flag=True)
         reply_mode  = True
-        if lexicon_part['message_text'].endswith(LEXICON['message_not_photo']):
+        if lexicon_part['message_text'].startswith(LEXICON['message_not_photo']):
             pass
         else:
-            lexicon_part += LEXICON['message_not_photo']
+            print(lexicon_part)
+            print(LEXICON['message_not_photo'])
+            new_lexicon_part = {'message_text': LEXICON['message_not_photo']}
+            for key, value in lexicon_part['buttons'].items():
+                new_lexicon_part[key] = value
 
-    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True)
+    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=new_lexicon_part, reply_mode=reply_mode, seller_boot=True, delete_mode=delete_mode)
 
     await state.set_state(LoadCommodityStates.load_config_output)

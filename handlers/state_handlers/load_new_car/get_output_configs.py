@@ -6,11 +6,18 @@ from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from handlers.state_handlers.load_new_car.hybrid_handlers import get_load_car_state
 from handlers.state_handlers.load_new_car.load_data_fromatter import data_formatter
 
-async def output_load_config_for_seller(message: Message, state: FSMContext, photo_url):
+async def output_load_config_for_seller(message: Message, state: FSMContext, photo: dict):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await message.delete()
-    await state.update_data(load_photo=photo_url)
+    await state.update_data(load_photo=photo)
+
+    delete_mode = False
+
+    memory_storage = await state.get_data()
+    if memory_storage['incorrect_flag']:
+        await state.update_data(incorrect_flag=False)
+        delete_mode = True
 
     structured_boot_data = await data_formatter(request=message, state=state)
 
@@ -26,5 +33,5 @@ async def output_load_config_for_seller(message: Message, state: FSMContext, pho
     for key, value in lexicon_button_part.items():
         lexicon_part[key] = value
     
-    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, photo=structured_boot_data['photo_url'])
+    await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, photo=structured_boot_data['photo']['id'], delete_mode=delete_mode, seller_boot=True)
 

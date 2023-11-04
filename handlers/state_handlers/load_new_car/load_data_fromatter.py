@@ -19,6 +19,8 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     'state': LexiconCommodityLoader.load_commodity_state['buttons'][memory_storage['state_for_load']], 
     'color': LexiconCommodityLoader.load_commodity_color['buttons'].get(memory_storage.get('color_for_load')), 
     'price': memory_storage['load_price'], 
-    'photo_url': memory_storage.get('load_photo')}
+    'photo_id': memory_storage.get('load_photo').get('id'),
+    'photo_unique_id': memory_storage.get('load_photo').get('unique_id')}
+    
 
     return data

@@ -17,7 +17,9 @@ class Commodity(BaseModel):
     state = CharField()
     color = CharField(null=True)
     price = IntegerField()
-    photo_url = CharField()
+    photo_id = IntegerField()
+    photo_unique_id = IntegerField()
+
 
 
 

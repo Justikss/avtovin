@@ -163,7 +163,7 @@ class LexiconCommodityLoader:
             start_sub_string = cls.config_for_admins + seller_link
 
         bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
-            \n{boot_data['photo_url']}'''
+            \n{boot_data['photo']}'''
 
         top_layer = f'''{start_sub_string}\
             \n{cls.load_commodity_state['message_text']}: {boot_data['state']}\

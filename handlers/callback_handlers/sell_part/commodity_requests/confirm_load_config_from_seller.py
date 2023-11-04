@@ -36,4 +36,4 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
 
 
-    await callback.message.bot.send_photo(chat_id=ADMIN_CHAT, caption=message_for_admin_chat, photo=boot_data['photo_url'])
+    await callback.message.bot.send_photo(chat_id=ADMIN_CHAT, caption=message_for_admin_chat, photo=boot_data['photo']['id'])

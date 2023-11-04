@@ -16,6 +16,12 @@ class PriceIsDigit(BaseFilter):
 
         if message.text.isdigit():
             await message.delete()
+            last_seller_message = await redis_module.redis_data.get_data(key=redis_key_user_message)
+            if last_seller_message:
+                try:
+                    await message.bot.delete_message(chat_id=message.chat.id, message_id=last_seller_message)
+                    await redis_module.redis_data.delete_key(key=redis_key_user_message)
+                except: pass
             return {'car_price': message.text}
         else:
             last_seller_message = await redis_module.redis_data.get_data(key=redis_key_user_message)
