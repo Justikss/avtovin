@@ -1,4 +1,4 @@
-from . import commodity, offers_history, seller, user
+from . import commodity, offers_history, seller, user, tariff
 from .start_tables import db, BaseModel
 
 

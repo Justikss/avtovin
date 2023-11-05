@@ -196,3 +196,12 @@ class LexiconCommodityLoader:
 
         return create_request_notification
 
+
+class LexiconSellerProfile:
+    header = 'Профиль: '
+    tariff_prefix = 'Тариф: '
+    tariff_out_date_prefix = 'До '
+    residual_feedback_prefix = 'Остаток откликов: '
+
+class DateTimeFormat:
+    get_string = '%d-%m-%Y %H:%M:%S'

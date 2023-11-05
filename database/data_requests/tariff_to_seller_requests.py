@@ -1,0 +1,68 @@
+from typing import Union, List
+import datetime
+
+from database.tables.start_tables import db
+from database.tables.tariff import Tariff, TariffsToSellers
+from database.data_requests import person_requests, tariff_requests
+from utils.custom_exceptions.database_exceptions import NonExistentId, NonExistentTariff
+from utils.Lexicon import DateTimeFormat
+
+class TariffToSellerBinder:
+    @staticmethod
+    def retrieve_all_data() -> Union[bool, List[TariffsToSellers]]:
+        '''Извлечь все модели строк'''
+        with db.atomic():
+            '''Контекстный менеджер with обеспечит авто-закрытие после запроса.'''
+            select_request = TariffsToSellers.select()
+            print(select_request)
+            if list(select_request):
+                return list(select_request)
+            else:
+                return False
+
+    @staticmethod
+    def __data_extraction_to_boot(data):
+        if isinstance(data, dict):
+            seller_id = data.get('seller')
+            tariff_name = data.get('tariff')
+            if seller_id:
+                data['seller'] = person_requests.PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
+                data['seller'] = data['seller'][0]
+                if tariff_name:
+                    tariff_object = Tariff.select().where(Tariff.name == tariff_name)
+                    tariff_object = tariff_object[0]
+                    now_time = datetime.datetime.now()
+                    duration_time = tariff_object.duration_time.split(':')
+                    days, hours = int(duration_time[0]), int(duration_time[1])
+                    end_time = now_time + datetime.timedelta(days=days, hours=hours)
+
+                    data['tariff'] = tariff_object
+                    data['start_date_time'] = now_time.strftime(DateTimeFormat.get_string)
+                    data['end_date_time'] = end_time.strftime(DateTimeFormat.get_string)
+                    data['residual_feedback'] = tariff_object.feedback_amount
+
+                    return data
+
+                else:
+                    raise NonExistentTariff(f'Tariff name {tariff_name} not exist in database.')
+        else:
+            raise NonExistentId(f'Seller id {seller_id} not exist in database.')
+
+
+        
+
+    @classmethod
+    def set_bind(cls, data: dict, db=db) -> bool:
+        '''установка связей тарифов с продавцом'''
+        great_data = cls.__data_extraction_to_boot(data=data)
+
+        with db.atomic():    
+            model = TariffsToSellers.insert(**great_data).execute()
+            return model
+
+
+data = {'seller': '902230076',
+'tariff': 'minimum'
+}
+
+TariffToSellerBinder.set_bind(data=data)
