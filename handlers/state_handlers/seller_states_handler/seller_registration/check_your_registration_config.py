@@ -24,8 +24,6 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
         chat_id = request.chat.id
         bot = request.chat.bot
 
-
-
     if dealership_address:
         await state.update_data(dealership_address=dealership_address)
         print('dealership_address', dealership_address)
@@ -35,7 +33,6 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
 
     memory_storage = await state.get_data()
     await registartion_view_corrector(request=request, state=state)
-    
 
     lexicon_part = LEXICON['checking_seller_entered_data']
     lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']

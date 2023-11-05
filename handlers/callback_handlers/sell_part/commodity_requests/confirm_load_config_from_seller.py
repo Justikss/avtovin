@@ -11,6 +11,8 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     '''Обработчик одобрения собственных конфигураций загрузки нового авто от селлера.'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
+    await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+
     boot_data = await data_formatter(request=callback, state=state)
 
     await state.clear()
@@ -29,7 +31,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
     boot_config_string_startswith = LexiconCommodityLoader.config_for_admins + callback.from_user.username + ' :'
 
-    message_for_admin_chat = last_output_boot_config_string.split('\n')[:-3]
+    message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
     message_for_admin_chat[0] = boot_config_string_startswith
     message_for_admin_chat = '\n'.join(message_for_admin_chat)
 

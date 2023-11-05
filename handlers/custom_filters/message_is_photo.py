@@ -84,6 +84,8 @@ class MessageIsPhoto(BaseFilter):
         #   return {'photo': {'photo_url': message.text}}
 
         if input_photo:
+   
+            
 
             # print('ласт в удовл: ', last_seller_message)
             await self.chat_cleaner(trash_redis_keys=(':last_message', ':last_seller_message'),
@@ -100,4 +102,4 @@ class MessageIsPhoto(BaseFilter):
             await redis_module.redis_data.set_data(key=redis_key_seller, 
                                                     value=message.message_id)
 
-            await input_photo_to_load(message=message, state=state, incorrect=True)
+            await input_photo_to_load(request=message, state=state, incorrect=True)

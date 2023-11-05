@@ -54,9 +54,14 @@ from handlers.callback_handlers.hybrid_part import return_main_menu
 redis = None
 bot = None
 
+redis = Redis(host='localhost')
+storage = RedisStorage(redis=redis)
+
+dp = Dispatcher(storage=storage)
+
 
 async def start_bot():
-    global redis, edit_last_message, bot
+    global redis, edit_last_message, bot, dp, redis, storage
     bot = Bot(token=BOT_TOKEN)
 
     redis = Redis(host='localhost')
@@ -200,36 +205,46 @@ async def start_bot():
 
     '''Состояния загрузки новых машин'''
     dp.callback_query.register(load_new_car.hybrid_handlers.input_state_to_load,
-                              F.data == 'create_new_request')
+                              F.data.in_(('create_new_request', 'rewrite_boot_state')))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_engine_type_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_engine_type),
-                              lambda callback: callback.data.startswith('load_state_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_engine_type),
+                              lambda callback: callback.data.startswith('load_state_')),
+                              F.data=='rewrite_boot_engine'))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_brand_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_brand), 
-                              lambda callback: callback.data.startswith('load_engine_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_brand), 
+                              lambda callback: callback.data.startswith('load_engine_')),
+                              F.data=='rewrite_boot_brand'))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_model_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_model), 
-                              lambda callback: callback.data.startswith('load_brand_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_model), 
+                              lambda callback: callback.data.startswith('load_brand_')),
+                              F.data=='rewrite_boot_model'))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_complectation_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_complectation), 
-                              lambda callback: callback.data.startswith('load_model_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_complectation), 
+                              lambda callback: callback.data.startswith('load_model_')),
+                              F.data=='rewrite_boot_complectation'))
 
     dp.callback_query.register(load_new_car.second_hand_handlers.input_year_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_year),
-                              lambda callback: callback.data.startswith('load_complectation_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_year),
+                              lambda callback: callback.data.startswith('load_complectation_')),
+                              F.data=='rewrite_boot_year'))
     dp.callback_query.register(load_new_car.second_hand_handlers.input_mileage_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_mileage),
-                              lambda callback: callback.data.startswith('load_year_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_mileage),
+                              lambda callback: callback.data.startswith('load_year_')),
+                              F.data=='rewrite_boot_mileage'))
     dp.callback_query.register(load_new_car.second_hand_handlers.input_color_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_color),
-                              lambda callback: callback.data.startswith('load_mileage_')))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_color),
+                              lambda callback: callback.data.startswith('load_mileage_')),
+                              F.data=='rewrite_boot_color'))
 
     dp.callback_query.register(load_new_car.hybrid_handlers.input_price_to_load,
-                              and_f(StateFilter(LoadCommodityStates.input_to_load_price),
-                              or_f(lambda callback: callback.data.startswith('load_complectation_'),
-                              lambda callback: callback.data.startswith('load_color_'))))
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_price),
+                                  or_f(lambda callback: callback.data.startswith('load_complectation_'),
+                                  lambda callback: callback.data.startswith('load_color_'))),
+                              F.data=='rewrite_boot_price'))
     dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
-                              StateFilter(LoadCommodityStates.input_to_load_photo),  price_is_digit.PriceIsDigit())
+                              (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_photo_to_load, 
+                              F.data == 'rewrite_boot_photo')
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
                               StateFilter(LoadCommodityStates.load_config_output), message_is_photo.MessageIsPhoto())
 

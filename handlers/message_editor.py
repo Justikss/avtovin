@@ -123,7 +123,7 @@ class TravelEditor:
                     #await redis_data.set_data(redis_key, new_message.message_id)
                     # print('SET: ', new_message.message_id)
 
-        if new_message:
+        if new_message and not photo:
             await redis_data.set_data(redis_key, new_message.message_id)
 
             print('add+message = ', new_message.message_id)

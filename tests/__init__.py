@@ -1,1 +1,2 @@
-from . import mocked_bot, conftest, test_pytest, utils
+from . import tests_seller
+from . import mocked_bot, conftest, utils

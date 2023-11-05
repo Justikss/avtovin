@@ -124,12 +124,11 @@ LEXICON = {
             'seller_faq': {'message_text': 'Самые частые вопросы: ', 'return_main_menu': 'В меню', 'width': 1},
             'create_seller_request': {'message_text': 'Заявки', 'create_new_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
 
-            'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'width': 1},
+            'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'return_main_menu': 'В меню', 'width': 1},
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
             'message_not_digit': ' должна состоять только из цифр',
-            'message_not_photo': '\Прикрепите фотографию\n(значок скрепки в левом углу чата)'
-            
+            'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)'
         }
 
 
@@ -146,8 +145,12 @@ class LexiconCommodityLoader:
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
     load_commodity_photo = {'message_text': 'Пришлите фото автомобиля', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
 
+    edit_photo_caption = 'Фото'
+
 
     config_for_seller = 'Ваши конфигурации:'
+    config_for_seller_button_callbacks = ('rewrite_boot_state','rewrite_boot_engine', 'rewrite_boot_brand', 'rewrite_boot_model', 'rewrite_boot_complectation', 'rewrite_boot_year', 'rewrite_boot_mileage', 'rewrite_boot_color', 'rewrite_boot_price', 'rewrite_boot_photo')
+
     config_for_admins = 'Заявка от продавца @'
 
     seller_notification = {'message_text': 'Заявка №_ создана!'}

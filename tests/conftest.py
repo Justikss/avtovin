@@ -9,7 +9,7 @@ sys.path.insert(0, '..')
 from tests.mocked_bot import MockedBot
 
 
-@pytest_asyncio.fixture(scope='session')
+@pytest_asyncio.fixture(scope='function')
 async def storage():
     tmp_storage = MemoryStorage()
     try:
@@ -23,8 +23,8 @@ def bot():
 
 
 @pytest_asyncio.fixture()
-async def dispatcher():
-    dp = Dispatcher()
+async def dispatcher(storage):
+    dp = Dispatcher(storage=storage)
     await dp.emit_startup()
     try:
         yield dp
@@ -32,6 +32,6 @@ async def dispatcher():
         await dp.emit_shutdown()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def event_loop():
     return asyncio.get_event_loop()
