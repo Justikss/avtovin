@@ -36,6 +36,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':boot_config', value=output_string)
 
     output_string = '\n'.join(output_string.split('\n')[:-2])
+    output_string += LexiconCommodityLoader.can_rewrite_config
     lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string)
     print('lp: ', lexicon_part)
     photo = structured_boot_data['photo_id'] #if not None else structured_boot_data['photo_url']

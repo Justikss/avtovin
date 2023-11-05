@@ -5,13 +5,14 @@ from typing import Union
 
 from states.load_commodity_states import LoadCommodityStates
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
-from handlers.state_handlers.seller_states_handler.load_new_car.utils import data_update_controller
+from handlers.state_handlers.seller_states_handler.load_new_car.utils import data_update_controller, change_boot_car_state_controller, rewrite_boot_state_stopper
 
 
 async def get_load_car_state(state: FSMContext):
     '''Метод-помощник для определения категории состояния авто в обработке FSM'''
     memory_data = await state.get_data()
     cars_state = memory_data.get('state_for_load')
+    print('cstte: ', cars_state)
 
     if cars_state.endswith('second_hand'):
         return 'second_hand'
@@ -40,6 +41,8 @@ async def input_engine_type_to_load(callback: CallbackQuery, state: FSMContext, 
         bot = callback.message.bot
 
     if not callback.data.startswith('rewrite_boot_'):
+        await change_boot_car_state_controller(callback, state)
+
         await state.update_data(state_for_load=callback.data)
     if await data_update_controller(request=callback, state=state):
         return
@@ -90,6 +93,9 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
     if not bot:
         bot = callback.message.bot
 
+    memory_data = await state.get_data()
+    #if memory_data.get('state_for_load') == :
+        
     if not callback.data.startswith('rewrite_boot_'):
         await state.update_data(model_for_load=callback.data)
     if await data_update_controller(request=callback, state=state):
@@ -190,5 +196,6 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
                 new_lexicon_part[key] = value
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=new_lexicon_part,  bot=bot, delete_mode=delete_mode)
+    await state.update_data(rewrite_state_flag=None)
 
     await state.set_state(LoadCommodityStates.load_config_output)

@@ -133,7 +133,7 @@ LEXICON = {
 
 
 class LexiconCommodityLoader:
-    load_commodity_state = {'message_text': 'Бу/Новое', 'buttons': {'load_state_new': 'Новое', 'load_state_second_hand': 'Б/у', 'width': 2}}
+    load_commodity_state = {'message_text': 'Состояние', 'buttons': {'load_state_new': 'Новое', 'load_state_second_hand': 'Б/у', 'width': 2}}
     load_engine_type = {'message_text': 'Тип двигателя', 'buttons': {'load_engine_hybrid': 'Гибрид', 'load_engine_DWS': 'ДВС', 'load_engine_electro': 'Электро', 'width': 2}}
     load_commodity_brand = {'message_text': 'Марка', 'buttons': {'load_brand_bmw': 'BMW', 'load_brand_mercedes': 'Mercedes', 'load_brand_renault': 'Renault', 'load_brand_skoda': 'Skoda', 'width': 2}}
     load_commodity_model = {'message_text': 'Модель', 'buttons': {'load_model_1': 'model_1', 'load_model_2': 'model_2', 'load_model_3': 'model_3', 'load_model_4': 'model_4', 'width': 2}}
@@ -149,6 +149,7 @@ class LexiconCommodityLoader:
 
 
     config_for_seller = 'Ваши конфигурации:'
+    can_rewrite_config = '\nВозможна перепись полей по нажатию на нужную кнопку'
     config_for_seller_button_callbacks = ('rewrite_boot_state','rewrite_boot_engine', 'rewrite_boot_brand', 'rewrite_boot_model', 'rewrite_boot_complectation', 'rewrite_boot_year', 'rewrite_boot_mileage', 'rewrite_boot_color', 'rewrite_boot_price', 'rewrite_boot_photo')
 
     config_for_admins = 'Заявка от продавца @'
