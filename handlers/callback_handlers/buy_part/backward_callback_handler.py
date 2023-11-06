@@ -13,9 +13,10 @@ from handlers.state_handlers.seller_states_handler.seller_registration.seller_re
 from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
 from handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config import check_your_config
 from handlers.callback_handlers.sell_part.start_sell_button_handler import start_sell_callback_handler
+from handlers.callback_handlers.sell_part import seller_profile_branch 
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates, PersonSellerRegistrationStates
-
+from states.tariffs_to_seller import ChoiceTariffForSellerStates
 
 async def backward_button_handler(callback: CallbackQuery, state: FSMContext = None):
     '''Кнопка назад, ориентируется на запись в редис: прошлый лексикон код,
@@ -121,6 +122,18 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
                 keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
                 message_object = await callback.message.answer(text=message_text, reply_markup=keyboard)
                 await redis_storage.redis_data.set_data(key=str(user_id) + ':last_message', value = message_object.message_id)
+
+        elif mode == 'affordable_tariffs':
+            await state.clear()
+            await seller_profile_branch.checkout_seller_person_profile.output_seller_profile(callback=callback)
+
+        elif mode == 'tariff_preview':
+            await state.set_state(ChoiceTariffForSellerStates.choose_tariff)
+            await seller_profile_branch.tariff_extension.output_affordable_tariffs_handler(callback=callback, state=state)
+        
+        elif mode == 'choose_payment_system':
+            await state.set_state(ChoiceTariffForSellerStates.preview_tariff)
+            await seller_profile_branch.selected_tariff_preview.tariff_preview_handler(callback=callback, state=state, backward_call=True)
 
     else:
         print("LEXICON_CACHA")

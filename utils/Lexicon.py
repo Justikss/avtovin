@@ -128,7 +128,10 @@ LEXICON = {
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
             'message_not_digit': ' должна состоять только из цифр',
-            'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)'
+            'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)',
+            
+            'retry_now_allert': 'Попробуйте снова',
+            'user_havent_permision': 'У вас нет прав'
         }
 
 
@@ -198,10 +201,34 @@ class LexiconCommodityLoader:
 
 
 class LexiconSellerProfile:
-    header = 'Профиль: '
-    tariff_prefix = 'Тариф: '
-    tariff_out_date_prefix = 'До '
-    residual_feedback_prefix = 'Остаток откликов: '
+    header = 'Профиль: \n'
+    tariff_prefix = '\n- Тариф: '
+    tariff_out_date_prefix = '\nДо '
+    residual_feedback_prefix = '\n- Остаток откликов: '
+    tariff_extension_button = {'tariff_extension': 'Продлить тариф', 'return_main_menu': 'В меню', 'width': 1}
 
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'
+
+class LexiconTariffSelection:
+    message_text = 'Все доступные тарифы'
+    callback_type = 'select_tariff:'
+    backward_button_callback = 'backward:affordable_tariffs'
+    backward_button_caption = 'Отмена'
+    keyboard_width_value = 2
+
+class LexiconSelectedTariffPreview:
+    header = 'Информация о тарифе:'
+    name = '\n- '
+    price = '\n- Стоимость: '
+    duration_time = '\n- Срок действия: '
+    feedback_amount = '\n- Лимит отзывов: '
+    buttons = {'start_choose_payment_method': 'Выбор платёжной системы', 'backward:tariff_preview': 'Назад', 'width': 1}
+
+class LexiconChoicePaymentSystem:
+    message_text = 'Выберите платёжную систему'
+    payments1 = {'1': 'Платёжная система 1'}
+    payments2 = {'2': 'Платёжная система 2'}
+    payments3 = {'3': 'Платёжная система 3'}
+    bottom_buttons = {'backward:choose_payment_system': 'Назад', 'width': 1} 
+    buttons_list = [payments1, payments2, payments3, bottom_buttons]

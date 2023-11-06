@@ -1,10 +1,11 @@
 from typing import Union, List
 import datetime
 
+from database.tables.seller import Seller
 from database.tables.start_tables import db
 from database.tables.tariff import Tariff, TariffsToSellers
 from database.data_requests import person_requests, tariff_requests
-from utils.custom_exceptions.database_exceptions import NonExistentId, NonExistentTariff
+from utils.custom_exceptions.database_exceptions import NonExistentIdException, NonExistentTariffException
 from utils.Lexicon import DateTimeFormat
 
 class TariffToSellerBinder:
@@ -19,6 +20,20 @@ class TariffToSellerBinder:
                 return list(select_request)
             else:
                 return False
+    @staticmethod
+    def get_by_seller_id(seller_id):
+        '''Извлечь модель по телеграм id селлера'''
+        with db.atomic():
+
+            query = (TariffsToSellers
+            .select()
+            .join(Seller)
+            .where(Seller.telegram_id == seller_id))
+
+            return query
+            # select_response = list(TariffsToSellers.select().where(TariffsToSellers.seller.telegram_id == seller_id))
+            # return select_response
+            
 
     @staticmethod
     def __data_extraction_to_boot(data):
@@ -44,9 +59,9 @@ class TariffToSellerBinder:
                     return data
 
                 else:
-                    raise NonExistentTariff(f'Tariff name {tariff_name} not exist in database.')
+                    raise NonExistentTariffException(f'Tariff name {tariff_name} not exist in database.')
         else:
-            raise NonExistentId(f'Seller id {seller_id} not exist in database.')
+            raise NonExistentIdException(f'Seller id {seller_id} not exist in database.')
 
 
         
@@ -65,4 +80,4 @@ data = {'seller': '902230076',
 'tariff': 'minimum'
 }
 
-TariffToSellerBinder.set_bind(data=data)
+# TariffToSellerBinder.set_bind(data=data)

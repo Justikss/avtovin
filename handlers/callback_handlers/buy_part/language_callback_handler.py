@@ -27,6 +27,7 @@ async def set_language(callback: CallbackQuery, delete_mode=False):
     user_id = str(callback.from_user.id)
     redis_key_last_lexicon = user_id + ':last_lexicon_code'
     await redis_data.set_data(redis_key_last_lexicon, lexicon_code)
+    
     if delete_mode:
         last_message_id = await redis_data.get_data(key=user_id + ':last_message')
         # await redis_data.delete_key(key=user_id + ':last_message')

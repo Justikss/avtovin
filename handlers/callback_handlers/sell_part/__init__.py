@@ -1,1 +1,2 @@
-from . import start_sell_button_handler, start_seller_registration_callback_handlers, seller_main_menu, accept_registration_request_button, seller_faq, commodity_requests, checkout_seller_person_profile
+from . import seller_profile_branch
+from . import start_sell_button_handler, start_seller_registration_callback_handlers, seller_main_menu, accept_registration_request_button, seller_faq, commodity_requests

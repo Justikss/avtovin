@@ -17,16 +17,19 @@ from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_hi
 from handlers.state_handlers import buyer_registration_handlers
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, new_car_handlers, second_hand_car_handlers
+
 from states.new_car_choose_states import NewCarChooseStates
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
+from states.load_commodity_states import LoadCommodityStates
+from states.tariffs_to_seller import ChoiceTariffForSellerStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, seller_faq, commodity_requests
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car
-from states.load_commodity_states import LoadCommodityStates
+
 
 from handlers.callback_handlers.hybrid_part import return_main_menu
 
@@ -162,6 +165,20 @@ async def start_bot():
 
     dp.callback_query.register(commodity_requests.confirm_load_config_from_seller.confirm_load_config_from_seller,
                               F.data == 'confirm_load_config_from_seller')
+
+    dp.callback_query.register(sell_part.seller_profile_branch.checkout_seller_person_profile.output_seller_profile,
+                              F.data == 'seller_pofile')
+
+    '''Оформление тарифа продавца'''
+    dp.callback_query.register(sell_part.seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,
+                              and_f(StateFilter(default_state), F.data == 'tariff_extension'))
+    dp.callback_query.register(sell_part.seller_profile_branch.selected_tariff_preview.tariff_preview_handler,
+                              and_f(StateFilter(ChoiceTariffForSellerStates.choose_tariff), lambda callback: callback.data.startswith('select_tariff:')))
+    dp.callback_query.register(sell_part.seller_profile_branch.choose_payment.choice_payments_handler,
+                              and_f(StateFilter(ChoiceTariffForSellerStates.preview_tariff), F.data == 'start_choose_payment_method'))
+
+    
+    
 
     '''hybrid'''
     

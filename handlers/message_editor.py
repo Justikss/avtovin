@@ -10,7 +10,7 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, photo=None, seller_boot=None):
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, photo=None, seller_boot=None, dynamic_buttons=False):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
         user_id = str(request.from_user.id)
@@ -34,9 +34,9 @@ class TravelEditor:
         chat_object = message_object.chat
         if button_texts:
             keyboard = await InlineCreator.create_markup(lexicon_part,
-                                                         button_texts=button_texts, callback_sign=callback_sign)
+                                                         button_texts=button_texts, callback_sign=callback_sign, dynamic_buttons=dynamic_buttons)
         else:
-            keyboard = await InlineCreator.create_markup(lexicon_part)
+            keyboard = await InlineCreator.create_markup(lexicon_part, dynamic_buttons=dynamic_buttons)
 
         message_text = lexicon_part['message_text']
 

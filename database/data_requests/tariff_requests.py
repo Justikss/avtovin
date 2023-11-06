@@ -28,6 +28,11 @@ class TarifRequester:
                 print(ex)
                 return False
 
+    @staticmethod
+    def get_by_id(tariff_id):
+        with db.atomic():
+            query = Tariff.get_by_id(tariff_id)
+            return query
     
     @staticmethod
     def get_by_name(tariff_name: str):
@@ -44,6 +49,7 @@ class TarifRequester:
             finally:
                 return False
 
+    '''VVV В разработке VVV'''
     @staticmethod
     def delete_tariff(tariff_name: str):
         with db.atomic():
