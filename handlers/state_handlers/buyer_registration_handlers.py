@@ -73,7 +73,11 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
     if delete_mode:
         last_message_id = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
         if last_message_id:
-            await message.chat.delete_message(message_id=last_message_id)
+            try:
+                await message.chat.delete_message(message_id=last_message_id)
+                await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_message')
+            except TelegramBadRequest:
+                pass
 
     memory_data = await state.get_data()
     # if message.message_id:

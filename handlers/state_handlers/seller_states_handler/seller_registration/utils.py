@@ -20,10 +20,21 @@ async def update_non_confirm_seller_registrations(callback: CallbackQuery, messa
 
     redis_module = importlib.import_module('utils.redis_for_language')
 
-    redis_key = str(callback.from_user.id) + ':active_non_confirm_seller_registrations'
+    redis_key = 'active_non_confirm_seller_registrations'
     seller_registration_stack = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
+    print('seller_reg_stack', seller_registration_stack)
 
-    if get_by_seller_id:
+    if message_for_admins:
+        if seller_registration_stack:
+            seller_registration_stack[message_for_admins] = str(callback.from_user.id)
+        else:
+            seller_registration_stack = {message_for_admins: callback.from_user.id}
+
+        await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
+
+
+    elif get_by_seller_id:
+
         if not seller_registration_stack:
             return False
         else:
@@ -35,13 +46,6 @@ async def update_non_confirm_seller_registrations(callback: CallbackQuery, messa
                     return exists_message_id
 
 
-    if message_for_admins:
-        if seller_registration_stack:
-            seller_registration_stack[message_for_admins] = str(callback.from_user.id)
-        else:
-            seller_registration_stack = {message_for_admins: callback.from_user.id}
-
-    await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
 
 async def load_seller_in_database(request: Union[CallbackQuery, Message], state: FSMContext, authorized_state: bool):
     '''Метод подготовки аргументов(данных продавца) к загрузке в базу данных'''

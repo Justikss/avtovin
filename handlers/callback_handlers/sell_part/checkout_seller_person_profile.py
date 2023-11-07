@@ -26,7 +26,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     '''Метод конструирования выводимой карточки профиля'''
     user_id = callback.from_user.id
     seller_tariff_model = TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
-    seller_tariff_model = seller_tariff_model[0]
+    seller_tariff_model = seller_tariff_model
     seller_model = PersonRequester.get_user_for_id(user_id=user_id, seller=True)
     seller_model = seller_model[0]
     seller_data = await get_seller_name(seller_model)

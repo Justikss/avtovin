@@ -30,6 +30,8 @@ from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car
 
+from handlers.state_handlers.seller_states_handler import seller_profile_branch
+
 
 from handlers.callback_handlers.hybrid_part import return_main_menu
 
@@ -166,15 +168,15 @@ async def start_bot():
     dp.callback_query.register(commodity_requests.confirm_load_config_from_seller.confirm_load_config_from_seller,
                               F.data == 'confirm_load_config_from_seller')
 
-    dp.callback_query.register(sell_part.seller_profile_branch.checkout_seller_person_profile.output_seller_profile,
+    dp.callback_query.register(sell_part.checkout_seller_person_profile.output_seller_profile,
                               F.data == 'seller_pofile')
 
     '''Оформление тарифа продавца'''
-    dp.callback_query.register(sell_part.seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,
+    dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,
                               and_f(StateFilter(default_state), F.data == 'tariff_extension'))
-    dp.callback_query.register(sell_part.seller_profile_branch.selected_tariff_preview.tariff_preview_handler,
+    dp.callback_query.register(seller_profile_branch.selected_tariff_preview.tariff_preview_handler,
                               and_f(StateFilter(ChoiceTariffForSellerStates.choose_tariff), lambda callback: callback.data.startswith('select_tariff:')))
-    dp.callback_query.register(sell_part.seller_profile_branch.choose_payment.choice_payments_handler,
+    dp.callback_query.register(seller_profile_branch.choose_payment.choice_payments_handler,
                               and_f(StateFilter(ChoiceTariffForSellerStates.preview_tariff), F.data == 'start_choose_payment_method'))
 
     

@@ -2,6 +2,7 @@ import importlib
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
+from aiogram.exceptions import TelegramBadRequest
 
 from handlers.callback_handlers.buy_part.search_auto_handler import search_auto_callback_handler
 from handlers.state_handlers.buyer_registration_handlers import LEXICON, input_full_name, BuyerRegistationStates
@@ -13,10 +14,13 @@ from handlers.state_handlers.seller_states_handler.seller_registration.seller_re
 from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
 from handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config import check_your_config
 from handlers.callback_handlers.sell_part.start_sell_button_handler import start_sell_callback_handler
-from handlers.callback_handlers.sell_part import seller_profile_branch 
+from handlers.callback_handlers.sell_part import checkout_seller_person_profile
+from handlers.state_handlers.seller_states_handler import seller_profile_branch
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates, PersonSellerRegistrationStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
+
+
 
 async def backward_button_handler(callback: CallbackQuery, state: FSMContext = None):
     '''Кнопка назад, ориентируется на запись в редис: прошлый лексикон код,
@@ -99,8 +103,11 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
             last_user_message = int(
                 await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':last_user_message'))
             if last_user_message:
-                await callback.message.chat.delete_message(message_id=last_user_message)
-                await redis_storage.redis_data.delete_key(key=str(callback.from_user.id) + ':last_user_message')
+                try:
+                    await callback.message.chat.delete_message(message_id=last_user_message)
+                    await redis_storage.redis_data.delete_key(key=str(callback.from_user.id) + ':last_user_message')
+                except TelegramBadRequest:
+                    pass
 
             if mode == 'user_registration_number':
                 await state.set_state(BuyerRegistationStates.input_full_name)
@@ -125,7 +132,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
 
         elif mode == 'affordable_tariffs':
             await state.clear()
-            await seller_profile_branch.checkout_seller_person_profile.output_seller_profile(callback=callback)
+            await checkout_seller_person_profile.output_seller_profile(callback=callback)
 
         elif mode == 'tariff_preview':
             await state.set_state(ChoiceTariffForSellerStates.choose_tariff)

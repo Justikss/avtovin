@@ -10,6 +10,7 @@ async def accept_registraiton(callback: CallbackQuery):
     seller_id = callback.data.split(':')[1]
     print('seller_confirmed', seller_id)
     data_pair = await utils.update_non_confirm_seller_registrations(callback=callback, get_by_seller_id=seller_id)
+    print('data_pair', data_pair)
     if data_pair:
         notification_id, user_id = data_pair[0], data_pair[1]
     else:

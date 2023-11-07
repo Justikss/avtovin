@@ -81,7 +81,7 @@ class TravelEditor:
                         print('NOTRM')
                         new_message = await bot.send_photo(chat_id=message_object.chat.id, photo=photo, caption=message_text, reply_markup=keyboard)
 
-            if reply_mode:
+            if reply_mode: 
                 print('ph: ', photo)
                 if not seller_boot:
                     redis_reply_key=str(request.from_user.id) + ':last_user_message'

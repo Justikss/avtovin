@@ -227,8 +227,14 @@ class LexiconSelectedTariffPreview:
 
 class LexiconChoicePaymentSystem:
     message_text = 'Выберите платёжную систему'
-    payments1 = {'1': 'Платёжная система 1'}
-    payments2 = {'2': 'Платёжная система 2'}
-    payments3 = {'3': 'Платёжная система 3'}
+    payment_click = {'run_payment:click': 'CLICK'}
+    payment_payme = {'run_payment:payme': 'PayMe'}
+    payment_uzumPay = {'run_payment:uzumPay': 'UzumPay'}
     bottom_buttons = {'backward:choose_payment_system': 'Назад', 'width': 1} 
-    buttons_list = [payments1, payments2, payments3, bottom_buttons]
+    buttons_list = [payment_click, payment_payme, payment_uzumPay, bottom_buttons]
+
+
+class LexiconCreateInvoice:
+    title = 'Оформление тарифа '
+    description = 'Подписка на -_- откликов покупателей.\nПериодом -_- дней.'
+    load_price_label = 'Цена за тариф'
