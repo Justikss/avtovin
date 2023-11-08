@@ -25,7 +25,7 @@ async def get_seller_name(seller_model: Seller) -> Union[Tuple[str, str], str]:
 async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     '''Метод конструирования выводимой карточки профиля'''
     user_id = callback.from_user.id
-    seller_tariff_model = TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
+    seller_tariff_model = TariffToSellerBinder.get_by_seller_id(seller_id=user_id)[0]
     seller_tariff_model = seller_tariff_model
     seller_model = PersonRequester.get_user_for_id(user_id=user_id, seller=True)
     seller_model = seller_model[0]
@@ -38,6 +38,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     output_string = f'{LexiconSellerProfile.header}{seller_data}\n- {seller_model.phone_number}'
 
     if seller_tariff_model:
+        print(dir(seller_tariff_model))
         output_string += f'\n{LexiconSellerProfile.tariff_prefix} {seller_tariff_model.tariff.name}\
             {LexiconSellerProfile.tariff_out_date_prefix} {seller_tariff_model.end_date_time}\
                 \n{LexiconSellerProfile.residual_feedback_prefix} {seller_tariff_model.residual_feedback}'

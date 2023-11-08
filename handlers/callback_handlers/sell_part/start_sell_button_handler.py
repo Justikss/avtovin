@@ -9,6 +9,7 @@ from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_me
 async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext):
     message_editor_module = importlib.import_module('handlers.message_editor')
 
+
     user_id = callback.from_user.id
     seller_is_exists = PersonRequester.get_user_for_id(user_id=user_id, seller=True)
     if seller_is_exists:

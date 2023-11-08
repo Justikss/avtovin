@@ -5,7 +5,10 @@ from aiogram.types import CallbackQuery
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import CommodityRequester
 from handlers.callback_handlers.buy_part.callback_handler_start_buy import PersonRequester
 from database.data_requests.offers_requests import OffersRequester
+from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
+from keyboards.inline.kb_creator import InlineCreator
 from utils.Lexicon import LEXICON
+from utils.user_notification import send_notification
 
 
 async def confirm_from_seller(callback: CallbackQuery):
@@ -23,52 +26,46 @@ async def confirm_from_seller(callback: CallbackQuery):
     print(callback_encoding)
     buyer_id = int(callback_encoding[-1])
     print('car id rangeeeeee', cars_id_range)
+
+
     need_cars = list()
     # for car_id in cars_id_range:
     need_cars = CommodityRequester.get_car_for_offer(seller_id=seller_id, car_range_id=cars_id_range)
     # if need_car:
     #     need_cars.append(need_car)
 
-    if not need_cars:
-        await callback.answer(text=LEXICON["seller_haven't_this_car"])
-        #return
-    else:
-        # buyer_person = PersonRequester.get_user_for_id(user_id=buyer_id, user=True)
-        # seller_person = PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
-        # print(buyer_person)
-        # print(seller_id)
-        # buyer_person = buyer_person[0]
-        # seller_person = seller_person[0]
 
 
 
+    redis_key = str(buyer_id) + ':active_non_confirm_offers'
 
-        a = await OffersRequester.store_data(buyer_id=buyer_id, seller_id=seller_id, cars=need_cars)
-        print(a)
+    active_non_confirm_offers = await redis_data.redis_data.get_data(
+        key=redis_key,
+        use_json=True
+    )
 
+    if active_non_confirm_offers:
+        query = TariffToSellerBinder.feedback_waste(telegram_id=callback.from_user.id)
 
-        redis_key = str(buyer_id) + ':active_non_confirm_offers'
+        if query:
+            alert_lexicon_code = 'success_notification'
+            if not need_cars:
+                await callback.answer(text=LEXICON["seller_haven't_this_car"])
+                # return
+            else:
 
-        active_non_confirm_offers = await redis_data.redis_data.get_data(
-            key=redis_key,
-            use_json=True
-        )
+                match_result = await OffersRequester.match_check(user_id=callback.from_user.id,
+                                                                 cars_id_range=cars_id_range)
 
-        if active_non_confirm_offers:
-            print(active_non_confirm_offers)
-            print(cars_id_range)
-            cars_id_range = list(map(str, cars_id_range))
-            print(cars_id_range)
-            # if len(cars_id_range) == 1:
-            #     cars_id_range = str(cars_id_range[0])
-            #
-            # else:
-            #     cars_id_range = (str(cars_id) for cars_id in cars_id_range)
-            #deleted_message = [key for key, value in active_non_confirm_offers.items() if str(value) == cars_id_range]
-            # print('del mes ', deleted_message)
-            # deleted_message = deleted_message[0]
-            # print('del mes2 ', deleted_message)
+                if match_result:
 
+                    a = await OffersRequester.store_data(buyer_id=buyer_id, seller_id=seller_id, cars=need_cars)
+
+                else:
+                    alert_lexicon_code = 'non_actiallity'
+
+            await send_notification(callback=callback, user_status='buyer')
+            cars_id_range = [str(car_id) for car_id in cars_id_range]
             need_message_id = next((key for key, value in active_non_confirm_offers.items() if value == ':'.join(cars_id_range)), None)
             if not need_message_id:
                 time.sleep(2)
@@ -79,16 +76,20 @@ async def confirm_from_seller(callback: CallbackQuery):
             print('cars_id_range', ':'.join(cars_id_range))
             active_non_confirm_offers.pop(need_message_id)
             print(need_message_id)
-            await callback.answer(LEXICON['success_notification'])
+
+            await callback.answer(LEXICON[alert_lexicon_code])
             await callback.message.chat.delete_message(message_id=need_message_id)
 
             await redis_data.redis_data.set_data(
                 key=redis_key,
                 value=active_non_confirm_offers
             )
+
         else:
-            print('gay')
+            await callback.answer(LEXICON['seller_havent_feedbacks'], show_alert=True)
+    else:
+        print('gay')
 
-        await callback.answer()
+    await callback.answer()
 
-        #'confirm_from_seller:' + cars_id_range + ':to_buyer' + buyer_id)
+    #'confirm_from_seller:' + cars_id_range + ':to_buyer' + buyer_id)

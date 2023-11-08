@@ -6,6 +6,7 @@ import aiogram.exceptions
 from aiogram.types import Message, CallbackQuery
 from database.data_requests.offers_requests import OffersRequester
 from utils.Lexicon import LEXICON
+from utils.user_notification import  try_delete_notification
 
 
 async def history_view_system(callback, vector=None, start_flag=None):
@@ -133,6 +134,7 @@ async def history_view_system(callback, vector=None, start_flag=None):
                         text=history_stack[message_block_index])
 
 
+
 async def format_history_data(offers_for_user: list) -> list:
     result_stack = list()
     lexicon_part = LEXICON['offer_parts']
@@ -148,7 +150,12 @@ async def format_history_data(offers_for_user: list) -> list:
           🚘 {lexicon_part['dealship_name']}: {dealship_name}\n💰 {lexicon_part['car_price']}: ~ {formatted_price}\n{lexicon_part['dealship_contacts']}:\n  - {offer.seller.phone_number}\n  - {offer.seller.dealship_address}
                         '''
         else:
-            seller_full_name = offer.seller.surname + ' ' + offer.seller.name + ' ' + offer.seller.patronymic
+            patronymic = offer.seller.patronymic
+            if patronymic:
+                patronymic = offer.seller.patronymic
+            else:
+                patronymic = ''
+            seller_full_name = offer.seller.surname + ' ' + offer.seller.name + ' ' + patronymic
             result_text = f'''
             👨🏻 {lexicon_part['individual']}: {seller_full_name}\n💰 {lexicon_part['car_price']}: {formatted_price}\n{lexicon_part['individual_contacts']}:\n - {offer.seller.phone_number}
             '''
@@ -159,6 +166,7 @@ async def format_history_data(offers_for_user: list) -> list:
 async def get_offers_history(callback: CallbackQuery):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
+    await try_delete_notification(callback=callback, user_status='buyer')
 
     lexicon_part = LEXICON['offer_parts']
     first_last_message_key = str(callback.from_user.id) + ':history_requests_pagination' + ':first'

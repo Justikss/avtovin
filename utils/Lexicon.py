@@ -63,14 +63,17 @@ LEXICON = {
                                  'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
                 'backward_in_carpooling': 'Назад', 'width': 1},
                 
-            'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!',
+            'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!\nВам поступит уведомление о её одобрении.',
                                           'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.', 
                                         'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_non_registration': {'message_text': 'Ошибка. Ваш аккаунт незарегестрирован\nНажмите /start'},
 
             'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил заявку:',
-            'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},
+                                    'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},
+
+            'buyer_offer_notification': {'message_text': 'Ваша заявка на автомобиль одобрена!', 'buttons': {'offers_to_user': 'История заявок', 'confirm_notification:buyer': 'Принял', 'width': 1}},
+
 
             'buttons_history_output': {'pagination_left': '<', 'pagination_right': '>',
                                        'return_from_offers_history': 'В меню', 'width': 2},
@@ -110,8 +113,11 @@ LEXICON = {
 
 
             'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Да, всё верно', 'width': 1},
-            'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь одобрения от администрации', 'return_to_sell_zone': 'К покупкам', 'width': 1},
+            'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь уведобления об одобрении от администрации.', 'start_sell': 'Меню продавца', 'width': 1},
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
+
+            'confirm_seller_profile_notification': {'message_text': 'Успешно профиль подтверждён!', 'buttons': {'seller_main_menu': 'В меню продавца', 'confirm_notification:seller': 'Принял', 'width': 1}},
+    
             'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'backward:set_language': 'Назад', 'width': 2},
 
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_seller_registration_from:'},
@@ -131,7 +137,9 @@ LEXICON = {
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)',
             
             'retry_now_allert': 'Попробуйте снова',
-            'user_havent_permision': 'У вас нет прав'
+            'user_havent_permision': 'У вас нет прав',
+            'seller_havent_feedbacks': 'У вас нет откликов на счету',
+            'non_actiallity': 'Не актуально'
         }
 
 

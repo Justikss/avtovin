@@ -5,6 +5,7 @@ from aiogram.types import Message
 from handlers.message_editor import InlineCreator
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
+from database.data_requests.tariff_to_seller_requests import TariffsToSellers
 
 
 async def bot_start(message: Message, state: FSMContext):
@@ -12,7 +13,11 @@ async def bot_start(message: Message, state: FSMContext):
     redis_module = importlib.import_module('utils.redis_for_language')
 
     await state.clear()
-    await message.delete()
+    try:
+        await message.delete()
+    except:
+        pass
+
 
     await MessageIsPhoto.chat_cleaner(self=MessageIsPhoto,
                                     trash_redis_keys=(':last_seller_message', ':last_user_message', ':last_message'), message=message)

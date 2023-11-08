@@ -1,4 +1,6 @@
 # import aioredis
+import importlib
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
@@ -12,6 +14,7 @@ from config_data.config import BOT_TOKEN
 from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, confirm_from_seller_callback_handler, confirm_search_config, language_callback_handler, main_menu, search_auto_handler, show_offers_history
 from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address, price_is_digit, message_is_photo
+from handlers.custom_filters.user_status_controller import StatusControl
 from handlers.default_handlers import start, help, echo
 from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_history)
 from handlers.state_handlers import buyer_registration_handlers
@@ -31,6 +34,7 @@ from handlers.state_handlers.seller_states_handler.seller_registration import se
 from handlers.state_handlers.seller_states_handler import load_new_car
 from handlers.state_handlers.seller_states_handler import seller_profile_branch
 
+from handlers.default_handlers.help import  bot_help
 
 
 from handlers.callback_handlers.hybrid_part import return_main_menu
@@ -74,6 +78,11 @@ async def start_bot():
 
     dp = Dispatcher(storage=storage)
 
+    # dp.message.filter(StatusControl)
+    # dp.message.middleware.setup(UserStatusMiddleware())
+    # dp.callback_query.middleware.setup(UserStatusMiddleware())
+
+    dp.message.register(bot_help, Command(commands=['free_tariff']))
 
     '''обраюотка Сообщений'''
     dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))
@@ -93,7 +102,7 @@ async def start_bot():
     dp.callback_query.register(start_seller_registration_callback_handlers.seller_type_identifier,
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
 
-    dp.message.register(seller_registration_handlers.hybrid_input_seller_number, 
+    dp.message.register(seller_registration_handlers.hybrid_input_seller_number,
                         and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName()))
 
     dp.message.register(seller_registration_handlers.dealership_input_address,
@@ -134,7 +143,7 @@ async def start_bot():
     dp.callback_query.register(language_callback_handler.set_language,
                                F.data.in_(('language_uz', 'language_ru')))
     dp.callback_query.register(callback_handler_start_buy.start_buy,
-                               or_f(F.data == 'start_buy', F.data == 'return_to_sell_zone'))
+                               F.data == 'start_buy')
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
                                lambda callback: callback.data.startswith('backward'))
     dp.callback_query.register(search_auto_handler.search_auto_callback_handler,
@@ -170,6 +179,10 @@ async def start_bot():
 
     dp.callback_query.register(sell_part.checkout_seller_person_profile.output_seller_profile,
                               F.data == 'seller_pofile')
+
+    sell_main_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
+    dp.callback_query.register(sell_main_module.seller_main_menu,
+                               F.data == 'seller_main_menu')
 
     '''Оформление тарифа продавца'''
     dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,
@@ -266,10 +279,14 @@ async def start_bot():
                               F.data=='rewrite_boot_price'))
     dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
                               (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
-    dp.callback_query.register(load_new_car.hybrid_handlers.input_photo_to_load, 
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_photo_to_load,
                               F.data == 'rewrite_boot_photo')
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
                               StateFilter(LoadCommodityStates.load_config_output), message_is_photo.MessageIsPhoto())
+
+    '''уведомления'''
+    dp.callback_query.register(sell_main_module.try_delete_notification,
+                               lambda callback: callback.data.startswith('confirm_notification'))
 
 
     @dp.callback_query()

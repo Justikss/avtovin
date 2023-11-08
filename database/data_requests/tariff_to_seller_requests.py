@@ -30,10 +30,24 @@ class TariffToSellerBinder:
             .join(Seller)
             .where(Seller.telegram_id == seller_id))
 
-            return query
+            return list(query)
             # select_response = list(TariffsToSellers.select().where(TariffsToSellers.seller.telegram_id == seller_id))
             # return select_response
             
+    @staticmethod
+    def feedback_waste(telegram_id):
+        with db.atomic():
+            total_bind = TariffsToSellers.select().where(TariffsToSellers.seller_id == telegram_id)
+            # query = TariffsToSellers.update(residual_feedback=100).where(
+            #     TariffsToSellers.seller == telegram_id).execute()
+            # return
+
+            if total_bind:
+                for model in total_bind:
+                    total_feedbacks = model.residual_feedback
+                query = TariffsToSellers.update(residual_feedback = total_feedbacks - 1).where(TariffsToSellers.seller == telegram_id).execute()
+                return query
+
 
     @staticmethod
     def __data_extraction_to_boot(data):
@@ -47,9 +61,9 @@ class TariffToSellerBinder:
                     tariff_object = Tariff.select().where(Tariff.name == tariff_name)
                     tariff_object = tariff_object[0]
                     now_time = datetime.datetime.now()
-                    duration_time = tariff_object.duration_time.split(':')
-                    days, hours = int(duration_time[0]), int(duration_time[1])
-                    end_time = now_time + datetime.timedelta(days=days, hours=hours)
+                    duration_time = tariff_object.duration_time
+                    days = int(duration_time)
+                    end_time = now_time + datetime.timedelta(days=days)
 
                     data['tariff'] = tariff_object
                     data['start_date_time'] = now_time.strftime(DateTimeFormat.get_string)
@@ -61,6 +75,7 @@ class TariffToSellerBinder:
                 else:
                     raise NonExistentTariffException(f'Tariff name {tariff_name} not exist in database.')
         else:
+            seller_id = data.get('seller')
             raise NonExistentIdException(f'Seller id {seller_id} not exist in database.')
 
 
