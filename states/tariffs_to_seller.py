@@ -5,3 +5,4 @@ class ChoiceTariffForSellerStates(StatesGroup):
     preview_tariff = State()
     choose_payment_method = State()
     make_payment = State()
+    payment_outcome = State()

@@ -35,8 +35,10 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     else:
         seller_data = f'- {seller_data}'
     
-    output_string = f'{LexiconSellerProfile.header}{seller_data}\n- {seller_model.phone_number}\
-        \n{LexiconSellerProfile.tariff_prefix} {seller_tariff_model.tariff.name}\
+    output_string = f'{LexiconSellerProfile.header}{seller_data}\n- {seller_model.phone_number}'
+
+    if seller_tariff_model:
+        output_string += f'\n{LexiconSellerProfile.tariff_prefix} {seller_tariff_model.tariff.name}\
             {LexiconSellerProfile.tariff_out_date_prefix} {seller_tariff_model.end_date_time}\
                 \n{LexiconSellerProfile.residual_feedback_prefix} {seller_tariff_model.residual_feedback}'
     

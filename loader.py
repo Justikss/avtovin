@@ -29,8 +29,8 @@ from handlers.callback_handlers.sell_part import start_sell_button_handler, star
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car
-
 from handlers.state_handlers.seller_states_handler import seller_profile_branch
+
 
 
 from handlers.callback_handlers.hybrid_part import return_main_menu
@@ -178,6 +178,10 @@ async def start_bot():
                               and_f(StateFilter(ChoiceTariffForSellerStates.choose_tariff), lambda callback: callback.data.startswith('select_tariff:')))
     dp.callback_query.register(seller_profile_branch.choose_payment.choice_payments_handler,
                               and_f(StateFilter(ChoiceTariffForSellerStates.preview_tariff), F.data == 'start_choose_payment_method'))
+
+    dp.callback_query.register(seller_profile_branch.payments.payment_invoice_sender.send_invoice_offer,
+                              and_f(StateFilter(ChoiceTariffForSellerStates.choose_payment_method),
+                                     lambda callback: callback.data.startswith('run_tariff_payment:')))
 
     
     

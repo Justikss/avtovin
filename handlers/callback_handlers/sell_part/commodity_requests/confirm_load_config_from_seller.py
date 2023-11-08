@@ -18,6 +18,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     await state.clear()
 
     commodity_number = CommodityRequester.store_data([boot_data])
+    print('load_proc -=',  commodity_number)
 
     notification_string = await LexiconCommodityLoader.create_notification_for_seller(request_number=commodity_number)
     mock_lexicon_part = {'message_text': notification_string}

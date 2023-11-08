@@ -65,17 +65,17 @@ class TarifRequester:
 
 data = {'name': 'minimum',
 'price': 50,
-'duration_time': '365:0',
+'duration_time': '365',
 'feedback_amount': 100}
 
 data2 = {'name': 'medium',
 'price': 200,
-'duration_time': '365:0',
+'duration_time': '365',
 'feedback_amount': 500}
 
 data3 = {'name': 'maximum',
 'price': 1000,
-'duration_time': '365:0',
+'duration_time': '365',
 'feedback_amount': 10000}
 
 # TarifRequester.set_tariff(data)

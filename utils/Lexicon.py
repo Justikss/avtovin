@@ -211,6 +211,7 @@ class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'
 
 class LexiconTariffSelection:
+    not_found_message_text = 'Тарифов не найдено'
     message_text = 'Все доступные тарифы'
     callback_type = 'select_tariff:'
     backward_button_callback = 'backward:affordable_tariffs'
@@ -227,14 +228,24 @@ class LexiconSelectedTariffPreview:
 
 class LexiconChoicePaymentSystem:
     message_text = 'Выберите платёжную систему'
-    payment_click = {'run_payment:click': 'CLICK'}
-    payment_payme = {'run_payment:payme': 'PayMe'}
-    payment_uzumPay = {'run_payment:uzumPay': 'UzumPay'}
+    payment_click = {'run_tariff_payment:click': 'CLICK'}
+    payment_payme = {'run_tariff_payment:payme': 'PayMe'}
+    payment_uzumPay = {'run_tariff_payment:uzumPay': 'UzumPay'}
     bottom_buttons = {'backward:choose_payment_system': 'Назад', 'width': 1} 
     buttons_list = [payment_click, payment_payme, payment_uzumPay, bottom_buttons]
 
 
 class LexiconCreateInvoice:
+    in_progress_notification = 'В разработке'
     title = 'Оформление тарифа '
     description = 'Подписка на -_- откликов покупателей.\nПериодом -_- дней.'
     load_price_label = 'Цена за тариф'
+
+class LexiconPaymentOperation:
+    error_payment_text = 'Ошибка оплаты, попробуйте снова, соблюдая тайм аут в 15 минут'
+
+    success_payment_text = 'Удачно!'
+
+    cancel_button = {'Отмена': 'backward:make_payment'}
+    return_main_menu = {'В меню': 'return_main_menu'}
+    width_parameter = {'width': 1}
