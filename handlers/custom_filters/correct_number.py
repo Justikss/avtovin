@@ -33,6 +33,8 @@ class CheckInputNumber(BaseFilter):
         phonenumber = message.text.strip()
         country = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':language')
         try:
+            if not country:
+                country = 'ru'
             parsed_number = phonenumbers.parse(phonenumber, country)
             valid_number = phonenumbers.is_valid_number(parsed_number)
         except phonenumbers.NumberParseException as ex:

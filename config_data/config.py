@@ -20,3 +20,4 @@ DEFAULT_COMMANDS = (
     ("help", "Вывести справку")
 )
 
+DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'

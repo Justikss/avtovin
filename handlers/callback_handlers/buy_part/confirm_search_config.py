@@ -54,8 +54,23 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
 
     match_result = await OffersRequester.match_check(user_id=callback.from_user.id, cars_id_range=cars_id_range)
 
-    if not match_result:
-        # print('match was be')
+    active_non_confirm_offers = await redis_data.redis_data.get_data(
+        key=str(callback.from_user.id) + ':active_non_confirm_offers',
+        use_json=True
+    )
+
+    non_confirm_match_result = []
+    if active_non_confirm_offers:
+        for user_data, cars_range in active_non_confirm_offers.items():
+            cars_range = cars_range.split(':')
+            for car_id in cars_range:
+                if car_id in cars_id_range:
+                    non_confirm_match_result.append(car_id)
+
+        for matched_id in non_confirm_match_result:
+            match_result.remove(matched_id)
+
+    if not match_result or len(cars_id_range) == len(non_confirm_match_result):
         lexicon_key = 'buy_configuration_error'
     else:
         lexicon_key = 'confirm_buy_configuration'
@@ -81,20 +96,16 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
 
     message_for_dealers = await callback.message.bot.send_message(chat_id=DEAL_CHAT, text=output_text, reply_markup=keyboard)
 
-    active_non_confirm_offers = await redis_data.redis_data.get_data(
-        key=str(callback.from_user.id) + ':active_non_confirm_offers',
-        use_json=True
-    )
     print(message_for_dealers.message_id, 'MES DEL')
+    chat_id = callback.message.chat.id
+    key = f'{str(message_for_dealers.message_id)}:{str(chat_id)}'
     if active_non_confirm_offers:
-        active_non_confirm_offers[message_for_dealers.message_id] = cars_id_range
+        active_non_confirm_offers[key] = cars_id_range
     else:
-        active_non_confirm_offers = {message_for_dealers.message_id: cars_id_range}
+        active_non_confirm_offers = {key: cars_id_range}
     await redis_data.redis_data.set_data(
         key=str(callback.from_user.id) + ':active_non_confirm_offers',
         value=active_non_confirm_offers
     )
-    #await redis_data.redis_data.delete_key(key=str(callback.from_user.id) + ':active_non_confirm_offers')
-
 
     await callback.answer()

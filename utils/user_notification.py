@@ -26,7 +26,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         except:
             pass
 
-async def send_notification(callback: CallbackQuery, user_status: str):
+async def send_notification(callback: CallbackQuery, user_status: str, chat_id=None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
     if user_status == 'seller':
@@ -38,14 +38,16 @@ async def send_notification(callback: CallbackQuery, user_status: str):
 
     notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
     if notification_message_id:
-        return
+        #return
+        pass
 
 
     await callback.answer(LEXICON['success_notification'])
-    seller_chat_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + ':chat_id')
+    if not chat_id:
+        chat_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + ':chat_id')
     lexicon_part = LEXICON[lexicon_key]
     keyboard = await InlineCreator.create_markup(input_data=lexicon_part)
-    notification_message = await callback.message.bot.send_message(chat_id=seller_chat_id, text=lexicon_part['message_text'],
+    notification_message = await callback.message.bot.send_message(chat_id=chat_id, text=lexicon_part['message_text'],
                                             reply_markup=keyboard)
 
     await redis_module.redis_data.set_data(key=str(callback.from_user.id) + redis_sub_key,

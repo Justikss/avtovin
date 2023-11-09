@@ -6,7 +6,7 @@ from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 
@@ -289,9 +289,13 @@ async def start_bot():
                                lambda callback: callback.data.startswith('confirm_notification'))
 
 
+    @dp.message(Command(commands='m'))
+    async def asdsad(message: Message):
+        await message.answer(str(message.chat.id))
+
     @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
-      print('may')
+
       await callback.message.answer('Пролёт ' + callback.data)
       #await sell_part.commodity_requests.commodity_requests.commodity_reqests_by_seller(callback=callback)
       # await accept_registration_request_button.accept_registraiton(callback=callback)
@@ -299,11 +303,11 @@ async def start_bot():
 
     # dp.message.register(echo.bot_echo, StateFilter(default_state))
 
-    dp.message.register(echo.bot_echo, StateFilter(default_state))
-
-
-    dp.message.register(echo.bot_echo, StateFilter(default_state))
-    '''bot_echo всегда в последней позиции'''
+    # dp.message.register(echo.bot_echo, StateFilter(default_state))
+    #
+    #
+    # dp.message.register(echo.bot_echo, StateFilter(default_state))
+    # '''bot_echo всегда в последней позиции'''
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

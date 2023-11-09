@@ -116,7 +116,7 @@ LEXICON = {
             'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь уведобления об одобрении от администрации.', 'start_sell': 'Меню продавца', 'width': 1},
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
 
-            'confirm_seller_profile_notification': {'message_text': 'Успешно профиль подтверждён!', 'buttons': {'seller_main_menu': 'В меню продавца', 'confirm_notification:seller': 'Принял', 'width': 1}},
+            'confirm_seller_profile_notification': {'message_text': 'Меню продавца!', 'buttons': {'seller_main_menu': 'В меню продавца', 'confirm_notification:seller': 'Принял', 'width': 1}},
     
             'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'backward:set_language': 'Назад', 'width': 2},
 
@@ -138,7 +138,8 @@ LEXICON = {
             
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',
-            'seller_havent_feedbacks': 'У вас нет откликов на счету',
+            'seller_without_tariff': 'У вас нет откликов на счету',
+            'seller_tarriff_expired': 'Ваш тариф неактуален',
             'non_actiallity': 'Не актуально'
         }
 
@@ -154,7 +155,7 @@ class LexiconCommodityLoader:
     load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_25000': '25000', 'load_mileage_50000': '50000', 'load_mileage_100000': '100000', 'load_mileage_35000': '35000', 'width': 2}}
     load_commodity_color = {'message_text': 'Цвет', 'buttons': {'load_color_black': 'Чёрный', 'load_color_red': 'Красный', 'load_color_pink': 'Розовый', 'load_color_white': 'Белый', 'width': 2}}
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
-    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
+    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\n*Не отменяйте сжатие в телеграмм при отправке фотографии*', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
 
     edit_photo_caption = 'Фото'
 

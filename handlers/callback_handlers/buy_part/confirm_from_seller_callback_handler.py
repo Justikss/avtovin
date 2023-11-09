@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import CommodityRequester
 from handlers.callback_handlers.buy_part.callback_handler_start_buy import PersonRequester
 from database.data_requests.offers_requests import OffersRequester
-from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
+from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder, SellerWithoutTariffException, TariffExpiredException
 from keyboards.inline.kb_creator import InlineCreator
 from utils.Lexicon import LEXICON
 from utils.user_notification import send_notification
@@ -45,13 +45,20 @@ async def confirm_from_seller(callback: CallbackQuery):
     )
 
     if active_non_confirm_offers:
-        query = TariffToSellerBinder.feedback_waste(telegram_id=callback.from_user.id)
+        lexicon_code = None
+        try:
+            query = TariffToSellerBinder.feedback_waste(telegram_id=callback.from_user.id)
+        except SellerWithoutTariffException:
+            lexicon_code = 'seller_without_tariff'
+        except TariffExpiredException:
+            lexicon_code = 'seller_tarriff_expired'
 
-        if query:
+        else:
+            print('qara: ', query)
             alert_lexicon_code = 'success_notification'
             if not need_cars:
                 await callback.answer(text=LEXICON["seller_haven't_this_car"])
-                # return
+                return
             else:
 
                 match_result = await OffersRequester.match_check(user_id=callback.from_user.id,
@@ -64,29 +71,37 @@ async def confirm_from_seller(callback: CallbackQuery):
                 else:
                     alert_lexicon_code = 'non_actiallity'
 
-            await send_notification(callback=callback, user_status='buyer')
             cars_id_range = [str(car_id) for car_id in cars_id_range]
-            need_message_id = next((key for key, value in active_non_confirm_offers.items() if value == ':'.join(cars_id_range)), None)
-            if not need_message_id:
+            need_message_data = next((key for key, value in active_non_confirm_offers.items() if value == ':'.join(cars_id_range)), None)
+            if not need_message_data:
                 time.sleep(2)
-                need_message_id = next((key for key, value in active_non_confirm_offers.items() if value == ':'.join(cars_id_range)),
+                need_message_data = next((key for key, value in active_non_confirm_offers.items() if value == ':'.join(cars_id_range)),
                      None)
 
-            print('need_message id', need_message_id)
+            print('need_message id', need_message_data)
             print('cars_id_range', ':'.join(cars_id_range))
-            active_non_confirm_offers.pop(need_message_id)
-            print(need_message_id)
+            active_non_confirm_offers.pop(need_message_data)
+            print(need_message_data)
+
+
+            need_message_data = need_message_data.split(':')
+
+            chat_id = need_message_data[1]
+            message_id = need_message_data[0]
+
+
+            await send_notification(callback=callback, user_status='buyer', chat_id=chat_id)
+
 
             await callback.answer(LEXICON[alert_lexicon_code])
-            await callback.message.chat.delete_message(message_id=need_message_id)
+            await callback.message.chat.delete_message(message_id=message_id)
 
             await redis_data.redis_data.set_data(
                 key=redis_key,
                 value=active_non_confirm_offers
             )
-
-        else:
-            await callback.answer(LEXICON['seller_havent_feedbacks'], show_alert=True)
+        if lexicon_code:
+            await callback.answer(LEXICON[lexicon_code], show_alert=True)
     else:
         print('gay')
 

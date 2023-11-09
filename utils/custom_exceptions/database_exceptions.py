@@ -6,3 +6,9 @@ class NonExistentTariffException(BaseException):
 
 class TariffHasClientsException(BaseException):
     pass
+
+class TariffExpiredException(BaseException):
+    pass
+
+class SellerWithoutTariffException(BaseException):
+    pass

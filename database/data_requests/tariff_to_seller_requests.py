@@ -5,8 +5,9 @@ from database.tables.seller import Seller
 from database.tables.start_tables import db
 from database.tables.tariff import Tariff, TariffsToSellers
 from database.data_requests import person_requests, tariff_requests
-from utils.custom_exceptions.database_exceptions import NonExistentIdException, NonExistentTariffException
+from utils.custom_exceptions.database_exceptions import NonExistentIdException, NonExistentTariffException, TariffExpiredException, SellerWithoutTariffException
 from utils.Lexicon import DateTimeFormat
+from config_data.config import DATETIME_FORMAT
 
 class TariffToSellerBinder:
     @staticmethod
@@ -38,15 +39,22 @@ class TariffToSellerBinder:
     def feedback_waste(telegram_id):
         with db.atomic():
             total_bind = TariffsToSellers.select().where(TariffsToSellers.seller_id == telegram_id)
-            # query = TariffsToSellers.update(residual_feedback=100).where(
-            #     TariffsToSellers.seller == telegram_id).execute()
-            # return
-
+            total_bind = list(total_bind)
+            print('totalbind: ',total_bind)
+            total_bind = total_bind[0]
             if total_bind:
-                for model in total_bind:
-                    total_feedbacks = model.residual_feedback
-                query = TariffsToSellers.update(residual_feedback = total_feedbacks - 1).where(TariffsToSellers.seller == telegram_id).execute()
-                return query
+                datetime_now = datetime.datetime.now()
+                datetime_tariff_end = total_bind.end_date_time
+                datetime_tariff_end = datetime.datetime.strptime(datetime_tariff_end, DATETIME_FORMAT)
+                print('datetime', datetime_now , datetime_tariff_end, datetime_now > datetime_tariff_end)
+                if datetime_now < datetime_tariff_end:
+                    total_feedbacks = total_bind.residual_feedback
+                    query = TariffsToSellers.update(residual_feedback=total_feedbacks - 1).where(TariffsToSellers.seller==telegram_id).execute()
+                    return query
+                else:
+                    raise TariffExpiredException
+            else:
+                raise SellerWithoutTariffException
 
 
     @staticmethod

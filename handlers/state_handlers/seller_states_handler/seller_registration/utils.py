@@ -25,13 +25,13 @@ async def update_non_confirm_seller_registrations(callback: CallbackQuery, messa
     print('seller_reg_stack', seller_registration_stack)
 
     if message_for_admins:
+        value = str(callback.from_user.id) + ':' + str(callback.message.chat.id)
         if seller_registration_stack:
-            seller_registration_stack[message_for_admins] = str(callback.from_user.id)
+            seller_registration_stack[message_for_admins] = value
         else:
-            seller_registration_stack = {message_for_admins: callback.from_user.id}
+            seller_registration_stack = {message_for_admins: value}
 
         await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
-
 
     elif get_by_seller_id:
 
@@ -39,13 +39,14 @@ async def update_non_confirm_seller_registrations(callback: CallbackQuery, messa
             return False
         else:
             for key, value in seller_registration_stack.items():
-                if str(value) == get_by_seller_id:
-                    exists_message_id = (key, value)
+                value = value.split(':')
+                user_id = value[0]
+                user_chat_id = value[1]
+                if str(user_id) == get_by_seller_id:
+                    exists_user_notification_data = {'notification_id': key, 'user_id': user_id, 'user_chat_id': user_chat_id}
                     current_data_pair = seller_registration_stack.pop(key)
                     await redis_module.redis_data.set_data(key=redis_key, value=seller_registration_stack)
-                    return exists_message_id
-
-
+                    return exists_user_notification_data
 
 async def load_seller_in_database(request: Union[CallbackQuery, Message], state: FSMContext, authorized_state: bool):
     '''Метод подготовки аргументов(данных продавца) к загрузке в базу данных'''

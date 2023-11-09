@@ -83,6 +83,7 @@ class OffersRequester:
         for offer in active_offers:
             related_strings = await OffersRequester.get_wire_by_offer_id(offer.id)
             for related_string in related_strings:
+                print('related_string: ', related_string.car_id, related_string.offer_id)
                 if str(related_string.car_id) in cars_id_range:
                     matched.append(str(related_string.car_id))
         
