@@ -7,6 +7,16 @@ from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from database.data_requests.commodity_requests import CommodityRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
+
+async def create_notification_for_seller(request_number) -> str:
+    '''Плашка "Заявка №XXXX Создана"'''
+    create_request_notification = LexiconCommodityLoader.seller_notification['message_text']
+    create_request_notification = create_request_notification.split('_')
+    create_request_notification = f'{request_number}'.join(create_request_notification)
+
+    return create_request_notification
+
+
 async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMContext):
     '''Обработчик одобрения собственных конфигураций загрузки нового авто от селлера.'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -20,7 +30,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     commodity_number = CommodityRequester.store_data([boot_data])
     print('load_proc -=',  commodity_number)
 
-    notification_string = await LexiconCommodityLoader.create_notification_for_seller(request_number=commodity_number)
+    notification_string = await create_notification_for_seller(request_number=commodity_number)
     mock_lexicon_part = {'message_text': notification_string}
     lexicon_part = LEXICON['seller_load_notification_button']
     for key, value in lexicon_part.items():

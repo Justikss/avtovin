@@ -9,15 +9,15 @@ from database.data_requests.tariff_to_seller_requests import TariffToSellerBinde
 async def get_seller_name(seller_model: Seller) -> Union[Tuple[str, str], str]:
     '''Метод сопоставляющий имя/название продавца/автосалона'''
     if seller_model.dealship_name:
-        name = seller_model.dealship_name
-        address = seller_model.dealship_address
+        name = f'{LexiconSellerProfile.dealership_prefix}{LexiconSellerProfile.dealership_name_prefix}{seller_model.dealship_name}'
+        address = f'{LexiconSellerProfile.dealership_address_prefix}{seller_model.dealship_address}'
         return (name, address)
     else:
         if seller_model.patronymic:
             patronymic = seller_model.patronymic
         else:
             patronymic = ''
-        name = f'{seller_model.name} {seller_model.surname} {patronymic}'
+        name = f'{LexiconSellerProfile.seller_prefix}{LexiconSellerProfile.seller_name_prefix}{seller_model.name} {seller_model.surname} {patronymic}'
 
         return name
     
@@ -32,11 +32,11 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     seller_model = seller_model[0]
     seller_data = await get_seller_name(seller_model)
     if len(seller_data) == 2:
-        seller_data = f'- {seller_data[0]}\n- {seller_data[1]}'
+        seller_data = f'{seller_data[0]}\n{seller_data[1]}'
     else:
-        seller_data = f'- {seller_data}'
+        seller_data = f'{seller_data}'
     
-    output_string = f'{LexiconSellerProfile.header}{seller_data}\n- {seller_model.phone_number}'
+    output_string = f'{LexiconSellerProfile.header}{seller_data}\n{LexiconSellerProfile.phonenumber_prefix}{seller_model.phone_number}'
 
     if seller_tariff_model:
         seller_tariff_model = seller_tariff_model[0]

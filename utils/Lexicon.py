@@ -134,8 +134,8 @@ LEXICON = {
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
             'message_not_digit': ' должна состоять только из цифр',
-            'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)',
-            
+            'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
+
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',
             'seller_without_tariff': 'У вас нет откликов на счету',
@@ -155,7 +155,7 @@ class LexiconCommodityLoader:
     load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_25000': '25000', 'load_mileage_50000': '50000', 'load_mileage_100000': '100000', 'load_mileage_35000': '35000', 'width': 2}}
     load_commodity_color = {'message_text': 'Цвет', 'buttons': {'load_color_black': 'Чёрный', 'load_color_red': 'Красный', 'load_color_pink': 'Розовый', 'load_color_white': 'Белый', 'width': 2}}
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
-    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\n*Не отменяйте сжатие в телеграмм при отправке фотографии*', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
+    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\nНе отменяйте сжатие при отправке\nфотографии в телеграмм', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
 
     edit_photo_caption = 'Фото'
 
@@ -169,48 +169,55 @@ class LexiconCommodityLoader:
     seller_notification = {'message_text': 'Заявка №_ создана!'}
 
     
-    @classmethod
-    async def get_output_string(cls, mode, boot_data: dict) -> str:
-        '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
-        if mode == 'to_seller':
-            start_sub_string = cls.config_for_seller
-        elif mode.startswith('to_admins_from_'):
-            seller_link = mode.split('_')[3]
-            start_sub_string = cls.config_for_admins + seller_link
+    # @classmethod
+    # async def get_output_string(cls, mode, boot_data: dict) -> str:
+    #     '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
+    #     if mode == 'to_seller':
+    #         start_sub_string = cls.config_for_seller
+    #     elif mode.startswith('to_admins_from_'):
+    #         seller_link = mode.split('_')[3]
+    #         start_sub_string = cls.config_for_admins + seller_link
+    #
+    #     bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
+    #         \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
+    #
+    #     top_layer = f'''{start_sub_string}\
+    #         \n{cls.load_commodity_state['message_text']}: {boot_data['state']}\
+    #         \n{cls.load_engine_type['message_text']}: {boot_data['engine_type']}\
+    #         \n{cls.load_commodity_brand['message_text']}: {boot_data['brand']}\
+    #         \n{cls.load_commodity_model['message_text']}: {boot_data['model']}\
+    #         \n{cls.load_commodity_complectation['message_text']}: {boot_data['complectation']}\n'''
+    #
+    #     is_second_hand = (boot_data['year_of_release'], boot_data['mileage'], boot_data['color'])
+    #     if None not in is_second_hand:
+    #         middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {boot_data['year_of_release']}\
+    #             \n{cls.load_commodity_mileage['message_text']}: {boot_data['mileage']}\
+    #             \n{cls.load_commodity_color['message_text']}: {boot_data['color']}\n'''
+    #         output_load_commodity_config = top_layer + middle_layer + bottom_layer
+    #     else:
+    #         output_load_commodity_config = top_layer + bottom_layer
+    #
+    #     return output_load_commodity_config
 
-        bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
-            \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
-
-        top_layer = f'''{start_sub_string}\
-            \n{cls.load_commodity_state['message_text']}: {boot_data['state']}\
-            \n{cls.load_engine_type['message_text']}: {boot_data['engine_type']}\
-            \n{cls.load_commodity_brand['message_text']}: {boot_data['brand']}\
-            \n{cls.load_commodity_model['message_text']}: {boot_data['model']}\
-            \n{cls.load_commodity_complectation['message_text']}: {boot_data['complectation']}\n'''
-
-        is_second_hand = (boot_data['year_of_release'], boot_data['mileage'], boot_data['color'])
-        if None not in is_second_hand:
-            middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {boot_data['year_of_release']}\
-                \n{cls.load_commodity_mileage['message_text']}: {boot_data['mileage']}\
-                \n{cls.load_commodity_color['message_text']}: {boot_data['color']}\n'''
-            output_load_commodity_config = top_layer + middle_layer + bottom_layer
-        else:
-            output_load_commodity_config = top_layer + bottom_layer
-
-        return output_load_commodity_config
-
-    @classmethod
-    async def create_notification_for_seller(cls, request_number) -> str:
-        '''Плашка "Заявка №XXXX Создана"'''
-        create_request_notification= cls.seller_notification['message_text']
-        create_request_notification = create_request_notification.split('_')
-        create_request_notification = f'{request_number}'.join(create_request_notification)
-
-        return create_request_notification
-
+    # @classmethod
+    # async def create_notification_for_seller(cls, request_number) -> str:
+    #     '''Плашка "Заявка №XXXX Создана"'''
+    #     create_request_notification= cls.seller_notification['message_text']
+    #     create_request_notification = create_request_notification.split('_')
+    #     create_request_notification = f'{request_number}'.join(create_request_notification)
+    #
+    #     return create_request_notification
+    #
 
 class LexiconSellerProfile:
     header = 'Профиль: \n'
+    dealership_prefix = 'Юридическое лицо'
+    seller_prefix = 'Частное лицо\n'
+    dealership_name_prefix = 'Название автосалона: '
+    dealership_address_prefix = 'Адрес автосалона : '
+    seller_name_prefix = 'ФИО продавца: '
+    phonenumber_prefix = 'Телефонный номер: '
+
     tariff_prefix = '\n- Тариф: '
     tariff_out_date_prefix = '\nДо '
     residual_feedback_prefix = '\n- Остаток откликов: '
