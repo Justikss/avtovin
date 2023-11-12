@@ -49,10 +49,13 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
             bot = request.message.bot
 
     if photo:
+        # memory_storage = await state.get_data()
+        # memory_photo_exists = memory_storage.get('load_photo')
+        # if memory_photo_exists:
+        #
         await state.update_data(load_photo=photo)
 
     delete_mode = False
-
     memory_storage = await state.get_data()
     if memory_storage.get('incorrect_flag'):
         await state.update_data(incorrect_flag=False)

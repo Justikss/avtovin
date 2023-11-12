@@ -28,3 +28,10 @@ class Commodity(BaseModel):
         db_table = 'Автомобили'
 
 
+class CommoditysPhoto(BaseModel):
+    car_id = ForeignKeyField(Commodity, backref='car_id')
+    photo_id = CharField()
+    photo_unique_id = CharField()
+
+    class Meta:
+        db_table = 'Фотографии_автомобилей'

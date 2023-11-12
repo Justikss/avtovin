@@ -33,13 +33,10 @@ from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car
 from handlers.state_handlers.seller_states_handler import seller_profile_branch
-
 from handlers.default_handlers.help import  bot_help
-
-
 from handlers.callback_handlers.hybrid_part import return_main_menu
 
-
+#from utils.middleware.media_album_middleware import AlbumMiddleware
 
 
 # from database.data_requests.offers_requests import OffersRequester
@@ -68,6 +65,7 @@ storage = RedisStorage(redis=redis)
 
 dp = Dispatcher(storage=storage)
 
+#dp.message.middleware(AlbumMiddleware())
 
 async def start_bot():
     global redis, edit_last_message, bot, dp, redis, storage

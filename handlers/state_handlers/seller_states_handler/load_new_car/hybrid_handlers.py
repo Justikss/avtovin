@@ -127,7 +127,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
         else:
             bot = request.bot
 
-    lexicon_part = LexiconCommodityLoader.load_commodity_price
+    lexicon_part = None
     print('bpart ', lexicon_part)
 
     if not incorrect:
@@ -147,10 +147,12 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     else:
         await state.update_data(incorrect_flag=True)
         reply_mode = True
-        if lexicon_part['message_text'].endswith(LEXICON['message_not_digit']):
-            pass
-        else:
-            lexicon_part['message_text'] += LEXICON['message_not_digit']
+
+        lexicon_part = LEXICON['message_not_digit']
+
+    if not lexicon_part:
+        lexicon_part = LexiconCommodityLoader.load_commodity_price
+
     print('replm: ', reply_mode)
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True, bot=bot)
@@ -174,7 +176,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
     if not incorrect:
         memory_storage = await state.get_data()
         if memory_storage.get('incorrect_flag'):
-            delete_mode=True
+            delete_mode = True
         if car_price != None:
             await state.update_data(load_price=car_price)
         if await data_update_controller(request=request, state=state):

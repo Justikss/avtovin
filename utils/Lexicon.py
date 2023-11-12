@@ -133,7 +133,7 @@ LEXICON = {
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'return_main_menu': 'В меню', 'width': 1},
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
-            'message_not_digit': ' должна состоять только из цифр',
+            'message_not_digit': 'Сумма должна состоять только из цифр',
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
 
             'retry_now_allert': 'Попробуйте снова',
