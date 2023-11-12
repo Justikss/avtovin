@@ -6,11 +6,14 @@ from handlers.message_editor import InlineCreator
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 from database.data_requests.tariff_to_seller_requests import TariffsToSellers
+from handlers.callback_handlers.sell_part.seller_main_menu import delete_media_groups
 
 
 async def bot_start(message: Message, state: FSMContext):
     travel_editor = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('utils.redis_for_language')
+
+    await delete_media_groups(request=message)
 
     await state.clear()
     try:

@@ -9,10 +9,12 @@ from utils.Lexicon import LEXICON
 
 class TravelEditor:
     @staticmethod
-    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
+    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False, send_chat=None,
                            button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, media_group=None, seller_boot=None, dynamic_buttons=False):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
+        keyboard = None
+        print('load_photos editor??: ', media_group)
         user_id = str(request.from_user.id)
         print('user_id =', user_id)
         new_message = None
@@ -30,34 +32,40 @@ class TravelEditor:
         if not bot:
             bot = message_object.bot
 
+        if not send_chat:
+            send_chat_id = message_object.chat.id
+        else:
+            send_chat_id = send_chat
 
         chat_object = message_object.chat
+
         if button_texts:
             keyboard = await InlineCreator.create_markup(lexicon_part,
                                                          button_texts=button_texts, callback_sign=callback_sign, dynamic_buttons=dynamic_buttons)
-        else:
+        elif lexicon_part.get('width') or lexicon_part.get('buttons'):
             keyboard = await InlineCreator.create_markup(lexicon_part, dynamic_buttons=dynamic_buttons)
 
         message_text = lexicon_part['message_text']
 
 
-        
-        redis_key_current_lexicon = str(user_id) + ':current_lexicon_code'
-        current_lexicon = await redis_data.get_data(key=redis_key_current_lexicon)
-        if current_lexicon:
-            redis_key_last_lexicon = str(user_id) + ':last_lexicon_code'
-            await redis_data.set_data(redis_key_last_lexicon, current_lexicon)
-            await redis_data.delete_key(redis_key_current_lexicon)
-
-        if lexicon_cache:
-            redis_key = str(user_id) + ':current_lexicon_code'
-            await redis_data.set_data(redis_key, lexicon_key)
-
-            redis_key = str(user_id) + ':last_message'
+        #
+        # redis_key_current_lexicon = str(user_id) + ':current_lexicon_code'
+        # current_lexicon = await redis_data.get_data(key=redis_key_current_lexicon)
+        # if current_lexicon:
+        #     redis_key_last_lexicon = str(user_id) + ':last_lexicon_code'
+        #     await redis_data.set_data(redis_key_last_lexicon, current_lexicon)
+        #     await redis_data.delete_key(redis_key_current_lexicon)
+        #
+        # if lexicon_cache:
+        #     redis_key = str(user_id) + ':current_lexicon_code'
+        #     await redis_data.set_data(redis_key, lexicon_key)
+        #
+        #     redis_key = str(user_id) + ':last_message'
 
         if delete_mode and last_message_id:
             try:
                 await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
+                print('delete_if delete_mode and last_message_id:')
             except:
                 pass
             if reply_mode:
@@ -73,34 +81,37 @@ class TravelEditor:
         #                                                      media=formatted_config_output, reply_markup=keyboard)
         else:
             if media_group:
-                    try:
-                        await message_object.delete()
-                    except:
-                        pass
-                    if not reply_mode and media_group:
-                        # media_group_message = await redis_data.get_data(key=user_id + ':last_media_group',
-                        #                                                 use_json=True)
-                        #
-                        # if media_group_message:
-                        #     try:
-                        #         [await bot.delete_message(chat_id=message_object.chat.id, message_id=message_id) for
-                        #          message_id in media_group_message]
-                        #     except TelegramBadRequest:
-                        #         pass
-                        print('NOTRM')
-                        print(media_group)
+                '''Медиагруппа в чужой чат - идёт без кнопок'''
+                # try:
+                #     await message_object.delete()
+                # except:
+                #     pass
+                if not reply_mode and media_group:
+                    print('if not reply_mode and media_group:')
+
+                    print('NOTRM')
+                    print('pre ', media_group)
 
 
-                        album_id = [key for key, value in media_group.items()]
-                        new_album = [InputMediaPhoto(media=file_id) for file_id in media_group[album_id]]
+                    album_id = [key for key, value in media_group.items()][0]
+                    if send_chat:
+                        caption_photo = [InputMediaPhoto(media=file_data['id'], caption=lexicon_part['message_text']) for file_data in media_group[album_id][:2]]
+                        new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id][1:]]
+                        new_album.append(caption_photo[0])
 
-                        new_media_message = await bot.send_media_group(chat_id=message_object.chat.id, media=new_album)
-                        new_message = await bot.send_message(chat_id=message_object.chat.id, text=lexicon_part['message_text'], reply_markup=keyboard)
+                        new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+
+                    else:
+                        new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
+                        print('post ', new_album)
+                        new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+                        new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'], reply_markup=keyboard)
                         await redis_data.set_data(key=user_id+':last_media_group',
                                                   value=[media_message.message_id
                                                          for media_message in new_media_message])
 
-            if reply_mode: 
+            if reply_mode:
+                print('if reply_mode')
                 print('ph: ', media_group)
                 if not seller_boot:
                     redis_reply_key=str(request.from_user.id) + ':last_user_message'
@@ -111,7 +122,7 @@ class TravelEditor:
                 last_user_message = await redis_data.get_data(key=redis_reply_key)
                 print('reply_mode2')
                 #new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
-                new_message = await bot.send_message(chat_id=message_object.chat.id, reply_to_message_id=last_user_message, text=message_text, reply_markup=keyboard)
+                new_message = await bot.send_message(chat_id=send_chat_id, reply_to_message_id=last_user_message, text=message_text, reply_markup=keyboard)
                 print('new_repl', last_message_id)
                 #await redis_data.set_data(redis_key, new_message.message_id)
                 
@@ -119,28 +130,24 @@ class TravelEditor:
                 if not media_group:
                     try:
                         #await message_object.edit_text(text=message_text, reply_markup=keyboard)
-                        return await bot.edit_message_text(chat_id=message_object.chat.id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
+                        return await bot.edit_message_text(chat_id=send_chat_id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
 
                     except Exception as ex:
                         pass
-                    
-                try:
-                    await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
-                except:
-                    pass    
-                
-            if not reply_mode and not media_group:
+
+                if not send_chat:
+                    try:
+                        await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
+                        print('delete_if_last_message_id')
+                    except:
+                        pass
+
+            print('load_photos editor2??: ', media_group)
+            if not reply_mode and keyboard and not media_group:
+                print('if not reply_mode and keyboard')
                 #new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
-                new_message = await bot.send_message(chat_id=message_object.chat.id, text=message_text, reply_markup=keyboard)
+                new_message = await bot.send_message(chat_id=send_chat_id, text=message_text, reply_markup=keyboard)
             print('new_send', last_message_id)
-        
-                    
-
-                   
-
-                    
-                    #await redis_data.set_data(redis_key, new_message.message_id)
-                    # print('SET: ', new_message.message_id)
 
         if new_message:
             await redis_data.set_data(redis_key, new_message.message_id)
@@ -151,7 +158,8 @@ class TravelEditor:
             media_group_message = await redis_data.get_data(key=user_id + ':last_media_group', use_json=True)
             if media_group_message:
                 try:
-                    [await bot.delete_message(chat_id=message_object.chat.id, message_id=message_id) for message_id in media_group_message]
+                    [await bot.delete_message(chat_id=send_chat_id, message_id=message_id) for message_id in media_group_message]
+                    await redis_data.delete_key(key=user_id + ':last_media_group')
                 except TelegramBadRequest:
                     pass
 

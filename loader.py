@@ -1,19 +1,12 @@
-# import aioredis
 import asyncio
 import importlib
-
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
-
 from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 from aiogram.fsm.context import FSMContext
-
-from utils.middleware.media_album_middleware import AlbumMiddleware
-
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
-
 from config_data.config import BOT_TOKEN
 from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, confirm_from_seller_callback_handler, confirm_search_config, language_callback_handler, main_menu, search_auto_handler, show_offers_history
@@ -96,7 +89,7 @@ async def start_bot():
     #     await message.answer_media_group(media=new_album)
 
     dp.message.register(collect_and_send_mediagroup,
-                        F.photo[-1].file_id.as_("photo_id"), F.media_group_id.as_("album_id"))
+                        F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
 
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 

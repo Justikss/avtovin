@@ -33,5 +33,7 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     'price': memory_storage['load_price'], 
     'photos': memory_storage.get('load_photo')}
 
+    print('load_photos??: ', memory_storage.get('load_photo'))
+
 
     return data

@@ -17,3 +17,5 @@ async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMC
         await sell_main_module.seller_main_menu(callback=callback)
     elif user_state == 'buy':
         await buy_main_module.main_menu(request=callback)
+
+    await callback.answer()

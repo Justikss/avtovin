@@ -2,7 +2,7 @@ from typing import Union, List
 
 from peewee import IntegrityError
 
-from database.tables.commodity import Commodity
+from database.tables.commodity import Commodity, CommodityPhotos
 from database.tables.start_tables import db
 from database.data_requests.person_requests import sellers, buyer
 
@@ -20,13 +20,37 @@ class CommodityRequester:
             else:
                 return False
 
-
     @staticmethod
-    def store_data(*data: Union[List[dict], dict], db=db) -> bool:
+    def store_data(data: Union[List[dict], dict], db=db) -> bool:
         '''Загрузка моделей в таблицу товаров'''
+        if isinstance(data, dict):
+            data = [data]  # Убедитесь, что данные всегда в виде списка
+
         with db.atomic():
-            model = Commodity.insert_many(*data).execute()
-            return model
+            photo_boot_data = []
+
+            for data_part in data:
+                photo_data = data_part.pop('photos')
+                print(photo_data)
+
+                # Вставка каждой записи в Commodity отдельно
+                commodity_model = Commodity.insert(**data_part).execute()
+
+
+                if photo_data:
+                    photo_data = [photo_data[key] for key, value in photo_data.items()][0]
+                    for photo_data_part in photo_data:
+                        photo_boot_data.append({
+                            'car_id': commodity_model,  # Использование идентификатора вставленной записи
+                            'photo_id': photo_data_part['id'],
+                            'photo_unique_id': photo_data_part['unique_id']
+                        })
+
+            if photo_boot_data:
+                print(photo_boot_data)
+                CommodityPhotos.insert_many(photo_boot_data).execute()
+
+            return commodity_model
 
 
     @staticmethod

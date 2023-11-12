@@ -43,35 +43,9 @@ mediagroups = {}
 async def output_load_config_for_seller(request: Union[Message, CallbackQuery], state: FSMContext, media_photos=None, media_album=None, bot=None):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     create_buttons_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
-    #
-    # mediagroups = {}
 
-    # if isinstance(request, Message):
-    #     album_id = request.media_group_id
-    #     photo_id = request.photo[-1].file_id
-    #     print('isis: ', photo_id)
-    #     if album_id in mediagroups:
-    #         mediagroups[album_id].append(photo_id)
-    #         return
-    #     mediagroups[album_id] = [photo_id]
-    #     await asyncio.sleep(1)
-    #
     if media_photos:
         await state.update_data(load_photo=media_photos)
-
-
-
-    #     if request.photo:
-
-    #         if album_id in mediagroups:
-    #             mediagroups[album_id].append(photo_id)
-    #             return
-    #
-    #         mediagroups[album_id] = [photo_id]
-    #         await asyncio.sleep(0.5)
-    #         print('mggr: ', mediagroups)
-
-
 
     if not bot:
         if isinstance(request, Message):
@@ -80,24 +54,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         else:
             bot = request.message.bot
 
-
-    # if isinstance(request, Message):
-    #     if request.media_group_id and album[-1].message_id == request.message_id:
-    #         photographs = []
-    #         print('album ', album)
-    #         for message_data in album:
-    #             print(message_data)
-    #             photographs.append({'file_id': message_data.photo[-1].file_id, 'file_unique_id': message_data.photo[-1].file_unique_id})
-    #
-    #         await state.update_data(load_photo=photographs)
-
     delete_mode = False
     memory_storage = await state.get_data()
-    #
-    # mediagroups_photo = memory_storage.get('load_photo')
-    # if mediagroups_photo:
-    #     album_id = [key for key, value in mediagroups_photo.items()]
-    #     new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups_photo[album_id]]
+
 
     if memory_storage.get('incorrect_flag'):
         await state.update_data(incorrect_flag=False)
@@ -117,7 +76,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
     await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity', value=True)
 
-
+    print('photo_exist?output: ', structured_boot_data.get('photos'))
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                     media_group=structured_boot_data.get('photos'),
                                                     delete_mode=delete_mode,

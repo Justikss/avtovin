@@ -5,6 +5,7 @@ import importlib
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from utils.Lexicon import LEXICON
 from handlers.callback_handlers.buy_part.show_offers_history import try_delete_notification
+from utils.chat_cleaner.media_group_messages import delete_media_groups
 
 
 async def create_tarifs():
@@ -49,14 +50,20 @@ async def get_tariff(callback):
 
 
 async def seller_main_menu(callback: CallbackQuery, bot=None):
-
     await get_tariff(callback)
-
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_data = importlib.import_module('utils.redis_for_language')
 
-    await try_delete_notification(callback=callback, user_status='seller')
+    # exist_media_group_message = await redis_data.get_data(key=str(callback.from_user.id) + ':last_media_group')
+    # if exist_media_group_message:
+    #     try:
+    #         [await callback.bot.delete_message(chat_id=callback.message.chat.id,
+    #                                           message_id=message_id) for message_id in exist_media_group_message]
+    #     except:
+    #         pass
 
+    await try_delete_notification(callback=callback, user_status='seller')
+    await delete_media_groups(request=callback)
     await redis_data.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
 
     lexicon_code = 'seller_main_menu'
