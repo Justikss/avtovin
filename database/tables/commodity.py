@@ -28,7 +28,7 @@ class Commodity(BaseModel):
         db_table = 'Автомобили'
 
 
-class CommoditysPhoto(BaseModel):
+class CommoditiesPhoto(BaseModel):
     car_id = ForeignKeyField(Commodity, backref='car_id')
     photo_id = CharField()
     photo_unique_id = CharField()
