@@ -88,7 +88,7 @@ LEXICON = {
 
             "buyer_haven't_confirm_offers": 'История запросов пуста',
             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль',
-            
+            'separator': '='*40,
             
             'who_is_seller': {'message_text': 'Выберите пункты ниже:', 'i_am_private_person': 'Частное лицо', 'i_am_car_dealership': 'Автосалон', 'width': 2},
             'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration_seller_person_name': 'Назад', 'width': 1},
@@ -167,6 +167,8 @@ class LexiconCommodityLoader:
     config_for_admins = 'Заявка от продавца @'
 
     seller_notification = {'message_text': 'Заявка №_ создана!'}
+
+
 
     
     # @classmethod

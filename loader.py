@@ -1,4 +1,5 @@
 # import aioredis
+import asyncio
 import importlib
 
 from aiogram import Bot, Dispatcher, F
@@ -6,8 +7,11 @@ from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 from aiogram.fsm.context import FSMContext
+
+from utils.middleware.media_album_middleware import AlbumMiddleware
+
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 
 from config_data.config import BOT_TOKEN
@@ -36,6 +40,7 @@ from handlers.state_handlers.seller_states_handler import seller_profile_branch
 from handlers.default_handlers.help import  bot_help
 from handlers.callback_handlers.hybrid_part import return_main_menu
 
+from handlers.callback_handlers.hybrid_part.utils.media_group_collector import collect_and_send_mediagroup
 #from utils.middleware.media_album_middleware import AlbumMiddleware
 
 
@@ -76,15 +81,27 @@ async def start_bot():
 
     dp = Dispatcher(storage=storage)
 
-    # dp.message.filter(StatusControl)
-    # dp.message.middleware.setup(UserStatusMiddleware())
-    # dp.callback_query.middleware.setup(UserStatusMiddleware())
+    # dp.message.middleware(AlbumMiddleware())
+    # mediagroups = {}
+    # @dp.message(F.photo[-1].file_id.as_("photo_id"), F.media_group_id.as_("album_id"))
+    # async def collect_and_send_mediagroup(message: Message, photo_id: str, album_id: int):
+    #     if album_id in mediagroups:
+    #         mediagroups[album_id].append(photo_id)
+    #         return
+    #     mediagroups[album_id] = [photo_id]
+    #     await asyncio.sleep(0.5)
+    #
+    #     new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
+    #     print(new_album)
+    #     await message.answer_media_group(media=new_album)
+
+    dp.message.register(collect_and_send_mediagroup,
+                        F.photo[-1].file_id.as_("photo_id"), F.media_group_id.as_("album_id"))
 
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 
-    '''обраюотка Сообщений'''
+    '''обработка Сообщений'''
     dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))
-    # dp.message.register(help.bot_help, Command(commands=["help"]))
 
     '''Состояния ргеистрации покупателя'''
     dp.callback_query.register(buyer_registration_handlers.input_full_name,
@@ -194,7 +211,24 @@ async def start_bot():
                               and_f(StateFilter(ChoiceTariffForSellerStates.choose_payment_method),
                                      lambda callback: callback.data.startswith('run_tariff_payment:')))
 
-    
+
+
+    # @dp.message(F.content_type.in_([F.PHOTO]))
+    # async def handle_albums(message: Message, album: list[Message]):
+    #     if message.media_group_id and album[-1].message_id == message.message_id:
+    #         photographs = []
+    #         print('-'*100)
+    #         for message_data in album:
+    #             print(message_data)
+    #             photographs.append({'file_id': message_data.photo[-1].file_id,
+    #                                 'file_unique_id': message_data.photo[-1].file_unique_id})
+    #
+    #
+    #         photo_media_group = [InputMediaPhoto(media=photo['file_id']) for photo in
+    #                              photographs]
+    #
+    #         new_media_message = await bot.send_media_group(chat_id=message.chat.id, media=photo_media_group)
+
     
 
     '''hybrid'''

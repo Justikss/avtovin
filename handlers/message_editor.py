@@ -1,6 +1,6 @@
 from typing import Set
 
-from aiogram.types import Message, chat, CallbackQuery
+from aiogram.types import Message, chat, CallbackQuery, InputMediaPhoto
 from aiogram.exceptions import TelegramBadRequest
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
@@ -10,7 +10,7 @@ from utils.Lexicon import LEXICON
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, photo=None, seller_boot=None, dynamic_buttons=False):
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, media_group=None, seller_boot=None, dynamic_buttons=False):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
         user_id = str(request.from_user.id)
@@ -72,17 +72,36 @@ class TravelEditor:
         #     await request.chat.bot.send_media_group(chat_id=request.chat.id,
         #                                                      media=formatted_config_output, reply_markup=keyboard)
         else:
-            if photo:
+            if media_group:
                     try:
                         await message_object.delete()
                     except:
                         pass
-                    if not reply_mode and photo:
+                    if not reply_mode and media_group:
+                        # media_group_message = await redis_data.get_data(key=user_id + ':last_media_group',
+                        #                                                 use_json=True)
+                        #
+                        # if media_group_message:
+                        #     try:
+                        #         [await bot.delete_message(chat_id=message_object.chat.id, message_id=message_id) for
+                        #          message_id in media_group_message]
+                        #     except TelegramBadRequest:
+                        #         pass
                         print('NOTRM')
-                        new_message = await bot.send_photo(chat_id=message_object.chat.id, photo=photo, caption=message_text, reply_markup=keyboard)
+                        print(media_group)
+
+
+                        album_id = [key for key, value in media_group.items()]
+                        new_album = [InputMediaPhoto(media=file_id) for file_id in media_group[album_id]]
+
+                        new_media_message = await bot.send_media_group(chat_id=message_object.chat.id, media=new_album)
+                        new_message = await bot.send_message(chat_id=message_object.chat.id, text=lexicon_part['message_text'], reply_markup=keyboard)
+                        await redis_data.set_data(key=user_id+':last_media_group',
+                                                  value=[media_message.message_id
+                                                         for media_message in new_media_message])
 
             if reply_mode: 
-                print('ph: ', photo)
+                print('ph: ', media_group)
                 if not seller_boot:
                     redis_reply_key=str(request.from_user.id) + ':last_user_message'
                 elif seller_boot:
@@ -97,7 +116,7 @@ class TravelEditor:
                 #await redis_data.set_data(redis_key, new_message.message_id)
                 
             if last_message_id:
-                if not photo:
+                if not media_group:
                     try:
                         #await message_object.edit_text(text=message_text, reply_markup=keyboard)
                         return await bot.edit_message_text(chat_id=message_object.chat.id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
@@ -110,7 +129,7 @@ class TravelEditor:
                 except:
                     pass    
                 
-            if not reply_mode and not photo:
+            if not reply_mode and not media_group:
                 #new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
                 new_message = await bot.send_message(chat_id=message_object.chat.id, text=message_text, reply_markup=keyboard)
             print('new_send', last_message_id)
@@ -127,5 +146,13 @@ class TravelEditor:
             await redis_data.set_data(redis_key, new_message.message_id)
 
             print('add+message = ', new_message.message_id)
+
+        if not media_group:
+            media_group_message = await redis_data.get_data(key=user_id + ':last_media_group', use_json=True)
+            if media_group_message:
+                try:
+                    [await bot.delete_message(chat_id=message_object.chat.id, message_id=message_id) for message_id in media_group_message]
+                except TelegramBadRequest:
+                    pass
 
 travel_editor = TravelEditor()

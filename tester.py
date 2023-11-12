@@ -2,50 +2,80 @@
 #Фильтр мешать не должен
 
 import asyncio
-from typing import Callable, Any, Awaitable, Union
+from typing import Callable, Any, Awaitable, Union, List
 from aiogram import BaseMiddleware, types, Bot, Dispatcher, F
 from aiogram.types import Message
 
 from config_data.config import BOT_TOKEN
 
+
+
 bot = Bot(token=BOT_TOKEN)
 
 dp = Dispatcher()
 
-class AlbumMiddleware(BaseMiddleware):
-    album_data: dict = {}
+from aiogram.types import Message, InputMediaPhoto
 
-    def __init__(self, latency: Union[int, float] = 0.01):
-        self.latency = latency
+mediagroups = {}
 
-    async def __call__(self, handler: Callable[[types.Message, dict[str, Any]], Awaitable[Any]], message: types.Message, data: dict[str, Any]) -> Any:
-        if not message.media_group_id or not message.photo:
-            await handler(message, data)
-            return
 
-        try:
-            self.album_data[message.media_group_id].append(message)
-        except KeyError:
-            self.album_data[message.media_group_id] = [message]
-            await asyncio.sleep(self.latency)
+@dp.message(F.photo[-1].file_id.as_("photo_id"), F.media_group_id.as_("album_id"))
+async def collect_and_send_mediagroup(message: Message, photo_id: str, album_id: int):
+    if album_id in mediagroups:
+        mediagroups[album_id].append(photo_id)
+        return
+    mediagroups[album_id] = [photo_id]
+    await asyncio.sleep(0.5)
 
-        data['_is_last'] = True
-        data["album"] = self.album_data[message.media_group_id]
+    new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
+    print(new_album)
+    await message.answer_media_group(media=new_album)
 
-        if data.get("_is_last"):
-            await handler(message, data)
-            if self.album_data.get(message.media_group_id):
-                del self.album_data[message.media_group_id]
-            del data['_is_last']
+import asyncio
+from typing import Any, Callable, Dict, Awaitable
 
-dp.message.middleware(AlbumMiddleware())
+from aiogram import BaseMiddleware
+from aiogram.types import Message, TelegramObject
+from cachetools import TTLCache
 
-@dp.message(F.content_type.in_([types.ContentType.PHOTO]))
-async def handle_albums(message: types.Message, album: list[types.Message]):
-    if message.media_group_id and album[-1].message_id == message.message_id:
-        await message.bot.send_photo(chat_id=message.chat.id, photo=album[0].photo[-1].file_id)
-        await message.bot.send_photo(chat_id=message.chat.id, photo=album[1].photo[-1].file_id)
+# from bot.user_topic_context import UserTopicContext
 
+# DEFAULT_DELAY = 0.6
+#
+# class MediaGroupMiddleware(BaseMiddleware):
+#     ALBUM_DATA: Dict[str, List[Message]] = {}
+#
+#     def __init__(self, delay: Union[int, float] = DEFAULT_DELAY):
+#         self.delay = delay
+#
+#     async def __call__(
+#         self,
+#         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+#         event: Message,
+#         data: Dict[str, Any],
+#     ) -> Any:
+#         print('a')
+#         if not event.media_group_id:
+#             return await handler(event, data)
+#
+#         try:
+#             self.ALBUM_DATA[event.media_group_id].append(event)
+#             return  # Don't propagate the event
+#         except KeyError:
+#             self.ALBUM_DATA[event.media_group_id] = [event]
+#             await asyncio.sleep(self.delay)
+#             data["album"] = self.ALBUM_DATA.pop(event.media_group_id)
+#
+#         return await handler(event, data)
+#
+# dp.message.middleware(MediaGroupMiddleware())
+
+
+# @dp.message(F.content_type.in_([types.ContentType.PHOTO]))
+# async def handle_albums(message: types.Message, album: list[types.Message]):
+#     if message.media_group_id and album[-1].message_id == message.message_id:
+#         await message.bot.send_photo(chat_id=message.chat.id, photo=album[0].photo[-1].file_id)
+#         await message.bot.send_photo(chat_id=message.chat.id, photo=album[1].photo[-1].file_id)
 
 async def start():
     await dp.start_polling(bot)
