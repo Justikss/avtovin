@@ -9,6 +9,16 @@ from database.data_requests.person_requests import sellers, buyer
 
 class CommodityRequester:
     @staticmethod
+    def delete_car_by_id(car_id):
+        '''Удаление автомобиля'''
+        with db.atomic():
+            select_response = Commodity.delete_by_id(car_id)
+            if select_response:
+                yield select_response
+            else:
+                return False
+
+    @staticmethod
     def get_photo_album_by_car_id(car_id):
         '''Метод извлекает фотографии автомобиля'''
         # current_car = Commodity.get_by_id(car_id)
@@ -121,8 +131,8 @@ class CommodityRequester:
         '''Получение моделей с определённым параметром id'''
         try:
             with db.atomic():
-                select_request = Commodity.select().where(Commodity.car_id == int(car_id))
-
+                select_request = Commodity.get_by_id(car_id)
+                print(list(select_request))
                 return list(select_request)
         except Exception:
             return False

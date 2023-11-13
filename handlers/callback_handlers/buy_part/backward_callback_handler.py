@@ -149,7 +149,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
         elif mode == 'sales_order_review':
             await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback)
 
-        elif mode == 'seller_delete_request':
+        elif mode == 'seller_start_delete_request':
             from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests_by_car_brand import \
                 output_sellers_requests_by_car_brand_handler
 

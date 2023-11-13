@@ -137,13 +137,17 @@ LEXICON = {
             'message_not_digit': {'message_text': 'Сумма должна состоять только из цифр'},
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
 
-            'seller_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'backward:seller_delete_request': 'Назад', 'width': 1},
+            'seller_start_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'backward:seller_start_delete_request': 'Назад', 'width': 1},
+
+            'incorrect_input_removed_car_id': 'Неверный ввод номера заявки.\nСверьте номер по кнопке "Назад" и введите снова.',
+            'confirm_delete_request': {'message_text': 'Вы действительно хотите удалить это авто?', 'confirm_delete': 'Подтвердить', 'backward:seller_delete_request': 'Назад', 'width': 1},
 
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',
             'seller_without_tariff': 'У вас нет откликов на счету',
             'seller_tarriff_expired': 'Ваш тариф неактуален',
-            'non_actiallity': 'Не актуально'
+            'non_actiallity': 'Не актуально',
+            'successfully': 'Успешно'
         }
 
 

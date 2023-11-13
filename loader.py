@@ -7,6 +7,7 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
+from states.seller_deletes_request_states import DeleteRequestStates
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from config_data.config import BOT_TOKEN
@@ -28,8 +29,7 @@ from states.seller_registration_states import HybridSellerRegistrationStates, Ca
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, seller_faq, commodity_requests
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
-from handlers.state_handlers.seller_states_handler import load_new_car
-from handlers.state_handlers.seller_states_handler import seller_profile_branch
+from handlers.state_handlers.seller_states_handler import load_new_car, seller_deletes_request, seller_profile_branch
 from handlers.default_handlers.help import  bot_help
 from handlers.callback_handlers.hybrid_part import return_main_menu
 
@@ -205,6 +205,17 @@ async def start_bot():
                                F.data == 'seller_requests_pagination_left')
     dp.callback_query.register(SellerRequestPaginationHandlers.right_button,
                                F.data == 'seller_requests_pagination_right')
+
+    '''delete request'''
+    dp.callback_query.register(seller_deletes_request.seller_start_delete_request.start_process_delete_request_handler,
+                               F.data == 'delete_request_from_seller')
+
+    dp.message.register(seller_deletes_request.check_input_commodity_number.check_input_id_handler,
+                               and_f(StateFilter(DeleteRequestStates.awaited_input_deletion_number_of_commodity)))
+
+    dp.callback_query.register(seller_deletes_request.confirm_delete_exists_commodity.confirm_delete_exists_commodity_handler,
+                               and_f(StateFilter(DeleteRequestStates.check_input_on_valid),
+                                     F.data == 'confirm_delete'))
 
     '''Оформление тарифа продавца'''
     dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,

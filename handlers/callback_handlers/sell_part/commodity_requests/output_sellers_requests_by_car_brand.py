@@ -62,7 +62,7 @@ async def output_sellers_commodity_page(callback: CallbackQuery, commodity_model
     if seller_requests_pagination and seller_requests_pagination != 'null':
         seller_requests_pagination = Pagination(**seller_requests_pagination)
     else:
-        seller_requests_pagination = Pagination(data=await output_message_constructor(callback, commodity_models),
+        seller_requests_pagination = Pagination(data=await output_message_constructor(commodity_models),
                                                  page_size=Lexicon.pagination_pagesize)
 
         dicted_pagination_class = await seller_requests_pagination.to_dict()
@@ -92,7 +92,7 @@ async def output_sellers_commodity_page(callback: CallbackQuery, commodity_model
     keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(
         input_data=Lexicon.selected_brand_output_buttons, dynamic_buttons=True)
 
-    page_monitoring_string = f'{Lexicon.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.page_size}]{Lexicon.page_view_separator}'
+    page_monitoring_string = f'{Lexicon.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]{Lexicon.page_view_separator}'
     lexicon_part = {'message_text': page_monitoring_string}
 
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True)

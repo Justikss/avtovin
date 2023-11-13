@@ -16,6 +16,9 @@ class SellerRequestsPagination(ABC):
             print(seller_requests_pagination)
             seller_requests_pagination = Pagination(**seller_requests_pagination)
 
+            if seller_requests_pagination.current_page == 0:
+                seller_requests_pagination.current_page += 1
+
             output_data_part = await seller_requests_pagination.get_page(pagination_operation)
             if output_data_part:
                 await redis_module.redis_data.set_data(key=user_id + ':seller_requests_pagination',
