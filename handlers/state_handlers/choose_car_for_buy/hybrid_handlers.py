@@ -248,14 +248,19 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
     await state.update_data(buyer_id=str(callback.from_user.id))
 
     result_car = result_model[0]
-    car_photo = result_car.photo_id
+    # car_photo = result_car.photo_id
 
     await callback.message.delete()
 
-    photo = car_photo
-    keyboard = await message_editor.InlineCreator.create_markup(input_data=LEXICON.get('chosen_configuration'))
-    message_object = await callback.message.answer_photo(photo=photo, caption=formatted_config_output, reply_markup=keyboard)
-    await message_editor.redis_data.set_data(str(callback.from_user.id) + ':last_message', message_object.message_id)
+    photo_album = CommodityRequester.get_photo_album_by_car_id(car_id=result_car.car_id)
+
+    lexicon_part = {'message_text': formatted_config_output, 'buttons': LEXICON.get('chosen_configuration')}
+
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part,
+                                                    media_group=photo_album)
+    # keyboard = await message_editor.InlineCreator.create_markup(input_data=LEXICON.get('chosen_configuration'))
+    # message_object = await callback.message.answer_photo(photo=photo, caption=formatted_config_output, reply_markup=keyboard)
+    # await message_editor.redis_data.set_data(str(callback.from_user.id) + ':last_message', message_object.message_id)
 
     '''Кэширование для кнопки НАЗАД'''
     #await backward_in_carpooling_controller(callback=callback, state=state)

@@ -92,17 +92,28 @@ class TravelEditor:
                     print('NOTRM')
                     print('pre ', media_group)
 
-
-                    album_id = [key for key, value in media_group.items()][0]
+                    try:
+                        album_id = [key for key, value in media_group.items()][0]
+                    except:
+                        album_id = None
                     if send_chat:
-                        caption_photo = [InputMediaPhoto(media=file_data['id'], caption=lexicon_part['message_text']) for file_data in media_group[album_id][:2]]
-                        new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id][1:]]
+                        if album_id:
+                            caption_photo = [InputMediaPhoto(media=file_data['id'], caption=lexicon_part['message_text']) for file_data in media_group[album_id][:2]]
+                            new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id][1:]]
+                        else:
+                            caption_photo = [InputMediaPhoto(media=file_data['id'], caption=lexicon_part['message_text']) for file_data in media_group[:2]]
+                            new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[1:]]
+
                         new_album.append(caption_photo[0])
 
                         new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
 
                     else:
-                        new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
+                        if album_id:
+                            new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
+                        else:
+                            new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group]
+
                         print('post ', new_album)
                         new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
                         new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'], reply_markup=keyboard)

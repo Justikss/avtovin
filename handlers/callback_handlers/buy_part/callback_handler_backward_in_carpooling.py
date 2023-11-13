@@ -9,7 +9,11 @@ from handlers.state_handlers.choose_car_for_buy.second_hand_car_handlers import 
 
 async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMContext):
     '''Кнопка "Назад" в овремя подбора автомобиля'''
+    media_group_delete_module = importlib.import_module('utils.chat_cleaner.media_group_messages')
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+
+    await media_group_delete_module.delete_media_groups(request=callback)
+
     print('in backw')
     user_id = str(callback.from_user.id)
     redis_key = user_id + ':state_history_stack'

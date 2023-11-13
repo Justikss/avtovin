@@ -9,6 +9,18 @@ from database.data_requests.person_requests import sellers, buyer
 
 class CommodityRequester:
     @staticmethod
+    def get_photo_album_by_car_id(car_id):
+        '''Метод извлекает фотографии автомобиля'''
+        # current_car = Commodity.get_by_id(car_id)
+        # if current_car:
+        current_photo_album = list(CommodityPhotos.select().where(CommodityPhotos.car_id == car_id))
+        if current_photo_album:
+            current_photo_album = [{'id': photo_model.photo_id} for photo_model in current_photo_album]
+            return current_photo_album
+        else:
+            return False
+
+    @staticmethod
     def retrieve_all_data() -> Union[bool, List[Commodity]]:
         '''Извлечь все модели строк'''
         with db.atomic():
