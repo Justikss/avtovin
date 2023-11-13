@@ -15,4 +15,5 @@ class LoadCommodityStates(StatesGroup):
 
     input_to_load_price = State()
     input_to_load_photo = State()
+    photo_verification = State()
     load_config_output = State()

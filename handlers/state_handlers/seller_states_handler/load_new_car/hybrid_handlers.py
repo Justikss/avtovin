@@ -163,7 +163,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
 async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, car_price=None, bot=None):
     '''Вставить фото добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    print('load_photo_start')
     lexicon_part = LexiconCommodityLoader.load_commodity_photo
     if not bot:
         if isinstance(request, CallbackQuery):
@@ -199,5 +199,6 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=new_lexicon_part,  bot=bot, delete_mode=delete_mode)
     await state.update_data(rewrite_state_flag=None)
+    print('load_photo_end')
 
-    await state.set_state(LoadCommodityStates.load_config_output)
+    await state.set_state(LoadCommodityStates.photo_verification)

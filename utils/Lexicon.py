@@ -118,7 +118,7 @@ LEXICON = {
 
             'confirm_seller_profile_notification': {'message_text': 'Меню продавца!', 'buttons': {'seller_main_menu': 'В меню продавца', 'confirm_notification:seller': 'Принял', 'width': 1}},
     
-            'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'create_seller_request': 'Заявки', 'backward:set_language': 'Назад', 'width': 2},
+            'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'seller_requests': 'Заявки', 'backward:set_language': 'Назад', 'width': 2},
 
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_seller_registration_from:'},
             'seller_waiting_registration_confirm': {'start_text_legal': 'Заявка на регистрацию автосалона:', 'start_text_natural': 'Заявка на регистрацию частного продавца:',
@@ -128,13 +128,16 @@ LEXICON = {
             'success_seller_registration_notice': {'message_text': 'Вы зарегестрированы в системе', 'return_main_menu': 'В меню продавца', 'width': 1},
 
             'seller_faq': {'message_text': 'Самые частые вопросы: ', 'return_main_menu': 'В меню', 'width': 1},
-            'create_seller_request': {'message_text': 'Заявки', 'create_new_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
+            'seller_requests': {'message_text': 'Заявки', 'my_sell_requests': 'Мои заявки', 'create_new_seller_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
+
 
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'return_main_menu': 'В меню', 'width': 1},
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
-            'message_not_digit': 'Сумма должна состоять только из цифр',
+            'message_not_digit': {'message_text': 'Сумма должна состоять только из цифр'},
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
+
+            'seller_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'backward:seller_delete_request': 'Назад', 'width': 1},
 
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',
@@ -145,7 +148,7 @@ LEXICON = {
 
 
 class LexiconCommodityLoader:
-    load_commodity_state = {'message_text': 'Состояние', 'buttons': {'load_state_new': 'Новое', 'load_state_second_hand': 'Б/у', 'width': 2}}
+    load_commodity_state = {'message_text': 'Состояние', 'buttons': {'load_state_new': 'Новое', 'load_state_second_hand': 'Б/у', 'backward:start_boot_new_car': 'Назад', 'width': 2}}
     load_engine_type = {'message_text': 'Тип двигателя', 'buttons': {'load_engine_hybrid': 'Гибрид', 'load_engine_DWS': 'ДВС', 'load_engine_electro': 'Электро', 'width': 2}}
     load_commodity_brand = {'message_text': 'Марка', 'buttons': {'load_brand_bmw': 'BMW', 'load_brand_mercedes': 'Mercedes', 'load_brand_renault': 'Renault', 'load_brand_skoda': 'Skoda', 'width': 2}}
     load_commodity_model = {'message_text': 'Модель', 'buttons': {'load_model_1': 'model_1', 'load_model_2': 'model_2', 'load_model_3': 'model_3', 'load_model_4': 'model_4', 'width': 2}}
@@ -168,48 +171,37 @@ class LexiconCommodityLoader:
 
     seller_notification = {'message_text': 'Заявка №_ создана!'}
 
+class LexiconSellerRequests:
+    seller_does_have_active_requests_alert = 'У вас нет активных заявок'
+    seller_does_have_active_car_by_brand = 'Эта марка неактуальна.'
+    select_brand_message_text = 'Выберите марку автомобиля'
+    callback_prefix = 'seller_requests_brand:'
+    # backward_button = {'backward:sales_brand_choose': 'Назад'}
+    keyboard_end_part = {'backward:sales_brand_choose': 'Назад', 'width': 2}
+    # choose_brand_keyboard_width = 1
+
+    selected_brand_output_buttons = {'buttons': {'seller_requests_pagination_left': '<', 'seller_requests_pagination_right': '>',
+                                                'delete_request_from_seller': 'Удалить по номеру заявки',
+                                                'backward:sales_order_review': 'Назад', 'width': 2}}
+
+    output_car_request_header = 'Заявка №_'
+    commodity_state = '\nСостояние: '
+    engine_type = '\nТип двигателя: '
+    commodity_brand = '\nМарка: '
+    commodity_model = '\nМодель: '
+    commodity_complectation = '\nКомплектация: '
+    commodity_year_of_realise = '\nГод выпуска: '
+    commodity_mileage = '\nПробег: '
+    commodity_color = '\nЦвет: '
+    commodity_price = '\nСумма: '
+
+    pagination_pagesize = 3
+
+    page_view_separator = '-'*30
+
+    pages_were_end = 'Страницы кончились'
 
 
-    
-    # @classmethod
-    # async def get_output_string(cls, mode, boot_data: dict) -> str:
-    #     '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
-    #     if mode == 'to_seller':
-    #         start_sub_string = cls.config_for_seller
-    #     elif mode.startswith('to_admins_from_'):
-    #         seller_link = mode.split('_')[3]
-    #         start_sub_string = cls.config_for_admins + seller_link
-    #
-    #     bottom_layer = f'''{cls.load_commodity_price['message_text']}: {boot_data['price']}\
-    #         \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
-    #
-    #     top_layer = f'''{start_sub_string}\
-    #         \n{cls.load_commodity_state['message_text']}: {boot_data['state']}\
-    #         \n{cls.load_engine_type['message_text']}: {boot_data['engine_type']}\
-    #         \n{cls.load_commodity_brand['message_text']}: {boot_data['brand']}\
-    #         \n{cls.load_commodity_model['message_text']}: {boot_data['model']}\
-    #         \n{cls.load_commodity_complectation['message_text']}: {boot_data['complectation']}\n'''
-    #
-    #     is_second_hand = (boot_data['year_of_release'], boot_data['mileage'], boot_data['color'])
-    #     if None not in is_second_hand:
-    #         middle_layer = f'''{cls.load_commodity_year_of_realise['message_text']}: {boot_data['year_of_release']}\
-    #             \n{cls.load_commodity_mileage['message_text']}: {boot_data['mileage']}\
-    #             \n{cls.load_commodity_color['message_text']}: {boot_data['color']}\n'''
-    #         output_load_commodity_config = top_layer + middle_layer + bottom_layer
-    #     else:
-    #         output_load_commodity_config = top_layer + bottom_layer
-    #
-    #     return output_load_commodity_config
-
-    # @classmethod
-    # async def create_notification_for_seller(cls, request_number) -> str:
-    #     '''Плашка "Заявка №XXXX Создана"'''
-    #     create_request_notification= cls.seller_notification['message_text']
-    #     create_request_notification = create_request_notification.split('_')
-    #     create_request_notification = f'{request_number}'.join(create_request_notification)
-    #
-    #     return create_request_notification
-    #
 
 class LexiconSellerProfile:
     header = 'Профиль: \n'

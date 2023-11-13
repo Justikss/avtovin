@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from typing import Union
 import importlib
 
+from states.load_commodity_states import LoadCommodityStates
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromatter import data_formatter
 
@@ -58,9 +59,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     memory_storage = await state.get_data()
 
 
-    if memory_storage.get('incorrect_flag'):
-        await state.update_data(incorrect_flag=False)
-        delete_mode = True
+    # if memory_storage.get('incorrect_flag'):
+    #     await state.update_data(incorrect_flag=False)
+    #     delete_mode = True
 
     structured_boot_data = await data_formatter(request=request, state=state)
 
@@ -82,3 +83,4 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
                                                     delete_mode=delete_mode,
                                                     seller_boot=True, bot=bot)
 
+    await state.set_state(LoadCommodityStates.load_config_output)

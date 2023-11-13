@@ -13,12 +13,13 @@ class CommodityRequester:
         '''Метод извлекает фотографии автомобиля'''
         # current_car = Commodity.get_by_id(car_id)
         # if current_car:
-        current_photo_album = list(CommodityPhotos.select().where(CommodityPhotos.car_id == car_id))
-        if current_photo_album:
-            current_photo_album = [{'id': photo_model.photo_id} for photo_model in current_photo_album]
-            return current_photo_album
-        else:
-            return False
+        with db.atomic():
+            current_photo_album = list(CommodityPhotos.select().where(CommodityPhotos.car_id == car_id))
+            if current_photo_album:
+                current_photo_album = [{'id': photo_model.photo_id} for photo_model in current_photo_album]
+                return current_photo_album
+            else:
+                return False
 
     @staticmethod
     def retrieve_all_data() -> Union[bool, List[Commodity]]:
@@ -91,27 +92,29 @@ class CommodityRequester:
 
             return False
 
-            #
-            #
-            # result = list()
-            # for current_car_id in car_range_id:
-            #     print(current_car_id)
-            #     select_request = Commodity.select().where(
-            #                                     (Commodity.seller_id == seller_id) &
-            #                                     (Commodity.car_id == current_car_id)
-            #             )
-            #         # .order_by(-Commodity.id)  # Сортировка по убыванию ID для обратного порядка
-            #     print(select_request)
-            #     if list(select_request):
-            #         result.append(list(select_request)[0])
-            # if result:
-            #     return result
-            # else:
-            #     return False
-        # print('res', list(select_request))
-        # return list(select_request)
 
+    @staticmethod
+    def get_by_seller_id(seller_id):
+        '''Получить автомобили по id продавца'''
+        with db.atomic():
+            sellers_commodities = list(Commodity.select().where(Commodity.seller_id == seller_id))
+            print('commodities_db ', sellers_commodities)
+            if sellers_commodities:
+                return sellers_commodities
+            else:
+                return False
 
+    @staticmethod
+    def get_by_seller_id_and_brand(seller_id, car_brand):
+        '''Получить автомобили по id продавца и марке машины'''
+        with db.atomic():
+            print(seller_id, car_brand)
+            sellers_commodities = list(Commodity.select().where((Commodity.seller_id == seller_id) &
+                                                                (Commodity.brand == car_brand)))
+            if sellers_commodities:
+                return sellers_commodities
+            else:
+                return False
 
     @staticmethod
     def get_where_id(car_id: str):

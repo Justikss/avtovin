@@ -16,6 +16,7 @@ from handlers.state_handlers.seller_states_handler.seller_registration.check_you
 from handlers.callback_handlers.sell_part.start_sell_button_handler import start_sell_callback_handler
 from handlers.callback_handlers.sell_part import checkout_seller_person_profile
 from handlers.state_handlers.seller_states_handler import seller_profile_branch
+from handlers.callback_handlers.sell_part import commodity_requests
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates, PersonSellerRegistrationStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
@@ -142,6 +143,19 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
             await state.set_state(ChoiceTariffForSellerStates.preview_tariff)
             await seller_profile_branch.selected_tariff_preview.tariff_preview_handler(callback=callback, state=state, backward_call=True)
 
+        elif mode in ('sales_brand_choose', 'start_boot_new_car'):
+            await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback=callback)
+
+        elif mode == 'sales_order_review':
+            await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback)
+
+        elif mode == 'seller_delete_request':
+            from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests_by_car_brand import \
+                output_sellers_requests_by_car_brand_handler
+
+
+            car_brand = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
+            await output_sellers_requests_by_car_brand_handler(callback, chosen_brand=car_brand)
     else:
         print("LEXICON_CACHA")
         memory_data = await state.get_data()
