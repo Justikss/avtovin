@@ -39,6 +39,8 @@ async def output_message_constructor(commodity_models: List[Commodity]) -> list:
 
         if current_photo_album:
             commodity_photo_album = [photo['id'] for photo in current_photo_album]
+        else:
+            commodity_photo_album = None
 
         output_string = f'{header}{body}'
 
@@ -73,21 +75,25 @@ async def output_sellers_commodity_page(callback: CallbackQuery, commodity_model
     if not output_data_part:
         output_data_part = await seller_requests_pagination.get_page(operation='+')
 
-    media_groups_message_id = []
+    commodity_card_messages_id = []
     for output_part in output_data_part:
-        print('output_part ', output_part)
-        media_group = [InputMediaPhoto(media=photo_id) for photo_id in output_part['album'][:-1]]
-        media_group.append(InputMediaPhoto(media=output_part['album'][-1],
-                                           caption=output_part['text']))
-        media_group_message = await callback.bot.send_media_group(chat_id=callback.message.chat.id,
-                                                                            media=media_group)
+        if output_part.get('album'):
+            print('output_part ', output_part)
+            media_group = [InputMediaPhoto(media=photo_id) for photo_id in output_part['album'][:-1]]
+            media_group.append(InputMediaPhoto(media=output_part['album'][-1],
+                                               caption=output_part['text']))
+            commodity_card_message = await callback.bot.send_media_group(chat_id=callback.message.chat.id,
+                                                                      media=media_group)
+            for message in commodity_card_message:
+                ic(message)
+                commodity_card_messages_id.append(message.message_id)
 
-        for message in media_group_message:
-            media_groups_message_id.append(message.message_id)
+        else:
+            commodity_card_message = await callback.bot.send_message(chat_id=callback.message.chat.id, text=output_part['text'])
+            commodity_card_messages_id.append(commodity_card_message.message_id)
 
-    print('media_groups_message_id', media_groups_message_id)
     await message_editor.redis_data.set_data(key=user_id + ':seller_media_group_messages',
-                                             value=media_groups_message_id)
+                                             value=commodity_card_messages_id)
 
     keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(
         input_data=Lexicon.selected_brand_output_buttons, dynamic_buttons=True)

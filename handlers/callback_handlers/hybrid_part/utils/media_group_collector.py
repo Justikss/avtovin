@@ -4,6 +4,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto
 
+from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 
 mediagroups = {}
@@ -37,7 +38,8 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
         if state:
             seller_boot_commodity_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
             state_name = await state.get_state()
-            print(state_name)
+            ic(state_name)
+            # print(state_name)
             if state_name == 'LoadCommodityStates:photo_verification':
                 if not 3 <= len(mediagroups[album_id]) <= 5:
                     print('NONPHOTOTO')
@@ -53,5 +55,10 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                 await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state, media_photos=mediagroups)
                 mediagroups.clear()
 
-
+            elif state_name == 'BootNewCarPhotosStates:await_photo':
+                ic()
+                data = [{'admin_id': message.from_user.id, 'car_brand': 'BMW', 'car_model': 'DualModel', 'photo_id': part['id'],
+                         'photo_unique_id': part['unique_id']} for dict_values in mediagroups.values() for part in
+                        dict_values]
+                await PhotoRequester.load_photo_in_base(data)
 

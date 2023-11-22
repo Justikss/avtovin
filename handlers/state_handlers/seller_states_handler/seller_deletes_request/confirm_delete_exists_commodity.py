@@ -23,12 +23,12 @@ async def confirm_delete_exists_commodity_handler(callback: CallbackQuery, state
     print('memory_storage[car_id]', memory_storage['car_id'])
     delete_response = CommodityRequester.delete_car_by_id(memory_storage['car_id'])
     print('delete_response', delete_response)
-    if delete_response:
+    # if delete_response:
 
-        print('delete_response', delete_response)
-        await callback.answer(LEXICON['successfully'], show_alert=True)
-        await state.clear()
-        # chosen_brand = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
-        await commodity_reqests_by_seller(callback=callback)
-    else:
-        await callback.answer(LEXICON['unexpected_behavior'])
+    print('delete_response', delete_response)
+    await callback.answer(LEXICON['successfully'], show_alert=True)
+    await state.clear()
+    # chosen_brand = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
+    await commodity_reqests_by_seller(callback=callback)
+    # else:
+    #     await callback.answer(LEXICON['unexpected_behavior'])

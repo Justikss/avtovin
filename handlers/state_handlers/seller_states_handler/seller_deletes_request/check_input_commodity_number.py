@@ -52,7 +52,7 @@ async def check_input_id_handler(message: Message, state: FSMContext):
                                                                     need_media_caption=True),
 
                 await message_editor.travel_editor.edit_message(request=message, lexicon_key='confirm_delete_request',
-                                                                save_media_group=True)
+                                                                save_media_group=True, delete_mode=True)
                     )
 
 

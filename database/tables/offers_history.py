@@ -16,6 +16,11 @@ class ActiveOffers(BaseModel):
     class Meta:
         db_table = 'История_Предложений'
 
+class CacheBuyerOffers(BaseModel):
+    '''Кэширование неподтверждённых заявок'''
+    buyer_id = ForeignKeyField(User, backref='buyer')
+    car_id = ForeignKeyField(Commodity, backref='car')
+
 
 class ActiveOffersToCars(BaseModel):
     car_id = ForeignKeyField(Commodity, backref='car_id')

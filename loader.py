@@ -8,6 +8,8 @@ from aiogram.fsm.context import FSMContext
 
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
 from handlers.custom_handlers.lost_photos_handler import lost_photos_handler
+from handlers.default_handlers.admin_part_default_handlers.boot_new_car_photos import \
+    start_state_boot_new_car_photos_message_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from states.seller_deletes_request_states import DeleteRequestStates
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
@@ -76,6 +78,8 @@ async def start_bot():
     dp = Dispatcher(storage=storage)
 
     dp.callback_query.middleware(CleanerMiddleware())
+
+    dp.message.register(start_state_boot_new_car_photos_message_handler, Command(commands=['photos']))
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))

@@ -73,6 +73,7 @@ class TravelEditor:
 
                     # Получение album_id
                     album_id = next(iter(media_group), None) if isinstance(media_group, dict) else None
+
                     print(album_id)
 
                     if send_chat or need_media_caption:
@@ -100,6 +101,7 @@ class TravelEditor:
 
                     else:
                         if album_id:
+
                             new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
                         else:
                             new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group]
@@ -132,6 +134,10 @@ class TravelEditor:
                 #await redis_data.set_data(redis_key, new_message.message_id)
                 
             if last_message_id:
+                if not media_group and need_media_caption:
+                    new_media_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'])
+                    await redis_data.set_data(key=user_id + ':last_media_group',
+                                              value=new_media_message.message_id)
                 if not media_group:
                     try:
                         #await message_object.edit_text(text=message_text, reply_markup=keyboard)
@@ -139,7 +145,11 @@ class TravelEditor:
                         return await bot.edit_message_text(chat_id=send_chat_id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
 
                     except Exception as ex:
-                        pass
+                        if message_object.chat.id == send_chat_id:
+                            pass
+                        else:
+                            return await bot.send_message(chat_id=send_chat_id, text=message_text, reply_markup=keyboard)
+
 
                 if not send_chat:
                     try:
@@ -163,11 +173,18 @@ class TravelEditor:
         if not media_group and not save_media_group:
             media_group_message = await redis_data.get_data(key=user_id + ':last_media_group', use_json=True)
             if media_group_message:
-                for message_id in media_group_message:
+                if isinstance(media_group_message, int):
                     try:
-                        await bot.delete_message(chat_id=send_chat_id, message_id=message_id)
+                        await bot.delete_message(chat_id=send_chat_id, message_id=media_group_message)
                         await redis_data.delete_key(key=user_id + ':last_media_group')
-                    except TelegramBadRequest:
+                    except:
                         pass
+                else:
+                    for message_id in media_group_message:
+                        try:
+                            await bot.delete_message(chat_id=send_chat_id, message_id=message_id)
+                            await redis_data.delete_key(key=user_id + ':last_media_group')
+                        except TelegramBadRequest:
+                            pass
 
 travel_editor = TravelEditor()

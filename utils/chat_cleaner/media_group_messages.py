@@ -31,11 +31,23 @@ async def delete_media_groups(request: Union[CallbackQuery, Message]):
 
 
     if exist_media_group_message:
-        for message_id in exist_media_group_message:
+        if isinstance(exist_media_group_message, int):
+            message_id = exist_media_group_message
             try:
                 await request.bot.delete_message(chat_id=message.chat.id,
-                                                   message_id=message_id)
+                                                 message_id=message_id)
                 await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
             except Exception as ex:
                 print(ex)
                 pass
+
+        else:
+
+            for message_id in exist_media_group_message:
+                try:
+                    await request.bot.delete_message(chat_id=message.chat.id,
+                                                       message_id=message_id)
+                    await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
+                except Exception as ex:
+                    print(ex)
+                    pass

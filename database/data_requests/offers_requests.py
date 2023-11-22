@@ -37,30 +37,12 @@ class OffersRequester:
                 # Найти машину по ее id
                 car = Commodity.get_by_id(car)
                 print('car: ', type(car), 'order: ', type(order))
-                # Создать связь между машиной и заказом
-                # data = 'car': car, 'offer': offer
-                # ActiveOffersToCars.insert(**data).execute()
+
                 ActiveOffersToCars.create(car_id=car, offer_id=order)
 
 
-            # Вернуть id созданного заказа
             return order.id
 
-            # car_models = CommodityRequester.retrieve_all_data()
-           # print(car_models)
-
-
-
-
-                #     print(car_model)
-                #     load_pattern.append({'car_id': car_model, 'offer_id': offer_model})
-                # print(load_pattern)
-                #
-                # ActiveOffersToCars.insert_many(load_pattern).execute()
-                # ActiveOffers.create(**data)
-        # except Exception as ex:
-        #     print('db except:', ex)
-        #     return False
 
     @staticmethod
     async def get_for_buyer_id(buyer_id: int):

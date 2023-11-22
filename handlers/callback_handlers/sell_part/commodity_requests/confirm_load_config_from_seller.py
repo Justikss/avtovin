@@ -56,6 +56,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     print('photo_id: ', photos)
     print('isit: ', message_for_admin_chat)
     # await callback.message.bot.send_photo(chat_id=ADMIN_CHAT, caption=message_for_admin_chat, photo=photo)
+    ic(photos)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part={'message_text': message_for_admin_chat},
                                                     send_chat=ADMIN_CHAT, media_group=photos)

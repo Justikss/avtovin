@@ -17,16 +17,7 @@ class CommodityRequester:
             if select_response:
                 select_response_offers_history = list(ActiveOffersToCars.select().where(ActiveOffersToCars.car_id == car_id))
                 if select_response_offers_history:
-                    # safe_offers = []
-                    # for offer_model in select_response_offers_history:
-                    #     select_response_active_offers = list(ActiveOffersToCars.select().where(ActiveOffersToCars.offer_id == offer_model.offer_id))
-                    #     for active_offer in select_response_active_offers:
-                    #         if active_offer.car_id != car_id:
-                    #             safe_offers.append(active_offer.offer_id)
-                    #
-                    # if not safe_offers:
-                    #     for offer_model in select_response_offers_history:
-                    #         if offer_model.offer_id not in safe_offers:
+
                     for active_offer in select_response_offers_history:
                         delete_offer_history_response = ActiveOffers.delete_by_id(active_offer.offer_id)
 

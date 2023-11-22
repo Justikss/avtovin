@@ -2,10 +2,13 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 import importlib
 from typing import Union
+from icecream import ic
 
+from database.data_requests.new_car_photo_requests import PhotoRequester
 from states.load_commodity_states import LoadCommodityStates
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from handlers.state_handlers.seller_states_handler.load_new_car.utils import data_update_controller, change_boot_car_state_controller, rewrite_boot_state_stopper
+
 
 
 async def get_load_car_state(state: FSMContext):
@@ -166,6 +169,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     await state.set_state(LoadCommodityStates.input_to_load_photo)
 
 
+
 async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, car_price=None, bot=None, reply_mode=False):
     '''Вставить фото добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -180,27 +184,32 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
     delete_mode = False
 
     if not incorrect:
-        reply_mode = False
         memory_storage = await state.get_data()
         if memory_storage.get('incorrect_flag'):
             delete_mode = True
         if car_price != None:
+            ic(car_price)
             await state.update_data(load_price=car_price)
+            cars_state = await get_load_car_state(state=state)
+            print('cstate: ', cars_state)
+            if cars_state == 'new':
+                output_config_module = importlib.import_module(
+                    'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
+
+                memory_storage = await state.get_data()
+                ic(memory_storage)
+                photo_pack = await PhotoRequester.try_get_photo({'brand': memory_storage['brand_for_load'],
+                                                                 'model': memory_storage['model_for_load']})
+                ic(photo_pack)
+                await output_config_module.output_load_config_for_seller(request, state, media_photos=photo_pack)
+                return
+
         if await data_update_controller(request=request, state=state):
             return
 
         await state.update_data(incorrect_flag=False)
     else:
         await state.update_data(incorrect_flag=True)
-        reply_mode = True
-
-        # if lexicon_part['message_text'].startswith(LEXICON['message_not_photo']):
-        #     pass
-        # else:
-        #
-        #     new_lexicon_part = {'message_text': LEXICON['message_not_photo']}
-        #     for key, value in lexicon_part['buttons'].items():
-        #         new_lexicon_part[key] = value
 
         incorrect_notification = lexicon_part['message_text'].split("\n")[3]
         lexicon_part['message_text'] = lexicon_part['message_text'].split('\n')

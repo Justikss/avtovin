@@ -17,8 +17,8 @@ class Commodity(BaseModel):
     state = CharField()
     color = CharField(null=True)
     price = IntegerField()
-    photo_id = CharField(null=True)
-    photo_unique_id = CharField(null=True)
+    # photo_id = CharField(null=True)
+    # photo_unique_id = CharField(null=True)
     # photo_url = CharField(null=True)
 
 
@@ -35,3 +35,14 @@ class CommodityPhotos(BaseModel):
 
     class Meta:
         db_table = 'Фотографии_автомобилей'
+
+
+class NewCarPhotoBase(BaseModel):
+    car_brand = CharField()
+    car_model = CharField()
+    photo_id = CharField()
+    photo_unique_id = CharField()
+    admin_id = CharField()
+
+    class Meta:
+        db_table = 'Фотографии_новых_машин'
