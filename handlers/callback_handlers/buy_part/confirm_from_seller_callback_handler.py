@@ -31,8 +31,9 @@ async def confirm_from_seller(callback: CallbackQuery):
     need_cars = list()
     # for car_id in cars_id_range:
     need_cars = CommodityRequester.get_car_for_offer(seller_id=seller_id, car_range_id=cars_id_range)
-    # if need_car:
-    #     need_cars.append(need_car)
+    if not need_cars:
+        await callback.answer(LEXICON['seller_does_have_this_car'])
+        return
 
 
 
@@ -56,20 +57,20 @@ async def confirm_from_seller(callback: CallbackQuery):
         else:
             print('qara: ', query)
             alert_lexicon_code = 'success_notification'
-            if not need_cars:
-                await callback.answer(text=LEXICON["seller_haven't_this_car"])
-                return
+            # if not need_cars:
+            #     await callback.answer(text=LEXICON["seller_haven't_this_car"])
+            #     return
+            # else:
+
+            match_result = await OffersRequester.match_check(user_id=callback.from_user.id,
+                                                             cars_id_range=cars_id_range)
+
+            if match_result:
+
+                a = await OffersRequester.store_data(buyer_id=buyer_id, seller_id=seller_id, cars=need_cars)
+
             else:
-
-                match_result = await OffersRequester.match_check(user_id=callback.from_user.id,
-                                                                 cars_id_range=cars_id_range)
-
-                if match_result:
-
-                    a = await OffersRequester.store_data(buyer_id=buyer_id, seller_id=seller_id, cars=need_cars)
-
-                else:
-                    alert_lexicon_code = 'non_actiallity'
+                alert_lexicon_code = 'non_actiallity'
 
             cars_id_range = [str(car_id) for car_id in cars_id_range]
             need_message_data = next((key for key, value in active_non_confirm_offers.items() if value == ':'.join(cars_id_range)), None)

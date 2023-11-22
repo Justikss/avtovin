@@ -28,27 +28,14 @@ class MessageIsPhoto(BaseFilter):
         redis_key_seller = str(message.from_user.id) + ':last_seller_message'
 
         input_photo = message.photo
-        print('mes pho: ', input_photo)
+        reply_mode = False
         if not input_photo:
-            a = '|||user_mes '
-            print(a, message.message_id)
-        else:
-            a='|||user_pho '
-            print(a, message.message_id)
+            reply_mode = True
 
-        if input_photo:
-            await self.chat_cleaner(trash_redis_keys=(':last_message', ':last_seller_message'),
-                                     message=message)
+        await self.chat_cleaner(trash_redis_keys=(':last_message', ':last_seller_message'),
+                                 message=message)
 
-            return {'photo': {'id': input_photo[0].file_id, 'unique_id': input_photo[0].file_unique_id}}
+        await redis_module.redis_data.set_data(key=redis_key_seller,
+                                                value=message.message_id)
 
-        else:
-            
-            trash_messages_data = (':last_message', ':last_seller_message')
-
-            await self.chat_cleaner(trash_redis_keys=trash_messages_data, message=message)
-            print('|||adde_us_mes: ', message.message_id)
-            await redis_module.redis_data.set_data(key=redis_key_seller, 
-                                                    value=message.message_id)
-
-            await input_photo_to_load(request=message, state=state, incorrect=True)
+        await input_photo_to_load(request=message, state=state, incorrect=True, reply_mode=reply_mode)

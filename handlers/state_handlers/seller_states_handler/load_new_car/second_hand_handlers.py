@@ -21,6 +21,7 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
     lexicon_part = LexiconCommodityLoader.load_commodity_year_of_realise
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_mileage)
 
 
@@ -36,6 +37,7 @@ async def input_mileage_to_load(callback: CallbackQuery, state: FSMContext):
     lexicon_part = LexiconCommodityLoader.load_commodity_mileage
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_color)
 
 
@@ -51,4 +53,5 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
     lexicon_part = LexiconCommodityLoader.load_commodity_color
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_price)

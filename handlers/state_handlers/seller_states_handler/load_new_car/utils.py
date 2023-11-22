@@ -86,46 +86,52 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             return True
 
 
-async def create_edit_buttons_for_boot_config(boot_data, output_string, state):
+async def create_edit_buttons_for_boot_config(boot_data, output_string, state, rewrite_mode=False):
     '''Метод генерирует заготовку кнопок (для InlineCreator) с назначением переписи полей добавляемого автомобиля'''
     get_load_car_state_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     boot_config_value = list(value for value in boot_data.values())
     lexicon_button_part = LEXICON['confirm_load_config_from_seller_button']
-    print('pre ', LexiconCommodityLoader.config_for_seller_button_callbacks)
-    if cars_state == 'new':
-        # config_slice = ((1, 6), (9, 11))
-        config_edit_buttons_callback_data = LexiconCommodityLoader.config_for_seller_button_callbacks
-        callbacks = config_edit_buttons_callback_data[0:5] + config_edit_buttons_callback_data[8:11]
-        captions = list(boot_config_value[1:6] + boot_config_value[9:10])
-        print(captions)
-        captions[5] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + captions[5]
+    if rewrite_mode:
+        print('pre ', LexiconCommodityLoader.config_for_seller_button_callbacks)
+        if cars_state == 'new':
+            # config_slice = ((1, 6), (9, 11))
+            config_edit_buttons_callback_data = LexiconCommodityLoader.config_for_seller_button_callbacks
+            callbacks = config_edit_buttons_callback_data[0:5] + config_edit_buttons_callback_data[8:11]
+            captions = list(boot_config_value[1:6] + boot_config_value[9:10])
+            print(captions)
+            captions[5] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + captions[5]
 
-    elif cars_state == 'second_hand':
-        #config_slice = (1, 11)
-        config_edit_buttons_callback_data = LexiconCommodityLoader.config_for_seller_button_callbacks
-        callbacks = config_edit_buttons_callback_data[0:11]
-        captions = list(boot_config_value[1:10])
-        captions[5] = LexiconCommodityLoader.load_commodity_year_of_realise['message_text'] + ' ' + captions[5]
-        captions[6] = LexiconCommodityLoader.load_commodity_mileage['message_text'] + ' ' + captions[6]
-        captions[8] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + captions[8]
-    
-    captions = tuple(captions)
-    print('cb: ', type(callbacks), callbacks)
-    print('vl: ', type(captions), captions)
-    all_captions = captions + (LexiconCommodityLoader.edit_photo_caption,)
-        #config_edit_buttons_caption
-    print('cb: ', type(callbacks), callbacks)
-    print('vl: ', type(all_captions), all_captions)
+        elif cars_state == 'second_hand':
+            #config_slice = (1, 11)
+            config_edit_buttons_callback_data = LexiconCommodityLoader.config_for_seller_button_callbacks
+            callbacks = config_edit_buttons_callback_data[0:11]
+            captions = list(boot_config_value[1:10])
+            captions[5] = LexiconCommodityLoader.load_commodity_year_of_realise['message_text'] + ' ' + captions[5]
+            captions[6] = LexiconCommodityLoader.load_commodity_mileage['message_text'] + ' ' + captions[6]
+            captions[8] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + captions[8]
 
-    rewrite_data_buttons = zip(callbacks, all_captions)
+        captions = tuple(captions)
+        print('cb: ', type(callbacks), callbacks)
+        print('vl: ', type(captions), captions)
+        all_captions = captions + (LexiconCommodityLoader.edit_photo_caption,)
+            #config_edit_buttons_caption
+        print('cb: ', type(callbacks), callbacks)
+        print('vl: ', type(all_captions), all_captions)
 
-    lexicon_part = {'message_text': output_string}
+        rewrite_data_buttons = zip(callbacks, all_captions)
 
-    for key, value in rewrite_data_buttons:
-        lexicon_part[key] = value
-        
-    for key, value in lexicon_button_part.items():
-        lexicon_part[key] = value
+        lexicon_part = {'message_text': output_string}
 
-    return lexicon_part
+        for key, value in rewrite_data_buttons:
+            lexicon_part[key] = value
+
+
+        for key, value in lexicon_button_part.items():
+            lexicon_part[key] = value
+
+        return lexicon_part
+
+    else:
+        return {'message_text': output_string, 'buttons': lexicon_button_part}
+

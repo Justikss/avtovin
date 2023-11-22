@@ -36,34 +36,11 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
     await state.update_data(cars_class=commodity_state)
 
-
-
     button_texts = {car.engine_type for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_engine_type',
                                      button_texts=button_texts, callback_sign='cars_engine_type:', lexicon_cache=False)
 
-
-    #
-    #memory_storage = await state.get_data()
-    # if first_call:
-    #     user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
-    #     await state.update_data(cars_model=user_answer)
-    #     print(user_answer)
-    # else:
-    #     user_answer = memory_storage['cars_model']
-    #
-    # models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
-    #                                                   brand=memory_storage['cars_brand'],
-    #                                                   model=user_answer)
-    #
-    # button_texts = {car.engine_type for car in models_range}
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_engine_type', button_texts=button_texts,
-    #                                  callback_sign='cars_engine_type:', lexicon_cache=False)
-
-    '''Кэширование для кнопки НАЗАД'''
-    #await backward_in_carpooling_controller(callback=callback, state=state)
-
-
+    await callback.answer()
     await state.set_state(HybridChooseStates.select_brand)
 
 
@@ -73,23 +50,6 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
 
     await cache_state(callback=callback, state=state)
 
-    # redis_key = str(callback.from_user.id) + ':cars_type'
-    # cars_type = await message_editor.redis_data.get_data(redis_key)
-    #
-    #
-    # if cars_type == 'second_hand_cars':
-    #     commodity_state = 'Б/У'
-    # elif cars_type == 'new_cars':
-    #     commodity_state = 'Новая'
-    #
-    # models_range = CommodityRequester.get_for_request(state=commodity_state)
-    # if not models_range:
-    #     return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found', lexicon_cache=False)
-    #
-    #
-    # await state.update_data(cars_state=commodity_state)
-    #
-    # await state.update_data(cars_class=commodity_state)
     memory_storage = await state.get_data()
 
     if first_call:
@@ -111,7 +71,7 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
 
     '''Кэширование для кнопки НАЗАД'''
     # await backward_in_carpooling_controller(callback=callback, state=state)
-
+    await callback.answer()
     await state.set_state(HybridChooseStates.select_model)
 
 
@@ -139,7 +99,7 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
                                      callback_sign='cars_model:', lexicon_cache=False)
 
 
-
+    await callback.answer()
     await state.set_state(HybridChooseStates.select_complectation)
 
     '''Кэширование для кнопки НАЗАД'''
@@ -174,7 +134,7 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
     elif cars_type == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_new']:
         await state.set_state(HybridChooseStates.config_output)
 
-
+    await callback.answer()
 
 
 

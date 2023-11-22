@@ -20,5 +20,5 @@ async def cache_state(callback: CallbackQuery, state: FSMContext, first=False):
             print('state_stack[-1] != current_state', state_stack)
         print('state_stack[-1] == current_state')
 
-
+    await callback.answer()
 

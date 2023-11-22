@@ -3,8 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, second_hand_car_handlers, new_car_handlers
-from handlers.state_handlers.choose_car_for_buy.second_hand_car_handlers import choose_color_handler
+from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, second_hand_car_handlers
 
 
 async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMContext):

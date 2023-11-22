@@ -131,13 +131,13 @@ LEXICON = {
             'seller_requests': {'message_text': 'Заявки', 'my_sell_requests': 'Мои заявки', 'create_new_seller_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
 
 
-            'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'return_main_menu': 'В меню', 'width': 1},
+            'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'edit_boot_car_data': 'Изменить', 'return_main_menu': 'В меню', 'width': 1},
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
             'message_not_digit': {'message_text': 'Сумма должна состоять только из цифр'},
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
 
-            'seller_start_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'backward:seller_start_delete_request': 'Назад', 'width': 1},
+            'seller_start_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'buttons': {'backward:seller_start_delete_request': 'Назад', 'width': 1}},
 
             'incorrect_input_removed_car_id': 'Неверный ввод номера заявки.\nСверьте номер по кнопке "Назад" и введите снова.',
             'confirm_delete_request': {'message_text': 'Вы действительно хотите удалить это авто?', 'confirm_delete': 'Подтвердить', 'backward:seller_delete_request': 'Назад', 'width': 1},
@@ -147,7 +147,8 @@ LEXICON = {
             'seller_without_tariff': 'У вас нет откликов на счету',
             'seller_tarriff_expired': 'Ваш тариф неактуален',
             'non_actiallity': 'Не актуально',
-            'successfully': 'Успешно'
+            'successfully': 'Успешно',
+            'seller_does_have_this_car': 'У вас не продаётся такая машина'
         }
 
 
@@ -159,17 +160,17 @@ class LexiconCommodityLoader:
     load_commodity_complectation = {'message_text': 'Комплектация', 'buttons': {'load_complectation_1': 'complectation_1', 'load_complectation_2': 'complectation_2', 'load_complectation_3': 'complectation_3', 'load_complectation_4': 'complectation_4', 'width': 2}}
 
     load_commodity_year_of_realise = {'message_text': 'Год выпуска', 'buttons': {'load_year_2005': '2005', 'load_year_2020': '2020', 'load_year_2015': '2015', 'load_year_2001': '2001', 'width': 2}}
-    load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_25000': '25000', 'load_mileage_50000': '50000', 'load_mileage_100000': '100000', 'load_mileage_35000': '35000', 'width': 2}}
+    load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_5000': '5000', 'load_mileage_10000': '10000', 'load_mileage_15000': '15000', 'load_mileage_20000': '20000', 'load_mileage_25000': '25000', 'load_mileage_30000': '30000', 'load_mileage_35000': '35000', 'load_mileage_40000': '40000', 'load_mileage_45000': '45000', 'load_mileage_50000': '50000', 'load_mileage_750000': '750000', 'load_mileage_100000': '100000', 'load_mileage_100000+': '100000 +', 'width': 4}}
     load_commodity_color = {'message_text': 'Цвет', 'buttons': {'load_color_black': 'Чёрный', 'load_color_red': 'Красный', 'load_color_pink': 'Розовый', 'load_color_white': 'Белый', 'width': 2}}
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
-    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\nНе отменяйте сжатие при отправке\nфотографии в телеграмм', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
+    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\n(значок скрепки в левом углу чата)\n\n(!от 3 до 5 экземпляров!)\n\nНе отменяйте сжатие при отправке\nфотографии в телеграмм.', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
 
     edit_photo_caption = 'Фото'
 
 
     config_for_seller = 'Ваши конфигурации:'
-    can_rewrite_config = '\nВозможна перепись полей по нажатию на нужную кнопку'
-    config_for_seller_button_callbacks = ('rewrite_boot_state','rewrite_boot_engine', 'rewrite_boot_brand', 'rewrite_boot_model', 'rewrite_boot_complectation', 'rewrite_boot_year', 'rewrite_boot_mileage', 'rewrite_boot_color', 'rewrite_boot_price', 'rewrite_boot_photo')
+    can_rewrite_config = '\n\nВозможна перепись полей по нажатию на нужную кнопку'
+    config_for_seller_button_callbacks = ('rewrite_boot_state', 'rewrite_boot_engine', 'rewrite_boot_brand', 'rewrite_boot_model', 'rewrite_boot_complectation', 'rewrite_boot_year', 'rewrite_boot_mileage', 'rewrite_boot_color', 'rewrite_boot_price', 'rewrite_boot_photo')
 
     config_for_admins = 'Заявка от продавца @'
 
@@ -199,9 +200,9 @@ class LexiconSellerRequests:
     commodity_color = '\nЦвет: '
     commodity_price = '\nСумма: '
 
-    pagination_pagesize = 3
+    pagination_pagesize = 1
 
-    page_view_separator = '-'*30
+    page_view_separator = 'Страница: '
 
     pages_were_end = 'Страницы кончились'
 
@@ -220,6 +221,7 @@ class LexiconSellerProfile:
     tariff_out_date_prefix = '\nДо '
     residual_feedback_prefix = '\n- Остаток откликов: '
     tariff_extension_button = {'tariff_extension': 'Продлить тариф', 'return_main_menu': 'В меню', 'width': 1}
+    tarif_expired = 'Ваш тариф истёк'
 
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'

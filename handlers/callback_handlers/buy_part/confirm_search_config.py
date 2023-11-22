@@ -69,8 +69,8 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
 
         for matched_id in non_confirm_match_result:
             match_result.remove(matched_id)
-
-    if not match_result or len(cars_id_range) == len(non_confirm_match_result):
+    print(f'math_result: {match_result}\ncars_id_range: {cars_id_range}\nnon_confirm_mathch_re: {non_confirm_match_result}')
+    if not match_result or cars_id_range == non_confirm_match_result:
         lexicon_key = 'buy_configuration_error'
     else:
         lexicon_key = 'confirm_buy_configuration'

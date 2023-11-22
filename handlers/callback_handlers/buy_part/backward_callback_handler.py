@@ -10,6 +10,7 @@ from handlers.callback_handlers.buy_part.language_callback_handler import redis_
 from handlers.callback_handlers.buy_part.callback_handler_start_buy import start_buy
 
 from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
+from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
 from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import hybrid_input_seller_number, dealership_input_address
 from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
 from handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config import check_your_config
@@ -29,6 +30,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
                                                         прошлое состояние'''
     inline_creator = importlib.import_module('keyboards.inline.kb_creator')  # Ленивый импорт
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+
 
 
     if ':' in callback.data:
@@ -143,19 +145,27 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
             await state.set_state(ChoiceTariffForSellerStates.preview_tariff)
             await seller_profile_branch.selected_tariff_preview.tariff_preview_handler(callback=callback, state=state, backward_call=True)
 
-        elif mode in ('sales_brand_choose', 'start_boot_new_car'):
+        elif mode == 'sales_brand_choose':
             await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback=callback)
 
         elif mode == 'sales_order_review':
             await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback)
 
-        elif mode == 'seller_start_delete_request':
+        elif mode in ('seller_start_delete_request', 'seller_delete_request'):
             from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests_by_car_brand import \
                 output_sellers_requests_by_car_brand_handler
 
-
             car_brand = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
             await output_sellers_requests_by_car_brand_handler(callback, chosen_brand=car_brand)
+
+
+        elif mode == 'start_boot_new_car':
+            edit_mode = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+            if edit_mode and edit_mode != 'null':
+                print('EDITMOD ', edit_mode, type(edit_mode))
+                await output_load_config_for_seller(request=callback, state=state)
+            else:
+                await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback)
     else:
         print("LEXICON_CACHA")
         memory_data = await state.get_data()

@@ -1,1 +1,1 @@
-from . import media_album_middleware
+from . import mediagroup_chat_cleaner

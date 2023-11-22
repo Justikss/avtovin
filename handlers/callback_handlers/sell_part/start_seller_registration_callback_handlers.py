@@ -20,5 +20,6 @@ async def seller_type_identifier(callback: CallbackQuery, state: FSMContext):
     print('markk')
     return await input_seller_name(request=callback, state=state)
 
-    
+    await callback.answer()
+
     

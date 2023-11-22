@@ -30,7 +30,8 @@ async def input_state_to_load(callback: CallbackQuery, state: FSMContext, bot=No
 
     lexicon_part = LexiconCommodityLoader.load_commodity_state
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
-    
+
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_engine_type)
 
 
@@ -50,6 +51,7 @@ async def input_engine_type_to_load(callback: CallbackQuery, state: FSMContext, 
     lexicon_part = LexiconCommodityLoader.load_engine_type
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
 
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_brand)
 
 async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=None):
@@ -66,6 +68,7 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     lexicon_part = LexiconCommodityLoader.load_commodity_brand
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
 
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_model)
 
 
@@ -83,6 +86,7 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     lexicon_part = LexiconCommodityLoader.load_commodity_model
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
 
+    await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_complectation)
 
 
@@ -112,9 +116,8 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
 
     elif cars_state == 'second_hand':
         await state.set_state(LoadCommodityStates.input_to_load_year)
-    
-    # await message_editor.redis_data.set_data(key=str(callback.from_user.id) + ':load_car_state',
-    #                                         value=cars_state)
+
+    await callback.answer()
 
 
 async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, bot=None):
@@ -157,13 +160,16 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True, bot=bot)
 
+    if isinstance(request, CallbackQuery):
+        await request.answer()
+
     await state.set_state(LoadCommodityStates.input_to_load_photo)
 
 
-async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, car_price=None, bot=None):
+async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, car_price=None, bot=None, reply_mode=False):
     '''Вставить фото добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-    print('load_photo_start')
+
     lexicon_part = LexiconCommodityLoader.load_commodity_photo
     if not bot:
         if isinstance(request, CallbackQuery):
@@ -174,6 +180,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
     delete_mode = False
 
     if not incorrect:
+        reply_mode = False
         memory_storage = await state.get_data()
         if memory_storage.get('incorrect_flag'):
             delete_mode = True
@@ -182,23 +189,31 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         if await data_update_controller(request=request, state=state):
             return
 
-        reply_mode = False
         await state.update_data(incorrect_flag=False)
-        new_lexicon_part = lexicon_part
     else:
         await state.update_data(incorrect_flag=True)
-        reply_mode  = True
-        if lexicon_part['message_text'].startswith(LEXICON['message_not_photo']):
-            pass
-        else:
-            print(lexicon_part)
-            print(LEXICON['message_not_photo'])
-            new_lexicon_part = {'message_text': LEXICON['message_not_photo']}
-            for key, value in lexicon_part['buttons'].items():
-                new_lexicon_part[key] = value
+        reply_mode = True
 
-    await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=new_lexicon_part,  bot=bot, delete_mode=delete_mode)
+        # if lexicon_part['message_text'].startswith(LEXICON['message_not_photo']):
+        #     pass
+        # else:
+        #
+        #     new_lexicon_part = {'message_text': LEXICON['message_not_photo']}
+        #     for key, value in lexicon_part['buttons'].items():
+        #         new_lexicon_part[key] = value
+
+        incorrect_notification = lexicon_part['message_text'].split("\n")[3]
+        lexicon_part['message_text'] = lexicon_part['message_text'].split('\n')
+        print('lexicon_part0', lexicon_part)
+        lexicon_part['message_text'][3] = f'<b>{incorrect_notification}</b>'
+        print('lexicon_part1', lexicon_part)
+        print(incorrect_notification)
+        lexicon_part['message_text'] = '\n'.join(lexicon_part['message_text'])
+        print('lexicon_part2', lexicon_part)
+
+    await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,  bot=bot, delete_mode=delete_mode)
     await state.update_data(rewrite_state_flag=None)
-    print('load_photo_end')
 
+    if isinstance(request, CallbackQuery):
+        await request.answer()
     await state.set_state(LoadCommodityStates.photo_verification)

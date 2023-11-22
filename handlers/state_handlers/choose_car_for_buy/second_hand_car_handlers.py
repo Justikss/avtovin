@@ -10,7 +10,7 @@ from database.tables.offers_history import ActiveOffers
 
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
-from handlers.state_handlers.choose_car_for_buy.new_car_handlers import cache_state
+from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_state
 
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[0])
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[3])
@@ -41,6 +41,7 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_color', button_texts=button_texts,
                                      callback_sign='cars_color:', lexicon_cache=False)
 
+    await callback.answer()
     await state.set_state(SecondHandChooseStates.select_mileage)
 
 
@@ -65,7 +66,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
     button_texts = {str(car.mileage) for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_mileage', button_texts=button_texts,
                                      callback_sign='cars_mileage:', lexicon_cache=False)
-
+    await callback.answer()
     await state.set_state(SecondHandChooseStates.select_year)
 
 
@@ -92,7 +93,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
     button_texts = {car.year_of_release for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_year_of_release', button_texts=button_texts,
                                      callback_sign='cars_year_of_release:', lexicon_cache=False)
-
+    await callback.answer()
     await state.set_state(HybridChooseStates.config_output)
 
 

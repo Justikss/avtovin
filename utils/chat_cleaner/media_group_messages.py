@@ -20,21 +20,22 @@ async def delete_media_groups(request: Union[CallbackQuery, Message]):
 
     if exist_check_seller_requests_pagination:
         print('exist_check_seller_requests_pagination ', exist_check_seller_requests_pagination)
-        try:
-            [await request.bot.delete_message(chat_id=message.chat.id,
-                                              message_id=message_id) for message_id in exist_check_seller_requests_pagination]
-            await redis_data_module.redis_data.delete_key(key=user_id + ':seller_media_group_messages')
-        except Exception as ex:
-            print(ex)
-            pass
+        for message_id in exist_check_seller_requests_pagination:
+            try:
+                await request.bot.delete_message(chat_id=message.chat.id,
+                                                  message_id=message_id)
+                await redis_data_module.redis_data.delete_key(key=user_id + ':seller_media_group_messages')
+            except Exception as ex:
+                print(ex)
+                pass
 
 
     if exist_media_group_message:
-        try:
-            print('tryrtyrty ', exist_media_group_message)
-            [await request.bot.delete_message(chat_id=message.chat.id,
-                                               message_id=message_id) for message_id in exist_media_group_message]
-            await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
-        except Exception as ex:
-            print(ex)
-            pass
+        for message_id in exist_media_group_message:
+            try:
+                await request.bot.delete_message(chat_id=message.chat.id,
+                                                   message_id=message_id)
+                await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
+            except Exception as ex:
+                print(ex)
+                pass

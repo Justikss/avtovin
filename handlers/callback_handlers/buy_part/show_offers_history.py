@@ -4,6 +4,8 @@ from typing import List, Tuple, Any
 
 import aiogram.exceptions
 from aiogram.types import Message, CallbackQuery
+from icecream import ic
+
 from database.data_requests.offers_requests import OffersRequester
 from utils.Lexicon import LEXICON
 from utils.user_notification import  try_delete_notification
@@ -166,7 +168,7 @@ async def format_history_data(offers_for_user: list) -> list:
 async def get_offers_history(callback: CallbackQuery):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
-    await try_delete_notification(callback=callback, user_status='buyer')
+    await try_delete_notification(callback=callback, user_status='buyer', non_callback_answer_mode=True)
 
     lexicon_part = LEXICON['offer_parts']
     first_last_message_key = str(callback.from_user.id) + ':history_requests_pagination' + ':first'
@@ -182,7 +184,8 @@ async def get_offers_history(callback: CallbackQuery):
 
     offers = await OffersRequester.get_for_buyer_id(buyer_id=callback.from_user.id)
     if not offers:
-        await callback.answer(LEXICON["buyer_haven't_confirm_offers"])
+        await callback.answer(text=LEXICON["buyer_haven't_confirm_offers"])
+        return
     else:
         offers_stack = await format_history_data(offers_for_user=offers)
         redis_value = (0, False, offers_stack)

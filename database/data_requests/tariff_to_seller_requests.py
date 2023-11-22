@@ -41,8 +41,8 @@ class TariffToSellerBinder:
             total_bind = TariffsToSellers.select().where(TariffsToSellers.seller_id == telegram_id)
             total_bind = list(total_bind)
             print('totalbind: ',total_bind)
-            total_bind = total_bind[0]
             if total_bind:
+                total_bind = total_bind[0]
                 datetime_now = datetime.datetime.now()
                 datetime_tariff_end = total_bind.end_date_time
                 datetime_tariff_end = datetime.datetime.strptime(datetime_tariff_end, DATETIME_FORMAT)

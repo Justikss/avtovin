@@ -6,7 +6,7 @@ from keyboards.inline.kb_creator import InlineCreator
 from utils.Lexicon import LEXICON
 
 
-async def try_delete_notification(callback: CallbackQuery, user_status: str=None):
+async def try_delete_notification(callback: CallbackQuery, user_status: str=None, non_callback_answer_mode=False):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     callback_data = callback.data
@@ -14,9 +14,9 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         user_status = callback_data.split(':')[1]
 
     if user_status == 'seller':
-        redis_sub_key = 'seller_registration_notification'
+        redis_sub_key = ':seller_registration_notification'
     elif user_status == 'buyer':
-        redis_sub_key = 'buyer_offer_notification'
+        redis_sub_key = ':buyer_offer_notification'
 
     notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
     if notification_message_id:
@@ -26,20 +26,26 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         except:
             pass
 
+    if not non_callback_answer_mode:
+        await callback.answer()
+
+
 async def send_notification(callback: CallbackQuery, user_status: str, chat_id=None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
     if user_status == 'seller':
-        redis_sub_key = 'seller_registration_notification'
+        redis_sub_key = ':seller_registration_notification'
         lexicon_key = 'confirm_seller_profile_notification'
     elif user_status == 'buyer':
-        redis_sub_key = 'buyer_offer_notification'
+        redis_sub_key = ':buyer_offer_notification'
         lexicon_key = 'buyer_offer_notification'
 
     notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
     if notification_message_id:
         #return
         pass
+
+    await callback.answer()
 
 
     await callback.answer(LEXICON['success_notification'])

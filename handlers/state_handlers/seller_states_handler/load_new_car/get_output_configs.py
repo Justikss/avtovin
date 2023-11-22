@@ -45,6 +45,23 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     create_buttons_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
 
+    if isinstance(request, Message):
+        message = request
+    else:
+        message = request.message
+
+    memory_storage = await state.get_data()
+    if memory_storage.get('incorrect_flag'):
+        try:
+            message_id = await message_editor.redis_data.get_data(key=f'{request.from_user.id}:last_seller_message')
+            if message_id:
+                await message.chat.delete_message(message_id=message_id)
+            await state.update_data(incorrect_flag=False)
+        except:
+            pass
+
+        await message_editor.redis_data.delete_key(key=f'{request.from_user.id}:last_seller_message')
+
     if media_photos:
         await state.update_data(load_photo=media_photos)
 
@@ -56,14 +73,11 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
             bot = request.message.bot
 
     delete_mode = False
-    memory_storage = await state.get_data()
 
-
-    # if memory_storage.get('incorrect_flag'):
-    #     await state.update_data(incorrect_flag=False)
-    #     delete_mode = True
 
     structured_boot_data = await data_formatter(request=request, state=state)
+    await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:structured_boot_data',
+                                             value = structured_boot_data)
 
     output_string = await get_output_string(mode='to_seller',
                                             boot_data=structured_boot_data)
@@ -72,7 +86,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
     output_string = '\n'.join(output_string.split('\n')[:-2])
     output_string += LexiconCommodityLoader.can_rewrite_config
-    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string)
+    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string, )
     print('lp: ', lexicon_part)
 
     await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity', value=True)
@@ -82,5 +96,8 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
                                                     media_group=structured_boot_data.get('photos'),
                                                     delete_mode=delete_mode,
                                                     seller_boot=True, bot=bot)
+
+    if isinstance(request, CallbackQuery):
+        await request.answer()
 
     await state.set_state(LoadCommodityStates.load_config_output)

@@ -72,3 +72,5 @@ async def seller_main_menu(callback: CallbackQuery, bot=None):
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':user_state'
     await redis_data.redis_data.set_data(redis_key, value='sell')
+
+    await callback.answer()

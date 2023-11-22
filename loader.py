@@ -7,7 +7,10 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
+from handlers.custom_handlers.lost_photos_handler import lost_photos_handler
+from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from states.seller_deletes_request_states import DeleteRequestStates
+from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from config_data.config import BOT_TOKEN
@@ -63,30 +66,16 @@ storage = RedisStorage(redis=redis)
 
 dp = Dispatcher(storage=storage)
 
-#dp.message.middleware(AlbumMiddleware())
-
 async def start_bot():
     global redis, edit_last_message, bot, dp, redis, storage
-    bot = Bot(token=BOT_TOKEN)
+    bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 
     redis = Redis(host='localhost')
     storage = RedisStorage(redis=redis)
 
     dp = Dispatcher(storage=storage)
 
-    # dp.message.middleware(AlbumMiddleware())
-    # mediagroups = {}
-    # @dp.message(F.photo[-1].file_id.as_("photo_id"), F.media_group_id.as_("album_id"))
-    # async def collect_and_send_mediagroup(message: Message, photo_id: str, album_id: int):
-    #     if album_id in mediagroups:
-    #         mediagroups[album_id].append(photo_id)
-    #         return
-    #     mediagroups[album_id] = [photo_id]
-    #     await asyncio.sleep(0.5)
-    #
-    #     new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
-    #     print(new_album)
-    #     await message.answer_media_group(media=new_album)
+    dp.callback_query.middleware(CleanerMiddleware())
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
@@ -314,10 +303,16 @@ async def start_bot():
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
                               StateFilter(LoadCommodityStates.photo_verification), message_is_photo.MessageIsPhoto())
 
+    dp.callback_query.register(edit_boot_car_data_handler,
+                               and_f(StateFilter(LoadCommodityStates.load_config_output),
+                                     F.data == 'edit_boot_car_data'))
+
     '''уведомления'''
     dp.callback_query.register(sell_main_module.try_delete_notification,
                                lambda callback: callback.data.startswith('confirm_notification'))
 
+    dp.message.register(lost_photos_handler,
+                        F.photo)
 
     @dp.message(Command(commands='m'))
     async def asdsad(message: Message):

@@ -20,9 +20,9 @@ async def output_for_admin_formater(callback: CallbackQuery):
             lexicon_part = LEXICON['seller_waiting_registration_confirm']
             lexicon_middle_part = lexicon_part[new_seller.entity + '_message']
             user_link = '@' + callback.from_user.username
-            head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number'] + new_seller.phone_number}'''
+            head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
             if new_seller.entity == 'legal':
-                body_string = f'''\n{lexicon_middle_part['name'] + new_seller.dealship_name}\n{lexicon_middle_part['address'] + new_seller.dealship_address}'''
+                body_string = f'''\n\n{lexicon_middle_part['name']}\n{new_seller.dealship_name}\n\n{lexicon_middle_part['address']}\n{new_seller.dealship_address}'''
 
             elif new_seller.entity == 'natural':
                 patronymic = new_seller.patronymic
@@ -31,7 +31,7 @@ async def output_for_admin_formater(callback: CallbackQuery):
                 else:
                     patronymic_string = ' '
 
-                body_string = f'''\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
+                body_string = f'''\n\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
 
             result_string = head_string + body_string
             return result_string

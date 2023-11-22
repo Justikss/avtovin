@@ -10,7 +10,7 @@ from utils.Lexicon import LexiconSellerRequests as Lexicon
 from handlers.utils.pagination_heart import Pagination
 
 
-async def output_message_constructor(commodity_models: List[Commodity]):
+async def output_message_constructor(commodity_models: List[Commodity]) -> list:
     '''Создатель строк для вывода зарегистрированных заявок продавца'''
     output_data = []
     for car in commodity_models:
@@ -92,7 +92,7 @@ async def output_sellers_commodity_page(callback: CallbackQuery, commodity_model
     keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(
         input_data=Lexicon.selected_brand_output_buttons, dynamic_buttons=True)
 
-    page_monitoring_string = f'{Lexicon.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]{Lexicon.page_view_separator}'
+    page_monitoring_string = f'{Lexicon.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]'
     lexicon_part = {'message_text': page_monitoring_string}
 
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True)

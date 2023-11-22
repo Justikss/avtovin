@@ -4,6 +4,8 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto
 
+from handlers.custom_filters.message_is_photo import MessageIsPhoto
+
 mediagroups = {}
 user_messages = []
 
@@ -16,7 +18,10 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
         print('isbot')
         return
     print('in', mediagroups)
-    await message.delete()
+    try:
+        await message.delete()
+    except:
+        pass
     if album_id:
         if album_id in mediagroups:
             mediagroups[album_id].append({'id': photo_id, 'unique_id': unique_id})
@@ -26,6 +31,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
         user_messages.append(message.message_id)
         await asyncio.sleep(1)
 
+
         # new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
 
         if state:
@@ -33,7 +39,13 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             state_name = await state.get_state()
             print(state_name)
             if state_name == 'LoadCommodityStates:photo_verification':
-                print('saerawe')
+                if not 3 <= len(mediagroups[album_id]) <= 5:
+                    print('NONPHOTOTO')
+                    photo_filter = MessageIsPhoto()
+                    mediagroups.clear()
+                    user_messages.clear()
+                    await photo_filter(message=message, state=state)
+                    return
                 # try:
                 #     [await message.bot.delete_message(chat_id=message.chat.id, message_id=message_id) for message_id in user_messages]
                 # except:

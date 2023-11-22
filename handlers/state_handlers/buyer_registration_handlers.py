@@ -62,7 +62,7 @@ async def load_user_in_database(memory_dict, number, message: Message):
 
 
 async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext, delete_mode=False):
-    
+    '''Вспомогательный метод'''
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     if isinstance(request, Message):

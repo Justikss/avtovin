@@ -6,4 +6,5 @@ async def commodity_reqests_by_seller(callback: CallbackQuery):
 
     lexicon_code = 'seller_requests'
     await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code)
+    await callback.answer()
 

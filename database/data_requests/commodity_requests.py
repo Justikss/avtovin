@@ -3,6 +3,7 @@ from typing import Union, List
 from peewee import IntegrityError
 
 from database.tables.commodity import Commodity, CommodityPhotos
+from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from database.tables.start_tables import db
 from database.data_requests.person_requests import sellers, buyer
 
@@ -14,9 +15,29 @@ class CommodityRequester:
         with db.atomic():
             select_response = Commodity.delete_by_id(car_id)
             if select_response:
-                yield select_response
-            else:
-                return False
+                select_response_offers_history = list(ActiveOffersToCars.select().where(ActiveOffersToCars.car_id == car_id))
+                if select_response_offers_history:
+                    # safe_offers = []
+                    # for offer_model in select_response_offers_history:
+                    #     select_response_active_offers = list(ActiveOffersToCars.select().where(ActiveOffersToCars.offer_id == offer_model.offer_id))
+                    #     for active_offer in select_response_active_offers:
+                    #         if active_offer.car_id != car_id:
+                    #             safe_offers.append(active_offer.offer_id)
+                    #
+                    # if not safe_offers:
+                    #     for offer_model in select_response_offers_history:
+                    #         if offer_model.offer_id not in safe_offers:
+                    for active_offer in select_response_offers_history:
+                        delete_offer_history_response = ActiveOffers.delete_by_id(active_offer.offer_id)
+
+                    delete_wire_response = ActiveOffersToCars.delete().where(ActiveOffersToCars.car_id == car_id).execute()
+
+                select_response_photography = CommodityPhotos.delete().where(CommodityPhotos.car_id == car_id).execute()
+                print('selectete: ', select_response_photography)
+                if select_response_photography:
+                    return select_response
+
+            return False
 
     @staticmethod
     def get_photo_album_by_car_id(car_id):
@@ -92,7 +113,6 @@ class CommodityRequester:
                 models.append(Commodity.get_by_id(car_id))
                 print('pre-yes', models)
             if models:
-                print(type(models[0].seller_id), models[0].seller_id)
                 models = [model for model in models if model.seller_id.telegram_id == seller_id]
                 print('pre-yes', models, type(seller_id), seller_id)
 
@@ -132,9 +152,10 @@ class CommodityRequester:
         try:
             with db.atomic():
                 select_request = Commodity.get_by_id(car_id)
-                print(list(select_request))
-                return list(select_request)
-        except Exception:
+                print('try-get-commodity: ', select_request)
+                return select_request
+        except Exception as ex:
+            print('exx', ex)
             return False
 
     @staticmethod

@@ -28,6 +28,7 @@ async def seller_requests_callback_handler(callback: CallbackQuery):
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':seller_requests_pagination')
 
     commodities = CommodityRequester.get_by_seller_id(seller_id=callback.from_user.id)
+
     if commodities:
         lexicon_part = await get_lexicon_part(commodities)
         await callback.answer()
