@@ -87,14 +87,7 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
 
     incorrect_flag = memory_data.get('incorrect_answer')
     print(memory_data)
-    # if last_user_answer:
-    #     print('try delete last')
-    #     await message.bot.delete_message(chat_id=message.chat.id, message_id=last_user_answer)
 
-
-
-    # if not incorrect_flag:
-    #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     if last_user_answer:
         if incorrect_flag:
             try:
@@ -190,7 +183,10 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
     memory_storage = await state.get_data()
     message_id = await redis_module.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
 
-    await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+    try:
+        await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+    except:
+        pass
 
     if user_name:
         await state.update_data(username=user_name)

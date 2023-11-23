@@ -10,9 +10,12 @@ from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers
 from handlers.custom_handlers.lost_photos_handler import lost_photos_handler
 from handlers.default_handlers.admin_part_default_handlers.boot_new_car_photos import \
     start_state_boot_new_car_photos_message_handler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_controller import \
+    BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from states.seller_deletes_request_states import DeleteRequestStates
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
+from utils.user_notification import delete_notification_for_seller
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from config_data.config import BOT_TOKEN
@@ -95,7 +98,7 @@ async def start_bot():
     dp.message.register(buyer_registration_handlers.input_phone_number,
                         StateFilter(BuyerRegistationStates.input_phone_number), correct_name.CheckInputName())
     dp.message.register(buyer_registration_handlers.finish_check_phone_number,
-                        StateFilter(BuyerRegistationStates.finish_check_phone_number))
+                        StateFilter(BuyerRegistationStates.finish_check_phone_number), correct_number.CheckInputNumber())
     '''Состояния регистрации продавцов'''
     dp.callback_query.register(await_confirm_from_admin.seller_await_confirm_by_admin,
                               F.data == 'confirm_registration_from_seller')
@@ -152,7 +155,7 @@ async def start_bot():
     dp.callback_query.register(search_auto_handler.search_configuration_handler,
                                F.data.in_(('second_hand_cars', 'new_cars')))
     dp.callback_query.register(confirm_search_config.confirm_settings_handler,
-                               F.data == 'confirm_buy_settings')
+                               lambda callback: callback.data.startswith('confirm_buy_settings:'))
 
     dp.callback_query.register(confirm_from_seller_callback_handler.confirm_from_seller,
                                lambda callback: callback.data.startswith('confirm_from_seller'))
@@ -164,6 +167,8 @@ async def start_bot():
                                F.data == 'return_from_offers_history')
 
     '''Seller'''
+    dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
+
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
@@ -247,6 +252,8 @@ async def start_bot():
                                           StateFilter(HybridChooseStates.config_output)),
                                     and_f(lambda callback: callback.data.startswith('cars_complectation'),
                                           StateFilter(HybridChooseStates.config_output))))
+
+    dp.callback_query.register(BuyerPaginationVector.buyer_pagination, lambda callback: callback.data.startswith('buyer_car_pagination:'))
 
     '''new car'''
 

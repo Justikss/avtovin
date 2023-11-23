@@ -6,6 +6,9 @@ logger = logging.getLogger('peewee')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 if not find_dotenv():
     exit("Переменные окружения не загружены т.к отсутствует файл .env")

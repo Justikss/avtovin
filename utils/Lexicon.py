@@ -5,7 +5,10 @@ from dataclasses import dataclass
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
 
 LEXICON = {
+            'confirm_from_buyer': {'separator': '=' * 40, 'non_data_more': 'Нет данных для отображения'},
             'unexpected_behavior': 'Неожиданное поведение',
+            'seller_dont_exists': 'Продавец больше неактивен',
+            'order_was_created': 'Заявка создана, в скором времени с вами свяжется продавец',
             'too_late': 'Вы опоздали',
             'success_notification': 'Принято',
             'user_in_system': {'message_text': 'Вы в системе'},
@@ -59,15 +62,19 @@ LEXICON = {
                 'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
                                  'model': 'Модель: ',
                                  'brand': 'Марка: ', 'complectation': 'Комплектация: ',
-                                 'cost': 'Ориентировочная стоимость: ~', 'mileage': 'Пробег: ', 'year': 'Год: ',
-                                 'color': 'Цвет: '}, 'confirm_buy_settings': 'Подтвердить',
-                'backward_in_carpooling': 'Назад', 'width': 1},
+                                 'cost': 'Cтоимость: ', 'mileage': 'Пробег: ', 'year': 'Год: ',
+                                 'color': 'Цвет: '}, 'buyer_car_pagination:-': '<', 'buyer_car_pagination:+': '>',
+                'confirm_buy_settings:': 'Подтвердить',
+                'backward_in_carpooling': 'Вернуться', 'width': 2},
                 
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!\nВам поступит уведомление о её одобрении.',
                                           'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.', 
                                         'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_non_registration': {'message_text': 'Ошибка. Ваш аккаунт незарегестрирован\nНажмите /start'},
+
+            'notification_from_seller_by_buyer_buttons': {'check_orders_history_by_seller': 'Активные заявки', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
+
 
             'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил заявку:',
                                     'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},

@@ -9,7 +9,7 @@ from utils.Lexicon import LEXICON
 
 class TravelEditor:
     @staticmethod
-    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False, send_chat=None, my_keyboard=None, need_media_caption=False, save_media_group=False,
+    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False, send_chat=None, my_keyboard=None, need_media_caption=False, save_media_group=False, delete_media_group_mode = False,
                            button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, media_group=None, seller_boot=None, dynamic_buttons=False):
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
@@ -101,7 +101,7 @@ class TravelEditor:
 
                     else:
                         if album_id:
-
+                            ic(media_group)
                             new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
                         else:
                             new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group]
@@ -170,7 +170,7 @@ class TravelEditor:
 
             print('add+message = ', new_message.message_id)
 
-        if not media_group and not save_media_group:
+        if not media_group and not save_media_group or delete_media_group_mode:
             media_group_message = await redis_data.get_data(key=user_id + ':last_media_group', use_json=True)
             if media_group_message:
                 if isinstance(media_group_message, int):

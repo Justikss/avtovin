@@ -1,5 +1,7 @@
 import sqlite3
 
+from icecream import ic
+
 from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
 from database.tables.start_tables import db
 from database.data_requests.commodity_requests import CommodityRequester, Commodity
@@ -19,7 +21,38 @@ class OffersRequester:
             else:
                 return False
 
+    ''''''''''''''''''
+    @staticmethod
+    async def get_offer_model(buyer, car):
+        with db.atomic():
+            ic()
+            select_response = ActiveOffers.select().where((ActiveOffers.buyer_id == buyer) & (ActiveOffers.car_id == car))
+            ic(select_response)
+            if select_response:
+                return select_response
+            else:
+                return False
 
+    @staticmethod
+    async def set_offer_model(buyer_id, car_id):
+        with db.atomic():
+            ic()
+            if not await OffersRequester.get_offer_model(buyer_id, car_id):
+                ic()
+                select_response = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id).execute()
+                # ic.configureOutput(prefix='set_method ')
+                # ic(select_response)
+                if select_response:
+                    return select_response
+                else:
+                    raise Exception('Неудачная вставка в ActiveOffers')
+
+
+            else:
+                raise BufferError('Такая заявка уже создана')
+
+
+    ''''''''''''''''''
     @staticmethod
     async def store_data(seller_id, buyer_id, cars: list, db=db):
 
@@ -55,7 +88,7 @@ class OffersRequester:
             return False
 
     @staticmethod
-    async def match_check(user_id, cars_id_range) -> Union[List[str], bool]:
+    async def match_check(user_id, car_id) -> Union[List[str], bool]:
         '''Проверка на наличие таких же автомобилей в покупках'''
         # cars_id_range = [str(car_id) for car_id in cars_id_range]
         active_offers = await OffersRequester.get_for_buyer_id(buyer_id=user_id)
@@ -65,12 +98,10 @@ class OffersRequester:
         for offer in active_offers:
             related_strings = await OffersRequester.get_wire_by_offer_id(offer.id)
             for related_string in related_strings:
-                print('related_string: ', related_string.car_id, related_string.offer_id)
                 if str(related_string.car_id) in cars_id_range:
                     matched.append(str(related_string.car_id))
         
-        print('cars', cars_id_range)
-        print('matched', matched)
+
         if len(matched) == len(cars_id_range):
             return False
         elif len(matched) != 0 and len(matched) < len(cars_id_range):

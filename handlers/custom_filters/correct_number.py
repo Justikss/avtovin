@@ -42,6 +42,7 @@ class CheckInputNumber(BaseFilter):
             valid_number = False
 
         if valid_number:
+            ic(parsed_number)
             formatted_number = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
 
 
@@ -49,7 +50,13 @@ class CheckInputNumber(BaseFilter):
             if number_is_exists:
                 print('number_is_exists', number_is_exists)
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
-                await current_method(request=message, state=state, incorrect='(exists)')
+
+                if current_state.startswith('CarDealerShipRegistrationStates'):
+                    await current_method(request=message, state=state, incorrect='(exists)')
+                elif current_state.startswith('BuyerRegistationStates'):
+                    await current_method(message=message, state=state, incorrect='(exists)')
+
+
                 return False
                 
             return {'input_number': formatted_number}
@@ -57,7 +64,12 @@ class CheckInputNumber(BaseFilter):
         else:
             if edit_mode == 'true':
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
-            await current_method(request=message, state=state, incorrect='(novalid)')
+
+            if current_state.startswith('CarDealerShipRegistrationStates'):
+                await current_method(request=message, state=state, incorrect='(novalid)')
+            elif current_state.startswith('BuyerRegistationStates'):
+                await current_method(message=message, state=state, incorrect='(novalid)')
+
             print('last_valid_number', valid_number)
             return False
         

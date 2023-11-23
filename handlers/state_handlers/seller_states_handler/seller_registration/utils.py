@@ -60,6 +60,10 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
     fullname = memory_storage['seller_name']
     print('number:', phonenumber, '\nname: ', fullname)
     print('seller_mode: ', seller_mode)
+    if isinstance(request, CallbackQuery):
+        message = request.message
+    else:
+        message = request
 
     if seller_mode == 'dealership':
         address = memory_storage['dealership_address']
@@ -72,7 +76,8 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
             'name': None,
             'surname': None,
             'patronymic': None,
-            'authorized': authorized_state
+            'authorized': authorized_state,
+
         }
     elif seller_mode == 'person':
         person_full_name = fullname.split(' ')
@@ -93,7 +98,8 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
             'name': name,
             'surname': surname,
             'patronymic': patronymic,
-            'authorized': authorized_state
+            'authorized': authorized_state,
+
         }
     print(formatted_load_pattern)
     try_load = PersonRequester.store_data(formatted_load_pattern, seller=True)

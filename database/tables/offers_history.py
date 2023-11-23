@@ -9,8 +9,9 @@ from .seller import Seller
 class ActiveOffers(BaseModel):
     '''История Предложений'''
     # offer_id = AutoField(primary_key=True)
-    seller = ForeignKeyField(Seller, backref='seller')
-    buyer = ForeignKeyField(User, backref='buyer')
+    # seller = ForeignKeyField(Seller, backref='seller')
+    car_id = ForeignKeyField(Commodity, backref='car')
+    buyer_id = ForeignKeyField(User, backref='buyer')
     # cars = ForeignKeyField(ActiveOffersToCars, backref='cars')
 
     class Meta:

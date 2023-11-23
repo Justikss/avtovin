@@ -73,13 +73,20 @@ class CommodityRequester:
 
 
                 if photo_data:
-                    photo_data = [photo_data[key] for key, value in photo_data.items()][0]
-                    for photo_data_part in photo_data:
-                        photo_boot_data.append({
+                    if isinstance(photo_data, list):
+                        for photo_data_part in photo_data:
+                            photo_boot_data.append({
                             'car_id': commodity_model,  # Использование идентификатора вставленной записи
                             'photo_id': photo_data_part['id'],
                             'photo_unique_id': photo_data_part['unique_id']
                         })
+                    else:
+                        for photo_data_part in photo_data:
+                            photo_boot_data.append({
+                                'car_id': commodity_model,  # Использование идентификатора вставленной записи
+                                'photo_id': photo_data_part['id'],
+                                'photo_unique_id': photo_data_part['unique_id']
+                            })
 
             if photo_boot_data:
                 print(photo_boot_data)

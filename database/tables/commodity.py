@@ -7,7 +7,7 @@ class Commodity(BaseModel):
     '''Таблица товаров.
     mileage = Числовое поле.'''
     car_id = PrimaryKeyField()
-    seller_id = ForeignKeyField(Seller, backref='commodities') #вставляется модель селлера
+    seller_id = ForeignKeyField(Seller) #вставляется модель селлера
     brand = CharField()
     model = CharField()
     engine_type = CharField()

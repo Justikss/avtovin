@@ -1,7 +1,8 @@
 import importlib
 
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InputMediaPhoto
 
+from database.data_requests.commodity_requests import CommodityRequester
 from keyboards.inline.kb_creator import InlineCreator
 from utils.Lexicon import LEXICON
 
@@ -59,3 +60,55 @@ async def send_notification(callback: CallbackQuery, user_status: str, chat_id=N
     await redis_module.redis_data.set_data(key=str(callback.from_user.id) + redis_sub_key,
                                             value=notification_message.message_id)
 
+async def send_notification_for_seller(callback: CallbackQuery, data_for_seller, media_mode=False):
+    redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+
+    commodity_model = CommodityRequester.get_where_id(car_id=data_for_seller['car_id'])
+    seller_id = commodity_model.seller_id.telegram_id
+    ic(seller_id)
+
+    # active_seller_notifications = await redis_module.redis_data.get_data(key=f'{seller_id}:active_notifications', use_json=True)
+    # if not active_seller_notifications:
+    active_seller_notifications = []
+    if media_mode:
+        [active_seller_notifications.append(media.message_id)
+         for media in await callback.bot.send_media_group(chat_id=seller_id,
+                                                          media=[InputMediaPhoto(media=file_data['id'])
+                                                                 for file_data in data_for_seller['album']]
+                                                          )]
+
+        # active_seller_notifications.append(notification_media_part)
+
+    lexicon_part = {'message_text': data_for_seller['message_text'],
+                    'buttons': LEXICON['notification_from_seller_by_buyer_buttons']}
+
+    notification_message_part = await callback.bot.send_message(chat_id=seller_id,
+                                                                text=lexicon_part['message_text'],
+                                                                reply_markup=await InlineCreator.create_markup(
+                                                                    input_data=lexicon_part['buttons']))
+    lexicon_part['buttons'] = {}
+    active_seller_notifications.append(notification_message_part.message_id)
+
+    for key, value in LEXICON['notification_from_seller_by_buyer_buttons'].items():
+        if key == 'close_seller_notification:':
+            key = key + '-'.join([str(media_message_id) for media_message_id in active_seller_notifications])
+
+        lexicon_part['buttons'][key] = value
+
+    await callback.bot.edit_message_reply_markup(
+        chat_id=seller_id,
+        message_id=notification_message_part.message_id,
+        reply_markup=await InlineCreator.create_markup(input_data=lexicon_part['buttons'])
+    )
+        # await redis_module.redis_data.set_data(key=f'{seller_id}:active_notifications', value=active_seller_notifications)
+
+
+async def delete_notification_for_seller(callback: CallbackQuery):
+
+    messages_to_delete = callback.data.split(':')[-1].split('-')
+
+    for message_id in messages_to_delete:
+        try:
+            await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=int(message_id))
+        except:
+            pass
