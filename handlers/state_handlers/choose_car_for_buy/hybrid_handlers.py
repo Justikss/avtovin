@@ -191,8 +191,7 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
     await callback.message.delete()
 
     pagination = BuyerCarsPagination(data=formatted_config_output, page_size=1, current_page=0)
-    await redis_module.redis_data.set_data(key=f'{str(callback.from_user.id)}:buyer_nonconfirm_cars_cache',
-                                             value=formatted_config_output)
+
 
     await pagination.send_page(request=callback)
 

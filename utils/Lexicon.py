@@ -59,7 +59,9 @@ LEXICON = {
             'choose_color': {'message_text': 'Выберите цвет', 'backward_in_carpooling': 'Назад', 'width': 1},
 
             'chosen_configuration': {
-                'message_text': {'your_configs': 'Ваши настройки:', 'engine_type': 'Тип двигателя: ',
+                'message_text': {'your_configs': 'Ваши настройки:',
+                                 'car_state': 'Состояние: ',
+                                 'engine_type': 'Тип двигателя: ',
                                  'model': 'Модель: ',
                                  'brand': 'Марка: ', 'complectation': 'Комплектация: ',
                                  'cost': 'Cтоимость: ', 'mileage': 'Пробег: ', 'year': 'Год: ',
@@ -76,7 +78,7 @@ LEXICON = {
             'notification_from_seller_by_buyer_buttons': {'check_orders_history_by_seller': 'Активные заявки', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
 
 
-            'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил заявку:',
+            'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил отклик на заявку #X :',
                                     'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},
 
             'buyer_offer_notification': {'message_text': 'Ваша заявка на автомобиль одобрена!', 'buttons': {'offers_to_user': 'История заявок', 'confirm_notification:buyer': 'Принял', 'width': 1}},

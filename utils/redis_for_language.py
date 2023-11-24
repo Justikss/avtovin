@@ -1,7 +1,8 @@
 import json
 from typing import Union
-
 from redis import asyncio as aioredis
+
+
 
 
 
@@ -13,9 +14,23 @@ class RedisRequester:
             decode_responses=True
         )
 
+    async def getset_data(self, key, value):
+        await self.redis_base.getset(key, value)
+        value_is_set = await self.redis_base.get(key) == value
+        if value_is_set:
+            print('good', {key: value})
+            await self.redis_base.aclose()
+            return True
+        else:
+            print('error', {key: value})
+            await self.redis_base.aclose()
+            return False
+
+
+
     async def set_data(self, key: str = None,
                        value: Union[set, list, str, float, dict] = None,
-                       dicted_data: dict = None) -> bool:
+                       dicted_data: dict = None, expire=None) -> bool:
         if dicted_data:
             for key, value in dicted_data.items():
                 if type(value) not in (int, float, str):
@@ -26,6 +41,8 @@ class RedisRequester:
                 value_is_set = await self.redis_base.get(key) == value
                 if value_is_set:
                     print('good', {key: value})
+                    if expire:
+                        await self.redis_base.expire(key, expire)
                     pass
                 else:
                     print('error', {key: value})
@@ -38,7 +55,7 @@ class RedisRequester:
             if type(value) not in (int, float, str):
 
                 value = json.dumps(value)
-#выдаёт false если числовое value(становится стр)
+            #выдаёт false если числовое value(становится стр)
             await self.redis_base.set(key, value)
             if isinstance(value, int):
                 value_is_set = await self.redis_base.get(key) == str(value)
@@ -47,6 +64,8 @@ class RedisRequester:
             if value_is_set:
                 await self.redis_base.aclose()
                 print('good', {key: value})
+                if expire:
+                    await self.redis_base.expire(key, expire)
                 return True
             else:
                 await self.redis_base.aclose()

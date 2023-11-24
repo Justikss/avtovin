@@ -16,9 +16,7 @@ else:
     load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-# RAPID_API_KEY = os.getenv("RAPID_API_KEY")
 
-DEAL_CHAT = os.getenv("DEALERS_CHAT")
 ADMIN_CHAT = os.getenv("ADMIN_CHAT")
 
 SUPPORT_NUMBER = os.getenv("SUPPORT_NUMBER")
@@ -30,3 +28,5 @@ DEFAULT_COMMANDS = (
 )
 
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
+
+lifetime_of_redis_record_of_request_caching = 259200
