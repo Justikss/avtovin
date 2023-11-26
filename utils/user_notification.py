@@ -63,20 +63,29 @@ async def send_notification(callback: CallbackQuery, user_status: str, chat_id=N
 async def send_notification_for_seller(callback: CallbackQuery, data_for_seller, media_mode=False):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
+
     commodity_model = CommodityRequester.get_where_id(car_id=data_for_seller['car_id'])
     seller_id = commodity_model.seller_id.telegram_id
     ic(seller_id)
+    seller_offers = await redis_module.redis_data.get_data(key=f'{str(seller_id)}:seller__new_active_offers', use_json=True)
+    if not seller_offers:
+        seller_offers = []
+    seller_offers.append(data_for_seller)
+
+    await redis_module.redis_data.set_data(key=f'{str(seller_id)}:seller__new_active_offers', value=seller_offers)
+
 
     # active_seller_notifications = await redis_module.redis_data.get_data(key=f'{seller_id}:active_notifications', use_json=True)
     # if not active_seller_notifications:
     active_seller_notifications = []
+    reply_media_message_id = None
     if media_mode:
         [active_seller_notifications.append(media.message_id)
          for media in await callback.bot.send_media_group(chat_id=seller_id,
                                                           media=[InputMediaPhoto(media=file_data['id'])
                                                                  for file_data in data_for_seller['album']]
                                                           )]
-
+        reply_media_message_id = active_seller_notifications[0]
         # active_seller_notifications.append(notification_media_part)
 
     lexicon_part = {'message_text': data_for_seller['message_text'],
@@ -85,12 +94,13 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     notification_message_part = await callback.bot.send_message(chat_id=seller_id,
                                                                 text=lexicon_part['message_text'],
                                                                 reply_markup=await InlineCreator.create_markup(
-                                                                    input_data=lexicon_part['buttons']))
+                                                                    input_data=lexicon_part['buttons']),
+                                                                reply_to_message_id=reply_media_message_id)
     lexicon_part['buttons'] = {}
     active_seller_notifications.append(notification_message_part.message_id)
 
     for key, value in LEXICON['notification_from_seller_by_buyer_buttons'].items():
-        if key == 'close_seller_notification:':
+        if key in ('close_seller_notification:', 'my_sell_feedbacks:'):
             key = key + '-'.join([str(media_message_id) for media_message_id in active_seller_notifications])
 
         lexicon_part['buttons'][key] = value

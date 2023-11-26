@@ -39,7 +39,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     await media_group_delete_module.delete_media_groups(request=callback)
     print('await mock_lex_par')
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=mock_lexicon_part)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=mock_lexicon_part, delete_mode=True)
 
     last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
     boot_config_string_startswith = LexiconCommodityLoader.config_for_admins + callback.from_user.username + ' :'

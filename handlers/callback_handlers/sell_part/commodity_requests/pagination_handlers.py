@@ -2,7 +2,7 @@ import importlib
 from abc import ABC
 
 from aiogram.types import CallbackQuery
-from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests_by_car_brand import Pagination, output_sellers_commodity_page
+from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import Pagination, output_sellers_commodity_page
 from utils.Lexicon import LexiconSellerRequests as Lexicon
 
 class SellerRequestsPagination(ABC):
@@ -27,6 +27,7 @@ class SellerRequestsPagination(ABC):
                 media_group_delete_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
 
                 await media_group_delete_module.delete_media_groups(request=callback)
+
 
                 return await output_sellers_commodity_page(callback=callback, output_data_part=output_data_part)
 

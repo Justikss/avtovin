@@ -15,6 +15,10 @@ class RedisRequester:
         )
 
     async def getset_data(self, key, value):
+        if type(value) not in (int, float, str):
+            value = value
+            value = json.dumps(value)
+
         await self.redis_base.getset(key, value)
         value_is_set = await self.redis_base.get(key) == value
         if value_is_set:

@@ -7,6 +7,8 @@ from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
 LEXICON = {
             'confirm_from_buyer': {'separator': '=' * 40, 'non_data_more': 'Нет данных для отображения'},
             'unexpected_behavior': 'Неожиданное поведение',
+            'car_was_withdrawn_from_sale': 'Автомобиль был снят с продажи',
+            'car_search_parameters_incactive': 'Данные параметры поиска больше неактивны. Пожалуйста обновите их.',
             'seller_dont_exists': 'Продавец больше неактивен',
             'order_was_created': 'Заявка создана, в скором времени с вами свяжется продавец',
             'too_late': 'Вы опоздали',
@@ -75,10 +77,10 @@ LEXICON = {
                                         'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_non_registration': {'message_text': 'Ошибка. Ваш аккаунт незарегестрирован\nНажмите /start'},
 
-            'notification_from_seller_by_buyer_buttons': {'check_orders_history_by_seller': 'Активные заявки', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
+            'notification_from_seller_by_buyer_buttons': {'my_sell_feedbacks:': 'Смотреть отклики', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
 
 
-            'confirm_from_seller': {'message_text': {'from_user': 'Пользователь', 'tendered': 'оставил отклик на заявку #X :',
+            'confirm_from_seller': {'message_text': {'feedback_header': 'Отлкик №X', 'from_user': 'Пользователь', 'tendered': 'оставил отклик на заявку #X :',
                                     'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},
 
             'buyer_offer_notification': {'message_text': 'Ваша заявка на автомобиль одобрена!', 'buttons': {'offers_to_user': 'История заявок', 'confirm_notification:buyer': 'Принял', 'width': 1}},
@@ -137,7 +139,7 @@ LEXICON = {
             'success_seller_registration_notice': {'message_text': 'Вы зарегестрированы в системе', 'return_main_menu': 'В меню продавца', 'width': 1},
 
             'seller_faq': {'message_text': 'Самые частые вопросы: ', 'return_main_menu': 'В меню', 'width': 1},
-            'seller_requests': {'message_text': 'Заявки', 'my_sell_requests': 'Мои заявки', 'create_new_seller_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
+            'seller_requests': {'message_text': 'Заявки', 'my_sell_requests': 'Мои заявки', 'my_sell_feedbacks': 'Мои отклики', 'create_new_seller_request': 'Создать заявку', 'return_main_menu': 'В меню', 'width': 1},
 
 
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'edit_boot_car_data': 'Изменить', 'return_main_menu': 'В меню', 'width': 1},
@@ -150,6 +152,9 @@ LEXICON = {
 
             'incorrect_input_removed_car_id': 'Неверный ввод номера заявки.\nСверьте номер по кнопке "Назад" и введите снова.',
             'confirm_delete_request': {'message_text': 'Вы действительно хотите удалить это авто?', 'confirm_delete': 'Подтвердить', 'backward:seller_delete_request': 'Назад', 'width': 1},
+
+            'seller___my_feedbacks': {'message_text': 'Мои отклики', 'buttons': {'new_feedbacks': 'Новые', 'viewed_feedbacks': 'Просмотренные', 'backward:seller__my_feedbacks': 'Назад', 'width': 2}},
+
 
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',
@@ -186,6 +191,10 @@ class LexiconCommodityLoader:
     seller_notification = {'message_text': 'Заявка №_ создана!'}
 
 class LexiconSellerRequests:
+    backward_from_delete_in_feedbacks = {'viewed_feedbacks': 'Назад'}
+
+    seller_sure_delete_car_ask = {'message_text': 'Вы уверены что хотите удалить с витрины машину №X ?',
+                                  'buttons': {"i'm_sure_delete": 'Удалить', 'backward_from_delete_car_menu': 'Назад', 'width': 1}}
     seller_does_have_active_requests_alert = 'У вас нет активных заявок'
     seller_does_have_active_car_by_brand = 'Эта марка неактуальна.'
     select_brand_message_text = 'Выберите марку автомобиля'
@@ -194,9 +203,18 @@ class LexiconSellerRequests:
     keyboard_end_part = {'backward:sales_brand_choose': 'Назад', 'width': 2}
     # choose_brand_keyboard_width = 1
 
-    selected_brand_output_buttons = {'buttons': {'seller_requests_pagination_left': '<', 'seller_requests_pagination_right': '>',
-                                                'delete_request_from_seller': 'Удалить по номеру заявки',
-                                                'backward:sales_order_review': 'Назад', 'width': 2}}
+    pagination_vectors = {'seller_requests_pagination_left': '<', 'seller_requests_pagination_right': '>'}
+
+    selected_brand_output_buttons = {'buttons': {**pagination_vectors,
+                                                'withdrawn': 'Удалить из каталога',
+                                                'backward:sales_order_review': 'Назад', 'width': (2, 1, 1)}}
+
+    check_viewed_feedbacks_buttons = {'buttons': {**pagination_vectors,
+                                               'withdrawn': 'Снять с продажи', 'deal_fell_through': 'Сделка сорвалась',
+                                               'backward:check_feedbacks': 'Назад', 'width': (2, 2, 1)}}
+
+    check_new_feedbacks_buttons = {'buttons': {**pagination_vectors,
+                                               'backward:check_feedbacks': 'Назад', 'width': (2, 1)}}
 
     output_car_request_header = 'Заявка №_'
     commodity_state = '\nСостояние: '
@@ -214,6 +232,11 @@ class LexiconSellerRequests:
     page_view_separator = 'Страница: '
 
     pages_were_end = 'Страницы кончились'
+    new_feedbacks_not_found = 'У вас не появилось новых откликов'
+    viewed_feedbacks_not_found = 'У вас нет просмотренных откликов'
+    did_you_sure_to_delete_feedback_ask = {'message_text': 'Вы уверены удалить отклик №X ?',
+                                           'buttons': {"i'm_sure_delete_feedback": 'Подтвердить', 'backward_from_delete_feedback_menu': 'Назад', 'width': 1}}
+    success_delete = 'Удалено'
 
 
 

@@ -3,7 +3,7 @@ from typing import Union, List
 from peewee import IntegrityError
 
 from database.tables.commodity import Commodity, CommodityPhotos
-from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
+from database.tables.offers_history import ActiveOffers, CacheBuyerOffers
 from database.tables.start_tables import db
 from database.data_requests.person_requests import sellers, buyer
 
@@ -15,14 +15,11 @@ class CommodityRequester:
         with db.atomic():
             select_response = Commodity.delete_by_id(car_id)
             if select_response:
-                select_response_offers_history = list(ActiveOffersToCars.select().where(ActiveOffersToCars.car_id == car_id))
-                if select_response_offers_history:
+                select_response_offers_history = ActiveOffers.delete().where(ActiveOffers.car_id == car_id).execute()
+                ic(select_response_offers_history)
 
-                    for active_offer in select_response_offers_history:
-                        delete_offer_history_response = ActiveOffers.delete_by_id(active_offer.offer_id)
-
-                    delete_wire_response = ActiveOffersToCars.delete().where(ActiveOffersToCars.car_id == car_id).execute()
-
+                response_delete_user_cache_with_car = CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id == car_id).execute()
+                ic(response_delete_user_cache_with_car)
                 select_response_photography = CommodityPhotos.delete().where(CommodityPhotos.car_id == car_id).execute()
                 print('selectete: ', select_response_photography)
                 if select_response_photography:
@@ -31,14 +28,17 @@ class CommodityRequester:
             return False
 
     @staticmethod
-    def get_photo_album_by_car_id(car_id):
+    def get_photo_album_by_car_id(car_id, get_list=False):
         '''Метод извлекает фотографии автомобиля'''
         # current_car = Commodity.get_by_id(car_id)
         # if current_car:
         with db.atomic():
             current_photo_album = list(CommodityPhotos.select().where(CommodityPhotos.car_id == car_id))
             if current_photo_album:
-                current_photo_album = [{'id': photo_model.photo_id} for photo_model in current_photo_album]
+                if not get_list:
+                    current_photo_album = [{'id': photo_model.photo_id} for photo_model in current_photo_album]
+                else:
+                    current_photo_album = [photo_model.photo_id for photo_model in current_photo_album]
                 return current_photo_album
             else:
                 return False
@@ -340,23 +340,23 @@ class CommodityRequester:
 # 'price': '200'
 # }
 
-# truple_car = {
-# 'seller_id': sellers[0],
-# 'brand': 'bmw',
-# 'model': 'e34',
-# 'engine_type': 'DWS',
-# 'state': 'Новое',
-# 'color': None,
-# 'mileage': None,
-# 'year_of_release': None,
-# 'photo_id': '1123123',
-# 'complectation': 'complectation1',
-# 'price': '200000'
-# }
+truple_car = {
+'seller_id': 902230076,
+'brand': 'BMW',
+'model': 'OneModel',
+'engine_type': 'DWS',
+'state': 'Новое',
+'color': None,
+'mileage': None,
+'year_of_release': None,
+'complectation': 'FullComplectation',
+'price': '200000',
+'photos': None
+}
 
 # a = CommodityRequester.store_data(double_cars)
 #b = CommodityRequester.store_data(new_cars)
-# c = CommodityRequester.store_data(truple_car)
+c = CommodityRequester.store_data(truple_car)
 
 
 cars = CommodityRequester.retrieve_all_data()

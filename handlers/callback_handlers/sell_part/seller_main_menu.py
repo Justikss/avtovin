@@ -65,9 +65,10 @@ async def seller_main_menu(callback: CallbackQuery, bot=None):
     await try_delete_notification(callback=callback, user_status='seller')
     await delete_media_groups(request=callback)
     await redis_data.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+    await redis_data.redis_data.delete_key(key=str(callback.from_user.id) + ':seller_requests_pagination')
 
     lexicon_code = 'seller_main_menu'
-    await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code, bot=bot)
+    await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code, bot=bot, delete_mode=True)
 
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':user_state'

@@ -5,6 +5,8 @@ from aiogram.types import CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
 
 from handlers.callback_handlers.buy_part.search_auto_handler import search_auto_callback_handler
+from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
+    my_feedbacks_callback_handler
 from handlers.state_handlers.buyer_registration_handlers import LEXICON, input_full_name, BuyerRegistationStates
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
 from handlers.callback_handlers.buy_part.callback_handler_start_buy import start_buy
@@ -152,7 +154,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
             await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback)
 
         elif mode in ('seller_start_delete_request', 'seller_delete_request'):
-            from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests_by_car_brand import \
+            from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import \
                 output_sellers_requests_by_car_brand_handler
 
             car_brand = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
@@ -166,6 +168,14 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
                 await output_load_config_for_seller(request=callback, state=state)
             else:
                 await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback)
+
+        elif mode == 'seller__my_feedbacks':
+
+            await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback, delete_mode=True)
+
+        elif mode == 'check_feedbacks':
+            ic()
+            await my_feedbacks_callback_handler(callback, delete_media_group_mode=True)
     else:
         print("LEXICON_CACHA")
         memory_data = await state.get_data()

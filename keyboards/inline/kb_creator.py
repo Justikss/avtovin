@@ -11,6 +11,7 @@ class InlineCreator:
     async def create_markup(input_data: Dict[str, Union[str, int]], get_buttons: bool=False,
                             button_texts: Set[str] = None, callback_sign: str = None, dynamic_buttons: bool = False):
         kbuilder = InlineKeyboardBuilder()
+
         buttons = list()
         print(input_data.keys())
 
@@ -41,8 +42,9 @@ class InlineCreator:
 
         if get_buttons:
             return buttons
-
+        ic(width)
         if dynamic_buttons and width == 2:
+            ic(dynamic_buttons)
             result_format = []
             for index, number in enumerate(buttons[:-1]):
                 if index == len(buttons)-2:
@@ -55,6 +57,16 @@ class InlineCreator:
                     result_format.append([buttons[index], buttons[index+1]])
 
             return InlineKeyboardMarkup(inline_keyboard=result_format)
+
+        elif not isinstance(width, int):
+            button_index = 0
+            structured_buttons = []
+            for row_value in width:
+                row_buttons = buttons[button_index:button_index + row_value]
+                structured_buttons.append(row_buttons)
+                button_index += row_value
+
+            return InlineKeyboardMarkup(inline_keyboard=structured_buttons)
 
 
         keyboard = kbuilder.row(*buttons, width=width)

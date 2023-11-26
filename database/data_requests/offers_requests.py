@@ -1,10 +1,12 @@
 import sqlite3
+from peewee import JOIN
 
 from icecream import ic
 
-from database.tables.offers_history import ActiveOffers, ActiveOffersToCars
+from database.tables.offers_history import ActiveOffers
+from database.tables.seller import Seller
 from database.tables.start_tables import db
-from database.data_requests.commodity_requests import CommodityRequester, Commodity
+from database.tables.commodity import Commodity
 from database.data_requests.person_requests import PersonRequester
 from typing import List, Union
 
@@ -12,7 +14,7 @@ from typing import List, Union
 
 class OffersRequester:
     @staticmethod
-    async def get_wire_by_offer_id(active_offer_id):
+    async def get_by_offer_id(active_offer_id):
         with db.atomic():
             select_request = ActiveOffersToCars.select().where(ActiveOffersToCars.offer_id == active_offer_id)
             select_request = list(select_request)
@@ -34,12 +36,12 @@ class OffersRequester:
                 return False
 
     @staticmethod
-    async def set_offer_model(buyer_id, car_id):
+    async def set_offer_model(buyer_id, car_id, seller_id):
         with db.atomic():
             ic()
             if not await OffersRequester.get_offer_model(buyer_id, car_id):
                 ic()
-                select_response = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id).execute()
+                select_response = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id, seller_id=seller_id, viewed=False).execute()
                 # ic.configureOutput(prefix='set_method ')
                 # ic(select_response)
                 if select_response:
@@ -88,26 +90,28 @@ class OffersRequester:
             return False
 
     @staticmethod
-    async def match_check(user_id, car_id) -> Union[List[str], bool]:
-        '''Проверка на наличие таких же автомобилей в покупках'''
-        # cars_id_range = [str(car_id) for car_id in cars_id_range]
-        active_offers = await OffersRequester.get_for_buyer_id(buyer_id=user_id)
-        matched = list()
-        if not active_offers:
-            return cars_id_range
-        for offer in active_offers:
-            related_strings = await OffersRequester.get_wire_by_offer_id(offer.id)
-            for related_string in related_strings:
-                if str(related_string.car_id) in cars_id_range:
-                    matched.append(str(related_string.car_id))
-        
+    async def get_by_seller_id(seller_id_value, viewed_value):
+        with db.atomic():
+            result = []
+            seller = Seller.get_by_id(seller_id_value)
+            ic(seller.telegram_id)
+            ic(seller.active_offers)
+            for offer in (seller.active_offers):
+                if offer.viewed == viewed_value:
+                    result.append(offer)
 
-        if len(matched) == len(cars_id_range):
-            return False
-        elif len(matched) != 0 and len(matched) < len(cars_id_range):
-            alive_cars = set(cars_id_range).symmetric_difference(set(matched))
-            return alive_cars
-        elif len(matched) == 0:
-            return cars_id_range
+            return result
 
-    
+
+    @staticmethod
+    async def set_viewed_false(offers: list):
+        with db.atomic():
+            update_query = ActiveOffers.update(viewed=True).where(ActiveOffers.id in (offer.id for offer in offers)).execute()
+            ic(update_query)
+            return update_query
+
+    @staticmethod
+    async def delete_offer(offer_id):
+        with db.atomic():
+            delete_query = ActiveOffers.delete_by_id(offer_id)
+            return delete_query

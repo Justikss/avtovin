@@ -117,7 +117,9 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
     if first_call:
         user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
         await state.update_data(cars_model=user_answer)
+        delete_mode = False
     else:
+        delete_mode = True
         user_answer = memory_storage['cars_model']
 
     models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
@@ -127,7 +129,7 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
 
     button_texts = {car.complectation for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_complectation', button_texts=button_texts,
-                                     callback_sign='cars_complectation:', lexicon_cache=False)
+                                     callback_sign='cars_complectation:', lexicon_cache=False, delete_mode=delete_mode)
 
     cars_type = memory_storage['cars_state']
 

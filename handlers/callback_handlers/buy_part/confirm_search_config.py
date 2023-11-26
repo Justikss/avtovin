@@ -1,4 +1,5 @@
 import importlib
+import logging
 import traceback
 
 from aiogram.fsm.context import FSMContext
@@ -45,83 +46,92 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     '''Обработка подтверждения(от пользователя) поисковых настроек на покупку автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     redis_data = importlib.import_module('utils.redis_for_language')
+    car_dont_exists = False
     ic(callback.data)
     car_id = callback.data.split(':')[-1]
 
     car_model = CommodityRequester.get_where_id(car_id)
+    cached_data = None
+    if car_model:
 
-    redis_key_substring = f'|{car_model.state}|{car_model.brand}|{car_model.model}|{car_model.engine_type}|{car_model.year_of_release}|{car_model.mileage}|{car_model.color}|{car_model.complectation}'
+        redis_key_substring = f'|{car_model.state}|{car_model.brand}|{car_model.model}|{car_model.engine_type}|{car_model.year_of_release}|{car_model.mileage}|{car_model.color}|{car_model.complectation}'
 
-    redis_cache_requests_key = f'{str(callback.from_user.id)}:buyer_nonconfirm_cars_cache{redis_key_substring}'
+        redis_cache_requests_key = f'{str(callback.from_user.id)}:buyer_nonconfirm_cars_cache{redis_key_substring}'
 
-    cached_data = await redis_data.redis_data.get_data(key=redis_cache_requests_key,
-                                           use_json=True)
+        cached_data = await redis_data.redis_data.get_data(key=redis_cache_requests_key,
+                                               use_json=True)
 
-
-    #
-    # cached_data = await redis_data.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_nonconfirm_cars_cache',
-    #                                        use_json=True)
-    ic(cached_data)
-    index = -1
-    for cached_part in cached_data:
-        index += 1
-        ic(car_id)
-        if cached_part['car_id'] == int(car_id):
-            current_offer = cached_data[index]
-            del cached_data[index]
-            ic(cached_data)
-            try:
-                insert_response = await OffersRequester.set_offer_model(buyer_id=callback.from_user.id, car_id=car_id)
-            except BufferError as ex:
-                print(ex)
-                insert_response = None
-                await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
-            except Exception as ex:
-                ic(ex)
-                traceback.print_exc()
-
-            finally:
+        ic(cached_data)
+        index = -1
+        for cached_part in cached_data:
+            index += 1
+            ic(car_id)
+            if cached_part['car_id'] == int(car_id):
+                current_offer = cached_data[index]
+                del cached_data[index]
+                ic(cached_data)
 
                 data_for_seller = await output_for_seller_formater(callback, current_offer)
 
-                # lexicon_part = {'message_text': data_for_seller['message_text'],
-                #                 'buttons': LEXICON['notification_from_seller_by_buyer_buttons']}
                 commodity_model = CommodityRequester.get_where_id(car_id=data_for_seller['car_id'])
-                if commodity_model:
-                    media_mode = True if data_for_seller.get('album') else False
-                    await send_notification_for_seller(callback, data_for_seller, media_mode=media_mode)
-                    # seller_chat = commodity_model.seller_id.telegram_id
-                    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                    #                                                 media_group=data_for_seller['album'],
-                    #                                                 lexicon_part=lexicon_part, send_chat=seller_chat)
-                    callback_answer_text = LEXICON['order_was_created']
-                else:
-                    callback_answer_text = LEXICON['seller_dont_exists']
 
-                await callback.answer(text=callback_answer_text, show_alert=True)
+                try:
+                    insert_response = await OffersRequester.set_offer_model(buyer_id=callback.from_user.id, car_id=car_id, seller_id = commodity_model.seller_id)
+                    if not insert_response:
+                        await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
+                    if commodity_model:
+                        media_mode = True if data_for_seller.get('album') else False
+                        await send_notification_for_seller(callback, data_for_seller, media_mode=media_mode)
+                        callback_answer_text = LEXICON['order_was_created']
+                    else:
+                        callback_answer_text = LEXICON['seller_dont_exists']
 
+                    await callback.answer(text=callback_answer_text, show_alert=True)
+                except BufferError as ex:
+                    print(ex)
+                    insert_response = None
+                    await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
+                except Exception as ex:
+                    ic(ex)
+                    traceback.print_exc()
 
-                pagination_data = await message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
-                                                         use_json=True)
+    else:
+        car_dont_exists = True
+        await callback.answer(text=LEXICON['car_was_withdrawn_from_sale'], show_alert=True)
 
-                if len(pagination_data['data']) == 1:
-                    await message_editor.redis_data.delete_key(key=f'{str(callback.from_user.id)}:buyer_cars_pagination')
-                    await redis_data.redis_data.delete_key(
-                        key=redis_cache_requests_key)
-                    return await return_main_menu.return_main_menu_callback_handler(callback=callback, state=state)
-                else:
-                    pagination_data['data'] = cached_data
-                    await redis_data.redis_data.getset_data(
-                        key=redis_cache_requests_key,
-                        value=cached_data)
+    pagination_data = await message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
+                                             use_json=True)
 
-                    await message_editor.redis_data.set_data(
-                        key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
-                        value=pagination_data)
+    if (len(pagination_data['data']) == 1 or not cached_data) and not car_dont_exists:
+        await message_editor.redis_data.delete_key(key=f'{str(callback.from_user.id)}:buyer_cars_pagination')
+        await redis_data.redis_data.delete_key(
+            key=redis_cache_requests_key)
 
-                    pagination = BuyerCarsPagination(**pagination_data)
-                    ic()
-                    await pagination.send_page(callback, '-')
+        cache_redis_keys = await redis_data.redis_data.get_data(
+            key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys', use_json=True)
+
+        if redis_cache_requests_key in cache_redis_keys:
+            cache_redis_keys.remove(redis_cache_requests_key)
+
+            await redis_data.redis_data.set_data(
+                key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys', value=cache_redis_keys)
+        else:
+            logging.info(f'В записи по ключу {str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys\nВ значении = {cache_redis_keys}\nПотерялся упущенный элемент = {redis_cache_requests_key}')
+
+        return await return_main_menu.return_main_menu_callback_handler(callback=callback, state=state)
+    else:
+        pagination_data['data'] = cached_data
+        await redis_data.redis_data.getset_data(
+            key=redis_cache_requests_key,
+            value=cached_data)
+
+        await message_editor.redis_data.set_data(
+            key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
+            value=pagination_data)
+
+        pagination = BuyerCarsPagination(**pagination_data)
+        ic()
+        await pagination.send_page(callback, '-')
 
 
 

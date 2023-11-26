@@ -7,7 +7,7 @@ class Commodity(BaseModel):
     '''Таблица товаров.
     mileage = Числовое поле.'''
     car_id = PrimaryKeyField()
-    seller_id = ForeignKeyField(Seller) #вставляется модель селлера
+    seller_id = ForeignKeyField(Seller, backref='cars') #вставляется модель селлера
     brand = CharField()
     model = CharField()
     engine_type = CharField()
@@ -17,12 +17,6 @@ class Commodity(BaseModel):
     state = CharField()
     color = CharField(null=True)
     price = IntegerField()
-    # photo_id = CharField(null=True)
-    # photo_unique_id = CharField(null=True)
-    # photo_url = CharField(null=True)
-
-
-
 
     class Meta:
         db_table = 'Автомобили'

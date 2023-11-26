@@ -32,7 +32,7 @@ async def seller_requests_callback_handler(callback: CallbackQuery):
     if commodities:
         lexicon_part = await get_lexicon_part(commodities)
         await callback.answer()
-        await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True)
+        await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True, delete_mode=True)
     else:
         await callback.answer(lexicon.seller_does_have_active_requests_alert)
         return

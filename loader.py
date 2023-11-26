@@ -6,7 +6,11 @@ from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
+from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
+from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.delete_feedback import DeleteFeedback
+from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
+    my_feedbacks_callback_handler, CheckFeedbacksHandler
 from handlers.custom_handlers.lost_photos_handler import lost_photos_handler
 from handlers.default_handlers.admin_part_default_handlers.boot_new_car_photos import \
     start_state_boot_new_car_photos_message_handler
@@ -37,7 +41,7 @@ from states.seller_registration_states import HybridSellerRegistrationStates, Ca
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, seller_faq, commodity_requests
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
-from handlers.state_handlers.seller_states_handler import load_new_car, seller_deletes_request, seller_profile_branch
+from handlers.state_handlers.seller_states_handler import load_new_car, seller_profile_branch
 from handlers.default_handlers.help import  bot_help
 from handlers.callback_handlers.hybrid_part import return_main_menu
 
@@ -149,7 +153,7 @@ async def start_bot():
     dp.callback_query.register(callback_handler_start_buy.start_buy,
                                F.data == 'start_buy')
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
-                               lambda callback: callback.data.startswith('backward'))
+                               lambda callback: callback.data.startswith('backward:'))
     dp.callback_query.register(search_auto_handler.search_auto_callback_handler,
                                F.data == 'car_search')
     dp.callback_query.register(search_auto_handler.search_configuration_handler,
@@ -196,7 +200,7 @@ async def start_bot():
         F.data == 'my_sell_requests')
 
     dp.callback_query.register(
-        sell_part.commodity_requests.output_sellers_requests_by_car_brand.output_sellers_requests_by_car_brand_handler,
+        sell_part.commodity_requests.output_sellers_requests.output_sellers_requests_by_car_brand_handler,
         lambda callback: callback.data.startswith('seller_requests_brand:'))
 
     dp.callback_query.register(SellerRequestPaginationHandlers.left_button,
@@ -204,16 +208,31 @@ async def start_bot():
     dp.callback_query.register(SellerRequestPaginationHandlers.right_button,
                                F.data == 'seller_requests_pagination_right')
 
+    '''seller"s feedbacks'''
+
+    dp.callback_query.register(my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))
+
+    dp.callback_query.register(CheckFeedbacksHandler.check_feedbacks_handler,
+                               F.data.in_(('new_feedbacks', 'viewed_feedbacks')))
+
+    dp.callback_query.register(DeleteFeedback.delete_feedback_handler, F.data == "i'm_sure_delete_feedback")
+
+    dp.callback_query.register(DeleteFeedback.did_you_sure_to_delete_feedback_ask, F.data == 'deal_fell_through')
+
     '''delete request'''
-    dp.callback_query.register(seller_deletes_request.seller_start_delete_request.start_process_delete_request_handler,
-                               F.data == 'delete_request_from_seller')
+    # dp.callback_query.register(seller_deletes_request.seller_start_delete_request.start_process_delete_request_handler,
+    #                            F.data == 'delete_request_from_seller')
+    #
+    # dp.message.register(seller_deletes_request.check_input_commodity_number.check_input_id_handler,
+    #                            and_f(StateFilter(DeleteRequestStates.awaited_input_deletion_number_of_commodity)))
+    #
+    # dp.callback_query.register(seller_deletes_request.confirm_delete_exists_commodity.confirm_delete_exists_commodity_handler,
+    #                            and_f(StateFilter(DeleteRequestStates.check_input_on_valid),
+    #                                  F.data == 'confirm_delete'))
 
-    dp.message.register(seller_deletes_request.check_input_commodity_number.check_input_id_handler,
-                               and_f(StateFilter(DeleteRequestStates.awaited_input_deletion_number_of_commodity)))
+    dp.callback_query.register(DeleteCarRequest.delete_car_handler, F.data == 'withdrawn')
 
-    dp.callback_query.register(seller_deletes_request.confirm_delete_exists_commodity.confirm_delete_exists_commodity_handler,
-                               and_f(StateFilter(DeleteRequestStates.check_input_on_valid),
-                                     F.data == 'confirm_delete'))
+    dp.callback_query.register(DeleteCarRequest.accept_delete_car_and_backward_from_delete_menu_handler, F.data.in_(("i'm_sure_delete", 'backward_from_delete_car_menu', 'backward_from_delete_feedback_menu')))
 
     '''Оформление тарифа продавца'''
     dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,
