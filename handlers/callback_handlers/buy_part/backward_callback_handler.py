@@ -26,14 +26,14 @@ from states.tariffs_to_seller import ChoiceTariffForSellerStates
 
 
 
-async def backward_button_handler(callback: CallbackQuery, state: FSMContext = None):
+async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
     '''Кнопка назад, ориентируется на запись в редис: прошлый лексикон код,
 
                                                         прошлое состояние'''
     inline_creator = importlib.import_module('keyboards.inline.kb_creator')  # Ленивый импорт
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
-
+    ic(callback.data)
 
     if ':' in callback.data:
         mode = callback.data.split(':')
@@ -151,14 +151,14 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext = N
             await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback=callback)
 
         elif mode == 'sales_order_review':
-            await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback)
+            await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback, state=state, delete_mode=True)
 
         elif mode in ('seller_start_delete_request', 'seller_delete_request'):
             from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import \
                 output_sellers_requests_by_car_brand_handler
 
             car_brand = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
-            await output_sellers_requests_by_car_brand_handler(callback, chosen_brand=car_brand)
+            await output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand=car_brand)
 
 
         elif mode == 'start_boot_new_car':

@@ -1,10 +1,12 @@
 import importlib
 from abc import ABC
 
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.commodity_requests import CommodityRequester
 from database.data_requests.offers_requests import OffersRequester
+from states.seller_feedbacks_states import SellerFeedbacks
 from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import output_sellers_commodity_page
 from utils.user_notification import delete_notification_for_seller
@@ -39,7 +41,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
     #     await output_sellers_commodity_page(callback, pagination_data)
 
     @staticmethod
-    async def check_feedbacks_handler(callback: CallbackQuery, command=None):
+    async def check_feedbacks_handler(callback: CallbackQuery, state: FSMContext, command=None):
         redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
         callback_alert_message = None
         callback_data = callback.data
@@ -65,8 +67,9 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                 await redis_module.redis_data.set_data(
                     key=f'{str(seller_id)}:return_path_after_delete_car',
                     value='viewed_feedbacks')
-
-            await output_sellers_commodity_page(callback, unpacked_output_data)
+            ic()
+            await state.set_state(SellerFeedbacks.review)
+            await output_sellers_commodity_page(callback, state, unpacked_output_data)
 
             # await CheckFeedbacksHandler.check_new_feedbacks(callback, unpacked_output_data)
             return True
@@ -93,7 +96,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
         if seller_offers:
             if viewed == False:
                 ic()
-                await OffersRequester.set_viewed_false(seller_offers)
+                # await OffersRequester.set_viewed_true(seller_offers)
             card_body_lexicon_part = LEXICON.get('chosen_configuration').get('message_text')
             for_seller_lexicon_part = LEXICON['confirm_from_seller']['message_text']
             output_unpacked_data = []

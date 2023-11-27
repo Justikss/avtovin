@@ -1,24 +1,24 @@
+import asyncio
 import importlib
+from time import time
+
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.commodity_requests import CommodityRequester
+from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
+from states.requests_by_seller import SellerRequestsState
 from utils.Lexicon import LexiconSellerRequests as lexicon
 
 
-async def get_lexicon_part(commodities) -> dict:
+async def get_car_brands(commodities) -> dict:
     '''Конструктор заготовки блока сообщений
     [Выбор марки автомобиля]'''
-    car_brands = {car.brand for car in commodities}
-    print('brands ', car_brands)
-    lexicon_part = {'message_text': lexicon.select_brand_message_text,
-                    'buttons': {lexicon.callback_prefix + brand: brand for brand in car_brands}}
+    car_brands = [car.brand for car in commodities]
 
-    for callback_value, caption in lexicon.keyboard_end_part.items():
-        lexicon_part['buttons'][callback_value] = caption
-    print('lex_part ', lexicon_part)
-    return lexicon_part
+    return {lexicon.callback_prefix + brand: brand for brand in car_brands}
 
-async def seller_requests_callback_handler(callback: CallbackQuery):
+async def seller_requests_callback_handler(callback: CallbackQuery, state: FSMContext, delete_mode=False):
     '''Обработчик просмотра созданных продавцом заявок'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     media_group_delete_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
@@ -30,9 +30,12 @@ async def seller_requests_callback_handler(callback: CallbackQuery):
     commodities = CommodityRequester.get_by_seller_id(seller_id=callback.from_user.id)
 
     if commodities:
-        lexicon_part = await get_lexicon_part(commodities)
+        car_brands_keyboard_part = await get_car_brands(commodities)
         await callback.answer()
-        await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True, delete_mode=True)
+        await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon.select_brand_message_text, delete_mode=delete_mode)
+        await CachedRequestsView.choose_brand_for_output(callback, car_brands=car_brands_keyboard_part)
+        await state.set_state(SellerRequestsState.await_input_brand)
+
     else:
         await callback.answer(lexicon.seller_does_have_active_requests_alert)
         return

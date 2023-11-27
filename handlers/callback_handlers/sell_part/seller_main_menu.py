@@ -4,8 +4,9 @@ import importlib
 
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from utils.Lexicon import LEXICON
-from handlers.callback_handlers.buy_part.show_offers_history import try_delete_notification
+
 from utils.chat_cleaner.media_group_messages import delete_media_groups
+from utils.user_notification import try_delete_notification
 
 
 async def create_tarifs():

@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.offers_requests import CachedOrderRequests
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
     BuyerCarsPagination
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_cars_data_pack
@@ -195,7 +196,7 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
     pagination = BuyerCarsPagination(data=formatted_config_output, page_size=1, current_page=0)
 
 
-    await pagination.send_page(request=callback)
+    await pagination.send_page(request=callback, state=state)
 
     # message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
     #                                         )

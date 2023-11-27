@@ -1,1 +1,1 @@
-from . import pagination_heart
+from . import pagination_heart, inline_buttons_pagination_heart, plugs

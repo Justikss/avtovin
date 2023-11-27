@@ -119,7 +119,6 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
                     pass
     # elif not incorrect_flag:
 
-    print(last_user_answer)
 
     # await state.update_data(current_user_answer=message.message_id)
 
@@ -176,6 +175,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
 
     await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_message', value=message_object.message_id)
     await state.set_state(BuyerRegistationStates.input_phone_number)
+    ic(await state.get_state())
 
 async def input_phone_number(message: Message, state: FSMContext, incorrect=None, user_name: str = None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт

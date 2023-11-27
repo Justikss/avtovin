@@ -12,3 +12,6 @@ class TariffExpiredException(BaseException):
 
 class SellerWithoutTariffException(BaseException):
     pass
+
+class UserExistsError(BaseException):
+    pass

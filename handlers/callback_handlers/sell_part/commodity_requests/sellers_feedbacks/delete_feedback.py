@@ -1,6 +1,7 @@
 import importlib
 from copy import copy
 
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.offers_requests import OffersRequester
@@ -28,7 +29,7 @@ class DeleteFeedback:
 
 
     @staticmethod
-    async def delete_feedback_handler(callback: CallbackQuery):
+    async def delete_feedback_handler(callback: CallbackQuery, state: FSMContext):
         redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
         seller_request_data = await redis_module.redis_data.get_data(
@@ -38,7 +39,7 @@ class DeleteFeedback:
 
         await callback.answer(LexiconSellerRequests.success_delete)
 
-        return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks')
+        return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks', state=state)
         # return_requests = await my_feedbacks_callback_handler(callback, return_path)
 
         if not return_requests:

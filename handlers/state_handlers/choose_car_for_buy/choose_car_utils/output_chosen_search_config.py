@@ -6,10 +6,11 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import lifetime_of_redis_record_of_request_caching
 from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.offers_requests import CachedOrderRequests
 from database.tables.commodity import Commodity
 from utils.Lexicon import LEXICON
 
-async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext):
+async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_models=None):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     redis_key = str(callback.from_user.id) + ':cars_type'
@@ -19,39 +20,32 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext):
     message_text = lexicon_part.get('message_text')
 
     data_stack = []
+    if not car_models:
+        first_view_mode = True
+        memory_storage = await state.get_data()
 
-    memory_storage = await state.get_data()
+        car_state = memory_storage.get('cars_state')
+        brand = memory_storage.get('cars_brand')
+        model = memory_storage.get('cars_model')
+        engine_type = memory_storage.get('cars_engine_type')
+        year_of_release = memory_storage.get('cars_year_of_release')
+        mileage = memory_storage.get('cars_mileage')
+        color = memory_storage.get('cars_color')
+        complectation = str(memory_storage.get('cars_complectation'))
+        ic(car_state)
 
-    car_state = memory_storage.get('cars_state')
-    brand = memory_storage.get('cars_brand')
-    model = memory_storage.get('cars_model')
-    engine_type = memory_storage.get('cars_engine_type')
-    year_of_release = memory_storage.get('cars_year_of_release')
-    mileage = memory_storage.get('cars_mileage')
-    color = memory_storage.get('cars_color')
-    complectation = str(memory_storage.get('cars_complectation'))
-    ic(car_state)
+        car_models = CommodityRequester.get_for_request(state=car_state,
+                                                          brand=brand,
+                                                          model=model,
+                                                          engine_type=engine_type,
+                                                          year_of_release=year_of_release,
+                                                          mileage=mileage,
+                                                          color=color,
+                                                          complectation=complectation)
 
-
-
-    car_models = CommodityRequester.get_for_request(state=car_state,
-                                                      brand=brand,
-                                                      model=model,
-                                                      engine_type=engine_type,
-                                                      year_of_release=year_of_release,
-                                                      mileage=mileage,
-                                                      color=color,
-                                                      complectation=complectation)
-
-    redis_key_substring = f'|{car_state}|{brand}|{model}|{engine_type}|{year_of_release}|{mileage}|{color}|{complectation}'
-    cache_non_confirm_cars_redis_key = f'{str(callback.from_user.id)}:buyer_nonconfirm_cars_cache{redis_key_substring}'
+    else:
+        first_view_mode = False
     car_ids = []
-
-    # nonconfirm_cars = await redis_module.redis_data.get_data(
-    #                     key=f'{str(callback.from_user.id)}:buyer_nonconfirm_cars_cache{redis_key_substring}', use_json=True)
-    #
-    # if not nonconfirm_cars:
-    #     nonconfirm_cars = []
 
     for car in car_models:
         car_ids.append(car.car_id)
@@ -68,20 +62,25 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext):
         result_part = {'car_id': car.car_id, 'message_text': result_string, 'album': photo_album}
         data_stack.append(result_part)
 
-    await redis_module.redis_data.set_data(key=cache_non_confirm_cars_redis_key,
-                                           value=data_stack, expire=lifetime_of_redis_record_of_request_caching)
+    if first_view_mode:
+        ic(data_stack)
+        await CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
 
-    cache_redis_keys = await redis_module.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys',
-                                           use_json=True)
-    if not cache_redis_keys:
-        cache_redis_keys = []
-    if cache_non_confirm_cars_redis_key in cache_redis_keys:
-        pass
-    else:
-        cache_redis_keys.append(cache_non_confirm_cars_redis_key)
 
-    await redis_module.redis_data.set_data(key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys',
-                                           value=cache_redis_keys)
+    # await redis_module.redis_data.set_data(key=cache_non_confirm_cars_redis_key,
+    #                                        value=data_stack, expire=lifetime_of_redis_record_of_request_caching)
+    #
+    # cache_redis_keys = await redis_module.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys',
+    #                                        use_json=True)
+    # if not cache_redis_keys:
+    #     cache_redis_keys = []
+    # if cache_non_confirm_cars_redis_key in cache_redis_keys:
+    #     pass
+    # else:
+    #     cache_redis_keys.append(cache_non_confirm_cars_redis_key)
+    #
+    # await redis_module.redis_data.set_data(key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys',
+    #                                        value=cache_redis_keys)
 
     return data_stack
 

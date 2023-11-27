@@ -21,7 +21,10 @@ class InlineCreator:
         print('indd: ', input_data)
 
         width = input_data['width']
-        
+        ic(width)
+
+
+
         if button_texts:
             backward_is_exists = input_data.get('backward')
             if not backward_is_exists:
@@ -59,14 +62,41 @@ class InlineCreator:
             return InlineKeyboardMarkup(inline_keyboard=result_format)
 
         elif not isinstance(width, int):
-            button_index = 0
-            structured_buttons = []
-            for row_value in width:
-                row_buttons = buttons[button_index:button_index + row_value]
-                structured_buttons.append(row_buttons)
-                button_index += row_value
+            if width[0] < 0:
+                ic(input_data)
+                keyboard = InlineKeyboardBuilder()
+                buttons_reversed = buttons[::-1]  # Переворачиваем список кнопок
 
-            return InlineKeyboardMarkup(inline_keyboard=structured_buttons)
+                for row_size in width:
+                    row_size = abs(row_size)  # Преобразуем отрицательные числа
+                    row_buttons = []
+
+                    for _ in range(row_size):
+                        if buttons_reversed:
+                            button = buttons_reversed.pop()
+                            row_buttons.append(button)
+                        else:
+                            break  # Если кнопок нет, прерываем цикл
+
+                    keyboard.row(*row_buttons)
+
+                # Обрабатываем оставшиеся кнопки с использованием последнего числа в width
+                last_row_size = abs(width[-1])
+                while buttons_reversed:
+                    keyboard.row(*(button for button in
+                                   buttons_reversed[:last_row_size]))
+                    buttons_reversed = buttons_reversed[last_row_size:]
+
+                return keyboard.as_markup()
+            else:
+                button_index = 0
+                structured_buttons = []
+                for row_value in width:
+                    row_buttons = buttons[button_index:button_index + row_value]
+                    structured_buttons.append(row_buttons)
+                    button_index += row_value
+
+                return InlineKeyboardMarkup(inline_keyboard=structured_buttons)
 
 
         keyboard = kbuilder.row(*buttons, width=width)

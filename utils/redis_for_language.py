@@ -57,7 +57,7 @@ class RedisRequester:
 
         else:
             if type(value) not in (int, float, str):
-
+                ic(value)
                 value = json.dumps(value)
             #выдаёт false если числовое value(становится стр)
             await self.redis_base.set(key, value)

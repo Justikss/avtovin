@@ -81,7 +81,14 @@ class CommodityRequester:
                             'photo_unique_id': photo_data_part['unique_id']
                         })
                     else:
+                        if len(photo_data) == 1:
+                            photo_data = photo_data.values()
+                        ic(photo_data)
                         for photo_data_part in photo_data:
+                            if isinstance(photo_data_part, list):
+                                photo_data_part = photo_data_part[0]
+
+                            ic(photo_data_part)
                             photo_boot_data.append({
                                 'car_id': commodity_model,  # Использование идентификатора вставленной записи
                                 'photo_id': photo_data_part['id'],
@@ -340,23 +347,56 @@ class CommodityRequester:
 # 'price': '200'
 # }
 
-truple_car = {
-'seller_id': 902230076,
-'brand': 'BMW',
-'model': 'OneModel',
-'engine_type': 'DWS',
-'state': 'Новое',
-'color': None,
-'mileage': None,
-'year_of_release': None,
-'complectation': 'FullComplectation',
-'price': '200000',
-'photos': None
-}
+truple_car = []
+truple_car.append({
+    'seller_id': 902230076,
+    'brand': 'Mercedes',
+    'model': 'OneModel',
+    'engine_type': 'DWS',
+    'state': 'Новое',
+    'color': None,
+    'mileage': None,
+    'year_of_release': None,
+    'complectation': 'FullComplectation',
+    'price': '200000',
+    'photos': None
+})
+
+truple_car.append({
+    'seller_id': 902230076,
+    'brand': 'Renault',
+    'model': 'OneModel',
+    'engine_type': 'DWS',
+    'state': 'Новое',
+    'color': None,
+    'mileage': None,
+    'year_of_release': None,
+    'complectation': 'FullComplectation',
+    'price': '200000',
+    'photos': None
+})
+
+
+
+truple_car.append({
+    'seller_id': 902230076,
+    'brand': 'Skoda',
+    'model': 'OneModel',
+    'engine_type': 'DWS',
+    'state': 'Новое',
+    'color': None,
+    'mileage': None,
+    'year_of_release': None,
+    'complectation': 'FullComplectation',
+    'price': '200000',
+    'photos': None
+})
+
+
 
 # a = CommodityRequester.store_data(double_cars)
 #b = CommodityRequester.store_data(new_cars)
-c = CommodityRequester.store_data(truple_car)
+# c = CommodityRequester.store_data(truple_car)
 
 
-cars = CommodityRequester.retrieve_all_data()
+# cars = CommodityRequester.retrieve_all_data()

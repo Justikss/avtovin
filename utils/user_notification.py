@@ -71,6 +71,7 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     if not seller_offers:
         seller_offers = []
     seller_offers.append(data_for_seller)
+    # await redis_module.redis_data.delete_key(key=f'{str(seller_id)}:seller__new_active_offers')
 
     await redis_module.redis_data.set_data(key=f'{str(seller_id)}:seller__new_active_offers', value=seller_offers)
 

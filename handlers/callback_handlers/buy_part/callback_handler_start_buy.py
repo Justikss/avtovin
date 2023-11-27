@@ -5,13 +5,13 @@ from database.data_requests.person_requests import PersonRequester
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.buyer_registration_handlers import input_full_name
 from handlers.state_handlers.buyer_registration_handlers import main_menu
-
+from utils.Lexicon import LEXICON
 
 
 async def start_buy(callback: CallbackQuery, state: FSMContext):
     user_from_db = PersonRequester.get_user_for_id(str(callback.from_user.id), user=True)
     if user_from_db:
-        await callback.answer('Зареган')
+        await callback.answer(LEXICON['user_in_system']['message_text'])
         await main_menu(request=callback)
     else:
         await callback.answer()

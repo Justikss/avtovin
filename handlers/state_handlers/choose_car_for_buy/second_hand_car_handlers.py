@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 
-from database.data_requests.commodity_requests import CommodityRequester, cars
+from database.data_requests.commodity_requests import CommodityRequester
 from database.data_requests.person_requests import buyer, sellers
 from database.tables.offers_history import ActiveOffers
 
@@ -76,6 +76,11 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
 
     await cache_state(callback=callback, state=state)
 
+    if not first_call:
+        delete_mode = True
+    else:
+        delete_mode = False
+
     memory_storage = await state.get_data()
     if first_call:
         user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
@@ -92,7 +97,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
 
     button_texts = {car.year_of_release for car in models_range}
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_year_of_release', button_texts=button_texts,
-                                     callback_sign='cars_year_of_release:', lexicon_cache=False)
+                                     callback_sign='cars_year_of_release:', lexicon_cache=False, delete_mode=delete_mode)
     await callback.answer()
     await state.set_state(HybridChooseStates.config_output)
 

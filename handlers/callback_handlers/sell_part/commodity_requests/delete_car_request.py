@@ -1,6 +1,7 @@
 import importlib
 from copy import copy
 
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.commodity_requests import CommodityRequester
@@ -35,7 +36,7 @@ class DeleteCarRequest:
                                                         delete_mode=True)
 
     @staticmethod
-    async def accept_delete_car_and_backward_from_delete_menu_handler(callback: CallbackQuery):
+    async def accept_delete_car_and_backward_from_delete_menu_handler(callback: CallbackQuery, state: FSMContext):
         redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
         if callback.data == "i'm_sure_delete":
@@ -58,7 +59,7 @@ class DeleteCarRequest:
 
         ic(return_path)
         if return_path in ('viewed_feedbacks', "i'm_sure_delete_feedback"):
-            return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks')
+            return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks', state=state)
             # return_requests = await my_feedbacks_callback_handler(callback, return_path)
 
             if not return_requests:
@@ -66,16 +67,14 @@ class DeleteCarRequest:
             # if not return_requests:
             #     await commodity_reqests_by_seller(callback)
 
-        elif return_path.startswith('seller_requests_brand'):
+        elif return_path.startswith('load_brand_'):
             chosen_brand = await redis_module.redis_data.get_data(
                 key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
 
-
-
-            return_requests = await output_sellers_requests_by_car_brand_handler(callback, chosen_brand)
+            return_requests = await output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand)
 
             if not return_requests:
-                await seller_requests_callback_handler(callback)
+                await seller_requests_callback_handler(callback, state)
 
         # await redis_module.redis_data.delete_key(
         #     key=f'{str(callback.from_user.id)}:return_path_after_delete_car')

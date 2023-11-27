@@ -1,3 +1,5 @@
+from aiogram.fsm.context import FSMContext
+import re
 from aiogram.types import CallbackQuery, InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from typing import List
@@ -5,9 +7,12 @@ import importlib
 
 
 from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.offers_requests import OffersRequester
 from database.tables.commodity import Commodity
-from utils.Lexicon import LexiconSellerRequests as Lexicon
+from utils.Lexicon import LexiconSellerRequests as Lexicon, LexiconCommodityLoader
 from handlers.utils.pagination_heart import Pagination
+from utils.custom_exceptions.database_exceptions import UserExistsError
+
 
 async def set_car_id_in_redis(callback, output_data_part):
     '''Метод подставляет id машины в коллбэк дату'''
@@ -73,11 +78,11 @@ async def output_message_constructor(commodity_models: List[Commodity]) -> list:
     return output_data
 
 
-async def output_sellers_commodity_page(callback: CallbackQuery, pagination_data=None, output_data_part=None):
+async def output_sellers_commodity_page(callback: CallbackQuery, state: FSMContext, pagination_data=None, output_data_part=None):
     '''процесс вывода существующих заявок продавца'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     inline_keyboard_creator_module = importlib.import_module('keyboards.inline.kb_creator')
-
+    ic(output_data_part)
     user_id = str(callback.from_user.id)
 
     seller_requests_pagination = await message_editor.redis_data.get_data(
@@ -101,6 +106,9 @@ async def output_sellers_commodity_page(callback: CallbackQuery, pagination_data
     commodity_card_messages_id = []
     commodity_card_message = None
     for output_part in output_data_part:
+        ic(output_part)
+
+
         if output_part.get('album'):
             print('output_part ', output_part)
             media_group = [InputMediaPhoto(media=photo_id) for photo_id in output_part['album'][:-1]]
@@ -117,6 +125,9 @@ async def output_sellers_commodity_page(callback: CallbackQuery, pagination_data
             commodity_card_message = await callback.bot.send_message(chat_id=callback.message.chat.id, text=output_part['message_text'])
             commodity_card_messages_id.append(commodity_card_message.message_id)
             commodity_card_message = commodity_card_message.message_id
+
+        if await state.get_state() == 'SellerFeedbacks:review':
+            await OffersRequester.set_viewed_true(offer_id=output_part['offer_id'])
 
     await message_editor.redis_data.set_data(key=user_id + ':seller_media_group_messages',
                                              value=commodity_card_messages_id)
@@ -137,13 +148,18 @@ async def output_sellers_commodity_page(callback: CallbackQuery, pagination_data
 
 
 
-async def output_sellers_requests_by_car_brand_handler(callback: CallbackQuery, chosen_brand=None ):
+
+async def output_sellers_requests_by_car_brand_handler(callback: CallbackQuery, state: FSMContext, chosen_brand=None):
     '''Обработчик кнопки просмотра созданных запросов продавца'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await message_editor.redis_data.set_data(key=f'{str(callback.from_user.id)}:last_keyboard_in_seller_pagination', value=Lexicon.selected_brand_output_buttons)
     if not chosen_brand:
-        chosen_brand = callback.data.split(':')[1]
+
+        try:
+            chosen_brand = callback.data.split(':')[1]
+        except:
+            chosen_brand = LexiconCommodityLoader.load_commodity_brand['buttons'].get(callback.data)
         await message_editor.redis_data.set_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache',
                                                 value=chosen_brand)
     print(chosen_brand)
@@ -161,7 +177,7 @@ async def output_sellers_requests_by_car_brand_handler(callback: CallbackQuery, 
             await message_editor.redis_data.set_data(
                 key=f'{str(callback.from_user.id)}:return_path_after_delete_car', value=callback.data)
 
-        await output_sellers_commodity_page(callback, pagination_data=await output_message_constructor(chosen_commodities))
+        await output_sellers_commodity_page(callback, pagination_data=await output_message_constructor(chosen_commodities), state=state)
         await callback.answer()
         return True
     else:

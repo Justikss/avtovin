@@ -2,6 +2,7 @@ import importlib
 from typing import Union
 
 from aiogram import types
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto, CallbackQuery, Message
 
 from handlers.utils.pagination_heart import Pagination
@@ -27,17 +28,16 @@ class BuyerCarsPagination:
 
             await message_editor.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
 
-    async def send_page(self, request: Union[Message, CallbackQuery], operation: str = None):
+    async def send_page(self, request: Union[Message, CallbackQuery], state: FSMContext, operation: str = None):
         message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
         if not operation:
             operation = '+'
-
 
         page_data = await self.pagination.get_page(operation)  # '+' для начальной страницы
         ic(page_data)
         if page_data:
             page_data = page_data[0]
-            keyboard = await self.get_keyboard(car_id=page_data.get('car_id'))
+            keyboard = await self.get_keyboard(car_id=page_data.get('car_id'), state=state)
             # Здесь код для отправки данных текущей страницы
             # page_header, page_footer = await self.get_page(page_data)
             page_footer = {
@@ -46,25 +46,36 @@ class BuyerCarsPagination:
             ic()
             await self.try_delete_last_media_group(request)
             if page_data.get('album'):
+                delete_mode=False
                 await message_editor.travel_editor.edit_message(request=request, lexicon_key='', media_group=page_data.get('album'), lexicon_part=page_data, need_media_caption=True)
             else:
+                delete_mode=True
                 page_footer['message_text'] += page_data['message_text']
-            await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=page_footer, save_media_group=True, my_keyboard=keyboard)
+            await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=page_footer, save_media_group=True, my_keyboard=keyboard, delete_mode=delete_mode)
 
             await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:buyer_cars_pagination',
-                                                     value = await self.pagination.to_dict())
+                                                     value=await self.pagination.to_dict())
 
         else:
             await request.answer(LEXICON['confirm_from_buyer']['non_data_more'])
 
-    async def get_keyboard(self, car_id):
+    async def get_keyboard(self, car_id, state):
         inline_keyboard_creator_module = importlib.import_module('keyboards.inline.kb_creator')
 
         buttons_lexicon_part = LEXICON.get('chosen_configuration')
 
+        if await state.get_state() in ('CheckNonConfirmRequestsStates:brand_flipping_process',
+                                       'CheckNonConfirmRequestsStates:await_input_brand'):
+            backward_callback_data = 'return_to_choose_requests_brand'
+        else:
+            backward_callback_data = False
+
         correct_buttons = {}
         for key, value in buttons_lexicon_part.items():
-            if key == 'confirm_buy_settings:':
+            if backward_callback_data and key == 'backward_in_carpooling':
+                key = backward_callback_data
+
+            elif key == 'confirm_buy_settings:':
                 key = key + str(car_id)
                 ic(key)
 
