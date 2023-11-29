@@ -1,6 +1,6 @@
 from peewee import IntegerField, CharField, BooleanField
 
-from .start_tables import BaseModel
+from database.db_connect import BaseModel
 
 class Seller(BaseModel):
     '''Таблица продавцов(селлеры/автосалоны)'''

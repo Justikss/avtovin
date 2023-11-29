@@ -75,10 +75,10 @@ LEXICON = {
                                  'color': 'Цвет: '}, 'buyer_car_pagination:-': '<', 'buyer_car_pagination:+': '>',
                 'confirm_buy_settings:': 'Подтвердить',
                 'backward_in_carpooling': 'Вернуться', 'return_main_menu': 'В меню', 'width': (2, 1, 1, 1)},
-                
+
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!\nВам поступит уведомление о её одобрении.',
                                           'return_main_menu': 'В меню', 'width': 1},
-            'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.', 
+            'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.',
                                         'return_main_menu': 'В меню', 'width': 1},
             'buy_configuration_non_registration': {'message_text': 'Ошибка. Ваш аккаунт незарегестрирован\nНажмите /start'},
 
@@ -94,25 +94,25 @@ LEXICON = {
             "buyer_haven't_cached_requests": 'История недавно просмотренных пуста',
             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль',
             'separator': '='*40,
-            
+
             'who_is_seller': {'message_text': 'Выберите пункты ниже:', 'i_am_private_person': 'Частное лицо', 'i_am_car_dealership': 'Автосалон', 'width': 2},
             'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration_seller_person_name': 'Назад', 'width': 1},
             'write_full_seller_name(novalid)': {
                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
                 'backward:seller_registration_seller_person_name': 'Назад', 'width': 2},
             'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration_seller_person_name': 'Назад', 'width': 1},
-            
+
             'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration_dealership_name': 'Назад', 'width': 1},
             'write_dealership_name(novalid)': {'message_text': 'Название автосалона должно быть длинной < 250 символов\nИ Только из букв и цифр:', 'backward:seller_registration_dealership_name': 'Назад', 'width': 1},
             'write_dealership_name(exists)': {'message_text': 'Это название уже зарегестрировано\nожидается иное', 'backward:seller_registration_dealership_name': 'Назад', 'width': 1},
-            
+
             'write_seller_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
                                    'backward:seller_registration_number': 'Назад', 'width': 1},
             'write_seller_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
                                               'backward:seller_registration_number': 'Назад', 'width': 1},
             'write_seller_phone_number(exists)': {'message_text': 'Некорректный ввод номера!\nОн уже зарегистрирован\nожидается иной',
-                                              'backward:seller_registration_number': 'Назад', 'width': 1},          
-            
+                                              'backward:seller_registration_number': 'Назад', 'width': 1},
+
             'write_dealership_address': {'message_text': 'Введите адрес автосалона', 'backward:seller_registration_dealership_address': 'Назад', 'width': 1},
             'write_dealership_address(novalid)': {'message_text': 'Ошибка\n Адрес автосалона должен содержать буквы', 'backward:seller_registration_dealership_address': 'Назад', 'width': 1},
 
@@ -121,8 +121,8 @@ LEXICON = {
             'confirm_registration_from_seller': {'message_text': 'Регисрация завершена\nДождитесь уведобления об одобрении от администрации.', 'start_sell': 'Меню продавца', 'width': 1},
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
 
-            # 'confirm_seller_profile_notification': {'message_text': 'Меню продавца!', 'buttons': {'seller_main_menu': 'В меню продавца', 'confirm_notification:seller': 'Принял', 'width': 1}},
-    
+            'confirm_seller_profile_notification': {'message_text': 'Меню продавца!', 'buttons': {'seller_main_menu': 'В меню продавца', 'confirm_notification:seller': 'Принял', 'width': 1}},
+
             'seller_main_menu': {'message_text': 'Успешно профиль подтверждён!', 'seller_pofile': 'Профиль', 'seller_faq': 'FAQ', 'support': 'Поддержка', 'seller_requests': 'Заявки', 'backward:set_language': 'Назад', 'width': 2},
 
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_seller_registration_from:'},
@@ -161,15 +161,45 @@ LEXICON = {
 
 
 class LexiconCommodityLoader:
-    load_commodity_state = {'message_text': 'Состояние', 'buttons': {'load_state_new': 'Новое', 'load_state_second_hand': 'Б/у', 'backward:start_boot_new_car': 'Назад', 'width': 2}}
-    load_engine_type = {'message_text': 'Тип двигателя', 'buttons': {'load_engine_hybrid': 'Гибрид', 'load_engine_DWS': 'ДВС', 'load_engine_electro': 'Электро', 'width': 2}}
-    load_commodity_brand = {'message_text': 'Марка', 'buttons': {'load_brand_bmw': 'BMW', 'load_brand_mercedes': 'Mercedes', 'load_brand_renault': 'Renault', 'load_brand_skoda': 'Skoda', 'width': 2}}
-    load_commodity_model = {'message_text': 'Модель', 'buttons': {'load_model_DualModel': 'DualModel', 'load_model_OneModel': 'OneModel', 'load_model_ThreeModel': 'ThreeModel', 'load_model_SeModel': 'SeModel', 'width': 2}}
-    load_commodity_complectation = {'message_text': 'Комплектация', 'buttons': {'load_complectation_FullComplectation': 'FullComplectation', 'load_complectation_HalfComplectation': 'HalfComplectation', 'load_complectation_HalfHalfComplectation': 'HalfHalfComplectation', 'load_complectation_WithTruckComplectation': 'WithTruckComplectation', 'width': 2}}
+    class load_commodity_state:
+        message_text = 'Состояние'
+        buttons_callback_data = 'load_state_'
+        width = 2
 
-    load_commodity_year_of_realise = {'message_text': 'Год выпуска', 'buttons': {'load_year_2005': '2005', 'load_year_2020': '2020', 'load_year_2015': '2015', 'load_year_2001': '2001', 'width': 2}}
-    load_commodity_mileage = {'message_text': 'Пробег', 'buttons': {'load_mileage_5000': '5000', 'load_mileage_10000': '10000', 'load_mileage_15000': '15000', 'load_mileage_20000': '20000', 'load_mileage_25000': '25000', 'load_mileage_30000': '30000', 'load_mileage_35000': '35000', 'load_mileage_40000': '40000', 'load_mileage_45000': '45000', 'load_mileage_50000': '50000', 'load_mileage_750000': '750000', 'load_mileage_100000': '100000', 'load_mileage_100000+': '100000 +', 'width': 4}}
-    load_commodity_color = {'message_text': 'Цвет', 'buttons': {'load_color_black': 'Чёрный', 'load_color_red': 'Красный', 'load_color_pink': 'Розовый', 'load_color_white': 'Белый', 'width': 2}}
+    class load_engine_type:
+        message_text = 'Тип двигателя'
+        buttons_callback_data = 'load_engine_'
+        width = 2
+
+    class load_commodity_brand:
+        message_text = 'Марка'
+        buttons_callback_data = 'load_brand_'
+        width = 2
+
+    class load_commodity_model:
+        message_text = 'Модель'
+        buttons_callback_data = 'load_model_'
+        width = 2
+
+    # load_commodity_model = {, 'buttons': {, , 'width': 2}}
+    class load_commodity_complectation:
+        message_text = 'Комплектация'
+        buttons_callback_data = 'load_complectation_'
+        width = 2
+
+    class load_commodity_year_of_realise:
+        message_text = 'Год выпуска'
+        buttons_callback_data = 'load_year_'
+        width = 2
+    class load_commodity_mileage:
+        message_text = 'Пробег'
+        buttons_callback_data = 'load_mileage_'
+        width = 2
+    class load_commodity_color:
+        message_text = 'Цвет'
+        buttons_callback_data = 'load_color_'
+        width = 2
+
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
     load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\n(значок скрепки в левом углу чата)\n\n(!от 3 до 5 экземпляров!)\n\nНе отменяйте сжатие при отправке\nфотографии в телеграмм.', 'buttons': {'return_main_menu': 'В меню', 'width': 1}}
 
@@ -183,6 +213,9 @@ class LexiconCommodityLoader:
     config_for_admins = 'Заявка от продавца @'
 
     seller_notification = {'message_text': 'Заявка №_ создана!'}
+
+
+
 
 class LexiconSellerRequests:
     backward_from_delete_in_feedbacks = {'viewed_feedbacks': 'Назад'}

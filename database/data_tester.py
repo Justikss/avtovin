@@ -1,5 +1,5 @@
 from data_requests.commodity_requests import CommodityRequester
-from tables.start_tables import db, BaseModel
+from tables.start_tables import BaseModel
 from data_requests.person_requests import PersonRequester
 
 '''Примеры словарей для записи в таблицу через CommodityRequester
@@ -19,4 +19,4 @@ user = {
 'phone_number': 1212
 }
 
-PersonRequester.store_data(user)
+# PersonRequester.store_data(user)

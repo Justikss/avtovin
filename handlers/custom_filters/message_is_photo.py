@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 import importlib
 
-from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_photo_to_load
+from handlers.state_handlers.seller_states_handler.load_new_car.second_hand_handlers import input_photo_to_load
 
 
 class MessageIsPhoto(BaseFilter):

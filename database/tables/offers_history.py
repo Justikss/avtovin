@@ -1,16 +1,19 @@
 from datetime import datetime, timedelta
 
-from .start_tables import BaseModel
-from peewee import ForeignKeyField, IntegerField, AutoField, BooleanField, DateField, CharField, DateTimeField
-from .commodity import Commodity
+from database.db_connect import BaseModel
+from peewee import ForeignKeyField, IntegerField, AutoField, BooleanField, DateField, CharField, DateTimeField, \
+    CompositeKey
+
+from .car_configurations import CarAdvert
 from .user import User
 from .seller import Seller
 
 
 
+
 class ActiveOffers(BaseModel):
     '''История Предложений'''
-    car_id = ForeignKeyField(Commodity, backref='active_offers')
+    car_id = ForeignKeyField(CarAdvert, backref='active_offers')
     seller_id = ForeignKeyField(Seller, backref='active_offers')
     buyer_id = ForeignKeyField(User, backref='active_offers')
     viewed = BooleanField()
@@ -22,10 +25,14 @@ class ActiveOffers(BaseModel):
 class CacheBuyerOffers(BaseModel):
     '''Кэширование неподтверждённых заявок'''
     buyer_id = ForeignKeyField(User, backref='buyer')
-    car_id = ForeignKeyField(Commodity, backref='car', unique=True)
+    car_id = ForeignKeyField(CarAdvert, backref='car')
     message_text = CharField()
     # car_brand = CharField()
     datetime_of_deletion = DateTimeField(default=datetime.now() + timedelta(days=3))
+
+    class Meta:
+        db_table = 'Кэш_Открытых_Заявок'
+        primary_key = CompositeKey('buyer_id', 'car_id')
 
 #
 # class ActiveOffersToCars(BaseModel):

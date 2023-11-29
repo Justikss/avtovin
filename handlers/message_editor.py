@@ -86,7 +86,7 @@ class TravelEditor:
 
         message_text = lexicon_part['message_text']
 
-        if delete_mode and last_message_id:
+        if delete_mode and last_message_id and not media_group:
             try:
                 await chat.Chat.delete_message(self=chat_object, message_id=last_message_id)
                 print('delete_if delete_mode and last_message_id:')

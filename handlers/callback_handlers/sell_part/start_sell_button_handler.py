@@ -11,7 +11,7 @@ async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext
 
 
     user_id = callback.from_user.id
-    seller_is_exists = PersonRequester.get_user_for_id(user_id=user_id, seller=True)
+    seller_is_exists = await PersonRequester.get_user_for_id(user_id=user_id, seller=True)
     if seller_is_exists:
         seller_is_exists = seller_is_exists[0]
         seller_is_authorized = seller_is_exists.authorized

@@ -5,7 +5,6 @@ from aiogram.types import CallbackQuery
 
 
 from database.data_requests.commodity_requests import CommodityRequester
-from database.data_requests.person_requests import buyer, sellers
 from database.tables.offers_history import ActiveOffers
 
 from states.hybrid_choose_states import HybridChooseStates

@@ -2,10 +2,11 @@ from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 from typing import Union
 from aiogram.fsm.context import FSMContext
 
+from database.data_requests.car_configurations_requests import CarConfigs
 from utils.Lexicon import LexiconCommodityLoader
 
 
-async def data_formatter(request: Union[Message, CallbackQuery], state: FSMContext):
+async def data_formatter(request: Union[Message, CallbackQuery], state: FSMContext, id_values=False):
     '''Собирает сырые объекты в стэк данных по загружаемому автомобилю'''
     memory_storage = await state.get_data()
 
@@ -21,19 +22,34 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     # else:
     #     photo_media_group = None
 
-    data = {'seller_id': request.from_user.id,
-    'state': LexiconCommodityLoader.load_commodity_state['buttons'][memory_storage['state_for_load']], 
-    'engine_type': LexiconCommodityLoader.load_engine_type['buttons'][memory_storage['engine_for_load']], 
-    'brand': LexiconCommodityLoader.load_commodity_brand['buttons'][memory_storage['brand_for_load']], 
-    'model': LexiconCommodityLoader.load_commodity_model['buttons'][memory_storage['model_for_load']], 
-    'complectation': LexiconCommodityLoader.load_commodity_complectation['buttons'][memory_storage['complectation_for_load']], 
-    'year_of_release': LexiconCommodityLoader.load_commodity_year_of_realise['buttons'].get(memory_storage.get('year_for_load')), 
-    'mileage': LexiconCommodityLoader.load_commodity_mileage['buttons'].get(memory_storage.get('mileage_for_load')), 
-    'color': LexiconCommodityLoader.load_commodity_color['buttons'].get(memory_storage.get('color_for_load')), 
+    sub_data = {'seller_id': request.from_user.id,
+    'state': memory_storage['state_for_load'],
+    'engine_type': memory_storage['engine_for_load'],
+    'brand': memory_storage['brand_for_load'],
+    'model': memory_storage['model_for_load'],
+    'complectation': memory_storage['complectation_for_load'],
+    'year_of_release': memory_storage.get('year_for_load'),
+    'mileage': memory_storage.get('mileage_for_load'),
+    'color': memory_storage.get('color_for_load'),
     'price': memory_storage['load_price'], 
     'photos': memory_storage.get('load_photo')}
 
+    result_data = dict()
+    ic(sub_data)
+    if not id_values:
+        for key, value in sub_data.items():
+            if key not in ('seller_id', 'price', 'photos') and value != None:
+                ic(value)
+                value = await CarConfigs.get_by_id(key, value)
+                ic(value)
+                value = value.name
+                ic(value)
+                ic()
+            result_data[key] = value
+    else:
+        result_data = sub_data
+
     print('load_photos??: ', memory_storage.get('load_photo'))
-
-
-    return data
+    ic(sub_data)
+    ic(result_data)
+    return result_data

@@ -9,7 +9,7 @@ from utils.Lexicon import LEXICON
 
 
 async def start_buy(callback: CallbackQuery, state: FSMContext):
-    user_from_db = PersonRequester.get_user_for_id(str(callback.from_user.id), user=True)
+    user_from_db = await PersonRequester.get_user_for_id(str(callback.from_user.id), user=True)
     if user_from_db:
         await callback.answer(LEXICON['user_in_system']['message_text'])
         await main_menu(request=callback)

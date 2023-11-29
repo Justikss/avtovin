@@ -26,18 +26,19 @@ async def create_tarifs():
              'duration_time': '365',
              'feedback_amount': 10000}
 
-    a.TarifRequester.set_tariff(data)
-    a.TarifRequester.set_tariff(data3)
-    a.TarifRequester.set_tariff(data2)
+    await a.TarifRequester.set_tariff(data)
+    await a.TarifRequester.set_tariff(data3)
+    await a.TarifRequester.set_tariff(data2)
 
 async def get_tariff(callback):
-    a = importlib.import_module('database.data_requests.tariff_requests')
+    tariff_module = importlib.import_module('database.data_requests.tariff_requests')
 
-    seller_bind_exists = TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
+    seller_bind_exists = await TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
 
     if not seller_bind_exists:
 
-        tariffs = a.TarifRequester.retrieve_all_data()
+        tariffs = await tariff_module.TarifRequester.retrieve_all_data()
+        ic(tariffs)
         if not tariffs:
             await create_tarifs()
 
@@ -46,7 +47,7 @@ async def get_tariff(callback):
                 'tariff': 'minimum'
                 }
 
-        TariffToSellerBinder.set_bind(data=data)
+        await TariffToSellerBinder.set_bind(data=data)
 
 
 

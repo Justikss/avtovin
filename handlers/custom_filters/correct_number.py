@@ -46,7 +46,7 @@ class CheckInputNumber(BaseFilter):
             formatted_number = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
 
 
-            number_is_exists = PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
+            number_is_exists = await PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
             if number_is_exists:
                 print('number_is_exists', number_is_exists)
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)

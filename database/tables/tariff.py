@@ -1,6 +1,6 @@
 from peewee import CharField, IntegerField, ForeignKeyField, DateTimeField
 
-from .start_tables import BaseModel
+from database.db_connect import BaseModel
 from database.tables.seller import Seller
 
 
@@ -8,18 +8,18 @@ class Tariff(BaseModel):
     '''Таблица тафрифов'''
     name = CharField(unique=True)
     price = IntegerField()
-    duration_time = DateTimeField() # days, hours
+    duration_time = IntegerField() # days
     feedback_amount = IntegerField()
 
     class Meta:
         db_table = 'Тарифы'
 
 class TariffsToSellers(BaseModel):
-    seller = ForeignKeyField(Seller, backref='seller')
-    tariff = ForeignKeyField(Tariff, backref='tariff')
+    seller = ForeignKeyField(Seller, backref='tariffs')
+    tariff = ForeignKeyField(Tariff, backref='tariffs')
     start_date_time = DateTimeField()
     end_date_time = DateTimeField()
     residual_feedback = IntegerField()
 
     class Meta:
-        db_table = 'Тарифы-Продавцы'
+        db_table = 'Тарифы_Продавцы'

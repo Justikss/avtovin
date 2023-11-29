@@ -22,17 +22,17 @@ async def get_output_string(mode, boot_data: dict) -> str:
           \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
 
     top_layer = f'''{start_sub_string}\
-          \n{LexiconCommodityLoader.load_commodity_state['message_text']}: {boot_data['state']}\
-          \n{LexiconCommodityLoader.load_engine_type['message_text']}: {boot_data['engine_type']}\
-          \n{LexiconCommodityLoader.load_commodity_brand['message_text']}: {boot_data['brand']}\
-          \n{LexiconCommodityLoader.load_commodity_model['message_text']}: {boot_data['model']}\
-          \n{LexiconCommodityLoader.load_commodity_complectation['message_text']}: {boot_data['complectation']}\n'''
+          \n{LexiconCommodityLoader.load_commodity_state.message_text}: {boot_data['state']}\
+          \n{LexiconCommodityLoader.load_engine_type.message_text}: {boot_data['engine_type']}\
+          \n{LexiconCommodityLoader.load_commodity_brand.message_text}: {boot_data['brand']}\
+          \n{LexiconCommodityLoader.load_commodity_model.message_text}: {boot_data['model']}\
+          \n{LexiconCommodityLoader.load_commodity_complectation.message_text}: {boot_data['complectation']}\n'''
 
     is_second_hand = (boot_data['year_of_release'], boot_data['mileage'], boot_data['color'])
     if None not in is_second_hand:
-        middle_layer = f'''{LexiconCommodityLoader.load_commodity_year_of_realise['message_text']}: {boot_data['year_of_release']}\
-              \n{LexiconCommodityLoader.load_commodity_mileage['message_text']}: {boot_data['mileage']}\
-              \n{LexiconCommodityLoader.load_commodity_color['message_text']}: {boot_data['color']}\n'''
+        middle_layer = f'''{LexiconCommodityLoader.load_commodity_year_of_realise.message_text}: {boot_data['year_of_release']}\
+              \n{LexiconCommodityLoader.load_commodity_mileage.message_text}: {boot_data['mileage']}\
+              \n{LexiconCommodityLoader.load_commodity_color.message_text}: {boot_data['color']}\n'''
         output_load_commodity_config = top_layer + middle_layer + bottom_layer
     else:
         output_load_commodity_config = top_layer + bottom_layer
@@ -72,7 +72,11 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         else:
             bot = request.message.bot
 
-    delete_mode = False
+    if memory_storage.get('incorrect_flag'):
+        delete_mode = True
+    else:
+        delete_mode = False
+
 
 
     structured_boot_data = await data_formatter(request=request, state=state)

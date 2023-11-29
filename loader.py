@@ -6,6 +6,9 @@ from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
+from database.db_connect import create_tables
+from database.data_requests.car_configurations_requests import mock_values, get_car
+
 from handlers.callback_handlers.buy_part.show_cached_requests import output_cached_requests
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
@@ -83,11 +86,15 @@ dp = Dispatcher(storage=storage)
 async def start_bot():
     global redis, edit_last_message, bot, dp, redis, storage
     bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
-
     redis = Redis(host='localhost')
     storage = RedisStorage(redis=redis)
 
     dp = Dispatcher(storage=storage)
+
+    await create_tables()
+    # await mock_values()
+
+    # await get_car()
 
     dp.callback_query.middleware(CleanerMiddleware())
 
@@ -231,7 +238,7 @@ async def start_bot():
 
     dp.callback_query.register(
         sell_part.commodity_requests.output_sellers_requests.output_sellers_requests_by_car_brand_handler, StateFilter(SellerRequestsState.await_input_brand),
-        lambda callback: callback.data.startswith('load_brand_'))
+        lambda callback: callback.data.startswith('seller_requests_brand:'))
 
     dp.callback_query.register(SellerRequestPaginationHandlers.left_button,
                                F.data == 'seller_requests_pagination_left')
@@ -303,6 +310,10 @@ async def start_bot():
     dp.callback_query.register(second_hand_car_handlers.choose_year_of_release_handler,
                                and_f(lambda callback: callback.data.startswith('cars_mileage'),
                                      StateFilter(SecondHandChooseStates.select_year)))
+    dp.callback_query.register(load_new_car.second_hand_handlers.input_photo_to_load,
+                              F.data == 'rewrite_boot_photo')
+    dp.message.register(load_new_car.second_hand_handlers.input_photo_to_load,
+                        (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
 
     '''Состояния загрузки новых машин'''
     dp.callback_query.register(load_new_car.hybrid_handlers.input_state_to_load,
@@ -342,10 +353,8 @@ async def start_bot():
                                   or_f(lambda callback: callback.data.startswith('load_complectation_'),
                                   lambda callback: callback.data.startswith('load_color_'))),
                               F.data=='rewrite_boot_price'))
-    dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
-                              (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
-    dp.callback_query.register(load_new_car.hybrid_handlers.input_photo_to_load,
-                              F.data == 'rewrite_boot_photo')
+
+
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
                               StateFilter(LoadCommodityStates.photo_verification), message_is_photo.MessageIsPhoto())
 
@@ -354,8 +363,8 @@ async def start_bot():
                                      F.data == 'edit_boot_car_data'))
 
     '''уведомления'''
-    # dp.callback_query.register(sell_main_module.try_delete_notification,
-    #                            lambda callback: callback.data.startswith('confirm_notification'))
+    dp.callback_query.register(sell_main_module.try_delete_notification,
+                               lambda callback: callback.data.startswith('confirm_notification'))
 
     dp.message.register(lost_photos_handler,
                         F.photo)
@@ -370,7 +379,7 @@ async def start_bot():
     @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
 
-      await callback.message.answer('Пролёт ' + callback.data)
+      await callback.message.answer('Пролёт ' + callback.data + '\n' + str(await state.get_state()))
       #await sell_part.commodity_requests.commodity_requests.commodity_reqests_by_seller(callback=callback)
       # await accept_registration_request_button.accept_registraiton(callback=callback)
 

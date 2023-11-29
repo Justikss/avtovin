@@ -4,6 +4,7 @@ from aiogram.exceptions import TelegramBadRequest
 from typing import Union
 import importlib
 
+from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
 from handlers.state_handlers.seller_states_handler.load_new_car import second_hand_handlers
@@ -13,7 +14,8 @@ from states.load_commodity_states import LoadCommodityStates
 async def rewrite_boot_state_stopper(request: Union[CallbackQuery, Message], state: FSMContext, return_output=None):
     memory_data = await state.get_data()
     rewrite_state_flag = memory_data.get('rewrite_state_flag')
-    if rewrite_state_flag == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_second_hand']:
+    # car_states = await CarConfigs.get_all_states()
+    if rewrite_state_flag == 2:
         print("it's returnn")
         if return_output:
             await output_load_config_for_seller(request=request, state=state)
@@ -33,8 +35,8 @@ async def change_boot_car_state_controller(callback, state):
     if await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')\
         and last_car_state != callback.data:
 
-        await state.update_data(state_for_load=callback.data)
-        await state.update_data(rewrite_state_flag=LexiconCommodityLoader.load_commodity_state['buttons'][callback.data])
+        await state.update_data(state_for_load=int(callback.data.split('_')[-1]))
+        await state.update_data(rewrite_state_flag=callback.data.split('_')[-1])
         if callback.data.endswith('new'):
             await set_photo_for_new_state_car(state)
             await state.update_data(year_for_load=None)
@@ -59,39 +61,57 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             message = request
         else:
             input_photo_module = importlib.import_module(
-                'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+                'handlers.state_handlers.seller_states_handler.load_new_car.second_hand_handlers')
+
             ic(memory_storage.get('state_for_load'))
-            if request.data.startswith(('load_model', 'load_brand')) and memory_storage.get('state_for_load').endswith('new'):
+            current_state = str(await state.get_state())
+
+            if isinstance(request, CallbackQuery):
+                if current_state == 'LoadCommodityStates:input_to_load_model' and \
+                        memory_storage.get('brand_for_load') != int(request.data.split('_')[-1]):
+                    await state.update_data(rewrite_brand_mode=True)
+                    return False
+
+                elif current_state == 'LoadCommodityStates:input_to_load_complectation':
+                    if (memory_storage.get('rewrite_brand_mode')) or (memory_storage.get('model_for_load') != int(request.data.split('_')[-1])):
+                        return False
+
+
+                elif current_state in ('LoadCommodityStates:input_to_load_price', 'LoadCommodityStates:input_to_load_year') and \
+                        memory_storage.get('rewrite_brand_mode'):
+                    await state.update_data(complectation_for_load=int(request.data.split('_')[-1]))
+                    pass
+
+
+
+
+
+            if current_state in ('LoadCommodityStates:input_to_load_complectation',
+                                         'LoadCommodityStates:input_to_load_model') and memory_storage.get('state_for_load') == 1:
                 await set_photo_for_new_state_car(state)
 
             rewrite_state_flag = memory_storage.get('rewrite_state_flag')
-            if rewrite_state_flag:
-                print('rewrf: ', rewrite_state_flag)
-                current_state = str(await state.get_state())
-                print('curst: ', current_state)
-                if rewrite_state_flag == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_new']:
-                    # await state.update_data(load_photo=None)
-                    # await state.set_state(LoadCommodityStates.input_to_load_photo)
-                    # await input_photo_module.input_photo_to_load(request, state)
+
+            if rewrite_state_flag == 1:
+                await state.update_data(rewrite_state_flag=None)
+                pass
+
+            elif rewrite_state_flag == 2:
+                if current_state == 'LoadCommodityStates:input_to_load_engine_type':
+                    await state.set_state(LoadCommodityStates.input_to_load_year)
+
+                    await second_hand_handlers.input_year_to_load(callback=request, state=state)
+                    return True
+                elif current_state == 'LoadCommodityStates:input_to_load_price':
+                    await state.set_state(LoadCommodityStates.photo_verification)
+                    ic()
+                    await state.set_state(LoadCommodityStates.input_to_load_photo)
+                    await input_photo_module.input_photo_to_load(request, state)
+                    # await output_load_config_for_seller(request=request, state=state)
                     await state.update_data(rewrite_state_flag=None)
-                    pass
-
-                elif rewrite_state_flag == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_second_hand']:
-                    if current_state == 'LoadCommodityStates:input_to_load_engine_type':
-                        await state.set_state(LoadCommodityStates.input_to_load_year)
-
-                        await second_hand_handlers.input_year_to_load(callback=request, state=state)
-                        return True
-                    elif current_state == 'LoadCommodityStates:input_to_load_price':
-                        await state.set_state(LoadCommodityStates.photo_verification)
-                        ic()
-                        await state.set_state(LoadCommodityStates.input_to_load_photo)
-                        await input_photo_module.input_photo_to_load(request, state)
-                        # await output_load_config_for_seller(request=request, state=state)
-                        await state.update_data(rewrite_state_flag=None)
-                        return True
-                    else:
-                        return False
+                    return True
+                else:
+                    return False
             
             message = request.message
         #при послестэйтных выборах не удалится что то?
@@ -123,15 +143,15 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             captions = list(boot_config_value[1:6] + boot_config_value[9:10])
             ic(captions)
             ic(callbacks)
-            captions[5] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + captions[5]
+            captions[5] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + str(captions[5])
 
         elif cars_state == 'second_hand':
             #config_slice = (1, 11)
             config_edit_buttons_callback_data = LexiconCommodityLoader.config_for_seller_button_callbacks
             callbacks = config_edit_buttons_callback_data[0:11]
             captions = list(boot_config_value[1:10])
-            captions[5] = LexiconCommodityLoader.load_commodity_year_of_realise['message_text'] + ' ' + captions[5]
-            captions[6] = LexiconCommodityLoader.load_commodity_mileage['message_text'] + ' ' + captions[6]
+            captions[5] = LexiconCommodityLoader.load_commodity_year_of_realise.message_text + ' ' + captions[5]
+            captions[6] = LexiconCommodityLoader.load_commodity_mileage.message_text + ' ' + captions[6]
             captions[8] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + captions[8]
             ic(type(captions))
             captions.append(LexiconCommodityLoader.edit_photo_caption)
@@ -167,7 +187,6 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
 
 async def set_photo_for_new_state_car(state: FSMContext):
     memory_storage = await state.get_data()
-    new_photographies = await PhotoRequester.try_get_photo(
-        {'brand': memory_storage.get('brand_for_load'), 'model': memory_storage.get('model_for_load')})
+    new_photographies = await PhotoRequester.try_get_photo(state)
     ic(new_photographies)
     await state.update_data(load_photo=new_photographies)

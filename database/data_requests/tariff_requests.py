@@ -1,67 +1,58 @@
 from typing import Union, List
 
-from database.tables.start_tables import db
 from database.tables.tariff import Tariff, TariffsToSellers
 from utils.custom_exceptions.database_exceptions import TariffHasClientsException
+from database.db_connect import database, manager
+
+
 
 class TarifRequester:
     @staticmethod
-    def retrieve_all_data() -> Union[bool, List[Tariff]]:
-        '''Извлечь все модели тарифов'''
+    async def retrieve_all_data() -> Union[bool, List[Tariff]]:
+        '''Асинхронный метод для извлечения всех моделей тарифов'''
+        query = Tariff.select()
+        select_request = await manager.execute(query)
+        return list(select_request) if select_request else False
 
-        with db.atomic():     
-            select_request = Tariff.select()
-
-        if list(select_request):
-            return list(select_request)
-        else:
+    @staticmethod
+    async def set_tariff(data: dict) -> bool:
+        '''Асинхронный метод для установки тарифа'''
+        try:
+            insert_query = Tariff.insert(**data)
+            await manager.execute(insert_query)
+            return True
+        except Exception as ex:
+            print(ex)
             return False
 
     @staticmethod
-    def set_tariff(data: dict):
-        with db.atomic():
-            try:
-                select_response = Tariff.insert(**data).execute()
+    async def get_by_id(tariff_id):
+        '''Асинхронный метод получения тарифа по ID'''
+        tariff = await manager.get(Tariff, Tariff.id == tariff_id)
+        return tariff
 
+    @staticmethod
+    async def get_by_name(tariff_name: str):
+        '''Асинхронный метод получения тарифа по имени'''
+        query = Tariff.select().where(Tariff.name == tariff_name)
+        select_response = await manager.execute(query)
+        return list(select_response) if select_response else False
+
+    @staticmethod
+    async def delete_tariff(tariff_name: str) -> bool:
+        '''Асинхронный метод удаления тарифа'''
+        try:
+            tariff_model = await database.get(Tariff, Tariff.name == tariff_name)
+            if tariff_model and not await manager.execute(TariffsToSellers.select().where(TariffsToSellers.tariff == tariff_model)):
+                delete_query = Tariff.delete().where(Tariff.id == tariff_model.id)
+                await manager.execute(delete_query)
                 return True
-            except Exception as ex:
-                print(ex)
+            else:
                 return False
+        except Exception as ex:
+            print(ex)
+            return False
 
-    @staticmethod
-    def get_by_id(tariff_id):
-        with db.atomic():
-            query = Tariff.get_by_id(tariff_id)
-            return query
-    
-    @staticmethod
-    def get_by_name(tariff_name: str):
-        with db.atomic():
-            try:
-                print('trfn: ', tariff_name)
-                select_response = Tariff.select().where(Tariff.name == tariff_name)
-                print(select_response)
-                select_response = list(select_response)
-                return select_response
-            except Exception as ex:
-                print(ex)
-            
-            finally:
-                return False
-
-    '''VVV В разработке VVV'''
-    @staticmethod
-    def delete_tariff(tariff_name: str):
-        with db.atomic():
-            try:
-                tariff_model = Tariff.select().where(Tariff.name == tariff_name)
-                if TariffsToSellers.select().where(TariffsToSellers.tariff == tariff_model):
-                    #update tariff state
-                    pass 
-                select_response = Tariff.delete_by_id()
-
-            except Exception as ex:
-                print(ex)
 
 data = {'name': 'minimum',
 'price': 50,

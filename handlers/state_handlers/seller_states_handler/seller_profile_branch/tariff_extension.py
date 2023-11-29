@@ -9,7 +9,7 @@ async def lexicon_part_constructor():
     '''Метод структурирует своеобразный 'Мок' lexicon_part'a по которому выводится блок сообщения с кнопками'''
     tarif_request_module = importlib.import_module('database.data_requests.tariff_requests')
     
-    affordable_tariffs = tarif_request_module.TarifRequester.retrieve_all_data()
+    affordable_tariffs = await tarif_request_module.TarifRequester.retrieve_all_data()
     if not affordable_tariffs:
         return False
 

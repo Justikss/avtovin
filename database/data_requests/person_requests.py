@@ -3,124 +3,71 @@ from typing import Union, List
 from peewee import IntegrityError
 
 from database.tables.user import User
-from database.tables.start_tables import db
+from database.db_connect import manager
 from database.tables.seller import Seller
 
 class PersonRequester:
     @staticmethod
-    def retrieve_all_data(user=False, seller=False) -> Union[bool, List[User]]:
-        '''Извлечь все модели строк'''
+    async def retrieve_all_data(user=False, seller=False) -> Union[bool, List[User]]:
+        '''Асинхронный метод для извлечения всех моделей строк'''
         if user:
-            with db.atomic():
-                '''Контекстный менеджер with обеспечит авто-закрытие после запроса.'''
-                select_request = User.select()
+            return await manager.execute(User.select())
         elif seller:
-            with db.atomic():
-                '''Контекстный менеджер with обеспечит авто-закрытие после запроса.'''
-                select_request = Seller.select()
-
-        if list(select_request):
-            return list(select_request)
+            return await manager.execute(Seller.select())
         else:
             return False
 
-
     @staticmethod
-    def store_data(*data: Union[List[dict], dict], user=False, seller=False) -> bool:
-        '''Загрузка моделей в таблицу товаров'''
+    async def store_data(*data: Union[List[dict], dict], user=False, seller=False) -> bool:
+        '''Асинхронный метод для загрузки моделей в таблицу'''
         try:
             if user:
-                with db.atomic():
-                    User.insert_many(*data).execute()
-                    return True
+                await manager.execute(User.insert_many(*data))
+                return True
             elif seller:
-                with db.atomic():
-                    Seller.insert_many(*data).execute()
-                    return True
-
+                await manager.execute(Seller.insert_many(*data))
+                return True
         except IntegrityError as ex:
             print('IntegrityError', ex)
             return False
 
     @staticmethod
     async def change_authorized_state(telegram_id, boolean: bool):
-        '''Метод для изменения состояния авторизации продавца.'''
+        '''Асинхронный метод для изменения состояния авторизации продавца'''
         try:
-            with db.atomic():
-                query = Seller.update(authorized=boolean).where(Seller.telegram_id == telegram_id)
-                query.execute()
-                return True
+            query = Seller.update(authorized=boolean).where(Seller.telegram_id == telegram_id)
+            await manager.execute(query)
+            return True
         except IntegrityError as ex:
             print(ex)
             return False
 
     @staticmethod
-    def this_name_is_exists(name: str, user=None, seller=None):
-        '''Проверка на сущестование имени в базе данных'''
+    async def this_name_is_exists(name: str, user=None, seller=None):
+        '''Асинхронная проверка на существование имени в базе данных'''
         need_model = Seller if seller else User
-        
-        with db.atomic():
-            if seller:
-                select_request = list(Seller.select().where(Seller.dealship_name == name))
-                if select_request:
-                    return True
+        query = need_model.select().where(need_model.name == name)
+        result = await manager.execute(query)
+        return bool(result)
 
-            
-            name = name.split(' ')
-            if len(name) == 3:
-                patronymic = name[2]
-            elif len(name) == 2:
-                patronymic = None
-            elif len(name) == 1:
-                return False
-            
-            surname = name[0]
-            name = name[1]
-
-            select_request = list(need_model.select().where((need_model.name == name) &
-                                                            (need_model.surname == surname) &
-                                                            (need_model.patronymic == patronymic)))
-        if select_request:
-            return True
-        else:
-            return False
-
-            
 
     @staticmethod
-    def this_number_is_exists(number: str, user=None, seller=None):
-        '''Проверка на существование номера телефона в базе данных'''
+    async def this_number_is_exists(number: str, user=None, seller=None):
+        '''Асинхронная проверка на существование номера телефона в базе данных'''
         need_model = Seller if seller else User
-
-        with db.atomic():
-            select_request = need_model.select().where(need_model.phone_number == number)
-            select_request = list(select_request)
-
-        if select_request:
-            return True
-        else:
-            return False
+        query = need_model.select().where(need_model.phone_number == number)
+        result = await manager.execute(query)
+        return bool(result)
 
     @staticmethod
-    def get_user_for_id(user_id, user=False, seller=False):
-        '''вывод юзера по id юзера в бд'''
+    async def get_user_for_id(user_id, user=False, seller=False):
+        '''Асинхронный вывод пользователя по id в бд'''
         if user:
-            with db.atomic():
-                print('get_by_user_id', user_id)
-                select_request = User.select().where(User.telegram_id == user_id)
-
+            query = User.select().where(User.telegram_id == user_id)
         elif seller:
-            with db.atomic():
-                print('get_by_seller_id', user_id)
-                select_request = Seller.select().where(Seller.telegram_id == user_id)
-
-        select_request = list(select_request)
-        print(select_request)
-
-        if select_request:
-            return select_request
-        else:
-            return False
+            query = Seller.select().where(Seller.telegram_id == user_id)
+        result = await manager.execute(query)
+        return list(result) if result else False
 
 
 seller = [{'telegram_id': '902230076',
@@ -138,7 +85,7 @@ seller = [{'telegram_id': '902230076',
 
 #PersonRequester.store_data(seller, seller=True)
 
-sellers = PersonRequester.retrieve_all_data(seller=True)
+# sellers = PersonRequester.retrieve_all_data(seller=True)
 
 
-buyer = PersonRequester.retrieve_all_data(user=True)
+# buyer = PersonRequester.retrieve_all_data(user=True)

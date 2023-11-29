@@ -1,9 +1,14 @@
 from typing import List, Union, Optional
+
+from aiogram.fsm.context import FSMContext
 from icecream import install, ic
 
+from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarBrand, CarEngine
 from database.tables.commodity import NewCarPhotoBase
-from database.tables.commodity import Commodity, CommodityPhotos
-from database.tables.start_tables import db
+from database.tables.commodity import AdvertPhotos
+from database.db_connect import database, manager
+
+
 from utils.Lexicon import LexiconCommodityLoader
 
 install()
@@ -12,79 +17,56 @@ install()
 class PhotoRequester:
     @staticmethod
     async def load_photo_in_base(photo_data: List[dict]):
-        '''Установка фотографий для новых машин.
-        :photo_data[dict]: admin_id, car_brand, car_model, photo_id, photo_unique_id
-        '''
-        ic()
-        ic(photo_data)
+        '''Асинхронный метод для установки фотографий новых автомобилей'''
         if 3 > len(photo_data) > 5:
-            raise ValueError('фотографий должно быть от трёх до пяти(включительно)')
-        with db.atomic():
-            # Вставка данных о фотографиях
-            ic(photo_data[0]['car_brand'], photo_data[0]['car_model'])
-            car_brand = photo_data[0]['car_brand']
-            car_model = photo_data[0]['car_model']
-            select_photo_base_response = list(NewCarPhotoBase.select().where(
-                (NewCarPhotoBase.car_brand == car_brand) & (NewCarPhotoBase.car_model == car_model)
-            ))
-            ic(select_photo_base_response)
-            if select_photo_base_response:
-                raise BufferError('Фотографии на эту конфигурацию уже загружены.')
-            else:
-                NewCarPhotoBase.insert_many(photo_data).execute()
+            raise ValueError('Фотографий должно быть от трёх до пяти (включительно)')
 
-            # Предполагаем, что все фотографии относятся к одному виду машины
-            sample_photo = photo_data[0]
-            brand, model = sample_photo['car_brand'], sample_photo['car_model']
+        car_brand = photo_data[0]['car_brand']
+        car_model = photo_data[0]['car_model']
+        car_engine = photo_data[0]['car_engine']
+        car_complectation = photo_data[0]['car_complectation']
+        existing_photos = await manager.execute(NewCarPhotoBase.select().where(
+            (NewCarPhotoBase.car_brand == car_brand) & (NewCarPhotoBase.car_model == car_model)))
 
-            commodity_photos_subquery = [photo_model.car_id.car_id for photo_model in CommodityPhotos.select(CommodityPhotos.car_id)]
-            ic(commodity_photos_subquery)
-            # Находим автомобили, соответствующие критериям
-            commodity_query = (Commodity
-                               .select()
-                               .where((Commodity.brand == brand) &
-                                      (Commodity.model == model) &
-                                      (Commodity.state == 'Новое') &
-                                      Commodity.car_id not in commodity_photos_subquery))
+        if existing_photos:
+            raise BufferError('Фотографии на эту конфигурацию уже загружены.')
+        else:
+            insert_query = NewCarPhotoBase.insert_many(photo_data)
+            await manager.execute(insert_query)
 
-            # Собираем данные для массовой вставки
-            insert_data = []
-            for car in commodity_query:
-                for photo in photo_data:
-                    insert_data.append({
-                        'car_id': car.car_id,
-                        'photo_id': photo['photo_id'],
-                        'photo_unique_id': photo['photo_unique_id']
-                    })
+        commodity_photos_subquery = [photo_model.car_id.car_id for photo_model in await manager.execute(AdvertPhotos.select(AdvertPhotos.car_id))]
+        commodity_query = (CarAdvert
+                           .select()
+                           .join(CarComplectation, CarBrand, CarModel)
+                           .where((CarBrand.id == car_brand) & (CarModel.id == car_model) &
+                                  (CarAdvert.id.not_in(commodity_photos_subquery)) &
+                                  (CarComplectation.id == car_complectation) & (CarEngine.id == car_engine)))
 
-            # Массовая вставка фотографий для каждого автомобиля
-            if insert_data:
-                insert_response = CommodityPhotos.insert_many(insert_data).execute()
+        insert_data = [{'car_id': car.car_id, 'photo_id': photo['photo_id'], 'photo_unique_id': photo['photo_unique_id']} for car in await manager.execute(commodity_query) for photo in photo_data]
 
-                ic(insert_response)
+        if insert_data:
+            insert_photo_query = AdvertPhotos.insert_many(insert_data)
+            await manager.execute(insert_photo_query)
 
     @staticmethod
-    async def try_get_photo(car_data: dict) -> Optional[list]:
-        '''Попытка подобрать фотографии для новой заявки на Новый автомобиль
-        :car_data[dict]: brand, model
-        '''
+    async def try_get_photo(state: FSMContext) -> Optional[list]:
+        '''Асинхронная попытка подобрать фотографии для новой заявки на Новый автомобиль'''
+        memory_storage = await state.get_data()
+        ic(memory_storage)
 
-        brand = LexiconCommodityLoader.load_commodity_brand['buttons'][car_data['brand']]
-        model = LexiconCommodityLoader.load_commodity_model['buttons'][car_data['model']]
-        ic(brand, model)
-        # correct_data = []
-        # for parameter in (brand, model):
-        #     correct_data.append(parameter if not parameter.startswith('load') else parameter.replace('load_', ''))
-        # ic(correct_data)
-        with db.atomic():
-            select_response = list(NewCarPhotoBase.select().where((NewCarPhotoBase.car_brand == brand) &
-                                                              (NewCarPhotoBase.car_model == model)))
-            ic(select_response)
-            if select_response:
-                result = list()
-                for data_pack in select_response:
-                    result.append({'id': data_pack.photo_id, 'unique_id': data_pack.photo_unique_id})
-                ic(result)
-                return result
-            else:
-                return None
+        brand = memory_storage['brand_for_load'],
+        model = memory_storage['model_for_load'],
+        complectation = memory_storage['complectation_for_load'],
+        engine = memory_storage['engine_for_load']
+
+        query = NewCarPhotoBase.select().where(
+            (NewCarPhotoBase.car_brand == brand) & (NewCarPhotoBase.car_model == model) &
+        (NewCarPhotoBase.car_complectation == complectation) & (NewCarPhotoBase.car_engine == engine))
+        select_response = list(await manager.execute(query))
+
+        if select_response:
+            result = [{'id': data_pack.photo_id, 'unique_id': data_pack.photo_unique_id} for data_pack in
+                      select_response]
+            return result
+        else:
+            return None

@@ -47,7 +47,7 @@ class CheckInputName(BaseFilter):
             print('drop_name', full_name)
 
             
-            name_is_exists = PersonRequester.this_name_is_exists(name=full_name.strip(), user=buyer_use, seller=seller_use)
+            name_is_exists = await PersonRequester.this_name_is_exists(name=full_name.strip(), user=buyer_use, seller=seller_use)
             if name_is_exists:
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
                 return await current_object(request=message, state=state, incorrect='(exists)')

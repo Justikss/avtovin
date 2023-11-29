@@ -6,12 +6,12 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import lifetime_of_redis_record_of_request_caching
 from database.data_requests.commodity_requests import CommodityRequester
-from database.data_requests.offers_requests import CachedOrderRequests
-from database.tables.commodity import Commodity
 from utils.Lexicon import LEXICON
 
 async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_models=None):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+    cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
+
 
     redis_key = str(callback.from_user.id) + ':cars_type'
     cars_state = await redis_module.redis_data.get_data(redis_key)
@@ -64,7 +64,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
 
     if first_view_mode:
         ic(data_stack)
-        await CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
+        await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
 
 
     # await redis_module.redis_data.set_data(key=cache_non_confirm_cars_redis_key,

@@ -4,6 +4,7 @@ from copy import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
+from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.commodity_requests import CommodityRequester
 from handlers.callback_handlers.sell_part.commodity_requests.commodity_requests_handler import \
     commodity_reqests_by_seller
@@ -45,7 +46,7 @@ class DeleteCarRequest:
                 key=f'{str(callback.from_user.id)}:seller_request_data', use_json=True)
             car_id = seller_request_data['car_id']
 
-            CommodityRequester.delete_car_by_id(car_id)
+            await AdvertRequester.delete_advert_by_id(car_id)
 
             await callback.answer(LexiconSellerRequests.success_delete)
 
@@ -67,15 +68,17 @@ class DeleteCarRequest:
             # if not return_requests:
             #     await commodity_reqests_by_seller(callback)
 
-        elif return_path.startswith('load_brand_'):
+        elif return_path.startswith('seller_requests_brand'):
             chosen_brand = await redis_module.redis_data.get_data(
                 key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
 
             return_requests = await output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand)
+            ic(return_requests)
 
             if not return_requests:
-                await seller_requests_callback_handler(callback, state)
-
+                return_requests = await seller_requests_callback_handler(callback, state)
+                if not return_requests:
+                    await commodity_reqests_by_seller(callback)
         # await redis_module.redis_data.delete_key(
         #     key=f'{str(callback.from_user.id)}:return_path_after_delete_car')
 

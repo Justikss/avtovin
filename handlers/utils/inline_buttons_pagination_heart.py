@@ -18,13 +18,15 @@ class CachedRequestsView:
         redis_key = f'{str(callback.from_user.id)}:inline_buttons_pagination_data'
 
         if car_brands:
-            inline_buttons_data = copy(LexiconCommodityLoader.load_commodity_brand['buttons'])
-            ic(inline_buttons_data)
-            ic(car_brands)
-            if isinstance(car_brands, dict):
-                data = [{key: value for key, value in inline_buttons_data.items() if value in car_brands.values()}]
-            else:
-                data = [{key: value for key, value in inline_buttons_data.items() if value in car_brands}]
+            # inline_buttons_data = copy(LexiconCommodityLoader.load_commodity_brand['buttons'])
+            # inline_buttons_data =
+            # ic(inline_buttons_data)
+            # ic(car_brands)
+            # if isinstance(car_brands, dict):
+            #     data = [{key: value for key, value in inline_buttons_data.items() if value in car_brands.values()}]
+            # else:
+            #     data = [{key: value for key, value in inline_buttons_data.items() if value in car_brands}]
+            data = [car_brands]
             ic(type(data))
             ic(data)
             pagination = Pagination(data=data, page_size=8, current_page=1)

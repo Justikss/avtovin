@@ -2,10 +2,12 @@ from typing import Union, List
 
 from peewee import IntegrityError
 
-from database.tables.commodity import Commodity, CommodityPhotos
+from database.tables.commodity import AdvertPhotos
+
+from database.tables.car_configurations import CarAdvert
 from database.tables.offers_history import ActiveOffers, CacheBuyerOffers
-from database.tables.start_tables import db
-from database.data_requests.person_requests import sellers, buyer
+
+# from database.data_requests.person_requests import sellers, buyer
 
 
 class CommodityRequester:
@@ -13,7 +15,7 @@ class CommodityRequester:
     def delete_car_by_id(car_id):
         '''Удаление автомобиля'''
         with db.atomic():
-            select_response = Commodity.delete_by_id(car_id)
+            select_response = CarAdvert.delete_by_id(car_id)
             if select_response:
                 select_response_offers_history = ActiveOffers.delete().where(ActiveOffers.car_id == car_id).execute()
                 ic(select_response_offers_history)
@@ -27,28 +29,14 @@ class CommodityRequester:
 
             return False
 
-    @staticmethod
-    def get_photo_album_by_car_id(car_id, get_list=False):
-        '''Метод извлекает фотографии автомобиля'''
-        # current_car = Commodity.get_by_id(car_id)
-        # if current_car:
-        with db.atomic():
-            current_photo_album = list(CommodityPhotos.select().where(CommodityPhotos.car_id == car_id))
-            if current_photo_album:
-                if not get_list:
-                    current_photo_album = [{'id': photo_model.photo_id} for photo_model in current_photo_album]
-                else:
-                    current_photo_album = [photo_model.photo_id for photo_model in current_photo_album]
-                return current_photo_album
-            else:
-                return False
+
 
     @staticmethod
-    def retrieve_all_data() -> Union[bool, List[Commodity]]:
+    def retrieve_all_data() -> Union[bool, List[CarAdvert]]:
         '''Извлечь все модели строк'''
         with db.atomic():
             '''Контекстный менеджер with обеспечит авто-закрытие после запроса.'''
-            select_request = Commodity.select()
+            select_request = CarAdvert.select()
             print(select_request)
             if list(select_request):
                 return list(select_request)
@@ -56,7 +44,7 @@ class CommodityRequester:
                 return False
 
     @staticmethod
-    def store_data(data: Union[List[dict], dict], db=db) -> bool:
+    def store_data(data: Union[List[dict], dict], db) -> bool:
         '''Загрузка моделей в таблицу товаров'''
         if isinstance(data, dict):
             data = [data]  # Убедитесь, что данные всегда в виде списка
@@ -66,47 +54,49 @@ class CommodityRequester:
 
             for data_part in data:
                 photo_data = data_part.pop('photos')
-                print(photo_data)
-
-                # Вставка каждой записи в Commodity отдельно
-                commodity_model = Commodity.insert(**data_part).execute()
-
+                # Вставка каждой записи в CarAdvert отдельно
+                CarAdvert_model = CarAdvert.insert(**data_part).execute()
 
                 if photo_data:
                     if isinstance(photo_data, list):
                         for photo_data_part in photo_data:
                             photo_boot_data.append({
-                            'car_id': commodity_model,  # Использование идентификатора вставленной записи
+                            'car_id': CarAdvert_model,  # Использование идентификатора вставленной записи
                             'photo_id': photo_data_part['id'],
                             'photo_unique_id': photo_data_part['unique_id']
                         })
                     else:
-                        if len(photo_data) == 1:
-                            photo_data = photo_data.values()
                         ic(photo_data)
+                        if len(photo_data) == 1:
+                            photo_data = [photo_part for photo_part in photo_data.values()]
+
+                        if len(photo_data) == 1:
+                            photo_data = photo_data[0]
+                        ic(photo_data)
+                        ic(len(photo_data))
                         for photo_data_part in photo_data:
                             if isinstance(photo_data_part, list):
                                 photo_data_part = photo_data_part[0]
-
+                            print('iteration')
                             ic(photo_data_part)
                             photo_boot_data.append({
-                                'car_id': commodity_model,  # Использование идентификатора вставленной записи
+                                'car_id': CarAdvert_model,  # Использование идентификатора вставленной записи
                                 'photo_id': photo_data_part['id'],
                                 'photo_unique_id': photo_data_part['unique_id']
                             })
 
             if photo_boot_data:
-                print(photo_boot_data)
+                ic(photo_boot_data)
                 CommodityPhotos.insert_many(photo_boot_data).execute()
 
-            return commodity_model
+            return CarAdvert_model
 
 
     @staticmethod
     def get_where_state(state: str):
         '''Получение моделей с определённым параметром state(Б/У or NEW)'''
         with db.atomic():
-            select_request = Commodity.select().where(Commodity.state == state)
+            select_request = CarAdvert.select().where(CarAdvert.state == state)
             return list(select_request)
 
     @staticmethod
@@ -115,7 +105,7 @@ class CommodityRequester:
         with db.atomic():
             models = list()
             for car_id in car_range_id:
-                models.append(Commodity.get_by_id(car_id))
+                models.append(CarAdvert.get_by_id(car_id))
                 print('pre-yes', models)
             if models:
                 models = [model for model in models if model.seller_id.telegram_id == seller_id]
@@ -132,7 +122,7 @@ class CommodityRequester:
     def get_by_seller_id(seller_id):
         '''Получить автомобили по id продавца'''
         with db.atomic():
-            sellers_commodities = list(Commodity.select().where(Commodity.seller_id == seller_id))
+            sellers_commodities = list(CarAdvert.select().where(CarAdvert.seller_id == seller_id))
             print('commodities_db ', sellers_commodities)
             if sellers_commodities:
                 return sellers_commodities
@@ -144,8 +134,8 @@ class CommodityRequester:
         '''Получить автомобили по id продавца и марке машины'''
         with db.atomic():
             print(seller_id, car_brand)
-            sellers_commodities = list(Commodity.select().where((Commodity.seller_id == seller_id) &
-                                                                (Commodity.brand == car_brand)))
+            sellers_commodities = list(CarAdvert.select().where((CarAdvert.seller_id == seller_id) &
+                                                                (CarAdvert.brand == car_brand)))
             if sellers_commodities:
                 return sellers_commodities
             else:
@@ -156,8 +146,8 @@ class CommodityRequester:
         '''Получение моделей с определённым параметром id'''
         try:
             with db.atomic():
-                select_request = Commodity.get_by_id(car_id)
-                print('try-get-commodity: ', select_request)
+                select_request = CarAdvert.get_by_id(car_id)
+                print('try-get-CarAdvert: ', select_request)
                 return select_request
         except Exception as ex:
             print('exx', ex)
@@ -172,60 +162,60 @@ class CommodityRequester:
         with db.atomic():
             if not engine_type:
                 print('yes not engine_type')
-                select_request = Commodity.select().where(Commodity.state == state)
+                select_request = CarAdvert.select().where(CarAdvert.state == state)
 
             elif engine_type and not brand:
                 print('yes brand')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                                          (Commodity.engine_type == engine_type))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                                          (CarAdvert.engine_type == engine_type))
 
             elif brand and not model:
                 print('yes model')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                                          (Commodity.brand == brand) &
-                                                          (Commodity.engine_type == engine_type))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                                          (CarAdvert.brand == brand) &
+                                                          (CarAdvert.engine_type == engine_type))
 
             elif model and not complectation:
                 print('yes engine')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                 (Commodity.brand == brand) &
-                                 (Commodity.model == model) &
-                                 (Commodity.engine_type == engine_type))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                 (CarAdvert.brand == brand) &
+                                 (CarAdvert.model == model) &
+                                 (CarAdvert.engine_type == engine_type))
 
             elif complectation and not color:
 
                 print('yes_complectation')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                 (Commodity.brand == brand) &
-                                 (Commodity.model == model) &
-                                 (Commodity.engine_type == engine_type) &
-                                 (Commodity.complectation == complectation))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                 (CarAdvert.brand == brand) &
+                                 (CarAdvert.model == model) &
+                                 (CarAdvert.engine_type == engine_type) &
+                                 (CarAdvert.complectation == complectation))
 
             elif color and not mileage:
                 print('yes year realise')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                 (Commodity.brand == brand) &
-                                 (Commodity.model == model) &
-                                 (Commodity.engine_type == engine_type) &
-                                 (Commodity.color == color))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                 (CarAdvert.brand == brand) &
+                                 (CarAdvert.model == model) &
+                                 (CarAdvert.engine_type == engine_type) &
+                                 (CarAdvert.color == color))
 
             elif mileage and not year_of_release:
                 print('yes mileage')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                 (Commodity.brand == brand) &
-                                 (Commodity.model == model) &
-                                 (Commodity.engine_type == engine_type) &
-                                 (Commodity.color == color) &
-                                 (Commodity.mileage == mileage))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                 (CarAdvert.brand == brand) &
+                                 (CarAdvert.model == model) &
+                                 (CarAdvert.engine_type == engine_type) &
+                                 (CarAdvert.color == color) &
+                                 (CarAdvert.mileage == mileage))
             elif year_of_release:
                 print('yes color')
-                select_request = Commodity.select().where((Commodity.state == state) &
-                                 (Commodity.brand == brand) &
-                                 (Commodity.model == model) &
-                                 (Commodity.engine_type == engine_type) &
-                                 (Commodity.year_of_release == year_of_release) &
-                                 (Commodity.mileage == mileage) &
-                                 (Commodity.color == color))
+                select_request = CarAdvert.select().where((CarAdvert.state == state) &
+                                 (CarAdvert.brand == brand) &
+                                 (CarAdvert.model == model) &
+                                 (CarAdvert.engine_type == engine_type) &
+                                 (CarAdvert.year_of_release == year_of_release) &
+                                 (CarAdvert.mileage == mileage) &
+                                 (CarAdvert.color == color))
             else:
                 print('COMMMODITY REQUEEEEST ELSEEEEEEEEEE')
             print([comm.model for comm in list(select_request)])
@@ -350,7 +340,7 @@ class CommodityRequester:
 truple_car = []
 truple_car.append({
     'seller_id': 902230076,
-    'brand': 'Mercedes',
+    'brand': 'BMW',
     'model': 'OneModel',
     'engine_type': 'DWS',
     'state': 'Новое',
@@ -394,9 +384,9 @@ truple_car.append({
 
 
 
-# a = CommodityRequester.store_data(double_cars)
-#b = CommodityRequester.store_data(new_cars)
-# c = CommodityRequester.store_data(truple_car)
+# a = CarAdvertRequester.store_data(double_cars)
+#b = CarAdvertRequester.store_data(new_cars)
+# c = CarAdvertRequester.store_data(truple_car)
 
 
-# cars = CommodityRequester.retrieve_all_data()
+# cars = CarAdvertRequester.retrieve_all_data()

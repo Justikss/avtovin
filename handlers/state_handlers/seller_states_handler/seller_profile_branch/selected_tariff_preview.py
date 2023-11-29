@@ -9,10 +9,10 @@ from utils.Lexicon import LexiconSelectedTariffPreview, LEXICON
 async def tariff_preview_card_constructor(tariff_id) -> dict:
     '''Метод структурирует данные тарифа с кнопками в lexicon_part по которому выводится блок
     сообщения с теми же кнопками'''
-    tarif_request_module = importlib.import_module('database.data_requests.tariff_requests')
+    tariff_request_module = importlib.import_module('database.data_requests.tariff_requests')
 
     print('TID ', tariff_id)
-    tariff_model = tarif_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
+    tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
     tariff_view_card = f'{LexiconSelectedTariffPreview.header}\
         {LexiconSelectedTariffPreview.name}{tariff_model.name}\
             {LexiconSelectedTariffPreview.price}{tariff_model.price}\

@@ -59,7 +59,7 @@ async def load_user_in_database(memory_dict, number, message: Message):
     struct_for_database['patronymic'] = patronymic_value
     struct_for_database['phone_number'] = number
     struct_for_database['username'] = message.from_user.username
-    PersonRequester.store_data(struct_for_database, user=True)
+    await PersonRequester.store_data(struct_for_database, user=True)
 
 
 async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext, delete_mode=False):

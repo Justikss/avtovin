@@ -13,7 +13,7 @@ async def output_for_admin_formater(callback: CallbackQuery):
     '''Форматировщик текста сообщения в Админский чат о регистрации нового продавца'''
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     await redis_module.redis_data.set_data(key=str(callback.from_user.id) + ':chat_id', value=callback.message.chat.id)
-    new_seller = PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
+    new_seller = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if new_seller:
         new_seller = new_seller[0]
         if not new_seller.authorized:

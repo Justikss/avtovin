@@ -13,7 +13,6 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerCarsPagination
 from utils.Lexicon import LEXICON
 from database.data_requests.person_requests import PersonRequester
-from database.data_requests.offers_requests import OffersRequester, CachedOrderRequests
 from utils.user_notification import send_notification_for_seller
 
 # ic.disable()
@@ -24,7 +23,7 @@ async def output_for_seller_formater(callback: CallbackQuery, almost_done_card) 
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     for_seller_lexicon_part = LEXICON['confirm_from_seller']['message_text']
-    person_model = PersonRequester.get_user_for_id(user_id=callback.from_user.id, user=True)
+    person_model = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, user=True)
     if not person_model:
         await message_editor.travel_editor.edit_message(request=callback,
                                                         lexicon_key='buy_configuration_non_registration')
@@ -43,6 +42,7 @@ async def output_for_seller_formater(callback: CallbackQuery, almost_done_card) 
 
 async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     '''Обработка подтверждения(от пользователя) поисковых настроек на покупку автомобиля'''
+    cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     # redis_data = importlib.import_module('utils.redis_for_language')
     car_dont_exists = False
@@ -53,11 +53,11 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     cached_data = None
     if car_model:
 
-        cached_data = await CachedOrderRequests.get_cache(buyer_id=callback.from_user.id, car_id=car_id)
+        cached_data = await cached_requests_module.CachedOrderRequests.get_cache(buyer_id=callback.from_user.id, car_id=car_id)
         if cached_data:
             cached_data = cached_data[0]
             ic(cached_data)
-            await CachedOrderRequests.remove_cache(buyer_id=callback.from_user.id, car_id=car_id)
+            await cached_requests_module.CachedOrderRequests.remove_cache(buyer_id=callback.from_user.id, car_id=car_id)
             cached_data = {'car_id': cached_data.car_id.car_id,
                            'message_text': cached_data.message_text,
                            'album': CommodityRequester.get_photo_album_by_car_id(cached_data.car_id)}
@@ -67,7 +67,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
             # commodity_model = CommodityRequester.get_where_id(car_id=data_for_seller['car_id'])
 
             try:
-                insert_response = await OffersRequester.set_offer_model(buyer_id=callback.from_user.id, car_id=car_id, seller_id = car_model.seller_id)
+                insert_response = await cached_requests_module.OffersRequester.set_offer_model(buyer_id=callback.from_user.id, car_id=car_id, seller_id = car_model.seller_id)
                 if not insert_response:
                     await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
                 if car_model:
@@ -100,11 +100,11 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
         if (len(pagination_data['data']) <= 1 or not cached_data) and not car_dont_exists:
             await message_editor.redis_data.delete_key(key=f'{str(callback.from_user.id)}:buyer_cars_pagination')
 
-            state_name = await state.get_state()
-            if state_name == 'HybridChooseStates:config_output':
-                return await return_main_menu.return_main_menu_callback_handler(callback=callback, state=state)
-            elif state_name == 'CheckNonConfirmRequestsStates:brand_flipping_process':
-                await get_cached_requests__chose_brand(callback, state)
+            # state_name = await state.get_state()
+            # if state_name == 'HybridChooseStates:config_output':
+            return await return_main_menu.return_main_menu_callback_handler(callback=callback, state=state)
+            # elif state_name == 'CheckNonConfirmRequestsStates:brand_flipping_process':
+            #     await get_cached_requests__chose_brand(callback, state)
         else:
             # data_part_to_delete = [data_part for data_part in pagination_data['data'] if int(data_part['car_id']) == int(car_id)]
             ic(pagination_data['data'])

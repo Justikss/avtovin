@@ -4,9 +4,9 @@ from copy import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from database.data_requests.offers_requests import OffersRequester
 from utils.Lexicon import LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import CheckFeedbacksHandler, my_feedbacks_callback_handler
+
 
 class DeleteFeedback:
 
@@ -31,11 +31,12 @@ class DeleteFeedback:
     @staticmethod
     async def delete_feedback_handler(callback: CallbackQuery, state: FSMContext):
         redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+        cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
 
         seller_request_data = await redis_module.redis_data.get_data(
             key=f'{str(callback.from_user.id)}:seller_request_data', use_json=True)
 
-        delete_query = await OffersRequester.delete_offer(seller_request_data.get('offer_id'))
+        delete_query = await cached_requests_module.OffersRequester.delete_offer(seller_request_data.get('offer_id'))
 
         await callback.answer(LexiconSellerRequests.success_delete)
 

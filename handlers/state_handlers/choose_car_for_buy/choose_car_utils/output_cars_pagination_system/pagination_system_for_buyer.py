@@ -34,7 +34,6 @@ class BuyerCarsPagination:
             operation = '+'
 
         page_data = await self.pagination.get_page(operation)  # '+' для начальной страницы
-        ic(page_data)
         if page_data:
             page_data = page_data[0]
             keyboard = await self.get_keyboard(car_id=page_data.get('car_id'), state=state)

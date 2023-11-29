@@ -34,7 +34,7 @@ async def create_tarifs():
 async def bot_help(message: Message):
     a = importlib.import_module('database.data_requests.tariff_requests')
 
-    person_exists = PersonRequester.get_user_for_id(user_id=message.from_user.id, seller=True)
+    person_exists = await PersonRequester.get_user_for_id(user_id=message.from_user.id, seller=True)
     if not person_exists:
         await message.answer('Зарегистрируйтесь продавцом')
 
@@ -47,6 +47,6 @@ async def bot_help(message: Message):
             'tariff': 'minimum'
             }
 
-    TariffToSellerBinder.set_bind(data=data)
+    await TariffToSellerBinder.set_bind(data=data)
 
 

@@ -102,7 +102,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
 
         }
     print(formatted_load_pattern)
-    try_load = PersonRequester.store_data(formatted_load_pattern, seller=True)
+    try_load = await PersonRequester.store_data(formatted_load_pattern, seller=True)
     if try_load:
         return True
     else:

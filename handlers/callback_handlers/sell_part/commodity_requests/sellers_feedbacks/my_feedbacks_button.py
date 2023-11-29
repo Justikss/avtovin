@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.commodity_requests import CommodityRequester
-from database.data_requests.offers_requests import OffersRequester
 from states.seller_feedbacks_states import SellerFeedbacks
 from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import output_sellers_commodity_page
@@ -30,15 +29,6 @@ class CheckFeedBacksABC(ABC):
 class CheckFeedbacksHandler(CheckFeedBacksABC):
     def __init__(self):
         pass
-
-    # @staticmethod
-    # async def check_new_feedbacks(callback: CallbackQuery, pagination_data):
-    #     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
-    #
-    #     await redis_module.redis_data.set_data(key=f'{str(callback.from_user.id)}:last_keyboard_in_seller_pagination',
-    #                                              value=LexiconSellerRequests.check_new_feedbacks_buttons)
-    #
-    #     await output_sellers_commodity_page(callback, pagination_data)
 
     @staticmethod
     async def check_feedbacks_handler(callback: CallbackQuery, state: FSMContext, command=None):
@@ -92,7 +82,9 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
     @staticmethod
     async def make_unpacked_data_for_seller_output(callback: CallbackQuery, viewed: bool):
-        seller_offers = await OffersRequester.get_by_seller_id(seller_id_value=callback.from_user.id, viewed_value=viewed)
+        cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
+
+        seller_offers = await cached_requests_module.OffersRequester.get_by_seller_id(seller_id_value=callback.from_user.id, viewed_value=viewed)
         if seller_offers:
             if viewed == False:
                 ic()

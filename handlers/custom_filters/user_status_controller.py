@@ -27,7 +27,7 @@ class StatusControl(BaseFilter):
         else:
             return True
 
-        user_model = PersonRequester.get_user_for_id(user_id=user_id, seller=seller, user=user)
+        user_model = await PersonRequester.get_user_for_id(user_id=user_id, seller=seller, user=user)
         if not user_model:
             if isinstance(request, CallbackQuery):
                 await request.answer(LEXICON['user_havent_permision'])

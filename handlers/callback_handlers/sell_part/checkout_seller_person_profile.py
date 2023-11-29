@@ -28,10 +28,10 @@ async def get_seller_name(seller_model: Seller) -> Union[Tuple[str, str], str]:
 async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     '''Метод конструирования выводимой карточки профиля'''
     user_id = callback.from_user.id
-    seller_tariff_model = TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
+    seller_tariff_model = await TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
 
 
-    seller_model = PersonRequester.get_user_for_id(user_id=user_id, seller=True)
+    seller_model = await PersonRequester.get_user_for_id(user_id=user_id, seller=True)
     seller_model = seller_model[0]
     seller_data = await get_seller_name(seller_model)
     if len(seller_data) == 2:
@@ -44,7 +44,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     if seller_tariff_model:
         seller_tariff_model = seller_tariff_model[0]
 
-        if datetime.strptime(seller_tariff_model.end_date_time, DATETIME_FORMAT) < datetime.now():
+        if seller_tariff_model.end_date_time < datetime.now():
             output_string += f'\n{LexiconSellerProfile.tarif_expired}'
         else:
             output_string += f'\n{LexiconSellerProfile.tariff_prefix} {seller_tariff_model.tariff.name}\

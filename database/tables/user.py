@@ -1,4 +1,4 @@
-from .start_tables import BaseModel
+from database.db_connect import BaseModel
 from peewee import CharField, IntegerField
 
 class User(BaseModel):

@@ -4,9 +4,8 @@ from aiogram.types import CallbackQuery
 
 from handlers.state_handlers.seller_states_handler.seller_registration.await_confirm_from_admin import utils
 from database.data_requests.person_requests import PersonRequester
-from keyboards.inline.kb_creator import InlineCreator
 from utils.Lexicon import LEXICON
-from handlers.callback_handlers.buy_part.confirm_from_seller_callback_handler import send_notification
+from utils.user_notification import send_notification
 
 
 async def accept_registraiton(callback: CallbackQuery):
