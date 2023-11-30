@@ -54,6 +54,10 @@ class CheckInputName(BaseFilter):
             else:
                 return {'user_name': full_name}
         else:
-            await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+            try:
+                await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+            except:
+                pass
             return await current_object(request=message, state=state, incorrect='(novalid)')
+
             

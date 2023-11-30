@@ -3,6 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 import importlib
 
+from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
+    rewrite_price_by_seller_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_price_to_load
 
 
@@ -45,5 +47,8 @@ class PriceIsDigit(BaseFilter):
 
             await redis_module.redis_data.set_data(key=redis_key_user_message, 
                                                     value=message.message_id)
-
-            await input_price_to_load(request=message, state=state, incorrect=True)
+            current_state = await state.get_state()
+            if str(current_state) == 'RewritePriceBySellerStates:await_input':
+                await rewrite_price_by_seller_handler(message, state, incorrect=True)
+            else:
+                await input_price_to_load(request=message, state=state, incorrect=True)

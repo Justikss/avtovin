@@ -1,9 +1,9 @@
 from database.db_connect import BaseModel
-from peewee import CharField, IntegerField
+from peewee import CharField, IntegerField, BigIntegerField
 
 class User(BaseModel):
     '''Таблица пользователей.'''
-    telegram_id = IntegerField(unique=True, primary_key=True) #Поле для идентефикации. Уникальные значения увеличивающиеся на 1
+    telegram_id = BigIntegerField(unique=True, primary_key=True) #Поле для идентефикации. Уникальные значения увеличивающиеся на 1
     username = CharField(unique=True)
     name = CharField(verbose_name='Имя') #поле ограничено символами(название столбца)
     surname = CharField(verbose_name='Фамилия') #поле ограничено символами(возможно нулевое значение, название столбца)

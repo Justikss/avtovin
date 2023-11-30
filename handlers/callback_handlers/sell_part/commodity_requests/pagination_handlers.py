@@ -30,7 +30,7 @@ class SellerRequestsPagination(ABC):
                 await media_group_delete_module.delete_media_groups(request=callback)
 
 
-                return await output_sellers_commodity_page(callback=callback, output_data_part=output_data_part, state=state)
+                return await output_sellers_commodity_page(request=callback, output_data_part=output_data_part, state=state)
 
         await callback.answer(Lexicon.pages_were_end)
 

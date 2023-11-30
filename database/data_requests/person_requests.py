@@ -22,6 +22,7 @@ class PersonRequester:
         '''Асинхронный метод для загрузки моделей в таблицу'''
         try:
             if user:
+                ic(data)
                 await manager.execute(User.insert_many(*data))
                 return True
             elif seller:

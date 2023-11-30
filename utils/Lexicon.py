@@ -4,6 +4,47 @@ from dataclasses import dataclass
 
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
 
+class ChooseEngineType:
+    message_text = 'Выберите тип двигателя'
+    buttons_callback_data = 'cars_engine_type_'
+    last_buttons = {'backward': 'Назад'}
+    width = 1
+
+
+class ChooseBrand:
+    message_text = 'Выберите марку'
+    last_buttons = {'backward_in_carpooling': 'Назад'}
+    buttons_callback_data = 'cars_brand_'
+    width = 1
+class ChooseModel:
+    message_text = 'Выберите модель'
+    last_buttons = {'backward_in_carpooling': 'Назад'}
+    buttons_callback_data = 'cars_model_'
+    width = 1
+
+class ChooseComplectation:
+    message_text = 'Выберите комплектацию'
+    last_buttons = {'backward_in_carpooling': 'Назад'}
+    buttons_callback_data = 'cars_complectation_'
+    width = 1
+
+class ChooseYearOfRelease:
+    message_text = 'Выберите год'
+    last_buttons = {'backward_in_carpooling': 'Назад'}
+    buttons_callback_data = 'cars_year_of_release_'
+    width = 1
+class ChooseMileage:
+    message_text = 'Выберите пробег'
+    last_buttons = {'backward_in_carpooling': 'Назад'}
+    buttons_callback_data = 'cars_mileage_'
+    width = 1
+class ChooseColor:
+    message_text = 'Выберите цвет'
+    last_buttons = {'backward_in_carpooling': 'Назад'}
+    buttons_callback_data = 'cars_color_'
+    width = 1
+
+
 LEXICON = {
             'cached_requests_for_buyer_message_text': {
                 'message_text': 'Просмотр неподтверждённых вами предложений\nВыберите марку:'},
@@ -52,27 +93,15 @@ LEXICON = {
             'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать',
                                      'backward': 'Назад', 'width': 1},
 
-            'choose_engine_type': {'message_text': 'Выберите тип двигателя', 'backward': 'Назад',
-                                               'width': 1},
-            'choose_brand': {'message_text': 'Выберите марку', 'backward_in_carpooling': 'Назад', 'width': 1},
-            'choose_model': {'message_text': 'Выберите модель', 'backward_in_carpooling': 'Назад', 'width': 1},
-
-            'choose_complectation': {'message_text': 'Выберите комплектацию', 'backward_in_carpooling': 'Назад',
-                                     'width': 1},
-
-            'choose_year_of_release': {'message_text': 'Выберите год', 'backward_in_carpooling': 'Назад',
-                                       'width': 1},
-            'choose_mileage': {'message_text': 'Выберите пробег', 'backward_in_carpooling': 'Назад', 'width': 1},
-            'choose_color': {'message_text': 'Выберите цвет', 'backward_in_carpooling': 'Назад', 'width': 1},
 
             'chosen_configuration': {
                 'message_text': {'your_configs': 'Ваши настройки:',
-                                 'car_state': 'Состояние: ',
-                                 'engine_type': 'Тип двигателя: ',
-                                 'model': 'Модель: ',
-                                 'brand': 'Марка: ', 'complectation': 'Комплектация: ',
-                                 'cost': 'Cтоимость: ', 'mileage': 'Пробег: ', 'year': 'Год: ',
-                                 'color': 'Цвет: '}, 'buyer_car_pagination:-': '<', 'buyer_car_pagination:+': '>',
+                                 'car_state': 'Состояние:',
+                                 'engine_type': 'Тип двигателя:',
+                                 'model': 'Модель:',
+                                 'brand': 'Марка:', 'complectation': 'Комплектация:',
+                                 'cost': 'Cтоимость:', 'mileage': 'Пробег:', 'year': 'Год:',
+                                 'color': 'Цвет:'}, 'buyer_car_pagination:-': '<', 'buyer_car_pagination:+': '>',
                 'confirm_buy_settings:': 'Подтвердить',
                 'backward_in_carpooling': 'Вернуться', 'return_main_menu': 'В меню', 'width': (2, 1, 1, 1)},
 
@@ -215,8 +244,6 @@ class LexiconCommodityLoader:
     seller_notification = {'message_text': 'Заявка №_ создана!'}
 
 
-
-
 class LexiconSellerRequests:
     backward_from_delete_in_feedbacks = {'viewed_feedbacks': 'Назад'}
 
@@ -229,12 +256,18 @@ class LexiconSellerRequests:
     # backward_button = {'backward:sales_brand_choose': 'Назад'}
     keyboard_end_part = {'backward:sales_brand_choose': 'Назад'}
     # choose_brand_keyboard_width = 1
+    return_to_requests_buttons = {'buttons': {'backward:rewrite_price_by_seller': 'К заявкам', 'width': 1}}
+    input_new_price = {'message_text': 'Введите новую стоимость.\n[Нынешняя цена: X]', **return_to_requests_buttons}
+    input_new_price_incorrect_message_text = 'Введите новую стоимость.\n[Нынешняя: X]\nПожалуйста, укажите целочисленное значение!'
+    input_new_price_car_dont_exists = {'message_text': 'К сожалению автомобиль снят с продажи.\nИли введено большое число.', **return_to_requests_buttons}
+    succes_rewrite_price = {'message_text': 'Цена успешно изменена', **return_to_requests_buttons}
 
     pagination_vectors = {'seller_requests_pagination_left': '<', 'seller_requests_pagination_right': '>'}
 
     selected_brand_output_buttons = {'buttons': {**pagination_vectors,
+                                                 'rewrite_price_by_seller': 'Изменить цену',
                                                 'withdrawn': 'Удалить из каталога',
-                                                'backward:sales_order_review': 'Назад', 'width': (2, 1, 1)}}
+                                                'backward:sales_order_review': 'Назад', 'width': (2, 1, 1, 1)}}
 
     check_viewed_feedbacks_buttons = {'buttons': {**pagination_vectors,
                                                'withdrawn': 'Снять с продажи', 'deal_fell_through': 'Сделка сорвалась',

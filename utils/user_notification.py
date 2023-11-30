@@ -2,7 +2,7 @@ import importlib
 
 from aiogram.types import CallbackQuery, InputMediaPhoto
 
-from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.car_advert_requests import AdvertRequester
 from keyboards.inline.kb_creator import InlineCreator
 from utils.Lexicon import LEXICON
 
@@ -63,9 +63,8 @@ async def send_notification(callback: CallbackQuery, user_status: str, chat_id=N
 async def send_notification_for_seller(callback: CallbackQuery, data_for_seller, media_mode=False):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
-
-    commodity_model = CommodityRequester.get_where_id(car_id=data_for_seller['car_id'])
-    seller_id = commodity_model.seller_id.telegram_id
+    commodity_model = await AdvertRequester.get_where_id(data_for_seller['car_id'])
+    seller_id = commodity_model.seller.telegram_id
     ic(seller_id)
     seller_offers = await redis_module.redis_data.get_data(key=f'{str(seller_id)}:seller__new_active_offers', use_json=True)
     if not seller_offers:

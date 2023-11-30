@@ -1,6 +1,6 @@
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InputMediaPhoto
-from typing import List
+from aiogram.types import CallbackQuery, InputMediaPhoto, Message
+from typing import List, Union
 import importlib
 
 from database.data_requests.car_advert_requests import AdvertRequester
@@ -45,9 +45,9 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
 
         if car.mileage:
             heart = f'''
-                    {Lexicon.commodity_year_of_realise}{car.year_of_release.name}
-                    {Lexicon.commodity_mileage}{car.mileage.name}
-                    {Lexicon.commodity_color}{car.color.name}
+                    {Lexicon.commodity_year_of_realise}{car.year.name}\
+                    {Lexicon.commodity_mileage}{car.mileage.name}\
+                    {Lexicon.commodity_color}{car.color.name}\
                     '''
         else:
             heart = ''
@@ -57,7 +57,7 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
                     {Lexicon.commodity_brand}{car.complectation.model.brand.name}\
                     {Lexicon.commodity_model}{car.complectation.model.name}\
                     {Lexicon.commodity_complectation}{car.complectation.name}\
-                    {heart}\
+                    \n{heart.strip()}\
                     {Lexicon.commodity_price}{car.price}\
                     ''')
         current_photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
@@ -75,14 +75,18 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
     return output_data
 
 
-async def output_sellers_commodity_page(callback: CallbackQuery, state: FSMContext, pagination_data=None, output_data_part=None):
+async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], state: FSMContext, pagination_data=None, output_data_part=None, current_page=None):
     '''процесс вывода существующих заявок продавца'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     inline_keyboard_creator_module = importlib.import_module('keyboards.inline.kb_creator')
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
 
     ic(output_data_part)
-    user_id = str(callback.from_user.id)
+    user_id = str(request.from_user.id)
+    if isinstance(request, CallbackQuery):
+        message = request.message
+    else:
+        message = request
 
     seller_requests_pagination = await message_editor.redis_data.get_data(
         key=user_id + ':seller_requests_pagination', use_json=True)
@@ -98,7 +102,12 @@ async def output_sellers_commodity_page(callback: CallbackQuery, state: FSMConte
         print('dicted_pagination_class_to_dict ', dicted_pagination_class)
         await message_editor.redis_data.set_data(key=user_id + ':seller_requests_pagination',
                                                  value=dicted_pagination_class)
-
+    ic()
+    ic(current_page)
+    if current_page:
+        seller_requests_pagination.current_page = current_page-1
+        ic()
+        ic(seller_requests_pagination.current_page)
     if not output_data_part:
         output_data_part = await seller_requests_pagination.get_page(operation='+')
 
@@ -114,14 +123,14 @@ async def output_sellers_commodity_page(callback: CallbackQuery, state: FSMConte
             print(output_part)
             media_group.append(InputMediaPhoto(media=output_part['album'][-1],
                                                caption=output_part['message_text']))
-            commodity_card_message = await callback.bot.send_media_group(chat_id=callback.message.chat.id,
+            commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
                                                                       media=media_group)
             for message in commodity_card_message:
                 ic(message)
                 commodity_card_messages_id.append(message.message_id)
             commodity_card_message = commodity_card_message[0].message_id
         else:
-            commodity_card_message = await callback.bot.send_message(chat_id=callback.message.chat.id, text=output_part['message_text'])
+            commodity_card_message = await message.chat.bot.send_message(chat_id=message.chat.id, text=output_part['message_text'])
             commodity_card_messages_id.append(commodity_card_message.message_id)
             commodity_card_message = commodity_card_message.message_id
 
@@ -131,11 +140,11 @@ async def output_sellers_commodity_page(callback: CallbackQuery, state: FSMConte
     await message_editor.redis_data.set_data(key=user_id + ':seller_media_group_messages',
                                              value=commodity_card_messages_id)
 
-    keyboard_part = await message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:last_keyboard_in_seller_pagination', use_json=True)
+    keyboard_part = await message_editor.redis_data.get_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination', use_json=True)
 
-    if keyboard_part['buttons'].get('withdrawn'):
+    if keyboard_part['buttons'].get('withdrawn') or keyboard_part['buttons'].get('rewrite_price_by_seller'):
         ic(output_data_part)
-        await set_car_id_in_redis(callback, output_data_part)
+        await set_car_id_in_redis(request, output_data_part)
 
     keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(
         input_data=keyboard_part)
@@ -143,44 +152,47 @@ async def output_sellers_commodity_page(callback: CallbackQuery, state: FSMConte
     page_monitoring_string = f'{Lexicon.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]'
     lexicon_part = {'message_text': page_monitoring_string}
 
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True, reply_message=commodity_card_message, save_media_group=True)
+    await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True, reply_message=commodity_card_message, save_media_group=True)
 
 
 
 
-async def output_sellers_requests_by_car_brand_handler(callback: CallbackQuery, state: FSMContext, chosen_brand=None):
+async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQuery, Message], state: FSMContext, chosen_brand=None, current_page=None):
     '''Обработчик кнопки просмотра созданных запросов продавца'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-    await message_editor.redis_data.set_data(key=f'{str(callback.from_user.id)}:last_keyboard_in_seller_pagination', value=Lexicon.selected_brand_output_buttons)
+    await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination', value=Lexicon.selected_brand_output_buttons)
     if not chosen_brand:
 
         # try:
-        chosen_brand = callback.data.split(':')[1]
+        if isinstance(request, CallbackQuery):
+         chosen_brand = request.data.split(':')[1]
         # except:
         #     chosen_brand = LexiconCommodityLoader.load_commodity_brand['buttons'].get(callback.data)
-        await message_editor.redis_data.set_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache',
+        await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':sellers_requests_car_brand_cache',
                                                 value=chosen_brand)
     print(chosen_brand)
 
-    chosen_commodities = await AdvertRequester.get_by_seller_id_and_brand(seller_id=callback.from_user.id, brand=int(chosen_brand))
+    chosen_commodities = await AdvertRequester.get_by_seller_id_and_brand(seller_id=request.from_user.id, brand=int(chosen_brand))
     ic(chosen_commodities)
     if chosen_commodities:
         await message_editor.redis_data.set_data(
-            key=f'{str(callback.from_user.id)}:last_keyboard_in_seller_pagination',
+            key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination',
             value=Lexicon.selected_brand_output_buttons)
 
         path_after_delete_car = await message_editor.redis_data.get_data(
-            key=f'{str(callback.from_user.id)}:return_path_after_delete_car')
+            key=f'{str(request.from_user.id)}:return_path_after_delete_car')
 
-        if not path_after_delete_car or not path_after_delete_car.startswith('seller_requests_brand:'):
+        if (not path_after_delete_car or not path_after_delete_car.startswith('seller_requests_brand:')) and (isinstance(request, CallbackQuery)):
             await message_editor.redis_data.set_data(
-                key=f'{str(callback.from_user.id)}:return_path_after_delete_car', value=callback.data)
+                key=f'{str(request.from_user.id)}:return_path_after_delete_car', value=request.data)
 
-        await output_sellers_commodity_page(callback, pagination_data=await output_message_constructor(chosen_commodities), state=state)
-        await callback.answer()
+        await output_sellers_commodity_page(request, pagination_data=await output_message_constructor(chosen_commodities), state=state, current_page=current_page)
+        if isinstance(request, CallbackQuery):
+            await request.answer()
         return True
     else:
-        await callback.answer(Lexicon.seller_does_have_active_car_by_brand)
+        if isinstance(request, CallbackQuery):
+            await request.answer(Lexicon.seller_does_have_active_car_by_brand)
         return False
 

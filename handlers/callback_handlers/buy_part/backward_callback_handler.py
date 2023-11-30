@@ -23,7 +23,8 @@ from handlers.callback_handlers.sell_part import commodity_requests
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates, PersonSellerRegistrationStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-
+from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import \
+    output_sellers_requests_by_car_brand_handler
 
 
 async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
@@ -153,9 +154,8 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
         elif mode == 'sales_order_review':
             await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback, state=state, delete_mode=True)
 
-        elif mode in ('seller_start_delete_request', 'seller_delete_request'):
-            from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import \
-                output_sellers_requests_by_car_brand_handler
+        elif mode in ('seller_start_delete_request', 'seller_delete_request', 'rewrite_price_by_seller'):
+
 
             car_brand = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
             await output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand=car_brand)

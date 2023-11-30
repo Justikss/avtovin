@@ -5,11 +5,14 @@ from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.formatting import Text
 
 from database.db_connect import create_tables
 from database.data_requests.car_configurations_requests import mock_values, get_car
 
 from handlers.callback_handlers.buy_part.show_cached_requests import output_cached_requests
+from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
+    rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
@@ -24,6 +27,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
 from states.buyer_check_nonconfirm_requests_states import CheckNonConfirmRequestsStates
+from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from states.seller_deletes_request_states import DeleteRequestStates
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
@@ -97,11 +101,12 @@ async def start_bot():
     # await get_car()
 
     dp.callback_query.middleware(CleanerMiddleware())
-
-    dp.message.register(start_state_boot_new_car_photos_message_handler, Command(commands=['photos']))
+    import re
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
+
+    dp.message.register(start_state_boot_new_car_photos_message_handler, lambda message: message.text.startswith('p:'))
 
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 
@@ -245,6 +250,8 @@ async def start_bot():
     dp.callback_query.register(SellerRequestPaginationHandlers.right_button,
                                F.data == 'seller_requests_pagination_right')
 
+    dp.callback_query.register(rewrite_price_by_seller_handler, F.data == 'rewrite_price_by_seller')
+    dp.message.register(get_input_to_rewrite_price_by_seller_handler, StateFilter(RewritePriceBySellerStates.await_input), price_is_digit.PriceIsDigit())
     '''seller"s feedbacks'''
 
     dp.callback_query.register(my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))

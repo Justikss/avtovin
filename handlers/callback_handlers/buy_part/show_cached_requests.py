@@ -6,6 +6,7 @@ from icecream import ic
 
 
 from handlers.callback_handlers.buy_part.main_menu import main_menu
+from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
     BuyerCarsPagination
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
@@ -36,7 +37,7 @@ async def output_cached_requests(callback: CallbackQuery, state: FSMContext):
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
     choose_hybrid_handlers_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.hybrid_handlers')
 
-    car_brand = LexiconCommodityLoader.load_commodity_brand['buttons'][callback.data]
+    car_brand = int(callback.data.split('_')[-1])
     cars = await cached_requests_module.CachedOrderRequests.get_cache(buyer_id=str(callback.from_user.id), brand=car_brand)
     if cars:
         await state.set_state(CheckNonConfirmRequestsStates.brand_flipping_process)
@@ -45,5 +46,9 @@ async def output_cached_requests(callback: CallbackQuery, state: FSMContext):
 
         await pagination.send_page(request=callback, state=state)
         await state.set_state(CheckNonConfirmRequestsStates.brand_flipping_process)
+    else:
+        return_main_menu_module = importlib.import_module('handlers.callback_handlers.hybrid_part.return_main_menu')
+        await callback.answer(text=LEXICON["buyer_haven't_cached_requests"])
+        await return_main_menu_module.return_main_menu_callback_handler(callback, state)
 
 

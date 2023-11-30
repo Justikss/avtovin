@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from database.data_requests.commodity_requests import CommodityRequester
 from handlers.callback_handlers.sell_part.commodity_requests.commodity_requests_handler import \
     commodity_reqests_by_seller
 from handlers.callback_handlers.sell_part.commodity_requests.my_requests_handler import seller_requests_callback_handler

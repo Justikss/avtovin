@@ -25,7 +25,7 @@ from database.tables.seller import Seller
 
 
 class AdvertPhotos(BaseModel):
-    car_id = ForeignKeyField(CarAdvert, backref='car_id')
+    car_id = ForeignKeyField(CarAdvert, field=CarAdvert.id, backref='car_id')
     photo_id = CharField()
     photo_unique_id = CharField()
 
@@ -34,8 +34,6 @@ class AdvertPhotos(BaseModel):
 
 
 class NewCarPhotoBase(BaseModel):
-    car_brand = ForeignKeyField(CarBrand)
-    car_model = ForeignKeyField(CarModel)
     car_complectation = ForeignKeyField(CarComplectation)
     car_engine = ForeignKeyField(CarEngine)
     photo_id = CharField()

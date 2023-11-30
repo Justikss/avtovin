@@ -10,7 +10,23 @@ from handlers.custom_filters.message_is_photo import MessageIsPhoto
 mediagroups = {}
 user_messages = []
 
+async def get_unique_dictionaries(mediagroups):
+    unique_mediagroups = {}
 
+    for key, value in mediagroups.items():
+        unique_combinations = set()
+        unique_dicts = []
+
+        for item in value:
+            id_pair = (item.get('id'), item.get('unique_id'))
+
+            if id_pair not in unique_combinations:
+                unique_combinations.add(id_pair)
+                unique_dicts.append(item)
+
+        unique_mediagroups[key] = unique_dicts
+
+    return unique_mediagroups
 async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo_id: int, album_id: int, unique_id: int):
     '''Обработчик для принятия медиа групп
     Работает с:
@@ -30,7 +46,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             return
         mediagroups[album_id] = [{'id': photo_id, 'unique_id': unique_id}]
         user_messages.append(message.message_id)
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
 
         # new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
@@ -55,10 +71,29 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                 await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state, media_photos=mediagroups)
                 mediagroups.clear()
 
-            elif state_name == 'BootNewCarPhotosStates:await_photo':
+            elif state_name.startswith('BootNewCarPhotosStates'):
                 ic()
-                data = [{'admin_id': message.from_user.id, 'car_brand': 'BMW', 'car_model': 'DualModel', 'photo_id': part['id'],
-                         'photo_unique_id': part['unique_id']} for dict_values in mediagroups.values() for part in
-                        dict_values]
+                # mediagroupss = [value for value in mediagroups.values()]
+                # mediagroupss = set(mediagroupss)
+
+                mediagroupss = []
+                for e in mediagroups.values():
+                    if e not in mediagroupss:
+                        mediagroupss.append(e)
+                if isinstance(mediagroupss[0], list):
+                    mediagroupss = mediagroupss[-1]
+
+                ic(mediagroupss)
+                pre_data = [[1, 1], [2, 2], [3, 2], [4, 2], [5, 1], [6, 1], [7, 3], [8, 3]]
+                current_part = pre_data[int(state_name.split('_')[-1])-1]
+                data = [{'admin_id': message.from_user.id,
+                         'car_complectation': current_part[0],
+                        'car_engine': current_part[1],
+                         'photo_id': part['id'],
+                         'photo_unique_id': part['unique_id']} for part in mediagroupss]
+                ic(data)
+                ic(mediagroups.values())
+                print('load_moment')
+                await state.clear()
                 await PhotoRequester.load_photo_in_base(data)
 

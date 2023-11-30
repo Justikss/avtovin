@@ -17,7 +17,8 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     rewrite_controller_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
     if await rewrite_controller_module.rewrite_boot_state_stopper(request=callback, state=state):
-        await state.update_data(complectation_for_load=int(callback.data.split('_')[-1]))
+        if not callback.data.startswith('rewrite_boot_'):
+            await state.update_data(complectation_for_load=int(callback.data.split('_')[-1]))
     
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
@@ -34,8 +35,9 @@ async def input_mileage_to_load(callback: CallbackQuery, state: FSMContext):
     '''Выбрать пробег добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     rewrite_controller_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
-    
-    await state.update_data(year_for_load=int(callback.data.split('_')[-1]))
+
+    if not callback.data.startswith('rewrite_boot_'):
+        await state.update_data(year_for_load=int(callback.data.split('_')[-1]))
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
 
@@ -51,8 +53,8 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
     '''Выбрать цвет добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     rewrite_controller_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
-    
-    await state.update_data(mileage_for_load=int(callback.data.split('_')[-1]))
+    if not callback.data.startswith('rewrite_boot_'):
+        await state.update_data(mileage_for_load=int(callback.data.split('_')[-1]))
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
 
@@ -95,17 +97,18 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
             get_load_car_state_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
 
             ic(car_price)
+
             await state.update_data(load_price=int(car_price))
             cars_state = await get_load_car_state_module.get_load_car_state(state=state)
             print('cstate: ', cars_state)
             if cars_state == 'new':
                 output_config_module = importlib.import_module(
                     'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
-
-
-                photo_pack = await PhotoRequester.try_get_photo(state)
-                ic(photo_pack)
-                await output_config_module.output_load_config_for_seller(request, state, media_photos=photo_pack)
+            #
+            #
+            #     photo_pack = await PhotoRequester.try_get_photo(state)
+            #     ic(photo_pack)
+                await output_config_module.output_load_config_for_seller(request, state)
                 return
 
         if await rewrite_controller_module.data_update_controller(request=request, state=state):

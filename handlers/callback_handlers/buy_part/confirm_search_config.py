@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from icecream import ic
 
-from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.car_advert_requests import AdvertRequester
 from handlers.callback_handlers.buy_part.show_cached_requests import get_cached_requests__chose_brand
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
@@ -21,7 +21,7 @@ async def output_for_seller_formater(callback: CallbackQuery, almost_done_card) 
     '''Формирование строки для вывода запроса в чат селлера'''
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    ic(almost_done_card)
     for_seller_lexicon_part = LEXICON['confirm_from_seller']['message_text']
     person_model = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, user=True)
     if not person_model:
@@ -49,7 +49,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     ic(callback.data)
     car_id = callback.data.split(':')[-1]
 
-    car_model = CommodityRequester.get_where_id(car_id)
+    car_model = await AdvertRequester.get_where_id(car_id)
     cached_data = None
     if car_model:
 
@@ -58,19 +58,19 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
             cached_data = cached_data[0]
             ic(cached_data)
             await cached_requests_module.CachedOrderRequests.remove_cache(buyer_id=callback.from_user.id, car_id=car_id)
-            cached_data = {'car_id': cached_data.car_id.car_id,
+            cached_data = {'car_id': cached_data.car_id.id,
                            'message_text': cached_data.message_text,
-                           'album': CommodityRequester.get_photo_album_by_car_id(cached_data.car_id)}
+                           'album': await AdvertRequester.get_photo_album_by_advert_id(cached_data.car_id)}
 
             data_for_seller = await output_for_seller_formater(callback, cached_data)
 
-            # commodity_model = CommodityRequester.get_where_id(car_id=data_for_seller['car_id'])
 
             try:
-                insert_response = await cached_requests_module.OffersRequester.set_offer_model(buyer_id=callback.from_user.id, car_id=car_id, seller_id = car_model.seller_id)
+                insert_response = await cached_requests_module.OffersRequester.set_offer_model(buyer_id=callback.from_user.id, car_id=car_id, seller_id=car_model.seller.telegram_id)
                 if not insert_response:
                     await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
                 if car_model:
+                    ic(data_for_seller)
                     media_mode = True if data_for_seller.get('album') else False
                     await send_notification_for_seller(callback, data_for_seller, media_mode=media_mode)
                     callback_answer_text = LEXICON['order_was_created']
@@ -88,7 +88,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
 
         else:
             car_dont_exists = True
-            commodity_exists = CommodityRequester.get_where_id(car_id)
+            commodity_exists = await AdvertRequester.get_where_id(car_id)
             if not commodity_exists:
                 await callback.answer(text=LEXICON['car_was_withdrawn_from_sale'], show_alert=True)
             else:

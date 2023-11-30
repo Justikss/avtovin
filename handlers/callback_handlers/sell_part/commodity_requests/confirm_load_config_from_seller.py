@@ -1,3 +1,5 @@
+from copy import copy
+
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
@@ -5,7 +7,6 @@ import importlib
 from config_data.config import ADMIN_CHAT
 from database.data_requests.car_configurations_requests import CarConfigs
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
-from database.data_requests.commodity_requests import CommodityRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
 
@@ -29,7 +30,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     boot_data = await data_formatter(request=callback, state=state, id_values=True)
 
     print('load_photos??: ', boot_data.get('photos'))
-    commodity_number = await CarConfigs.add_listing(callback.from_user.id, boot_data)
+    commodity_number = await CarConfigs.add_advert(callback.from_user.id, boot_data)
 
     notification_string = await create_notification_for_seller(request_number=commodity_number)
     mock_lexicon_part = {'message_text': notification_string}
@@ -43,7 +44,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=mock_lexicon_part, delete_mode=True)
 
     last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-    boot_config_string_startswith = LexiconCommodityLoader.config_for_admins + callback.from_user.username + ' :'
+    boot_config_string_startswith = copy(LexiconCommodityLoader.config_for_admins) + callback.from_user.username + ' :'
 
     message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
     message_for_admin_chat[0] = boot_config_string_startswith

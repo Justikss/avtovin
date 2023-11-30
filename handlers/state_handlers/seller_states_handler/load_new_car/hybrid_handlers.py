@@ -1,3 +1,4 @@
+import asyncio
 from copy import copy
 
 from aiogram.types import CallbackQuery, Message
@@ -94,16 +95,18 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     if not bot:
         bot = callback.message.bot
 
-    data_update_result = await data_update_controller(request=callback, state=state)
+    there_data_update = await message_editor.redis_data.get_data(
+        key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
 
     if not callback.data.startswith('rewrite_boot_'):
-        await state.update_data(brand_for_load=int(callback.data.split('_')[-1]))
+        if not there_data_update:
+            await state.update_data(brand_for_load=int(callback.data.split('_')[-1]))
         brand_for_load = int(callback.data.split('_')[-1])
     else:
         memory_storage = await state.get_data()
         brand_for_load = memory_storage['brand_for_load']
 
-    if data_update_result:
+    if await data_update_controller(request=callback, state=state):
         return
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_model,
@@ -122,16 +125,18 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
         bot = callback.message.bot
 
 
-    data_update_result = await data_update_controller(request=callback, state=state)
+    there_data_update = await message_editor.redis_data.get_data(
+        key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
 
     if not callback.data.startswith('rewrite_boot_'):
-        await state.update_data(model_for_load=int(callback.data.split('_')[-1]))
+        if not there_data_update:
+            await state.update_data(model_for_load=int(callback.data.split('_')[-1]))
         model_for_load = int(callback.data.split('_')[-1])
     else:
         memory_storage = await state.get_data()
         model_for_load = memory_storage['model_for_load']
 
-    if data_update_result:
+    if await data_update_controller(request=callback, state=state):
         return
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_complectation,
@@ -164,18 +169,22 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     print('bpart ', lexicon_part)
 
     if not incorrect:
-        data_update_result = await data_update_controller(request=request, state=state)
-
         if not request.data.startswith('rewrite_boot_'):
+            there_data_update = await message_editor.redis_data.get_data(
+                        key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
+            ic()
             cars_state = await get_load_car_state(state=state)
             if cars_state == 'new':
-                await state.update_data(complectation_for_load=int(request.data.split('_')[-1]))
+                if not there_data_update:
+                    await state.update_data(complectation_for_load=int(request.data.split('_')[-1]))
 
             elif cars_state == 'second_hand':
+                ic()
+                ic(int(request.data.split('_')[-1]))
                 await state.update_data(color_for_load=int(request.data.split('_')[-1]))
 
 
-        if data_update_result:
+        if await data_update_controller(request=request, state=state):
             return
 
         reply_mode = False

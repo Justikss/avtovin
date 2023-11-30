@@ -141,17 +141,7 @@ class CommodityRequester:
             else:
                 return False
 
-    @staticmethod
-    def get_where_id(car_id: str):
-        '''Получение моделей с определённым параметром id'''
-        try:
-            with db.atomic():
-                select_request = CarAdvert.get_by_id(car_id)
-                print('try-get-CarAdvert: ', select_request)
-                return select_request
-        except Exception as ex:
-            print('exx', ex)
-            return False
+
 
     @staticmethod
     def get_for_request(state: str, brand=None, model=None, engine_type=None,

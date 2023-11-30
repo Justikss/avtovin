@@ -5,7 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from config_data.config import lifetime_of_redis_record_of_request_caching
-from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.car_advert_requests import AdvertRequester
+
 from utils.Lexicon import LEXICON
 
 async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_models=None):
@@ -20,9 +21,12 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
     message_text = lexicon_part.get('message_text')
 
     data_stack = []
+    ic()
+    ic(car_models)
     if not car_models:
         first_view_mode = True
         memory_storage = await state.get_data()
+        ic(memory_storage)
 
         car_state = memory_storage.get('cars_state')
         brand = memory_storage.get('cars_brand')
@@ -34,36 +38,38 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
         complectation = str(memory_storage.get('cars_complectation'))
         ic(car_state)
 
-        car_models = CommodityRequester.get_for_request(state=car_state,
-                                                          brand=brand,
-                                                          model=model,
-                                                          engine_type=engine_type,
-                                                          year_of_release=year_of_release,
-                                                          mileage=mileage,
-                                                          color=color,
-                                                          complectation=complectation)
 
+        car_models = await AdvertRequester.get_advert_by(state_id=car_state,
+                                                         engine_type_id=engine_type,
+                                                         brand_id=brand,
+                                                         model_id=model,
+                                                         complectation_id=complectation,
+                                                         color_id=color,
+                                                         mileage_id=mileage,
+                                                         year_of_release_id=year_of_release
+                                                         )
+        ic(car_models)
     else:
         first_view_mode = False
     car_ids = []
-
+    ic()
+    ic(car_models)
     for car in car_models:
         car_ids.append(car.car_id)
-        if cars_state == 'second_hand_cars':
+        if int(cars_state) == 2:
             result_string = f'''
-                {message_text['your_configs']}\n{message_text['car_state']} {car.state}\n{message_text['engine_type']} {car.engine_type}\n{message_text['color']} {car.color}\n{message_text['model']} {car.model}\n{message_text['brand']} {car.brand}\n{message_text['complectation']} {car.complectation}\n{message_text['year']} {car.year_of_release}\n{message_text['mileage']} {car.mileage}\n{message_text['cost']} {car.price}'''
+                {message_text['your_configs']}\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['color']} {car.color.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['complectation']} {car.complectation.name}\n{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n{message_text['cost']} {car.price}'''
 
-        elif cars_state == 'new_cars':
+        elif int(cars_state) == 1:
             result_string = f'''
-                {message_text['your_configs']}\n{message_text['car_state']} {car.state}\n{message_text['engine_type']} {car.engine_type}\n{message_text['model']} {car.model}\n{message_text['brand']} {car.brand}\n{message_text['complectation']} {car.complectation}\n{message_text['cost']} {car.price}'''
+                {message_text['your_configs']}\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['complectation']} {car.complectation.name}\n{message_text['cost']} {car.price}'''
 
-        photo_album = CommodityRequester.get_photo_album_by_car_id(car_id=car.car_id)
+        photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 
-        result_part = {'car_id': car.car_id, 'message_text': result_string, 'album': photo_album}
+        result_part = {'car_id': car.id, 'message_text': result_string, 'album': photo_album}
         data_stack.append(result_part)
 
     if first_view_mode:
-        ic(data_stack)
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
 
 

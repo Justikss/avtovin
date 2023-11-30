@@ -6,7 +6,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from database.data_requests.commodity_requests import CommodityRequester
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from states.requests_by_seller import SellerRequestsState
 from utils.Lexicon import LexiconSellerRequests as lexicon

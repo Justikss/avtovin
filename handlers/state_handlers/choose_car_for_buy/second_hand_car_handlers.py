@@ -3,13 +3,15 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-
-from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.car_advert_requests import AdvertRequester
 from database.tables.offers_history import ActiveOffers
 
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_state
+from utils.Lexicon import ChooseColor, ChooseMileage, ChooseYearOfRelease
+from utils.create_lexicon_part import create_lexicon_part
+
 
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[0])
 # ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[3])
@@ -25,20 +27,22 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
     memory_storage = await state.get_data()
     if first_call:
-        user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
+        user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_complectation=user_answer)
     else:
         user_answer = memory_storage['cars_complectation']
-    models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
-                                                      brand=memory_storage['cars_brand'],
-                                                      model=memory_storage['cars_model'],
-                                                      engine_type=memory_storage['cars_engine_type'],
-                                                      complectation=user_answer,
-                                                      )
+
+    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+                                                       brand_id=memory_storage['cars_brand'],
+                                                       engine_type_id=memory_storage['cars_engine_type'],
+                                                       model_id=memory_storage['cars_model'],
+                                                       complectation_id=user_answer)
+
 
     button_texts = {car.color for car in models_range}
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_color', button_texts=button_texts,
-                                     callback_sign='cars_color:', lexicon_cache=False)
+    lexicon_part = await create_lexicon_part(ChooseColor, button_texts)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
+                                                    lexicon_part=lexicon_part, lexicon_cache=False)
 
     await callback.answer()
     await state.set_state(SecondHandChooseStates.select_mileage)
@@ -51,20 +55,21 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
 
     memory_storage = await state.get_data()
     if first_call:
-        user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
+        user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_color=user_answer)
     else:
         user_answer = memory_storage['cars_color']
-    models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
-                                                      brand=memory_storage['cars_brand'],
-                                                      model=memory_storage['cars_model'],
-                                                      engine_type=memory_storage['cars_engine_type'],
-                                                      complectation=memory_storage['cars_complectation'],
-                                                      color=user_answer)
+    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+                                                       brand_id=memory_storage['cars_brand'],
+                                                       engine_type_id=memory_storage['cars_engine_type'],
+                                                       model_id=memory_storage['cars_model'],
+                                                       complectation_id=memory_storage['cars_complectation'],
+                                                       color_id=user_answer)
 
-    button_texts = {str(car.mileage) for car in models_range}
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_mileage', button_texts=button_texts,
-                                     callback_sign='cars_mileage:', lexicon_cache=False)
+    button_texts = {car.mileage for car in models_range}
+    lexicon_part = await create_lexicon_part(ChooseMileage, button_texts)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
+                                                    lexicon_part=lexicon_part, lexicon_cache=False)
     await callback.answer()
     await state.set_state(SecondHandChooseStates.select_year)
 
@@ -82,21 +87,22 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
 
     memory_storage = await state.get_data()
     if first_call:
-        user_answer = callback.data.split(':')[1]  # Второе слово - ключевое к значению бд
+        user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_mileage=user_answer)
     else:
         user_answer = memory_storage['cars_mileage']
-    models_range = CommodityRequester.get_for_request(state=memory_storage['cars_state'],
-                                                      brand=memory_storage['cars_brand'],
-                                                      model=memory_storage['cars_model'],
-                                                      engine_type=memory_storage['cars_engine_type'],
-                                                      complectation=memory_storage['cars_complectation'],
-                                                      color=memory_storage['cars_color'],
-                                                      mileage=user_answer)
+    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+                                                       brand_id=memory_storage['cars_brand'],
+                                                       engine_type_id=memory_storage['cars_engine_type'],
+                                                       model_id=memory_storage['cars_model'],
+                                                       complectation_id=memory_storage['cars_complectation'],
+                                                       color_id=memory_storage['cars_color'],
+                                                       mileage_id=user_answer)
 
-    button_texts = {car.year_of_release for car in models_range}
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='choose_year_of_release', button_texts=button_texts,
-                                     callback_sign='cars_year_of_release:', lexicon_cache=False, delete_mode=delete_mode)
+    button_texts = {car.year for car in models_range}
+    lexicon_part = await create_lexicon_part(ChooseYearOfRelease, button_texts)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
+                                                    lexicon_part=lexicon_part, lexicon_cache=False)
     await callback.answer()
     await state.set_state(HybridChooseStates.config_output)
 

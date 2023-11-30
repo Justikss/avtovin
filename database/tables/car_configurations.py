@@ -45,7 +45,7 @@ class CarAdvert(BaseModel):
     complectation = ForeignKeyField(CarComplectation, backref='adverts')
     state = ForeignKeyField(CarState, backref='adverts')
     engine_type = ForeignKeyField(CarEngine, backref='adverts')
-    price = IntegerField()
+    price = BigIntegerField()
 
 
     color = ForeignKeyField(CarColor, backref='adverts', null=True)

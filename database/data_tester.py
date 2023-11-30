@@ -1,4 +1,4 @@
-from data_requests.commodity_requests import CommodityRequester
+
 from tables.start_tables import BaseModel
 from data_requests.person_requests import PersonRequester
 

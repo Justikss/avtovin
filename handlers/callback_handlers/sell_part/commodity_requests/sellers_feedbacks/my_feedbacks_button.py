@@ -4,7 +4,7 @@ from abc import ABC
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from database.data_requests.commodity_requests import CommodityRequester
+from database.data_requests.car_advert_requests import AdvertRequester
 from states.seller_feedbacks_states import SellerFeedbacks
 from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import output_sellers_commodity_page
@@ -95,18 +95,20 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
             for offer in seller_offers:
                 car = offer.car_id
                 buyer = offer.buyer_id
-                card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer.id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.car_id))}\n{for_seller_lexicon_part['contacts']} {buyer.phone_number}'''
+                offer_id = offer.id
+                ic(offer_id)
+                card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts']} {buyer.phone_number}'''
 
-                if car.state == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_second_hand']:
+                if car.state.id == 2:
                     result_string = f'''
-                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state}\n{card_body_lexicon_part['engine_type']} {car.engine_type}\n{card_body_lexicon_part['color']} {car.color}\n{card_body_lexicon_part['model']} {car.model}\n{card_body_lexicon_part['brand']} {car.brand}\n{card_body_lexicon_part['complectation']} {car.complectation}\n{card_body_lexicon_part['year']} {car.year_of_release}\n{card_body_lexicon_part['mileage']} {car.mileage}\n{card_body_lexicon_part['cost']} {car.price}'''
-                elif car.state == LexiconCommodityLoader.load_commodity_state['buttons']['load_state_new']:
+                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['color']} {car.color.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n{card_body_lexicon_part['year']} {car.year.name}\n{card_body_lexicon_part['mileage']} {car.mileage.name}\n{card_body_lexicon_part['cost']} {car.price}'''
+                elif car.state.id == 1:
                     result_string = f'''
-                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state}\n{card_body_lexicon_part['engine_type']} {car.engine_type}\n{card_body_lexicon_part['model']} {car.model}\n{card_body_lexicon_part['brand']} {car.brand}\n{card_body_lexicon_part['complectation']} {car.complectation}\n{card_body_lexicon_part['cost']} {car.price}'''
+                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n{card_body_lexicon_part['cost']} {car.price}'''
 
-                photo_album = CommodityRequester.get_photo_album_by_car_id(car_id=car.car_id, get_list=True)
+                photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id, get_list=True)
 
-                result_part = {'offer_id': offer.id, 'car_id': car.car_id, 'message_text': result_string, 'album': photo_album}
+                result_part = {'offer_id': offer_id, 'car_id': car.id, 'message_text': result_string, 'album': photo_album}
                 output_unpacked_data.append(result_part)
                 ic(result_part)
             return output_unpacked_data

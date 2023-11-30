@@ -87,6 +87,7 @@ class CachedRequestsView:
         current_buttons = {
             'buttons': {**backward_command, **pagination_interface_buttons, **current_page[0], 'width': (-1, -3, -2)}}
         # Обновляем сообщение с новой клавиатурой
+        ic(current_buttons)
         keyboard = await inline_creator_module.InlineCreator.create_markup(input_data=current_buttons)
 
         return keyboard

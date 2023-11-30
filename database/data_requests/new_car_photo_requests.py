@@ -21,6 +21,12 @@ class PhotoRequester:
         if 3 > len(photo_data) > 5:
             raise ValueError('Фотографий должно быть от трёх до пяти (включительно)')
 
+        await manager.execute(NewCarPhotoBase.insert_many(photo_data))
+
+        # insert_photo_query = AdvertPhotos.insert_many(photo_data)
+        # await manager.execute(insert_photo_query)
+        return
+
         car_brand = photo_data[0]['car_brand']
         car_model = photo_data[0]['car_model']
         car_engine = photo_data[0]['car_engine']
@@ -54,14 +60,13 @@ class PhotoRequester:
         memory_storage = await state.get_data()
         ic(memory_storage)
 
-        brand = memory_storage['brand_for_load'],
-        model = memory_storage['model_for_load'],
-        complectation = memory_storage['complectation_for_load'],
-        engine = memory_storage['engine_for_load']
 
-        query = NewCarPhotoBase.select().where(
-            (NewCarPhotoBase.car_brand == brand) & (NewCarPhotoBase.car_model == model) &
-        (NewCarPhotoBase.car_complectation == complectation) & (NewCarPhotoBase.car_engine == engine))
+        complectation = memory_storage['complectation_for_load']
+        engine = memory_storage['engine_for_load']
+        print('mettka')
+        ic(engine, complectation)
+        query = NewCarPhotoBase.select().join(CarComplectation).switch(NewCarPhotoBase).join(CarEngine).where(
+        (CarComplectation.id == int(complectation)) & (CarEngine.id == int(engine)))
         select_response = list(await manager.execute(query))
 
         if select_response:

@@ -4,10 +4,13 @@ from database.db_connect import database, manager
 
 from database.tables.car_configurations import (CarBrand, CarModel, CarComplectation, CarState,
                                                 CarEngine, CarColor, CarMileage, User, CarAdvert, CarYear)
+from database.tables.commodity import AdvertPhotos
 from database.tables.seller import Seller
 
 
 class CarConfigs:
+
+
 
     @staticmethod
     async def add_brand(brand_name):
@@ -101,7 +104,7 @@ class CarConfigs:
 
     # Функции для работы с Listing
     @staticmethod
-    async def add_listing(user_id, data):
+    async def add_advert(user_id, data):
         seller = await manager.get(Seller, Seller.telegram_id == user_id)
 
         if seller:
@@ -117,6 +120,17 @@ class CarConfigs:
             listing = await manager.create(CarAdvert, seller=seller.telegram_id, complectation=complectation.id, price=data['price'],
                                             state=data['state'], engine_type=data['engine_type'],
                                             color=data.get('color'), mileage=data.get('mileage'), year=data.get('year_of_release'))
+
+            photo_album = data.get('photos')
+            if listing and photo_album:
+                if isinstance(photo_album, dict):
+                    object_for_iteration = [photo_data for photo_data in photo_album.values()][0]
+                else:
+                    object_for_iteration = photo_album
+
+                ic(object_for_iteration)
+                structured_data = [{'car_id': listing.id, 'photo_id': photo_part['id'], 'photo_unique_id': photo_part['unique_id']} for photo_part in object_for_iteration]
+                photo_insert = await manager.execute(AdvertPhotos.insert_many(structured_data))
             return listing
 
 
@@ -150,6 +164,10 @@ async def mock_values():
     engine_names = ['ГИБРИД', 'ЭЛЕКТРО', 'ДВС']
     await insert_many(CarEngine, engine_names)
 
+    await insert_many(CarColor, ['Серый', 'Белый', 'Чёрный', 'Синий', 'Коричневый', 'Бирюзовый'])
+    await insert_many(CarYear, ['2005', '2000', '2020', '2021', '2022', '2023'])
+    await insert_many(CarMileage, ['5000', '10000', '15000', '20000', '25000', '30000', '35000', '40000', '45000', '50000', '750000', '100000', '100000+'])
+
     await insert_many_with_foregin(CarModel, {'BYD': ['SONG PLUS CHAMPION', 'CHAZOR'], 'Leapmotor': ['C11'], 'Li Xiang': ['L9', 'L7'], 'Сhevrolet': ['Gentra', 'Nexia 3']})
     await insert_many_with_foregin(CarComplectation, {'CHAZOR': ['XXX'], 'SONG PLUS CHAMPION': ['FLAGSHIP PLUS 605 km'], 'C11': ['Deluxe Edition 500 km (1)', 'Dual Motor 4WD 580 Km'], 'L9': ['L9 Max'], 'L7': ['L9 Pro'], 'Gentra': ['3'], 'Nexia 3': ['2']})
 
@@ -159,4 +177,11 @@ async def mock_values():
     pass
 
 async def get_car():
-    await manager.create(CarAdvert, seller=902230076, complectation=3, state=1, engine_type=1, price=1233, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=1, state=1, engine_type=1, price=56634, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=2, state=1, engine_type=2, price=45545, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=3, state=1, engine_type=2, price=5556645, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=4, state=1, engine_type=2, price=75632, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=5, state=1, engine_type=1, price=23423, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=6, state=1, engine_type=1, price=22222, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, engine_type=3, price=1234223, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, engine_type=3, price=53458799, color=None, mileage=None, year=None)

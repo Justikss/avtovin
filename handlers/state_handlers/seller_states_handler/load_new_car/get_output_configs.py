@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from typing import Union
 import importlib
 
+from database.data_requests.new_car_photo_requests import PhotoRequester
 from states.load_commodity_states import LoadCommodityStates
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
 from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromatter import data_formatter
@@ -44,11 +45,25 @@ mediagroups = {}
 async def output_load_config_for_seller(request: Union[Message, CallbackQuery], state: FSMContext, media_photos=None, media_album=None, bot=None):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     create_buttons_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
-
+    get_load_car_state_module = importlib.import_module(
+        'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
     if isinstance(request, Message):
         message = request
     else:
         message = request.message
+
+    cars_state = await get_load_car_state_module.get_load_car_state(state=state)
+    print('cstate: ', cars_state)
+    if cars_state == 'new':
+        output_config_module = importlib.import_module(
+            'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
+
+        photo_pack = await PhotoRequester.try_get_photo(state)
+        ic(photo_pack)
+        if photo_pack:
+            media_photos=photo_pack
+        else:
+            await state.update_data(load_photo=photo_pack)
 
     memory_storage = await state.get_data()
     if memory_storage.get('incorrect_flag'):

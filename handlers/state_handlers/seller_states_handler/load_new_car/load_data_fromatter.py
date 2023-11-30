@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 from typing import Union
 from aiogram.fsm.context import FSMContext
