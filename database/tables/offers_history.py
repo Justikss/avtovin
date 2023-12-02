@@ -14,8 +14,8 @@ from .seller import Seller
 class ActiveOffers(BaseModel):
     '''История Предложений'''
     car_id = ForeignKeyField(CarAdvert, field=CarAdvert.id, backref='active_offers')
-    seller_id = ForeignKeyField(Seller, field=User.telegram_id, backref='active_offers')
-    buyer_id = ForeignKeyField(User, backref='active_offers')
+    seller_id = ForeignKeyField(Seller, field=Seller.telegram_id, backref='active_offers')
+    buyer_id = ForeignKeyField(User, field=User.telegram_id, backref='active_offers')
     viewed = BooleanField()
 
 

@@ -1,3 +1,4 @@
+from copy import copy
 from typing import Union
 import importlib
 from aiogram.types import CallbackQuery, Message
@@ -27,6 +28,8 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     if dealership_address:
         await state.update_data(dealership_address=dealership_address)
         print('dealership_address', dealership_address)
+    else:
+        await state.update_data(dealership_address=False)
 
 
     await bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -34,7 +37,7 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     memory_storage = await state.get_data()
     await registartion_view_corrector(request=request, state=state)
 
-    lexicon_part = LEXICON['checking_seller_entered_data']
+    lexicon_part = copy(LEXICON['checking_seller_entered_data'])
     lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']
     lexicon_part['rewrite_seller_number'] = memory_storage['seller_number']
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')

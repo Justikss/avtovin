@@ -1,1 +1,1 @@
-from . import return_main_menu, utils
+from . import return_main_menu, utils, faq

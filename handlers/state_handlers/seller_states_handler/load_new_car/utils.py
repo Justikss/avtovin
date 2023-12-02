@@ -4,6 +4,7 @@ from aiogram.exceptions import TelegramBadRequest
 from typing import Union
 import importlib
 
+from config_data.config import money_valute
 from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
@@ -31,8 +32,8 @@ async def change_boot_car_state_controller(callback, state):
     memory_storage = await state.get_data()
     last_car_state = memory_storage.get('state_for_load')
     print('cbd: ', callback.data)
-
-    if await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')\
+    edit_mode = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+    if edit_mode\
         and int(last_car_state) != int(callback.data.split('_')[-1]):
 
         await state.update_data(state_for_load=int(callback.data.split('_')[-1]))
@@ -47,6 +48,7 @@ async def change_boot_car_state_controller(callback, state):
 async def data_update_controller(request: Union[Message, CallbackQuery], state: FSMContext):
     '''Метод контроллирует процесс переписи полей добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
 
     memory_storage = await state.get_data()
     there_data_update = await message_editor.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
@@ -65,42 +67,15 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
 
             ic(memory_storage.get('state_for_load'))
             current_state = str(await state.get_state())
+            rewrite_state_flag = memory_storage.get('rewrite_state_flag')
+            ic(rewrite_state_flag)
 
-            if isinstance(request, CallbackQuery):
-                if not request.data.startswith('rewrite_boot_'):
-                    selected_id = int(request.data.split('_')[-1])
-                else:
-                    selected_id = None
-                if selected_id:
-                    if current_state == 'LoadCommodityStates:input_to_load_model':
-                        last_value = memory_storage.get('brand_for_load')
-                        await state.update_data(brand_for_load=selected_id)
-                        if last_value != selected_id:
-                            await state.update_data(rewrite_brand_mode=True)
-                            ic()
-                            return False
-
-                    elif current_state == 'LoadCommodityStates:input_to_load_complectation':
-                        last_value = memory_storage.get('model_for_load')
-                        await state.update_data(model_for_load=selected_id)
-                        if (memory_storage.get('rewrite_brand_mode')) or (last_value != int(request.data.split('_')[-1])):
-                            ic()
-                            return False
-
-
-                    elif current_state in ('LoadCommodityStates:input_to_load_price', 'LoadCommodityStates:input_to_load_year'):
-                        await state.update_data(complectation_for_load=selected_id)
-                        if memory_storage.get('rewrite_brand_mode'):
-                            # await state.update_data(complectation_for_load=int(request.data.split('_')[-1]))
-                            ic()
-                            pass
 
 
             if current_state in ('LoadCommodityStates:input_to_load_complectation',
                                          'LoadCommodityStates:input_to_load_model') and memory_storage.get('state_for_load') == 1:
                 await set_photo_for_new_state_car(state)
 
-            rewrite_state_flag = memory_storage.get('rewrite_state_flag')
             ic(rewrite_state_flag)
             if rewrite_state_flag:
                 if int(rewrite_state_flag) == 1:
@@ -128,7 +103,55 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                     else:
                         ic()
                         return False
-            
+
+            else:
+                if isinstance(request, CallbackQuery):
+                    edit_mode = await message_editor.redis_data.get_data(
+                        key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
+
+                    # if not request.data.startswith('rewrite_boot_'):
+                    if request.data[-1].isdigit():
+                        selected_id = int(request.data.split('_')[-1])
+                    else:
+                        selected_id = None
+                    # if selected_id and ((not edit_mode) or (memory_storage.get('rewrite_brand_mode'))):
+                    #     if current_state == 'LoadCommodityStates.input_to_load_brand':
+                    #         ic()
+                    #         last_value = memory_storage.get('engine_for_load')
+                    #         await state.update_data(engine_for_load=selected_id)
+                    #         if last_value != selected_id:
+                    #             await state.update_data(rewrite_brand_mode=True)
+                    #             ic()
+                    #             return False
+
+                        if current_state == 'LoadCommodityStates:input_to_load_model':
+                            last_value = memory_storage.get('brand_for_load')
+                            await state.update_data(brand_for_load=selected_id)
+                            if last_value != selected_id:
+                                await state.update_data(rewrite_brand_mode=True)
+                                ic()
+                                return False
+
+                        elif current_state == 'LoadCommodityStates:input_to_load_complectation':
+                            last_value = memory_storage.get('model_for_load')
+                            await state.update_data(model_for_load=selected_id)
+                            if (memory_storage.get('rewrite_brand_mode')) or (
+                                    last_value != int(request.data.split('_')[-1])):
+                                ic()
+                                return False
+
+
+                        elif current_state in (
+                        'LoadCommodityStates:input_to_load_price', 'LoadCommodityStates:input_to_load_year'):
+                            ic()
+                            ic('complectation1221', selected_id)
+                            if (not edit_mode) or (memory_storage.get('rewrite_brand_mode')):
+                                await state.update_data(complectation_for_load=selected_id)
+                            if memory_storage.get('rewrite_brand_mode'):
+                                # await state.update_data(complectation_for_load=int(request.data.split('_')[-1]))
+                                ic()
+                                pass
+
             message = request.message
         #при послестэйтных выборах не удалится что то?
         try:
@@ -159,7 +182,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             captions = list(boot_config_value[1:6] + boot_config_value[9:10])
             ic(captions)
             ic(callbacks)
-            captions[5] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + str(captions[5])
+            captions[5] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + str(captions[5] + ' '+ money_valute)
 
         elif cars_state == 'second_hand':
             #config_slice = (1, 11)
@@ -168,7 +191,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             captions = list(boot_config_value[1:10])
             captions[5] = LexiconCommodityLoader.load_commodity_year_of_realise.message_text + ' ' + captions[5]
             captions[6] = LexiconCommodityLoader.load_commodity_mileage.message_text + ' ' + captions[6]
-            captions[8] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + str(captions[8])
+            captions[8] = LexiconCommodityLoader.load_commodity_price['message_text'] + ' ' + str(captions[8] + ' '+ money_valute)
             ic(type(captions))
             captions.append(LexiconCommodityLoader.edit_photo_caption)
             # all_captions = captions + (LexiconCommodityLoader.edit_photo_caption,)

@@ -1,5 +1,6 @@
 import importlib
 from abc import ABC
+from copy import copy
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -8,6 +9,7 @@ from database.data_requests.car_advert_requests import AdvertRequester
 from states.seller_feedbacks_states import SellerFeedbacks
 from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import output_sellers_commodity_page
+from utils.custom_exceptions.database_exceptions import UserExistsError, CarExistsError
 from utils.user_notification import delete_notification_for_seller
 
 
@@ -36,6 +38,8 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
         callback_alert_message = None
         callback_data = callback.data
         seller_id = callback.from_user.id
+        error_flag = False
+        error_alert_message = False
 
         await redis_module.redis_data.delete_key(key=f'{str(seller_id)}:seller_requests_pagination')
 
@@ -46,8 +50,16 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
             viewed = True
             keyboard_part = LexiconSellerRequests.check_viewed_feedbacks_buttons
 
+        try:
+            unpacked_output_data = await CheckFeedbacksHandler.make_unpacked_data_for_seller_output(callback, viewed)
+        except UserExistsError:
+            unpacked_output_data = False
+            error_flag = UserExistsError
 
-        unpacked_output_data = await CheckFeedbacksHandler.make_unpacked_data_for_seller_output(callback, viewed)
+        except CarExistsError:
+            error_flag = CarExistsError
+            unpacked_output_data = False
+
         if unpacked_output_data:
             await redis_module.redis_data.set_data(
                 key=f'{str(seller_id)}:last_keyboard_in_seller_pagination',
@@ -64,12 +76,21 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
             # await CheckFeedbacksHandler.check_new_feedbacks(callback, unpacked_output_data)
             return True
         else:
-            if callback_data == 'new_feedbacks':
-                callback_alert_message = LexiconSellerRequests.new_feedbacks_not_found
+            if error_flag:
+                if error_flag == UserExistsError:
+                    error_alert_message = LEXICON['seller_dont_exists']
+                elif error_flag == CarExistsError:
+                    error_alert_message = LEXICON['car_was_withdrawn_from_sale']
+                else:
+                    error_alert_message = False
+            elif callback_data == 'new_feedbacks':
+                callback_alert_message = copy(LexiconSellerRequests.new_feedbacks_not_found)
             elif callback_data == 'viewed_feedbacks':
-                callback_alert_message = LexiconSellerRequests.viewed_feedbacks_not_found
+                callback_alert_message = copy(LexiconSellerRequests.viewed_feedbacks_not_found)
 
             if callback_alert_message:
+                if error_alert_message:
+                    callback_alert_message = f'{error_alert_message} {callback_alert_message}'
                 await callback.answer(text=callback_alert_message)
             return False
 
@@ -93,9 +114,20 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
             for_seller_lexicon_part = LEXICON['confirm_from_seller']['message_text']
             output_unpacked_data = []
             for offer in seller_offers:
-                car = offer.car_id
-                buyer = offer.buyer_id
                 offer_id = offer.id
+
+                ic(offer)
+                try:
+                    car = offer.car_id
+                except:
+                    await cached_requests_module.OffersRequester.delete_offer(offer_id)
+                    raise CarExistsError()
+                try:
+                    buyer = offer.buyer_id
+                except:
+                    await cached_requests_module.OffersRequester.delete_offer(offer_id)
+                    raise UserExistsError()
+
                 ic(offer_id)
                 card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts']} {buyer.phone_number}'''
 

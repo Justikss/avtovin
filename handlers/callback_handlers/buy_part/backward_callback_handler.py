@@ -102,7 +102,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             await search_auto_callback_handler(callback=callback)
 
         elif mode == 'set_language':
-            await set_language(callback=callback)
+            await set_language(callback=callback, set_languange=False)
 
         elif mode.startswith('user_registration'):
 
@@ -120,8 +120,11 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                 await input_full_name(request=callback, state=state)
             elif mode == 'user_registration':
                 await state.clear()
-                await callback.message.delete()
-                await set_language(callback=callback)
+                try:
+                    await callback.message.delete()
+                except:
+                    pass
+                await set_language(callback=callback, set_languange=False)
             else:
                 print("LEXICON_CACHA")
 
@@ -193,10 +196,11 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             await state.clear()
 
 
-        lexicon_part = LEXICON[last_lexicon_code]
-        message_text = lexicon_part['message_text']
-        keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
-        await callback.message.edit_text(text=message_text, reply_markup=keyboard)
-
+        # lexicon_part = LEXICON[last_lexicon_code]
+        # message_text = lexicon_part['message_text']
+        # keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
+        # await callback.message.edit_text(text=message_text, reply_markup=keyboard)
+        message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+        await message_editor.travel_editor.edit_message(request=callback, lexicon_key=last_lexicon_code)
         await state.update_data(last_lexicon_code=None)
         await state.update_data(last_state=None)

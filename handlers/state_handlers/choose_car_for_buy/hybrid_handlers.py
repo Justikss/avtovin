@@ -130,7 +130,7 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
     button_texts = {car.complectation for car in models_range}
     lexicon_part = await create_lexicon_part(ChooseComplectation, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
 
 
     cars_type = int(memory_storage['cars_state'])

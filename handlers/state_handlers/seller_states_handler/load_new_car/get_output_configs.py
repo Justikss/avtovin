@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from typing import Union
 import importlib
 
+from config_data.config import money_valute
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from states.load_commodity_states import LoadCommodityStates
 from utils.Lexicon import LexiconCommodityLoader, LEXICON
@@ -19,7 +20,7 @@ async def get_output_string(mode, boot_data: dict) -> str:
         seller_link = mode.split('_')[3]
         start_sub_string = LexiconCommodityLoader.config_for_admins + seller_link
 
-    bottom_layer = f'''{LexiconCommodityLoader.load_commodity_price['message_text']}: {boot_data['price']}\
+    bottom_layer = f'''{LexiconCommodityLoader.load_commodity_price['message_text']}: {boot_data['price']} {money_valute}\
           \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
 
     top_layer = f'''{start_sub_string}\
@@ -51,7 +52,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         message = request
     else:
         message = request.message
-
+    await state.update_data(rewrite_brand_mode=False)
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     print('cstate: ', cars_state)
     if cars_state == 'new':

@@ -102,7 +102,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
     button_texts = {car.year for car in models_range}
     lexicon_part = await create_lexicon_part(ChooseYearOfRelease, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
     await callback.answer()
     await state.set_state(HybridChooseStates.config_output)
 

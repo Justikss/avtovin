@@ -12,18 +12,6 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     '''Собирает сырые объекты в стэк данных по загружаемому автомобилю'''
     memory_storage = await state.get_data()
 
-    # media_group_data = memory_storage.get('load_photo')
-    # if media_group_data:
-    #     group_data_key = [key for key, value in media_group_data.items()]
-    #     print('memashpema: ', memory_storage.get('load_photo'))
-    #     photo_media_group = [InputMediaPhoto(media=file_id) for file_id in memory_storage.get('load_photo')[group_data_key[0]]]
-        # new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
-
-    #     photo_media_group = [InputMediaPhoto(media=photo['file_id']) for photo in memory_storage.get('load_photo')]
-    #     print('photo_media_group ', photo_media_group)
-    # else:
-    #     photo_media_group = None
-
     sub_data = {'seller_id': request.from_user.id,
     'state': memory_storage['state_for_load'],
     'engine_type': memory_storage['engine_for_load'],
@@ -41,11 +29,11 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     if not id_values:
         for key, value in sub_data.items():
             if key not in ('seller_id', 'price', 'photos') and value != None:
-                ic(value)
+                ic(key, value)
                 value = await CarConfigs.get_by_id(key, value)
-                ic(value)
+                ic(key, value)
                 value = value.name
-                ic(value)
+                ic(key, value)
                 ic()
             result_data[key] = value
     else:

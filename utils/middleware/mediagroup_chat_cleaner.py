@@ -3,6 +3,7 @@ import importlib
 from typing import Callable, Any, Awaitable, Union
 
 from aiogram import BaseMiddleware, types
+from handlers.default_handlers.start import header_controller
 
 
 class CleanerMiddleware(BaseMiddleware):
@@ -12,6 +13,7 @@ class CleanerMiddleware(BaseMiddleware):
         self.latency = latency
 
     async def __call__(self, handler: Callable[[types.Message, dict[str, Any]], Awaitable[Any]], request: Union[types.Message, types.CallbackQuery], data: dict[str, Any]) -> Any:
+        await header_controller(request)
 
         if isinstance(request, types.CallbackQuery):
             print('MIDDLEWARE: ', request.data, request.data.startswith('rewrite_boot_'))

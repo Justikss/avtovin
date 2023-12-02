@@ -15,7 +15,7 @@ class Tariff(BaseModel):
         db_table = 'Тарифы'
 
 class TariffsToSellers(BaseModel):
-    seller = ForeignKeyField(Seller, backref='tariffs')
+    seller = ForeignKeyField(Seller, field=Seller.telegram_id, backref='tariffs')
     tariff = ForeignKeyField(Tariff, backref='tariffs')
     start_date_time = DateTimeField()
     end_date_time = DateTimeField()

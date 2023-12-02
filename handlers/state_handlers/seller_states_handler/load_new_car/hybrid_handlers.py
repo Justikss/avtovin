@@ -78,11 +78,16 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
 
     if not callback.data.startswith('rewrite_boot_'):
         await state.update_data(engine_for_load=int(callback.data.split('_')[-1]))
+        engine_for_load = int(callback.data.split('_')[-1])
+    else:
+        await state.update_data(rewrite_brand_mode=True)
+        memory_storage = await state.get_data()
+        engine_for_load = memory_storage.get('engine_for_load')
     if await data_update_controller(request=callback, state=state):
         return
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_brand,
-                                             buttons_captions=await CarConfigs.get_all_brands())
+                                             buttons_captions=await CarConfigs.get_brands_by_engine(engine_for_load))
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
 
     await callback.answer()
@@ -105,6 +110,7 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     else:
         memory_storage = await state.get_data()
         brand_for_load = memory_storage['brand_for_load']
+        await state.update_data(rewrite_brand_mode=True)
 
     if await data_update_controller(request=callback, state=state):
         return
@@ -135,6 +141,7 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
     else:
         memory_storage = await state.get_data()
         model_for_load = memory_storage['model_for_load']
+        await state.update_data(rewrite_brand_mode=True)
 
     if await data_update_controller(request=callback, state=state):
         return
@@ -174,11 +181,14 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
                         key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
             ic()
             cars_state = await get_load_car_state(state=state)
-            if cars_state == 'new':
-                if not there_data_update:
+            ic(cars_state)
+            if not there_data_update:
+                if cars_state == 'new':
+                    ic()
+                    ic('complectation1221', int(request.data.split('_')[-1]))
                     await state.update_data(complectation_for_load=int(request.data.split('_')[-1]))
 
-            elif cars_state == 'second_hand':
+            if cars_state == 'second_hand':
                 ic()
                 ic(int(request.data.split('_')[-1]))
                 await state.update_data(color_for_load=int(request.data.split('_')[-1]))

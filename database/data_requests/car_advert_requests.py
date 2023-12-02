@@ -31,9 +31,13 @@ class AdvertRequester:
             return False
     @staticmethod
     async def get_advert_by(state_id, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
-                            color_id=None, mileage_id=None, year_of_release_id=None):
+                            color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None):
+        ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id)
+
         query = CarAdvert.select()
-        ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id)
+        if seller_id:
+            query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
+            query = query.switch(CarAdvert)
         # Всегда добавляем условие по state_id
         query = query.join(CarState)
         state_id = int(state_id)

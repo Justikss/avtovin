@@ -67,8 +67,9 @@ class CarConfigs:
 
 
     @staticmethod
-    async def get_all_brands():
-        return await manager.execute(CarBrand.select())
+    async def get_brands_by_engine(engine_id):
+        return await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
+                                     .where(CarEngine.id == int(engine_id)))
 
     # Функции для работы с Model
     @staticmethod
@@ -78,8 +79,8 @@ class CarConfigs:
         return model
 
     @staticmethod
-    async def get_models_by_brand(brand_id):
-        return await manager.execute(CarModel.select().where(CarModel.brand_id == brand_id))
+    async def get_models_by_brand_and_engine(brand_id, engine_id):
+        return await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id)))
 
 
     @staticmethod
@@ -89,8 +90,8 @@ class CarConfigs:
         return complectation
 
     @staticmethod
-    async def get_complectations_by_model(model_id):
-        return await manager.execute(CarComplectation.select().join(CarModel).where(CarModel.id == model_id))
+    async def get_complectations_by_model_and_engine(model_id, engine_id):
+        return list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).join(CarEngine).where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
 
     # Функции для работы с User
     @staticmethod
@@ -143,14 +144,31 @@ async def insert_many(table, names):
 
 async def insert_many_with_foregin(table, wire_to_name):
     for wire, names in wire_to_name.items():
-        for name in names:
-            if table == CarModel:
-                ic(table, wire, name)
-                await manager.create(table, name=name,
-                                     brand=await manager.get(CarBrand.select().where(CarBrand.name == wire)))
-            elif table == CarComplectation:
-                await manager.create(table, name=name,
-                                     model=await manager.get(CarModel.select().where(CarModel.name == wire)))
+        if table != CarComplectation:
+            for name in names:
+                if table == CarModel:
+                    ic(table, wire, name)
+                    await manager.create(table, name=name,
+                                         brand=await manager.get(CarBrand.select().where(CarBrand.name == wire)))
+        elif table == CarComplectation:
+            for elem in names:
+                for engine_wire, real_name in elem.items():
+                    ic()
+                    ic(engine_wire, real_name, wire)
+                    if isinstance(real_name, list) and len(real_name) > 1:
+                        for nam in real_name:
+                            ic()
+                            ic(engine_wire, nam, wire)
+                            await manager.create(table, name=nam,
+                                                 model=await manager.get(CarModel.select().where(CarModel.name == wire)),
+                                                 engine=await manager.get(CarEngine.select().where(CarEngine.name == engine_wire)))
+                    else:
+                        ic()
+                        ic(engine_wire, real_name, wire)
+                        await manager.create(table, name=real_name,
+                                             model=await manager.get(CarModel.select().where(CarModel.name == wire)),
+                                             engine=await manager.get(
+                                                 CarEngine.select().where(CarEngine.name == engine_wire)))
 
 
 
@@ -169,7 +187,9 @@ async def mock_values():
     await insert_many(CarMileage, ['5000', '10000', '15000', '20000', '25000', '30000', '35000', '40000', '45000', '50000', '750000', '100000', '100000+'])
 
     await insert_many_with_foregin(CarModel, {'BYD': ['SONG PLUS CHAMPION', 'CHAZOR'], 'Leapmotor': ['C11'], 'Li Xiang': ['L9', 'L7'], 'Сhevrolet': ['Gentra', 'Nexia 3']})
-    await insert_many_with_foregin(CarComplectation, {'CHAZOR': ['XXX'], 'SONG PLUS CHAMPION': ['FLAGSHIP PLUS 605 km'], 'C11': ['Deluxe Edition 500 km (1)', 'Dual Motor 4WD 580 Km'], 'L9': ['L9 Max'], 'L7': ['L9 Pro'], 'Gentra': ['3'], 'Nexia 3': ['2']})
+    await insert_many_with_foregin(CarComplectation, {'CHAZOR': [{'ГИБРИД': 'XXX'}], 'SONG PLUS CHAMPION': [
+        {'ЭЛЕКТРО': 'FLAGSHIP PLUS 605 km'}], 'C11': [{'ЭЛЕКТРО': ['Deluxe Edition 500 km (1)', 'Dual Motor 4WD 580 Km']}], 'L9': [
+        {'ГИБРИД': 'L9 Max'}], 'L7': [{'ГИБРИД': 'L7 Pro'}], 'Gentra': [{'ДВС': '3'}], 'Nexia 3': [{'ДВС': '2'}]})
 
     # await database.create(CarColor)
     # await database.create(CarMileage)

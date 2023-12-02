@@ -62,8 +62,10 @@ class TravelEditor:
 
                         except TelegramBadRequest:
                             pass
-                        await redis_data.delete_key(key=user_id + ':last_media_group')
-
+                        try:
+                            await redis_data.delete_key(key=user_id + ':last_media_group')
+                        except:
+                            pass
         media_message_id = None
         if not media_group:
             media_message_id = await redis_data.get_data(key=user_id + ':last_media_group', use_json=True)
@@ -198,6 +200,7 @@ class TravelEditor:
             print('load_photos editor2??: ', media_group)
             if not reply_mode and keyboard and not media_group:
                 print('if not reply_mode and keyboard')
+                ic(send_chat_id, media_message_id, message_text, keyboard)
                 #new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
                 new_message = await bot.send_message(chat_id=send_chat_id, reply_to_message_id=media_message_id, text=message_text, reply_markup=keyboard)
             print('new_send', last_message_id)

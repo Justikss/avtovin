@@ -1,10 +1,10 @@
-from peewee import IntegerField, CharField, BooleanField
+from peewee import IntegerField, CharField, BooleanField, BigIntegerField
 
 from database.db_connect import BaseModel
 
 class Seller(BaseModel):
     '''Таблица продавцов(селлеры/автосалоны)'''
-    telegram_id = IntegerField(primary_key=True, verbose_name='Телеграм ID')
+    telegram_id = BigIntegerField(primary_key=True, verbose_name='Телеграм ID')
     phone_number = CharField(unique=True, verbose_name='Номер телефона')
     dealship_name = CharField(unique=True, null=True, verbose_name='Название автосалона')
     entity = CharField(verbose_name='Лицо')

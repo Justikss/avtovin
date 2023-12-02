@@ -15,3 +15,6 @@ class SellerWithoutTariffException(BaseException):
 
 class UserExistsError(BaseException):
     pass
+
+class CarExistsError(BaseException):
+    pass

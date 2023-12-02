@@ -5,10 +5,8 @@ from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.formatting import Text
 
 from database.db_connect import create_tables
-from database.data_requests.car_configurations_requests import mock_values, get_car
 
 from handlers.callback_handlers.buy_part.show_cached_requests import output_cached_requests
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
@@ -29,13 +27,13 @@ from handlers.utils.plugs.page_counter_plug import page_conter_plug
 from states.buyer_check_nonconfirm_requests_states import CheckNonConfirmRequestsStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
-from states.seller_deletes_request_states import DeleteRequestStates
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
-from utils.user_notification import delete_notification_for_seller
+from utils.user_notification import delete_notification_for_seller, try_delete_notification
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from config_data.config import BOT_TOKEN
-from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, confirm_from_seller_callback_handler, confirm_search_config, language_callback_handler, \
+from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, \
+    confirm_search_config, language_callback_handler, \
     search_auto_handler, show_cached_requests
 from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address, price_is_digit, message_is_photo
 from handlers.default_handlers import start
@@ -50,12 +48,14 @@ from states.load_commodity_states import LoadCommodityStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
-from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, seller_faq, commodity_requests
+from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, \
+    commodity_requests
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car, seller_profile_branch
 from handlers.default_handlers.help import  bot_help
 from handlers.callback_handlers.hybrid_part import return_main_menu
+from handlers.callback_handlers.hybrid_part.faq import seller_faq, buyer_faq, faq
 
 from handlers.callback_handlers.hybrid_part.utils.media_group_collector import collect_and_send_mediagroup
 #from utils.middleware.media_album_middleware import AlbumMiddleware
@@ -101,7 +101,6 @@ async def start_bot():
     # await get_car()
 
     dp.callback_query.middleware(CleanerMiddleware())
-    import re
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
@@ -186,7 +185,6 @@ async def start_bot():
     dp.callback_query.register(FAQ_tech_support.tech_support_callback_handler, F.data == 'support')
     dp.callback_query.register(FAQ_tech_support.write_to_support_callback_handler, F.data == 'write_to_support')
     dp.callback_query.register(FAQ_tech_support.call_to_support_callback_handler, F.data == 'call_to_support')
-    dp.callback_query.register(FAQ_tech_support.FAQ_callback_handler, F.data == 'faq')
 
     dp.callback_query.register(callback_handler_backward_in_carpooling.backward_in_carpooling_handler,
                                F.data == 'backward_in_carpooling')
@@ -215,13 +213,18 @@ async def start_bot():
     '''Seller'''
     dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
 
+    dp.callback_query.register(try_delete_notification, F.data == 'close_seller_notification_by_redis')
+
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
     dp.callback_query.register(accept_registration_request_button.accept_registraiton,
                         lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))
 
+    dp.callback_query.register(faq.FAQ_callback_handler, F.data == 'faq')
     dp.callback_query.register(seller_faq.seller_faq, F.data == 'seller_faq')
+    dp.callback_query.register(buyer_faq.buyer_faq, F.data == 'buyer_faq')
+    # dp.callback_query.register(buyer_faq.buyer_faq, F.data == 'buyer_faq')
 
     dp.callback_query.register(sell_part.commodity_requests.commodity_requests_handler.commodity_reqests_by_seller,
                         F.data == 'seller_requests')

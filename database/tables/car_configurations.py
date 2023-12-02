@@ -6,10 +6,6 @@ from database.tables.seller import Seller
 from database.tables.user import User
 
 
-
-class CarBrand(BaseModel):
-    name = CharField(unique=True)
-
 class CarState(BaseModel):
     name = CharField(unique=True)
 
@@ -30,6 +26,9 @@ class CarYear(BaseModel):
 #     characteristic = ForeignKeyField(Characteristic, backref='models')
 #     value = CharField()
 
+class CarBrand(BaseModel):
+    name = CharField(unique=True)
+
 class CarModel(BaseModel):
     brand = ForeignKeyField(CarBrand, backref='models')
     name = CharField()
@@ -37,15 +36,16 @@ class CarModel(BaseModel):
 
 class CarComplectation(BaseModel):
     model = ForeignKeyField(CarModel, backref='complectations')
+    engine = ForeignKeyField(CarEngine, backref='complectations')
     name = CharField()
 
 
 class CarAdvert(BaseModel):
-    seller = ForeignKeyField(Seller, backref='adverts')
+    seller = ForeignKeyField(Seller, field=Seller.telegram_id, backref='adverts')
     complectation = ForeignKeyField(CarComplectation, backref='adverts')
     state = ForeignKeyField(CarState, backref='adverts')
     engine_type = ForeignKeyField(CarEngine, backref='adverts')
-    price = BigIntegerField()
+    price = CharField()
 
 
     color = ForeignKeyField(CarColor, backref='adverts', null=True)

@@ -41,7 +41,10 @@ class CheckInputName(BaseFilter):
         if not dealership_mode and 1 < len(formatted_full_name) < 4 or dealership_mode and len(formatted_full_name) <= 250:
             for word in formatted_full_name:
                 if not word.isalpha() and not dealership_mode or dealership_mode and not (word.isalpha() or word.isdigit() or word==' '):
-                    await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                    try:
+                        await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                    except:
+                        pass
                     return await current_object(request=message, state=state, incorrect='(novalid)')
             # await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
             print('drop_name', full_name)

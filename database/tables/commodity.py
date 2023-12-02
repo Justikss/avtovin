@@ -1,5 +1,5 @@
 from database.db_connect import BaseModel
-from peewee import CharField, IntegerField, ForeignKeyField, PrimaryKeyField, AutoField
+from peewee import CharField, IntegerField, ForeignKeyField, PrimaryKeyField, AutoField, BigIntegerField
 
 from database.tables.car_configurations import CarAdvert, CarBrand, CarModel, CarComplectation, CarEngine
 from database.tables.seller import Seller
@@ -38,7 +38,7 @@ class NewCarPhotoBase(BaseModel):
     car_engine = ForeignKeyField(CarEngine)
     photo_id = CharField()
     photo_unique_id = CharField()
-    admin_id = CharField()
+    admin_id = BigIntegerField()
 
     class Meta:
         db_table = 'Фотографии_новых_машин'

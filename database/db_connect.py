@@ -4,7 +4,7 @@ from peewee_async import PooledPostgresqlDatabase, Manager
 
 
 database = PooledPostgresqlDatabase(
-    'postgres',
+    'Postest',
     user='postgres',
     password='red12red1212',
     host='localhost',

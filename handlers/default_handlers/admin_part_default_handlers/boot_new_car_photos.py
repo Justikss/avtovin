@@ -20,10 +20,11 @@ class BootNewCarPhotosStates(StatesGroup):
 
 
 async def start_state_boot_new_car_photos_message_handler(message: Message, state: FSMContext):
-    await message.answer(str(message.chat.id))
+    # await message.answer(str(message.chat.id))
+    # return
+    await message.answer(message.chat.id)
     return
     number = message.text.split(':')[-1]
-    await message.answer(str(message.chat.id))
     if number == '1':
         await state.set_state(BootNewCarPhotosStates.state_1)
 

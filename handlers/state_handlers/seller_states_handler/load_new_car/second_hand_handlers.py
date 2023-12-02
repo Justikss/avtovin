@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 
 from aiogram.types import CallbackQuery, Message
@@ -16,8 +17,11 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
     '''Выбрать год добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     rewrite_controller_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
+    memory_storage = await state.get_data()
     if await rewrite_controller_module.rewrite_boot_state_stopper(request=callback, state=state):
-        if not callback.data.startswith('rewrite_boot_'):
+        if not callback.data.startswith('rewrite_boot_') and not memory_storage.get('rewrite_state_flag'):
+            ic()
+            ic('complectation1221', int(callback.data.split('_')[-1]))
             await state.update_data(complectation_for_load=int(callback.data.split('_')[-1]))
     
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
@@ -97,8 +101,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
             get_load_car_state_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
 
             ic(car_price)
-
-            await state.update_data(load_price=int(car_price))
+            await state.update_data(load_price=f"{int(car_price):,}".replace(",", "."))
             cars_state = await get_load_car_state_module.get_load_car_state(state=state)
             print('cstate: ', cars_state)
             if cars_state == 'new':
@@ -110,6 +113,8 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
             #     ic(photo_pack)
                 await output_config_module.output_load_config_for_seller(request, state)
                 return
+        else:
+            logging.info(f'{request.from_user.id} ::: Цена не была найдена в input_photo_to_load handler')
 
         if await rewrite_controller_module.data_update_controller(request=request, state=state):
             return

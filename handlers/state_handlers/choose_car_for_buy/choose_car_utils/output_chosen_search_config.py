@@ -9,6 +9,34 @@ from database.data_requests.car_advert_requests import AdvertRequester
 
 from utils.Lexicon import LEXICON
 
+async def get_seller_header(seller=None, car=None):
+    message_text = LEXICON.get('chosen_configuration').get('message_text')
+    if car:
+        seller = car.seller
+
+    if seller.dealship_name:
+        seller_header = message_text.get('from_dealership').replace('X', seller.dealship_name).replace('Y', seller.dealship_address)
+    else:
+        seller_header = message_text.get('from_seller').replace('X', ' '.join([seller.name, seller.surname, seller.patronymic if seller.patronymic else '']))
+
+    return seller_header
+
+async def get_output_string(car, message_text, cars_state):
+    seller_header = await get_seller_header(car=car)
+
+    canon_string = f'''{message_text['your_configs']}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n'''
+
+    if int(cars_state) == 2:
+        middle_string = f'''{message_text['color']} {car.color.name}\n{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n'''
+
+    elif int(cars_state) == 1:
+        middle_string = ''
+
+    cost_string = f'''{message_text['cost'].replace('X', car.price)}'''
+    result_string = f'{canon_string}{middle_string}{cost_string}'
+    return result_string
+
+
 async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_models=None):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
@@ -51,18 +79,10 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
         ic(car_models)
     else:
         first_view_mode = False
-    car_ids = []
     ic()
     ic(car_models)
     for car in car_models:
-        car_ids.append(car.car_id)
-        if int(cars_state) == 2:
-            result_string = f'''
-                {message_text['your_configs']}\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['color']} {car.color.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['complectation']} {car.complectation.name}\n{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n{message_text['cost']} {car.price}'''
-
-        elif int(cars_state) == 1:
-            result_string = f'''
-                {message_text['your_configs']}\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['complectation']} {car.complectation.name}\n{message_text['cost']} {car.price}'''
+        result_string = await get_output_string(car, message_text, cars_state)
 
         photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 

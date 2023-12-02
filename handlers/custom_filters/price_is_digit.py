@@ -1,3 +1,5 @@
+from copy import copy
+
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -14,10 +16,14 @@ class PriceIsDigit(BaseFilter):
         redis_module = importlib.import_module('utils.redis_for_language')
         redis_key_user_message = str(message.from_user.id) + ':last_seller_message'
         redis_key_bot_message = str(message.from_user.id) + ':last_message'
-
-
-        if message.text.isdigit():
-            car_price = message.text
+        message_text = copy(message.text)
+        if '$' in message_text:
+            ic()
+            message_text = message_text.replace('$', ' ').strip()
+            ic(message_text)
+        if message_text.isdigit():
+            ic(message.text.isdigit())
+            car_price = message_text
             await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
             last_seller_message = await redis_module.redis_data.get_data(key=redis_key_user_message)
             if last_seller_message:
@@ -25,6 +31,7 @@ class PriceIsDigit(BaseFilter):
                     await message.bot.delete_message(chat_id=message.chat.id, message_id=last_seller_message)
                     await redis_module.redis_data.delete_key(key=redis_key_user_message)
                 except: pass
+            ic()
             return {'car_price': car_price}
         else:
             last_seller_message = await redis_module.redis_data.get_data(key=redis_key_user_message)

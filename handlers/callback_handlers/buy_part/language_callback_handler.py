@@ -7,16 +7,17 @@ from keyboards.inline.kb_creator import InlineCreator
 from utils.redis_for_language import redis_data
 
 
-async def set_language(callback: CallbackQuery, delete_mode=False):
+async def set_language(callback: CallbackQuery, delete_mode=False, set_languange=True):
     travel_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     user_id = callback.from_user.id
-    redis_key = str(user_id) + ':language'
-    redis_value = callback.data.split('_')
-    if len(redis_value) >= 1:
-        if redis_value[0] == 'language':
-            redis_value = redis_value[1]
-            await redis_data.set_data(key=redis_key, value=redis_value)
+    if set_languange:
+        redis_key = str(user_id) + ':language'
+        redis_value = callback.data.split('_')
+        if len(redis_value) >= 1:
+            if redis_value[0] == 'language':
+                redis_value = redis_value[1]
+                await redis_data.set_data(key=redis_key, value=redis_value)
 
     #Будет меняться язык от callback.data#
     lexicon_code = 'hello_text'
