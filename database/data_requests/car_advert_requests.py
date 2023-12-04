@@ -76,7 +76,7 @@ class AdvertRequester:
             query = query.switch(CarAdvert).join(CarYear)
             query = query.where(CarYear.id == int(year_of_release_id))
 
-
+        print(query)
         ic(print(query))
         result = list(await manager.execute(query))
         ic(result)

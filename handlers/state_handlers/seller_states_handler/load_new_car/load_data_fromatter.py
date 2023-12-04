@@ -1,4 +1,5 @@
 import asyncio
+import importlib
 
 from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 from typing import Union
@@ -10,6 +11,8 @@ from utils.Lexicon import LexiconCommodityLoader
 
 async def data_formatter(request: Union[Message, CallbackQuery], state: FSMContext, id_values=False):
     '''Собирает сырые объекты в стэк данных по загружаемому автомобилю'''
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+
     memory_storage = await state.get_data()
 
     sub_data = {'seller_id': request.from_user.id,
@@ -23,7 +26,9 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     'color': memory_storage.get('color_for_load'),
     'price': memory_storage['load_price'], 
     'photos': memory_storage.get('load_photo')}
-
+    
+    await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:boot_advert_ids_kwargs', value=sub_data)
+    
     result_data = dict()
     ic(sub_data)
     if not id_values:

@@ -1,22 +1,97 @@
+import asyncio
 import importlib
+
+import aiohttp
 import phonenumbers
+import json
 
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from typing import Union
 
-
+from config_data.config import LOCATIONIQ_TOKEN, geolocation_cahce_expire
 from handlers.state_handlers.buyer_registration_handlers import input_phone_number
 from database.data_requests.person_requests import PersonRequester
+from utils.Lexicon import LEXICON, SecondsEndswith
 
+queue = asyncio.Queue()
 
 class GetDealershipAddress(BaseFilter):
-    async def __call__(self, request: Union[Message, CallbackQuery], state: FSMContext):
-        input_dealship_name_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers')
+    @staticmethod
+    async def format_address(raw_result):
+        parts = raw_result.split(', ')
+        house_number = parts[0]
+        street = parts[1]
+        city = parts[3]
+        full_city = parts[4]
+        result = f'{city}, {street} {house_number}'
+        return result
 
+    @staticmethod
+    async def time_endswith_fromatter(time_value):
+        wait_time = str(time_value)
+
+        if wait_time[-1] == '1':
+            endswith = SecondsEndswith.one
+        elif 1 < int(wait_time[-1]) <= 4:
+            endswith = SecondsEndswith.two_four
+        else:
+            endswith = ''
+        return endswith
+
+
+
+    @staticmethod
+    async def get_address_from_locationiq(latitude, longitude):
+        redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+
+        await redis_module.redis_data.delete_key(key=f'{latitude},{longitude}')
+        cached_result = await redis_module.redis_data.get_data(key=f'{latitude},{longitude}')
+        if cached_result:
+            return cached_result
+        url = f"https://us1.locationiq.com/v1/reverse.php?key={LOCATIONIQ_TOKEN}&lat={latitude}&lon={longitude}&format=json"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                data = await response.json()
+                address = await GetDealershipAddress.format_address(data.get("display_name"))
+                await redis_module.redis_data.set_data(key=f'{latitude},{longitude}', value=address, expire=geolocation_cahce_expire)
+                return address
+
+    @staticmethod
+    async def process_queue():
+        while True:
+            lat, lon, result_future = await queue.get()
+            address = await GetDealershipAddress.get_address_from_locationiq(lat, lon)
+            if address:
+                result_future.set_result(address)
+            else:
+                result_future.set_result("Адрес не найден.")
+            await asyncio.sleep(1)  # Задержка между запросами
+
+    async def __call__(self, request: Union[Message, CallbackQuery], state: FSMContext):
+        message_editor_module = importlib.import_module('handlers.message_editor')
+        input_dealship_name_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers')
         if isinstance(request, Message):
             word_flag = False
+            if request.location:
+                # try:
+                #     await request.delete()
+                # except:
+                #     pass
+                lat = request.location.latitude
+                lon = request.location.longitude
+                wait_time = queue.qsize()  # Расчет времени ожидания
+                if int(wait_time) > 3:
+                    seconds_endswith = await GetDealershipAddress.time_endswith_fromatter(wait_time)
+                    lexicon_part = f'''{LEXICON['waiting_request_process'].replact('X', wait_time)}{seconds_endswith}'''
+                    await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part)
+                    # await request.answer(f"Ваш запрос обрабатывается. Примерное время ожидания: {wait_time} секунд(ы).")
+
+                result_future = asyncio.get_running_loop().create_future()
+                await queue.put((lat, lon, result_future))
+                address = await result_future
+                return {'dealership_address': address}
             for symbol in request.text:
                 if symbol.isalpha():
                     return {'dealership_address': request.text}

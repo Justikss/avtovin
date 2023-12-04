@@ -16,6 +16,7 @@ async def output_for_admin_formater(callback: CallbackQuery):
     new_seller = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if new_seller:
         new_seller = new_seller[0]
+        ic(new_seller.phone_number)
         if not new_seller.authorized:
             lexicon_part = LEXICON['seller_waiting_registration_confirm']
             lexicon_middle_part = lexicon_part[new_seller.entity + '_message']
@@ -34,6 +35,7 @@ async def output_for_admin_formater(callback: CallbackQuery):
                 body_string = f'''\n\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
 
             result_string = head_string + body_string
+            ic(result_string)
             return result_string
         else:
             await utils.seller_are_registrated_notification(callback=callback)

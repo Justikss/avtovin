@@ -251,7 +251,7 @@ async def finish_check_phone_number(message: Message, state: FSMContext):
             await message.delete()
             await registartion_view_corrector(request=message, state=state)
             memory_storage = await state.get_data()
-            formatted_number = phonenumbers.format_number(input_number, phonenumbers.PhoneNumberFormat.NATIONAL)
+            formatted_number = '-'.join(phonenumbers.format_number(input_number, phonenumbers.PhoneNumberFormat.NATIONAL).split())
 
             await load_user_in_database(memory_storage, formatted_number, message)
 

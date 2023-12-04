@@ -1,7 +1,7 @@
 from typing import Union, List
 import datetime
 
-from peewee import DoesNotExist
+from peewee import DoesNotExist, IntegrityError
 
 from database.data_requests.person_requests import PersonRequester
 from database.tables.seller import Seller
@@ -51,7 +51,10 @@ class TariffToSellerBinder:
         '''Асинхронный метод установки связей тарифов с продавцом'''
         great_data = await TariffToSellerBinder.__data_extraction_to_boot(data)
         insert_query = TariffsToSellers.insert(**great_data)
-        await manager.execute(insert_query)
+        try:
+            await manager.execute(insert_query)
+        except IntegrityError:
+            return False
         return True
 
     @staticmethod

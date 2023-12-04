@@ -11,6 +11,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     callback_data = callback.data
+    ic(callback.data)
     if ':' in callback_data:
         user_status = callback_data.split(':')[1]
 
@@ -114,12 +115,13 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
             key = key + '-'.join([str(media_message_id) for media_message_id in active_seller_notifications])
 
         lexicon_part['buttons'][key] = value
-
+    keyboard = await InlineCreator.create_markup(input_data=lexicon_part['buttons'])
+    ic(keyboard)
     await callback.bot.edit_message_reply_markup(
         chat_id=seller_id,
         message_id=notification_message_part.message_id,
-        reply_markup=await InlineCreator.create_markup(input_data=lexicon_part['buttons'])
-    )
+        reply_markup=keyboard)
+
         # await redis_module.redis_data.set_data(key=f'{seller_id}:active_notifications', value=active_seller_notifications)
 
 

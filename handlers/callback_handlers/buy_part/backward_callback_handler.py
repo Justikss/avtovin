@@ -164,13 +164,13 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             await output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand=car_brand)
 
 
-        elif mode == 'start_boot_new_car':
-            edit_mode = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
-            if edit_mode and edit_mode != 'null':
-                print('EDITMOD ', edit_mode, type(edit_mode))
-                await output_load_config_for_seller(request=callback, state=state)
-            else:
-                await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback)
+        # elif mode == 'start_boot_new_car':
+        #     edit_mode = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+        #     if edit_mode and edit_mode != 'null':
+        #         print('EDITMOD ', edit_mode, type(edit_mode))
+        #         await output_load_config_for_seller(request=callback, state=state)
+        #     else:
+        #         await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback)
 
         elif mode == 'seller__my_feedbacks':
 

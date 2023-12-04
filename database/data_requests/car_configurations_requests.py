@@ -140,6 +140,17 @@ class CarConfigs:
 
 async def insert_many(table, names):
     for name in names:
+        if table == CarMileage:
+            if '+' in name:
+                head_symbol = '+'
+                name = name.split(head_symbol)
+                name = f'''{head_symbol.join([f"{int(name[0]):,}".replace(",", ".")])}+'''
+
+            else:
+                head_symbol = '-'
+
+                name = name.split(head_symbol)
+                name = head_symbol.join([f"{int(nam):,}".replace(",", ".") for nam in name])
         await manager.create(table, name=name)
 
 async def insert_many_with_foregin(table, wire_to_name):
@@ -183,8 +194,8 @@ async def mock_values():
     await insert_many(CarEngine, engine_names)
 
     await insert_many(CarColor, ['Серый', 'Белый', 'Чёрный', 'Синий', 'Коричневый', 'Бирюзовый'])
-    await insert_many(CarYear, ['2005', '2000', '2020', '2021', '2022', '2023'])
-    await insert_many(CarMileage, ['5000', '10000', '15000', '20000', '25000', '30000', '35000', '40000', '45000', '50000', '750000', '100000', '100000+'])
+    await insert_many(CarYear, ['2010-2013', '2013-2016', '2016-2019', '2019-2022'])
+    await insert_many(CarMileage, ['5000-10000', '10000-15000', '15000-20000', '20000-25000', '25000-30000', '30000-35000', '35000-40000', '40000-45000', '45000-50000', '50000-75000', '75000-100000', '100000+'])
 
     await insert_many_with_foregin(CarModel, {'BYD': ['SONG PLUS CHAMPION', 'CHAZOR'], 'Leapmotor': ['C11'], 'Li Xiang': ['L9', 'L7'], 'Сhevrolet': ['Gentra', 'Nexia 3']})
     await insert_many_with_foregin(CarComplectation, {'CHAZOR': [{'ГИБРИД': 'XXX'}], 'SONG PLUS CHAMPION': [

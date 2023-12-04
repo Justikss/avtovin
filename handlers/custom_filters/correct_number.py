@@ -43,8 +43,8 @@ class CheckInputNumber(BaseFilter):
 
         if valid_number:
             ic(parsed_number)
-            formatted_number = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
-
+            formatted_number = '-'.join(phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL).split())
+            ic(formatted_number)
 
             number_is_exists = await PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
             if number_is_exists:

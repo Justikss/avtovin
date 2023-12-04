@@ -114,17 +114,18 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                         selected_id = int(request.data.split('_')[-1])
                     else:
                         selected_id = None
-                    # if selected_id and ((not edit_mode) or (memory_storage.get('rewrite_brand_mode'))):
-                    #     if current_state == 'LoadCommodityStates.input_to_load_brand':
-                    #         ic()
-                    #         last_value = memory_storage.get('engine_for_load')
-                    #         await state.update_data(engine_for_load=selected_id)
-                    #         if last_value != selected_id:
-                    #             await state.update_data(rewrite_brand_mode=True)
-                    #             ic()
-                    #             return False
+                    ic(selected_id, edit_mode, memory_storage.get('rewrite_brand_mode'))
+                    if selected_id and ((not edit_mode) or (memory_storage.get('rewrite_brand_mode'))):
+                        ic()
+                        if current_state == 'LoadCommodityStates:input_to_load_brand':
+                            ic()
+                            last_value = memory_storage.get('engine_for_load')
+                            await state.update_data(engine_for_load=selected_id)
+                            if last_value != selected_id:
+                                await state.update_data(rewrite_brand_mode=True)
 
-                        if current_state == 'LoadCommodityStates:input_to_load_model':
+                                return False
+                        elif current_state == 'LoadCommodityStates:input_to_load_model':
                             last_value = memory_storage.get('brand_for_load')
                             await state.update_data(brand_for_load=selected_id)
                             if last_value != selected_id:

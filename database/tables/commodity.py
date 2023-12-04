@@ -30,7 +30,7 @@ class AdvertPhotos(BaseModel):
     photo_unique_id = CharField()
 
     class Meta:
-        db_table = 'Фотографии_автомобилей'
+        db_table = 'Фотографии_Машин'
 
 
 class NewCarPhotoBase(BaseModel):
@@ -41,4 +41,4 @@ class NewCarPhotoBase(BaseModel):
     admin_id = BigIntegerField()
 
     class Meta:
-        db_table = 'Фотографии_новых_машин'
+        db_table = 'Фотографии_Новых_Машин'

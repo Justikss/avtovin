@@ -29,7 +29,7 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_year_of_realise,
                                              buttons_captions=await CarConfigs.get_for_second_hand(year=True))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_mileage)
@@ -47,7 +47,7 @@ async def input_mileage_to_load(callback: CallbackQuery, state: FSMContext):
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_mileage,
                                              buttons_captions=await CarConfigs.get_for_second_hand(mileage=True))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_color)
@@ -64,7 +64,7 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_color,
                                              buttons_captions=await CarConfigs.get_for_second_hand(color=True))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_price)

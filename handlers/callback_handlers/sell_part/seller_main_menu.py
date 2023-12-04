@@ -7,6 +7,7 @@ from utils.Lexicon import LEXICON
 
 from utils.chat_cleaner.media_group_messages import delete_media_groups
 from utils.user_notification import try_delete_notification
+from utils.user_registartion_notificator import user_dont_registrated
 
 
 async def create_tarifs():
@@ -47,7 +48,9 @@ async def get_tariff(callback):
                 'tariff': 'minimum'
                 }
 
-        await TariffToSellerBinder.set_bind(data=data)
+        try_set_bind = await TariffToSellerBinder.set_bind(data=data)
+        if not try_set_bind:
+            await user_dont_registrated(callback)
 
 
 

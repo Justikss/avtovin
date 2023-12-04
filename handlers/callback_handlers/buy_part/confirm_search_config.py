@@ -1,5 +1,4 @@
 import importlib
-import logging
 import traceback
 
 from aiogram.fsm.context import FSMContext
@@ -7,7 +6,6 @@ from aiogram.types import CallbackQuery
 from icecream import ic
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from handlers.callback_handlers.buy_part.show_cached_requests import get_cached_requests__chose_brand
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
     BuyerCarsPagination
@@ -26,7 +24,7 @@ async def output_for_seller_formater(callback: CallbackQuery, almost_done_card) 
     person_model = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, user=True)
     if not person_model:
         await message_editor.travel_editor.edit_message(request=callback,
-                                                        lexicon_key='buy_configuration_non_registration')
+                                                        lexicon_key='user_non_registration')
         return
     person_model = person_model[0]
     contact_number = person_model.phone_number
@@ -76,7 +74,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                     callback_answer_text = LEXICON['order_was_created']
                 else:
                     callback_answer_text = LEXICON['seller_dont_exists']
-
+                ic(callback_answer_text)
                 await callback.answer(text=callback_answer_text, show_alert=True)
             except BufferError as ex:
                 print(ex)

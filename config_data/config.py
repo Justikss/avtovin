@@ -16,6 +16,7 @@ else:
     load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+LOCATIONIQ_TOKEN = os.getenv("LOCATIONIQ_TOKEN")
 
 ADMIN_CHAT = os.getenv("ADMIN_CHAT")
 
@@ -30,6 +31,7 @@ DEFAULT_COMMANDS = (
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
 
 lifetime_of_redis_record_of_request_caching = 259200
+geolocation_cahce_expire = 3600
 header_message_text: str = f'<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
 
 money_valute = '$'

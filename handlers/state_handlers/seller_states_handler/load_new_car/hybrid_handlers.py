@@ -44,7 +44,7 @@ async def input_state_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_state,
                                              buttons_captions=await CarConfigs.get_all_states())
     ic(lexicon_part)
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, delete_mode=delete_mode)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, delete_mode=delete_mode, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_engine_type)
@@ -58,14 +58,17 @@ async def input_engine_type_to_load(callback: CallbackQuery, state: FSMContext, 
 
     if not callback.data.startswith('rewrite_boot_'):
         await change_boot_car_state_controller(callback, state)
-
         await state.update_data(state_for_load=int(callback.data.split('_')[-1]))
+
+    else:
+        await state.update_data(rewrite_brand_mode=True)
+
     if await data_update_controller(request=callback, state=state):
         return
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_engine_type,
                                              buttons_captions=await CarConfigs.get_all_engines())
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_brand)
@@ -76,8 +79,12 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     if not bot:
         bot = callback.message.bot
 
+    there_data_update = await message_editor.redis_data.get_data(
+        key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+
     if not callback.data.startswith('rewrite_boot_'):
-        await state.update_data(engine_for_load=int(callback.data.split('_')[-1]))
+        if not there_data_update:
+            await state.update_data(engine_for_load=int(callback.data.split('_')[-1]))
         engine_for_load = int(callback.data.split('_')[-1])
     else:
         await state.update_data(rewrite_brand_mode=True)
@@ -88,7 +95,7 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_brand,
                                              buttons_captions=await CarConfigs.get_brands_by_engine(engine_for_load))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_model)
@@ -102,6 +109,7 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
 
     there_data_update = await message_editor.redis_data.get_data(
         key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+    memory_storage = await state.get_data()
 
     if not callback.data.startswith('rewrite_boot_'):
         if not there_data_update:
@@ -114,10 +122,13 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
 
     if await data_update_controller(request=callback, state=state):
         return
+    engine_for_load = memory_storage.get('engine_for_load')
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_model,
-                                             buttons_captions=await CarConfigs.get_models_by_brand(brand_for_load))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
+                                             buttons_captions=await CarConfigs.get_models_by_brand_and_engine(
+                                                 brand_for_load, engine_for_load
+                                             ))
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=True)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_complectation)
@@ -133,23 +144,25 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
 
     there_data_update = await message_editor.redis_data.get_data(
         key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
+    memory_storage = await state.get_data()
 
     if not callback.data.startswith('rewrite_boot_'):
         if not there_data_update:
             await state.update_data(model_for_load=int(callback.data.split('_')[-1]))
         model_for_load = int(callback.data.split('_')[-1])
     else:
-        memory_storage = await state.get_data()
         model_for_load = memory_storage['model_for_load']
         await state.update_data(rewrite_brand_mode=True)
 
+    engine_for_load = memory_storage.get('engine_for_load')
     if await data_update_controller(request=callback, state=state):
         return
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_complectation,
-                                             buttons_captions=await CarConfigs.get_complectations_by_model(
-                                                 model_for_load))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot)
+                                             buttons_captions=await CarConfigs.get_complectations_by_model_and_engine(
+                                                 model_for_load, engine_for_load))
+    ic(lexicon_part)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=True)
 
     cars_state = await get_load_car_state(state=state)
     print('cstate: ', cars_state)

@@ -64,7 +64,9 @@ class BuyerCarsPagination:
         buttons_lexicon_part = LEXICON.get('chosen_configuration')
 
         if await state.get_state() in ('CheckNonConfirmRequestsStates:brand_flipping_process',
-                                       'CheckNonConfirmRequestsStates:await_input_brand'):
+                                       'CheckNonConfirmRequestsStates:await_input_brand',
+                                       'CheckActiveOffersStates:await_input_brand',
+                                       'CheckActiveOffersStates:brand_flipping_process'):
             backward_callback_data = 'return_to_choose_requests_brand'
         else:
             backward_callback_data = False
@@ -75,8 +77,11 @@ class BuyerCarsPagination:
                 key = backward_callback_data
 
             elif key == 'confirm_buy_settings:':
-                key = key + str(car_id)
-                ic(key)
+                if str(await state.get_state()).startswith('CheckActiveOffersStates'):
+                    continue
+                else:
+                    key = key + str(car_id)
+                    ic(key)
 
             correct_buttons[key] = value
 

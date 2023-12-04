@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
@@ -6,11 +7,16 @@ from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
+from database.data_requests.car_configurations_requests import mock_values, get_car
 from database.db_connect import create_tables
+from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
-from handlers.callback_handlers.buy_part.show_cached_requests import output_cached_requests
+from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_cached_requests
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
+from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
+from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
+    cancel_boot_process_callback_handler
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
@@ -24,7 +30,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
-from states.buyer_check_nonconfirm_requests_states import CheckNonConfirmRequestsStates
+from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
@@ -34,7 +40,8 @@ from utils.user_notification import delete_notification_for_seller, try_delete_n
 from config_data.config import BOT_TOKEN
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, \
     confirm_search_config, language_callback_handler, \
-    search_auto_handler, show_cached_requests
+    search_auto_handler
+from handlers.callback_handlers.buy_part.buyer_offers_branch import show_requests
 from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address, price_is_digit, message_is_photo
 from handlers.default_handlers import start
 # from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_history)
@@ -100,12 +107,14 @@ async def start_bot():
 
     # await get_car()
 
+    asyncio.create_task(GetDealershipAddress.process_queue())
+
     dp.callback_query.middleware(CleanerMiddleware())
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
 
-    dp.message.register(start_state_boot_new_car_photos_message_handler, lambda message: message.text.startswith('p:'))
+    dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
 
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 
@@ -160,7 +169,10 @@ async def start_bot():
 
     '''Пагинация неподтверждённых заявок'''
 
-    dp.callback_query.register(output_cached_requests, StateFilter(CheckNonConfirmRequestsStates.await_input_brand), lambda callback: callback.data.startswith('load_brand_'))
+    dp.callback_query.register(output_cached_requests,
+                               or_f(StateFilter(CheckNonConfirmRequestsStates.await_input_brand),
+                                    StateFilter(CheckActiveOffersStates.await_input_brand)),
+                               lambda callback: callback.data.startswith('load_brand_'))
 
     '''delete request'''
     # dp.callback_query.register(seller_deletes_request.seller_start_delete_request.start_process_delete_request_handler,
@@ -185,7 +197,8 @@ async def start_bot():
     dp.callback_query.register(FAQ_tech_support.tech_support_callback_handler, F.data == 'support')
     dp.callback_query.register(FAQ_tech_support.write_to_support_callback_handler, F.data == 'write_to_support')
     dp.callback_query.register(FAQ_tech_support.call_to_support_callback_handler, F.data == 'call_to_support')
-
+    '''buyer'''
+    dp.callback_query.register(buyer_offers_callback_handler, F.data == 'buyer_requests')
     dp.callback_query.register(callback_handler_backward_in_carpooling.backward_in_carpooling_handler,
                                F.data == 'backward_in_carpooling')
     dp.callback_query.register(language_callback_handler.set_language,
@@ -204,7 +217,7 @@ async def start_bot():
     # dp.callback_query.register(confirm_from_seller_callback_handler.confirm_from_seller,
     #                            lambda callback: callback.data.startswith('confirm_from_seller'))
 
-    dp.callback_query.register(show_cached_requests.get_cached_requests__chose_brand, F.data.in_(('cached_requests', 'return_to_choose_requests_brand')))
+    dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')))
     # dp.callback_query.register(show_offers_history.history_pagination_left, F.data == 'pagination_left')
     # dp.callback_query.register(show_offers_history.history_pagination_right, F.data == 'pagination_right')
     # dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
@@ -213,7 +226,7 @@ async def start_bot():
     '''Seller'''
     dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
 
-    dp.callback_query.register(try_delete_notification, F.data == 'close_seller_notification_by_redis')
+    dp.callback_query.register(try_delete_notification, lambda callback: callback.data.startswith('close_seller_notification_by_redis'))
 
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
@@ -326,6 +339,9 @@ async def start_bot():
                         (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
 
     '''Состояния загрузки новых машин'''
+
+    dp.callback_query.register(cancel_boot_process_callback_handler, F.data == 'cancel_boot_new_commodity')
+
     dp.callback_query.register(load_new_car.hybrid_handlers.input_state_to_load,
                               F.data.in_(('create_new_seller_request', 'rewrite_boot_state')))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_engine_type_to_load,

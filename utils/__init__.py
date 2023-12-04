@@ -1,1 +1,1 @@
-from . import Lexicon, redis_for_language, custom_exceptions, memory_bagfixer, user_notification, middleware, chat_cleaner, create_lexicon_part, safe_dict_class
+from . import Lexicon, redis_for_language, custom_exceptions, memory_bagfixer, user_notification, middleware, chat_cleaner, create_lexicon_part, safe_dict_class, user_registartion_notificator

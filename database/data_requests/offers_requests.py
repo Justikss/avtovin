@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime, time
 
-from peewee import JOIN
+from peewee import JOIN, DoesNotExist
 
 from icecream import ic
 
@@ -24,7 +24,10 @@ class OffersRequester:
     async def get_offer_model(buyer, car):
         '''Асинхронный метод получения модели предложения'''
         query = ActiveOffers.select().where((ActiveOffers.buyer_id == buyer) & (ActiveOffers.car_id == car))
-        select_response = await manager.execute(query)
+        try:
+            select_response = await manager.get(query)
+        except:
+            return False
         return select_response if select_response else False
 
     @staticmethod
@@ -38,11 +41,21 @@ class OffersRequester:
             raise BufferError('Такая заявка уже создана')
 
     @staticmethod
-    async def get_for_buyer_id(buyer_id: int):
-        '''Асинхронный метод получения предложений для покупателя'''
-        query = ActiveOffers.select().where(ActiveOffers.buyer == buyer_id)
-        buyer_offers = await manager.execute(query)
-        return list(buyer_offers) if buyer_offers else False
+    async def get_for_buyer_id(buyer_id, brand=None, get_brands=False):
+        '''Асинхронный метод получения открытых предложений для покупателя'''
+        if brand:
+            query = ActiveOffers.select().join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand) \
+                .where((ActiveOffers.buyer_id == int(buyer_id)) & (CarBrand.id == int(brand)))
+        else:
+            query = ActiveOffers.select().where(ActiveOffers.buyer_id == int(buyer_id))
+        buyer_offers = list(await manager.execute(query))
+        if buyer_offers:
+            if get_brands:
+                return {f'load_brand_{request.car_id.complectation.model.brand.id}': request.car_id.complectation.model.brand.name for request in buyer_offers}
+            else:
+                return buyer_offers
+        else:
+            return False
     ''''''
 
     @staticmethod
@@ -87,14 +100,21 @@ class CachedOrderRequests:
         return True
 
     @staticmethod
-    async def get_cached_brands(buyer_id):
+    async def get_offer_brands(buyer_id):
         '''Асинхронный метод получения кэшированных брендов'''
         query = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id)
-        select_query = await manager.execute(query)
+        select_query = list(await manager.execute(query))
         if select_query:
+            ic(select_query)
             select_query = await CachedOrderRequests.check_overtime_requests(select_query)
-            result = {f'load_brand_{request.car_id.complectation.model.brand.id}': request.car_id.complectation.model.brand.name for request in select_query}
-            return result
+            try:
+                result = {f'load_brand_{request.car_id.complectation.model.brand.id}': request.car_id.complectation.model.brand.name for request in select_query}
+                return result
+            except DoesNotExist:
+                for offer in select_query:
+                    ic(offer, offer.id)
+                    await CachedOrderRequests.remove_cache(offer_model=offer)
+                    return set()
         else:
             return set()
 
@@ -117,12 +137,19 @@ class CachedOrderRequests:
 
 
     @staticmethod
-    async def remove_cache(buyer_id, car_id):
+    async def remove_cache(buyer_id=None, car_id=None, offer_model=None):
         '''Асинхронный метод удаления кэша'''
-        delete_query = CacheBuyerOffers.delete().where(
-            (CacheBuyerOffers.buyer_id == buyer_id) & (CacheBuyerOffers.car_id == car_id))
-        await manager.execute(delete_query)
-        return True
+        delete_query = None
+        if offer_model:
+            ic()
+            delete_query = CacheBuyerOffers.delete().where(CacheBuyerOffers == offer_model)
+        elif buyer_id and car_id:
+            delete_query = CacheBuyerOffers.delete().where(
+                (CacheBuyerOffers.buyer_id == int(buyer_id)) & (CacheBuyerOffers.car_id == int(car_id)))
+            ic(delete_query)
+
+        if await manager.execute(delete_query):
+            return True
 
     @staticmethod
     async def check_overtime_requests(select_query):

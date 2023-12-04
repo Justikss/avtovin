@@ -6,25 +6,47 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import lifetime_of_redis_record_of_request_caching
 from database.data_requests.car_advert_requests import AdvertRequester
+from database.tables.offers_history import ActiveOffers
 
 from utils.Lexicon import LEXICON
 
-async def get_seller_header(seller=None, car=None):
+async def get_seller_header(seller=None, car=None, state=None):
     message_text = LEXICON.get('chosen_configuration').get('message_text')
     if car:
         seller = car.seller
+    seller_number = ''
+    if state:
+        current_state = str(await state.get_state())
+        if current_state.startswith('CheckActiveOffersStates'):
+            seller_number = f'''\n{message_text.get('phone_number')}\n{seller.phone_number}'''
 
     if seller.dealship_name:
         seller_header = message_text.get('from_dealership').replace('X', seller.dealship_name).replace('Y', seller.dealship_address)
     else:
         seller_header = message_text.get('from_seller').replace('X', ' '.join([seller.name, seller.surname, seller.patronymic if seller.patronymic else '']))
 
+    seller_header = f'{seller_header}{seller_number}'
     return seller_header
 
-async def get_output_string(car, message_text, cars_state):
-    seller_header = await get_seller_header(car=car)
+async def get_output_string(car, message_text, cars_state, state=None, callback=None):
+    offer_requester = importlib.import_module('database.data_requests.offers_requests')
 
-    canon_string = f'''{message_text['your_configs']}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n'''
+    seller_header = await get_seller_header(car=car, state=state)
+    footer_viewed_by_seller_status = ''
+
+    startswith_text = message_text['your_configs']
+    if state:
+        current_state = str(await state.get_state())
+        if current_state.startswith('CheckActiveOffersStates'):
+            startswith_text = LEXICON['active_offer_caption']
+            if callback:
+                offer_model = await offer_requester.OffersRequester.get_offer_model(int(callback.from_user.id), car.id)
+                if offer_model:
+                    viewed_status_lexicon = LEXICON["footer_for_output_active_offers"]
+                    footer_viewed_by_seller_status = f'''\n\n{viewed_status_lexicon['viewed_status']}\n{viewed_status_lexicon['status_true'] if offer_model.viewed else viewed_status_lexicon['status_false']}'''
+
+
+    canon_string = f'''{startswith_text}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n'''
 
     if int(cars_state) == 2:
         middle_string = f'''{message_text['color']} {car.color.name}\n{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n'''
@@ -33,7 +55,7 @@ async def get_output_string(car, message_text, cars_state):
         middle_string = ''
 
     cost_string = f'''{message_text['cost'].replace('X', car.price)}'''
-    result_string = f'{canon_string}{middle_string}{cost_string}'
+    result_string = f'{canon_string}{middle_string}{cost_string}{footer_viewed_by_seller_status}'
     return result_string
 
 
@@ -46,6 +68,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
     cars_state = await redis_module.redis_data.get_data(redis_key)
 
     lexicon_part = LEXICON.get('chosen_configuration')
+
     message_text = lexicon_part.get('message_text')
 
     data_stack = []
@@ -82,7 +105,9 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
     ic()
     ic(car_models)
     for car in car_models:
-        result_string = await get_output_string(car, message_text, cars_state)
+        if isinstance(car, ActiveOffers):
+            car = car.car_id
+        result_string = await get_output_string(car, message_text, cars_state, state=state, callback=callback)
 
         photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 

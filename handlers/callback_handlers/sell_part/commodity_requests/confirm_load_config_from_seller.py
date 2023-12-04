@@ -18,7 +18,7 @@ from handlers.state_handlers.seller_states_handler.load_new_car.get_output_confi
 async def check_match_adverts_the_sellers(callback, state: FSMContext):
     memory_storage = await state.get_data()
 
-    match_result = AdvertRequester.get_advert_by(state_id=memory_storage['state_for_load'],
+    match_result = await AdvertRequester.get_advert_by(state_id=memory_storage['state_for_load'],
                                                  engine_type_id=memory_storage['engine_for_load'],
                                                  brand_id=memory_storage['brand_for_load'],
                                                  model_id=memory_storage['model_for_load'],
@@ -27,6 +27,7 @@ async def check_match_adverts_the_sellers(callback, state: FSMContext):
                                                  mileage_id=memory_storage.get('mileage_for_load'),
                                                  color_id=memory_storage.get('color_for_load'),
                                                  seller_id=callback.from_user.id)
+    ic(match_result)
 
     if match_result:
         return match_result
@@ -39,7 +40,7 @@ async def create_notification_for_admins(callback):
         seller_model = seller_model[0]
 
         last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-        boot_config_string_startswith = f'{copy(LexiconCommodityLoader.config_for_admins)}{callback.from_user.username}\n{await get_seller_header(seller=seller_model)}'
+        boot_config_string_startswith = f'{copy(LexiconCommodityLoader.config_for_admins)}{callback.from_user.username}\n{await get_seller_header(seller=seller_model)}\n'
 
         message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
         message_for_admin_chat[0] = boot_config_string_startswith

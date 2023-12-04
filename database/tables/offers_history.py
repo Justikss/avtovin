@@ -28,7 +28,7 @@ class CacheBuyerOffers(BaseModel):
     car_id = ForeignKeyField(CarAdvert, field=CarAdvert.id, backref='cached_offers')
     message_text = CharField()
     # car_brand = CharField()
-    datetime_of_deletion = DateTimeField(default=datetime.now() + timedelta(days=3))
+    datetime_of_deletion = DateTimeField(default=datetime.now() + timedelta(days=7))
 
     class Meta:
         db_table = 'Кэш_Открытых_Заявок'

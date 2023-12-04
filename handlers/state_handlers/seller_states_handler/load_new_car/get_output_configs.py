@@ -43,7 +43,7 @@ async def get_output_string(mode, boot_data: dict) -> str:
 
 mediagroups = {}
 
-async def output_load_config_for_seller(request: Union[Message, CallbackQuery], state: FSMContext, media_photos=None, media_album=None, bot=None):
+async def output_load_config_for_seller(request: Union[Message, CallbackQuery], state: FSMContext, media_photos=None, media_album=None, bot=None, structured_boot_data=None):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     create_buttons_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
     get_load_car_state_module = importlib.import_module(
@@ -94,10 +94,11 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         delete_mode = False
 
 
+    if not structured_boot_data:
+        structured_boot_data = await data_formatter(request=request, state=state)
+        await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:structured_boot_data',
+                                                 value = structured_boot_data)
 
-    structured_boot_data = await data_formatter(request=request, state=state)
-    await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:structured_boot_data',
-                                             value = structured_boot_data)
 
     output_string = await get_output_string(mode='to_seller',
                                             boot_data=structured_boot_data)

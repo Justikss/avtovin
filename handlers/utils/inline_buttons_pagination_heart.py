@@ -1,5 +1,8 @@
 import importlib
 from copy import copy
+from typing import Optional
+
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from icecream import ic
 from handlers.utils.pagination_heart import Pagination
@@ -9,7 +12,7 @@ from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
 class CachedRequestsView:
     '''Сердце класса - choose_brand_for_output'''
     @staticmethod
-    async def choose_brand_for_output(callback: CallbackQuery, car_brands=None, operation=None):
+    async def choose_brand_for_output(callback: CallbackQuery, car_brands=None, operation=None, state: Optional[FSMContext] = None):
         '''Пока что адаптирован под покупателя(см. get_keyboard)
         Требует контент в виде key: value для кнопок'''
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -40,22 +43,32 @@ class CachedRequestsView:
             operation = callback.data.split(':')[-1]
 
         keyboard = await CachedRequestsView.get_keyboard(callback, pagination, operation)
-
+        # ic(await state.get_state())
         try:
-            await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key)
-        except:
+            await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state)
+        except Exception as ex:
+            ic(keyboard, pagination, redis_key)
+            ic(ex)
             pass
 
         await callback.answer()
 
     @staticmethod
-    async def send_message_with_keyboard(callback, keyboard, pagination, redis_key):
+    async def send_message_with_keyboard(callback, keyboard, pagination, redis_key, state: Optional[FSMContext] = None):
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
+        if state:
+            current_state = str(await state.get_state())
+        else:
+            current_state = None
+        ic(current_state)
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
-        if user_state == 'buy':
-            message_text = LEXICON['cached_requests_for_buyer_message_text']
+        if user_state == 'buy' and current_state:
+            if current_state.startswith('CheckNonConfirmRequestsStates'):
+                message_text = LEXICON['cached_requests_for_buyer_message_text']
+            elif current_state.startswith('CheckActiveOffersStates'):
+                message_text = LEXICON['active_offers_for_buyer_message_text']
         elif user_state == 'sell':
             message_text = LexiconSellerRequests.select_brand_message_text
 
@@ -72,7 +85,7 @@ class CachedRequestsView:
 
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
         if user_state == 'buy':
-            backward_command = LEXICON['return_main_menu_only']
+            backward_command = LEXICON['backward_from_buyer_offers']
         elif user_state == 'sell':
             backward_command = LexiconSellerRequests.keyboard_end_part
 

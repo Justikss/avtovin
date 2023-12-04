@@ -66,7 +66,7 @@ class PhotoRequester:
         query = NewCarPhotoBase.select().join(CarComplectation).switch(NewCarPhotoBase).join(CarEngine).where(
         (CarComplectation.id == int(complectation)) & (CarEngine.id == int(engine)))
         select_response = list(await manager.execute(query))
-
+        ic(select_response)
         if select_response:
             result = [{'id': data_pack.photo_id, 'unique_id': data_pack.photo_unique_id} for data_pack in
                       select_response]
