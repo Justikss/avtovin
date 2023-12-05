@@ -12,7 +12,7 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     await media_group_delete_module.delete_media_groups(request=callback)
-
+    ic(await state.get_state())
     print('in backw')
     user_id = str(callback.from_user.id)
     redis_key = user_id + ':state_history_stack'

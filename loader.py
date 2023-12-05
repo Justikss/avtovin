@@ -7,7 +7,6 @@ from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
-from database.data_requests.car_configurations_requests import mock_values, get_car
 from database.db_connect import create_tables
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
@@ -30,7 +29,8 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
-from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates
+from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
+    CheckRecommendationsStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
@@ -55,8 +55,9 @@ from states.load_commodity_states import LoadCommodityStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
-from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, accept_registration_request_button, \
+from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, \
     commodity_requests
+from handlers.callback_handlers.admin_part import accept_registration_request_button
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car, seller_profile_branch
@@ -171,7 +172,8 @@ async def start_bot():
 
     dp.callback_query.register(output_buyer_offers,
                                or_f(StateFilter(CheckNonConfirmRequestsStates.await_input_brand),
-                                    StateFilter(CheckActiveOffersStates.await_input_brand)),
+                                    StateFilter(CheckActiveOffersStates.await_input_brand),
+                                    StateFilter(CheckRecommendationsStates.await_input_brand)),
                                lambda callback: callback.data.startswith('load_brand_'))
 
     '''delete request'''
@@ -217,7 +219,7 @@ async def start_bot():
     # dp.callback_query.register(confirm_from_seller_callback_handler.confirm_from_seller,
     #                            lambda callback: callback.data.startswith('confirm_from_seller'))
 
-    dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')))
+    dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')))
     # dp.callback_query.register(show_offers_history.history_pagination_left, F.data == 'pagination_left')
     # dp.callback_query.register(show_offers_history.history_pagination_right, F.data == 'pagination_right')
     # dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
@@ -232,7 +234,7 @@ async def start_bot():
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
     dp.callback_query.register(accept_registration_request_button.accept_registraiton,
-                        lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))
+                               lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))
 
     dp.callback_query.register(faq.FAQ_callback_handler, F.data == 'faq')
     dp.callback_query.register(seller_faq.seller_faq, F.data == 'seller_faq')

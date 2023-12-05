@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 
 from database.db_connect import BaseModel
 from peewee import ForeignKeyField, IntegerField, AutoField, BooleanField, DateField, CharField, DateTimeField, \
-    CompositeKey
+    CompositeKey, SQL
 
-from .car_configurations import CarAdvert
+from .car_configurations import CarAdvert, CarState, CarComplectation, CarEngine, CarMileage, CarColor, CarYear
 from .user import User
 from .seller import Seller
 
@@ -33,6 +33,33 @@ class CacheBuyerOffers(BaseModel):
     class Meta:
         db_table = 'Кэш_Открытых_Заявок'
         primary_key = CompositeKey('buyer_id', 'car_id')
+
+
+class RecommendationsToBuyer(BaseModel):
+    buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendation_parameters')
+
+    complectation = ForeignKeyField(CarComplectation, backref='recommendations')
+    state = ForeignKeyField(CarState, backref='recommendations')
+    engine_type = ForeignKeyField(CarEngine, backref='recommendations')
+
+    color = ForeignKeyField(CarColor, backref='recommendations', null=True)
+    mileage = ForeignKeyField(CarMileage, backref='recommendations', null=True)
+    year = ForeignKeyField(CarYear, backref='recommendations', null=True)
+
+    class Meta:
+        db_table = 'Параметры_Рекомендаций'
+
+
+
+class RecommendedOffers(BaseModel):
+    buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')
+    advert = ForeignKeyField(CarAdvert, field=CarAdvert.id)
+    parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
+
+    class Meta:
+        db_table = 'Рекомендации'
+        primary_key = CompositeKey('buyer', 'advert')
+
 
 #
 # class ActiveOffersToCars(BaseModel):

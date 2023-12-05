@@ -1,4 +1,5 @@
 import importlib
+import traceback
 from copy import copy
 from typing import Optional
 
@@ -21,14 +22,6 @@ class CachedRequestsView:
         redis_key = f'{str(callback.from_user.id)}:inline_buttons_pagination_data'
 
         if car_brands:
-            # inline_buttons_data = copy(LexiconCommodityLoader.load_commodity_brand['buttons'])
-            # inline_buttons_data =
-            # ic(inline_buttons_data)
-            # ic(car_brands)
-            # if isinstance(car_brands, dict):
-            #     data = [{key: value for key, value in inline_buttons_data.items() if value in car_brands.values()}]
-            # else:
-            #     data = [{key: value for key, value in inline_buttons_data.items() if value in car_brands}]
             data = [car_brands]
             ic(type(data))
             ic(data)
@@ -47,6 +40,7 @@ class CachedRequestsView:
         try:
             await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state)
         except Exception as ex:
+            traceback.print_exc()
             ic(keyboard, pagination, redis_key)
             ic(ex)
             pass
@@ -69,6 +63,12 @@ class CachedRequestsView:
                 message_text = LEXICON['cached_requests_for_buyer_message_text']
             elif current_state.startswith('CheckActiveOffersStates'):
                 message_text = LEXICON['active_offers_for_buyer_message_text']
+            elif current_state.startswith('CheckRecommendationsStates'):
+                message_text = LEXICON['recommended_offers_for_buyer_message_text']
+            else:
+                message_text = None
+            if message_text:
+                message_text['message_text'] = f'''{message_text['message_text']}{LEXICON['make_choose_brand']}'''
         elif user_state == 'sell':
             message_text = LexiconSellerRequests.select_brand_message_text
 

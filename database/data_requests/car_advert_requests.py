@@ -1,3 +1,4 @@
+from database.data_requests.recomendations_request import RecommendationRequester
 from database.db_connect import database, manager
 
 from database.tables.car_configurations import (CarBrand, CarModel, CarComplectation, CarState,
@@ -127,4 +128,6 @@ class AdvertRequester:
         await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
         await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
         await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
+        await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
         return await manager.execute(CarAdvert.delete().where((CarAdvert.id == int(advert_id)) & (CarAdvert.seller == int(seller_id))))
+

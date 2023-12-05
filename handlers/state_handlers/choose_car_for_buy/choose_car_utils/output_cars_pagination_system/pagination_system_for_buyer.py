@@ -58,15 +58,15 @@ class BuyerCarsPagination:
         else:
             await request.answer(LEXICON['confirm_from_buyer']['non_data_more'])
 
-    async def get_keyboard(self, car_id, state):
+    @staticmethod
+    async def get_keyboard(state, car_id=None):
         inline_keyboard_creator_module = importlib.import_module('keyboards.inline.kb_creator')
 
         buttons_lexicon_part = LEXICON.get('chosen_configuration')
-
-        if await state.get_state() in ('CheckNonConfirmRequestsStates:brand_flipping_process',
-                                       'CheckNonConfirmRequestsStates:await_input_brand',
-                                       'CheckActiveOffersStates:await_input_brand',
-                                       'CheckActiveOffersStates:brand_flipping_process'):
+        ic(await state.get_state())
+        if str(await state.get_state()).startswith(('CheckNonConfirmRequestsStates',
+                                                   'CheckActiveOffersStates',
+                                                   'CheckRecommendationsStates')):
             backward_callback_data = 'return_to_choose_requests_brand'
         else:
             backward_callback_data = False
@@ -77,7 +77,7 @@ class BuyerCarsPagination:
                 key = backward_callback_data
 
             elif key == 'confirm_buy_settings:':
-                if str(await state.get_state()).startswith('CheckActiveOffersStates'):
+                if str(await state.get_state()).startswith(('CheckActiveOffersStates')):
                     continue
                 else:
                     key = key + str(car_id)

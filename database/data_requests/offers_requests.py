@@ -48,8 +48,10 @@ class OffersRequester:
             query = query.join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand))
         elif car_id:
             query = query.where(ActiveOffers.car_id == int(car_id))
-
-        buyer_offers = list(await manager.execute(query))
+        try:
+            buyer_offers = list(await manager.execute(query))
+        except:
+            buyer_offers = None
         ic(buyer_offers)
         if buyer_offers:
             if get_brands:

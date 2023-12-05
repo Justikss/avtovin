@@ -47,17 +47,11 @@ class CarAdvert(BaseModel):
     engine_type = ForeignKeyField(CarEngine, backref='adverts')
     price = CharField()
 
-
     color = ForeignKeyField(CarColor, backref='adverts', null=True)
     mileage = ForeignKeyField(CarMileage, backref='adverts', null=True)
     year = ForeignKeyField(CarYear, backref='adverts', null=True)
 
     additional_info = TextField(null=True)
-
-
-
-
-
 
 
 

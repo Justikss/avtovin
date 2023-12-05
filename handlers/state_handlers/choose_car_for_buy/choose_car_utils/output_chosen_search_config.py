@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import lifetime_of_redis_record_of_request_caching
 from database.data_requests.car_advert_requests import AdvertRequester
+from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.tables.offers_history import ActiveOffers
 
 from utils.Lexicon import LEXICON
@@ -47,6 +48,8 @@ async def get_output_string(car, message_text, state=None, callback=None):
                 if offer_model:
                     viewed_status_lexicon = LEXICON["footer_for_output_active_offers"]
                     footer_viewed_by_seller_status = f'''\n\n{viewed_status_lexicon['viewed_status']}\n{viewed_status_lexicon['status_true'] if offer_model.viewed else viewed_status_lexicon['status_false']}'''
+        elif current_state.startswith('CheckRecommendationsStates'):
+            startswith_text = LEXICON['new_recommended_offer_startswith']
 
 
     canon_string = f'''{startswith_text}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n'''
@@ -120,7 +123,9 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
 
     if first_view_mode:
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
-
+        await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id, state_id=car_state, engine_type_id=engine_type,
+                                                              complectation_id=complectation,
+                                                              color_id=color, mileage_id=mileage, year_id=year_of_release)
 
     # await redis_module.redis_data.set_data(key=cache_non_confirm_cars_redis_key,
     #                                        value=data_stack, expire=lifetime_of_redis_record_of_request_caching)
