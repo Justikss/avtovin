@@ -58,7 +58,7 @@ async def seller_main_menu(callback: CallbackQuery, bot=None):
     await get_tariff(callback)
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_data = importlib.import_module('utils.redis_for_language')
-
+    # await redis_data.redis_data.delete_key(key=f'{str(callback.from_user.id)}:seller__new_active_offers')
     # exist_media_group_message = await redis_data.get_data(key=str(callback.from_user.id) + ':last_media_group')
     # if exist_media_group_message:
     #     try:

@@ -9,3 +9,4 @@ class CheckNonConfirmRequestsStates(StatesGroup):
 class CheckActiveOffersStates(StatesGroup):
     await_input_brand = State()
     brand_flipping_process = State()
+    show_from_non_confirm_offers = State()

@@ -28,8 +28,11 @@ async def get_seller_header(seller=None, car=None, state=None):
     seller_header = f'{seller_header}{seller_number}'
     return seller_header
 
-async def get_output_string(car, message_text, cars_state, state=None, callback=None):
+async def get_output_string(car, message_text, state=None, callback=None):
     offer_requester = importlib.import_module('database.data_requests.offers_requests')
+    if isinstance(car, set) and len(car) == 1:
+        car = car.pop()
+    used_state = car.mileage
 
     seller_header = await get_seller_header(car=car, state=state)
     footer_viewed_by_seller_status = ''
@@ -47,11 +50,10 @@ async def get_output_string(car, message_text, cars_state, state=None, callback=
 
 
     canon_string = f'''{startswith_text}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n'''
-
-    if int(cars_state) == 2:
+    if used_state:
         middle_string = f'''{message_text['color']} {car.color.name}\n{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n'''
 
-    elif int(cars_state) == 1:
+    elif not used_state:
         middle_string = ''
 
     cost_string = f'''{message_text['cost'].replace('X', car.price)}'''
@@ -104,10 +106,12 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
         first_view_mode = False
     ic()
     ic(car_models)
+    if not isinstance(car_models, list):
+        car_models = [car_models]
     for car in car_models:
         if isinstance(car, ActiveOffers):
             car = car.car_id
-        result_string = await get_output_string(car, message_text, cars_state, state=state, callback=callback)
+        result_string = await get_output_string(car, message_text, state=state, callback=callback)
 
         photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 

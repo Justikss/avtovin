@@ -1,3 +1,4 @@
+import math
 from typing import List, Dict, Tuple, Set, Union
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -7,6 +8,33 @@ from utils.Lexicon import LEXICON
 
 
 class InlineCreator:
+    @staticmethod
+    async def create_keyboard_width_is_tuple(buttons, width_config):
+        keyboard = InlineKeyboardBuilder()
+
+        # Индекс для отслеживания текущей кнопки
+        current_button_index = 0
+
+        for config in width_config:
+            if isinstance(config, dict):
+                # Обработка конфигурации в виде словаря
+                for buttons_in_row, total_buttons in config.items():
+                    rows_needed = math.ceil(total_buttons / buttons_in_row)
+                    for _ in range(rows_needed):
+                        # Вычисляем, сколько кнопок добавить в текущий ряд
+                        buttons_to_add = min(buttons_in_row, total_buttons - current_button_index)
+                        row_buttons = buttons[current_button_index:current_button_index + buttons_to_add]
+                        keyboard.row(*row_buttons)
+                        current_button_index += buttons_to_add
+            else:
+                # Обработка конфигурации в виде числа (количество кнопок в ряду)
+                if current_button_index < len(buttons):
+                    row_buttons = buttons[current_button_index:current_button_index + config]
+                    keyboard.row(*row_buttons)
+                    current_button_index += config
+
+        return keyboard.as_markup()
+
     @staticmethod
     async def create_markup(input_data: Dict[str, Union[str, int]], get_buttons: bool=False,
                             button_texts: Set[str] = None, callback_sign: str = None, dynamic_buttons: bool = False):
@@ -61,42 +89,10 @@ class InlineCreator:
 
             return InlineKeyboardMarkup(inline_keyboard=result_format)
 
+
         elif not isinstance(width, int):
-            if width[0] < 0:
-                ic(input_data)
-                keyboard = InlineKeyboardBuilder()
-                buttons_reversed = buttons[::-1]  # Переворачиваем список кнопок
 
-                for row_size in width:
-                    row_size = abs(row_size)  # Преобразуем отрицательные числа
-                    row_buttons = []
-
-                    for _ in range(row_size):
-                        if buttons_reversed:
-                            button = buttons_reversed.pop()
-                            row_buttons.append(button)
-                        else:
-                            break  # Если кнопок нет, прерываем цикл
-
-                    keyboard.row(*row_buttons)
-
-                # Обрабатываем оставшиеся кнопки с использованием последнего числа в width
-                last_row_size = abs(width[-1])
-                while buttons_reversed:
-                    keyboard.row(*(button for button in
-                                   buttons_reversed[:last_row_size]))
-                    buttons_reversed = buttons_reversed[last_row_size:]
-
-                return keyboard.as_markup()
-            else:
-                button_index = 0
-                structured_buttons = []
-                for row_value in width:
-                    row_buttons = buttons[button_index:button_index + row_value]
-                    structured_buttons.append(row_buttons)
-                    button_index += row_value
-
-                return InlineKeyboardMarkup(inline_keyboard=structured_buttons)
+            return await InlineCreator.create_keyboard_width_is_tuple(buttons, width)
 
 
         keyboard = kbuilder.row(*buttons, width=width)

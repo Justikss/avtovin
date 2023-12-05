@@ -41,16 +41,19 @@ class OffersRequester:
             raise BufferError('Такая заявка уже создана')
 
     @staticmethod
-    async def get_for_buyer_id(buyer_id, brand=None, get_brands=False):
+    async def get_for_buyer_id(buyer_id, brand=None, get_brands=False, car_id=None):
         '''Асинхронный метод получения открытых предложений для покупателя'''
+        query = ActiveOffers.select().where(ActiveOffers.buyer_id == int(buyer_id))
         if brand:
-            query = ActiveOffers.select().join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand) \
-                .where((ActiveOffers.buyer_id == int(buyer_id)) & (CarBrand.id == int(brand)))
-        else:
-            query = ActiveOffers.select().where(ActiveOffers.buyer_id == int(buyer_id))
+            query = query.join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand))
+        elif car_id:
+            query = query.where(ActiveOffers.car_id == int(car_id))
+
         buyer_offers = list(await manager.execute(query))
+        ic(buyer_offers)
         if buyer_offers:
             if get_brands:
+                ic(get_brands)
                 return {f'load_brand_{request.car_id.complectation.model.brand.id}': request.car_id.complectation.model.brand.name for request in buyer_offers}
             else:
                 return buyer_offers
@@ -85,11 +88,17 @@ class CachedOrderRequests:
     @staticmethod
     async def set_cache(buyer_id: Union[str, int], car_data):
         '''Асинхронный метод установки кэша'''
+
+        exists_offers = await OffersRequester.get_for_buyer_id(buyer_id)
+
+
         car_ids = [car['car_id'] for car in car_data]
         query = CacheBuyerOffers.select().where(
             (CacheBuyerOffers.buyer_id == buyer_id) & (CacheBuyerOffers.car_id.in_(car_ids)))
-        select_query = await manager.execute(query)
-        not_unique_models = [offer.car_id.car_id for offer in select_query] if select_query else []
+        select_query = list(await manager.execute(query))
+        if exists_offers:
+            select_query = select_query + exists_offers
+        not_unique_models = [offer.car_id.id for offer in select_query] if select_query else []
 
         data = [{'buyer_id': str(buyer_id), 'car_id': car_part['car_id'], 'message_text': car_part['message_text']}
                 for car_part in car_data if car_part['car_id'] not in not_unique_models]
@@ -121,16 +130,22 @@ class CachedOrderRequests:
     @staticmethod
     async def get_cache(buyer_id, brand=None, car_id=None):
         '''Асинхронный метод получения кэша'''
-        query = CacheBuyerOffers.select().join(User).switch(CacheBuyerOffers).join(CarAdvert).where(
-            (User.telegram_id == buyer_id) & (CarAdvert.id == car_id) if car_id else None)
-        if brand:
-            query = query.select().join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand))
-        select_query = await manager.execute(query)
-        result = await CachedOrderRequests.check_overtime_requests(select_query)
-        if brand:
-            result = {offer.car_id for offer in result}
+        if buyer_id:
+            query = CacheBuyerOffers.select().join(User).where(
+                User.telegram_id == buyer_id)
+            
+            if car_id:
+                query = query.switch(CacheBuyerOffers).join(CarAdvert).where(CarAdvert.id == car_id)
+            if brand and not car_id:
+                query = (query.switch(CacheBuyerOffers).join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
+                         .where(CarBrand.id == int(brand)))
 
-        return result if result else False
+            select_query = await manager.execute(query)
+            result = await CachedOrderRequests.check_overtime_requests(select_query)
+            if brand:
+                result = [offer.car_id for offer in result]
+
+            return result if result else False
             # if brand:
             #     result = [request.car_id for request in select_query if request.car_id.brand == brand]
             #     return result

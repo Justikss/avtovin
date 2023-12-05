@@ -40,6 +40,11 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
         seller_id = callback.from_user.id
         error_flag = False
         error_alert_message = False
+        ic(callback.data)
+        ic()
+        if callback.data in ('new_feedbacks', 'viewed_feedbacks'):
+            redis_key = str(callback.from_user.id) + ':user_state'
+            await redis_module.redis_data.set_data(redis_key, value='sell')
 
         await redis_module.redis_data.delete_key(key=f'{str(seller_id)}:seller_requests_pagination')
 
@@ -102,10 +107,14 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
         #
 
     @staticmethod
-    async def make_unpacked_data_for_seller_output(callback: CallbackQuery, viewed: bool):
+    async def make_unpacked_data_for_seller_output(callback: CallbackQuery, viewed: bool, from_buyer=False, car_id=None):
+        redis_data = importlib.import_module('utils.redis_for_language')
         cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
 
-        seller_offers = await cached_requests_module.OffersRequester.get_by_seller_id(seller_id_value=callback.from_user.id, viewed_value=viewed)
+        if from_buyer and car_id:
+            seller_offers = await cached_requests_module.OffersRequester.get_for_buyer_id(buyer_id=callback.from_user.id, car_id=car_id)
+        else:
+            seller_offers = await cached_requests_module.OffersRequester.get_by_seller_id(seller_id_value=callback.from_user.id, viewed_value=viewed)
         if seller_offers:
             if viewed == False:
                 ic()
@@ -127,16 +136,16 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                 except:
                     await cached_requests_module.OffersRequester.delete_offer(offer_id)
                     raise UserExistsError()
-
+                fullname = f'''{buyer.surname} {buyer.name} {buyer.patronymic if buyer.patronymic else ''}'''
                 ic(offer_id)
-                card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts']} {buyer.phone_number}'''
+                card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts']}\n{fullname}\n{buyer.phone_number}\n'''
 
                 if car.state.id == 2:
                     result_string = f'''
                         {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['color']} {car.color.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n{card_body_lexicon_part['year']} {car.year.name}\n{card_body_lexicon_part['mileage']} {car.mileage.name}\n{card_body_lexicon_part['cost']} {car.price}'''
                 elif car.state.id == 1:
                     result_string = f'''
-                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n{card_body_lexicon_part['cost']} {car.price}'''
+                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n\n{card_body_lexicon_part['cost'].replace('X', car.price)}'''
 
                 photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id, get_list=True)
 

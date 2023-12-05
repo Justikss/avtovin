@@ -41,6 +41,8 @@ async def bot_start(message: Message, state: FSMContext):
     #redis_key = str(message.from_user.id) + ':active_non_confirm_seller_registrations'
     #seller_registration_stack = await redis_module.redis_data.delete_key(key=redis_key)
 
+    await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':seller_registration_mode')
+
     await travel_editor.travel_editor.edit_message(lexicon_key='choose_language', request=message, delete_mode=True)
     await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':can_edit_seller_registration_data')
 

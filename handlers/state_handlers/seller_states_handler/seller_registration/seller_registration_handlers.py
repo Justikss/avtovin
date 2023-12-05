@@ -87,6 +87,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
     print('user_name', user_name)
     if user_name:
+        user_name = user_name.capitalize()
         await state.update_data(seller_name=user_name)
 
     travel_object = request
@@ -98,7 +99,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         message = request
 
     edit_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data')
-    if user_name and edit_mode=='true':
+    if user_name and edit_mode == 'true':
         await state.set_state(HybridSellerRegistrationStates.check_input_data)
         return await check_reg_config_module.check_your_config(request=request, state=state)
     

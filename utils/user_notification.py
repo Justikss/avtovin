@@ -10,6 +10,7 @@ from utils.Lexicon import LEXICON
 async def try_delete_notification(callback: CallbackQuery, user_status: str=None, non_callback_answer_mode=False):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
+    redis_sub_key = None
     callback_data = callback.data
     ic(callback.data)
     if ':' in callback_data:
@@ -19,17 +20,17 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         redis_sub_key = ':seller_registration_notification'
     elif user_status == 'buyer':
         redis_sub_key = ':buyer_offer_notification'
+    if redis_sub_key:
+        notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
+        if notification_message_id:
+            try:
+                await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=notification_message_id)
+                await redis_module.redis_data.delete_key(key=str(callback.from_user.id) + redis_sub_key)
+            except:
+                pass
 
-    notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
-    if notification_message_id:
-        try:
-            await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=notification_message_id)
-            await redis_module.redis_data.delete_key(key=str(callback.from_user.id) + redis_sub_key)
-        except:
-            pass
-
-    if not non_callback_answer_mode:
-        await callback.answer()
+        if not non_callback_answer_mode:
+            await callback.answer()
 
 
 async def send_notification(callback: CallbackQuery, user_status: str, chat_id=None):
@@ -73,13 +74,13 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     commodity_model = await AdvertRequester.get_where_id(data_for_seller['car_id'])
     seller_id = commodity_model.seller.telegram_id
     ic(seller_id)
-    seller_offers = await redis_module.redis_data.get_data(key=f'{str(seller_id)}:seller__new_active_offers', use_json=True)
-    if not seller_offers:
-        seller_offers = []
-    seller_offers.append(data_for_seller)
-    # await redis_module.redis_data.delete_key(key=f'{str(seller_id)}:seller__new_active_offers')
-
-    await redis_module.redis_data.set_data(key=f'{str(seller_id)}:seller__new_active_offers', value=seller_offers)
+    # seller_offers = await redis_module.redis_data.get_data(key=f'{str(seller_id)}:seller__new_active_offers', use_json=True)
+    # if not seller_offers:
+    #     seller_offers = []
+    # seller_offers.append(data_for_seller)
+    # # await redis_module.redis_data.delete_key(key=f'{str(seller_id)}:seller__new_active_offers')
+    #
+    # await redis_module.redis_data.set_data(key=f'{str(seller_id)}:seller__new_active_offers', value=seller_offers)
 
 
     # active_seller_notifications = await redis_module.redis_data.get_data(key=f'{seller_id}:active_notifications', use_json=True)
@@ -89,7 +90,7 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     if media_mode:
         [active_seller_notifications.append(media.message_id)
          for media in await callback.bot.send_media_group(chat_id=seller_id,
-                                                          media=[InputMediaPhoto(media=file_data['id'])
+                                                          media=[InputMediaPhoto(media=file_data['id'] if isinstance(file_data, dict) else file_data)
                                                                  for file_data in data_for_seller['album']]
                                                           )]
         reply_media_message_id = active_seller_notifications[0]

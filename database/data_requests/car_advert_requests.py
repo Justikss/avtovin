@@ -121,11 +121,10 @@ class AdvertRequester:
             return False
 
     @staticmethod
-    async def delete_advert_by_id(advert_id):
-        ic(advert_id)
-        car_advert_subquery = CarAdvert.select().where(CarAdvert.id == advert_id)
-
+    async def delete_advert_by_id(advert_id, seller_id):
+        ic(advert_id, seller_id)
+        car_advert_subquery = CarAdvert.select().where((CarAdvert.id == advert_id) & (CarAdvert.seller == int(seller_id)))
         await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
         await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
         await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
-        return await manager.execute(CarAdvert.delete().where(CarAdvert.id == int(advert_id)))
+        return await manager.execute(CarAdvert.delete().where((CarAdvert.id == int(advert_id)) & (CarAdvert.seller == int(seller_id))))

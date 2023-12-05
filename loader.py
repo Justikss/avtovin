@@ -11,7 +11,7 @@ from database.data_requests.car_configurations_requests import mock_values, get_
 from database.db_connect import create_tables
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
-from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_cached_requests
+from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
@@ -169,7 +169,7 @@ async def start_bot():
 
     '''Пагинация неподтверждённых заявок'''
 
-    dp.callback_query.register(output_cached_requests,
+    dp.callback_query.register(output_buyer_offers,
                                or_f(StateFilter(CheckNonConfirmRequestsStates.await_input_brand),
                                     StateFilter(CheckActiveOffersStates.await_input_brand)),
                                lambda callback: callback.data.startswith('load_brand_'))

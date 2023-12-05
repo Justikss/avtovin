@@ -3,7 +3,8 @@ from abc import ABC
 
 from dataclasses import dataclass
 
-from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute
+from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
+    SUPPORT_NUMBER_2
 from utils.safe_dict_class import SafeDict
 
 
@@ -67,7 +68,7 @@ LEXICON = {
             'car_was_withdrawn_from_sale': 'Автомобиль был снят с продажи',
             'car_search_parameters_incactive': 'Данные параметры поиска больше неактивны. Пожалуйста обновите их.',
             'seller_dont_exists': 'Продавец больше неактивен',
-            'order_was_created': 'Заявка создана, в скором времени с вами свяжется продавец',
+            'order_was_created': 'Вы откликнулись! Теперь в объявлении указан контакт продавца,\nТак же пополнен список ваших предложений!',
             'too_late': 'Вы опоздали',
             'active_offers_non_exists': 'Активных предложений не найдено',
             'success_notification': 'Принято',
@@ -88,18 +89,18 @@ LEXICON = {
                                               'backward:user_registration_number': 'Назад', 'width': 1},
 
             # 'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
-            'main_menu': {'message_text': 'Меню', 'buyer_requests': 'Предложения', 'car_search': 'Поиск Авто',
-                          'faq': 'F.A.Q.', 'support': 'Поддержка', 'backward:set_language': 'Назад', 'width': 2},
-            'buyer_requests': {'message_text': 'Предложения', 'buttons': {'buyer_active_offers': 'Подтверждённые', 'buyer_cached_offers': 'Неподтверждённые', 'buyers_recommended_offers': 'Новые предложения', 'return_main_menu': 'В меню', 'width': 1}},
-            'f_a_q': {'message_text': f'Ответы на часто задаваемые вопросы: \n{faq}', 'seller_faq': 'О продаже', 'buyer_faq': 'О покупке',
-                      'return_main_menu': 'В меню', 'width': 2},
-            'tech_support': {'message_text': 'Выберите ваше действие', 'write_to_support': 'Написать',
-                             'call_to_support': 'Позвонить', 'width': 2, 'return_main_menu': 'В меню'},
+            'main_menu': {'message_text': 'Меню покупателя 👨🏻‍💻\nВыберите ваше действие:', 'buyer_requests': 'Предложения 📋', 'car_search': '🚘 Поиск Авто',
+                          'faq': 'F.A.Q 💬', 'support': '🌐 Поддержка', 'backward:set_language': '🔙', 'width': 2},
+            'buyer_requests': {'message_text': 'Список предложений:', 'buttons': {'buyer_active_offers': '✅ Подтверждённые (X) ✅', 'buyer_cached_offers': '❌ Неподтверждённые (X) ❌', 'buyers_recommended_offers': '🔰 Новые (X) 🔰', 'return_main_menu': 'В меню', 'width': 1}},
+            'f_a_q': {'message_text': f'Ответы на часто задаваемые вопросы: \n\nДля ознакомления с устройством купле-продажи в боте, выберите кнопки ниже.\n{faq}', 'seller_faq': 'Продажа 👨🏻‍💼', 'buyer_faq': '👨🏻‍💻 Покупка',
+                      'return_main_menu': '🔙', 'width': 2},
+            'tech_support': {'message_text': 'Выберите ваше действие:', 'write_to_support': 'Написать 💬',
+                             'call_to_support': 'Позвонить 📱', 'width': 2, 'return_main_menu': '🔙'},
             'write_to_support': {'message_text': SUPPORT_TELEGRAM, 'backward:support': 'Назад', 'width': 1},
-            'call_to_support': {'message_text': f'Позвоните нам: {SUPPORT_NUMBER}', 'backward:support': 'Назад', 'width': 1},
+            'call_to_support': {'message_text': f'Вы можете позвонить нам по следующим номерам:\n👩🏻‍💻Сотрудница поддержки: {SUPPORT_NUMBER}\n👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER_2}', 'backward:support': '🔙', 'width': 1},
 
-            'search_car': {'message_text': 'Выберите категорию', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У',
-                           'return_main_menu': 'В меню', 'width': 2},
+            'search_car': {'message_text': 'Выберите тип автомобиля:', 'new_cars': 'Новое', 'second_hand_cars': 'Б\У',
+                           'return_main_menu': '🔙', 'width': 2},
             'cars_not_found': {'message_text': 'К сожалению автомобилей этого класса нет на витрине.',
                                'backward:choose_car_category': 'Назад', 'return_main_menu': 'В меню', 'width': 1},
 
@@ -177,8 +178,8 @@ LEXICON = {
                                                    'phone_number': 'Телефонный номер: '},
             'success_seller_registration_notice': {'message_text': 'Вы зарегестрированы в системе', 'return_main_menu': 'В меню продавца', 'width': 1},
 
-            'seller_faq': {'message_text': faq_seller, 'return_main_menu': 'В меню', 'faq': 'Назад', 'width': 1},
-            'buyer_faq': {'message_text': faq_buyer, 'return_main_menu': 'В меню', 'faq': 'Назад', 'width': 1},
+            'seller_faq': {'message_text': faq_seller, 'return_main_menu': 'В меню', 'faq': '🔙', 'width': 1},
+            'buyer_faq': {'message_text': faq_buyer, 'return_main_menu': 'В меню', 'faq': '🔙', 'width': 1},
             'seller_requests': {'message_text': 'Заявки', 'my_sell_requests': 'Мои объявления', 'my_sell_feedbacks': 'Отклики', 'create_new_seller_request': 'Создать объявление', 'return_main_menu': 'В меню', 'width': 1},
 
 
