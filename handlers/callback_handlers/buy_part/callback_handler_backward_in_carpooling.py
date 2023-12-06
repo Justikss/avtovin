@@ -41,9 +41,9 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
         await second_hand_car_handlers.choose_year_of_release_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'SecondHandChooseStates:select_mileage':
         await second_hand_car_handlers.choose_mileage_handler(callback=callback, state=state, first_call=False)
-    elif last_state == 'SecondHandChooseStates:select_color':
+    elif last_state == 'HybridChooseStates:select_color':
         print('select_color')
-        await second_hand_car_handlers.choose_color_handler(callback=callback, state=state, first_call=False)
+        await hybrid_handlers.choose_color_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'HybridChooseStates:select_complectation':
         print('select_complect')
         await hybrid_handlers.choose_complectation_handler(callback=callback, state=state, first_call=False)

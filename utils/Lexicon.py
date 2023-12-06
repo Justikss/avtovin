@@ -257,7 +257,11 @@ class LexiconCommodityLoader:
         message_text = 'Цвет'
         buttons_callback_data = 'load_color_'
         width = 2
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
+        last_buttons = {'other_color': 'Другой цвет', 'cancel_boot_new_commodity': 'Отмена'}
+
+    load_other_color = {'message_text': 'Введите цвет автомобиля:', 'buttons': {'rewrite_boot_color': 'Назад', 'cancel_boot_new_commodity': 'Отмена', 'width': 1}}
+    make_sure_selected_other_color = {'message_text': 'Ваш цвет: X', 'buttons': {'make_sure_other_color': 'Подтвердить', 'rewrite_other_boot_color': 'Изменить', 'width': 1}}
+    load_other_color_incorrect_message_text = '\n<b>Цвет должен состоять только из букв, без пробелов(либо с дефисом).</b>'
 
     load_commodity_price = {'message_text': 'Сумма', 'buttons': {'cancel_boot_new_commodity': 'Отмена', 'width': 1}}
     load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\n(значок скрепки в левом углу чата)\n\n(!от 3 до 5 экземпляров!)\n\nНе отменяйте сжатие при отправке\nфотографии в телеграмм.', 'buttons': {'cancel_boot_new_commodity': 'Отмена', 'width': 1}}

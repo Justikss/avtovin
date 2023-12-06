@@ -6,4 +6,5 @@ class HybridChooseStates(StatesGroup):
     select_brand = State()
     select_model = State()
     select_complectation = State()
+    select_color = State()
     config_output = State()

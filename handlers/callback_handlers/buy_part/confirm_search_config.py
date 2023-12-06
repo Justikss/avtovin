@@ -60,6 +60,8 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
             await state.set_state(CheckActiveOffersStates.show_from_non_confirm_offers)
         elif current_state.startswith('CheckRecommendationsStates'):
             await state.set_state(CheckActiveOffersStates.show_from_recommendates)
+        elif current_state.startswith('HybridChooseStates'):
+            await state.set_state(CheckActiveOffersStates.show_from_search_config)
 
         formatted_cars_data = await choose_hybrid_handlers_module.get_cars_data_pack(callback=callback,
                                                                                      state=state,
@@ -97,10 +99,12 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                                                             caption=formatted_cars_data[0]['message_text'])
                     await callback.bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=last_message_id,
                                                                  reply_markup=keyboard)
-                except:
-                    pagination_data['data'].pop(pagination_data['data'].index(part
+                except Exception as ex:
+                    ic( )
+                    ic(ex)
+                    pagination_data['data'].pop(pagination_data['data'].index([part
                                                                          for part in pagination_data['data']
-                                                                         if pagination_data['data']['car_id'] == int(car_id)))
+                                                                         if pagination_data['data']['car_id'] == int(car_id)][0]))
 
         except Exception as ex:
             ic(ex)

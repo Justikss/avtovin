@@ -37,4 +37,4 @@ async def cancel_boot_process_callback_handler(callback: CallbackQuery, state: F
         structured_boot_data = await message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:structured_boot_data', use_json=True)
         await output_load_config_for_seller(callback, state, structured_boot_data=structured_boot_data)
     else:
-        await commodity_reqests_by_seller(callback)
+        await commodity_reqests_by_seller(callback, delete_mode=True)

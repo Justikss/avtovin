@@ -64,9 +64,12 @@ class BuyerCarsPagination:
 
         buttons_lexicon_part = LEXICON.get('chosen_configuration')
         ic(await state.get_state())
-        if str(await state.get_state()).startswith(('CheckNonConfirmRequestsStates',
+        current_state = str(await state.get_state())
+        if (current_state.startswith(('CheckNonConfirmRequestsStates',
                                                    'CheckActiveOffersStates',
-                                                   'CheckRecommendationsStates')):
+                                                   'CheckRecommendationsStates')) and
+                current_state != 'CheckActiveOffersStates:show_from_search_config'):
+
             backward_callback_data = 'return_to_choose_requests_brand'
         else:
             backward_callback_data = False

@@ -61,6 +61,9 @@ class PhotoRequester:
 
         complectation = memory_storage['complectation_for_load']
         engine = memory_storage['engine_for_load']
+        color = memory_storage['color_for_load']
+        if str(color).isalpha():
+            return None
         print('mettka')
         ic(engine, complectation)
         query = NewCarPhotoBase.select().join(CarComplectation).switch(NewCarPhotoBase).join(CarEngine).where(

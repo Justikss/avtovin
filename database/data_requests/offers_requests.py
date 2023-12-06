@@ -100,14 +100,21 @@ class CachedOrderRequests:
         select_query = list(await manager.execute(query))
         if exists_offers:
             select_query = select_query + exists_offers
-        not_unique_models = [offer.car_id.id for offer in select_query] if select_query else []
-
+        try:
+            not_unique_models = [offer.car_id.id for offer in select_query] if select_query else []
+        except:
+            not_unique_models = []
         data = [{'buyer_id': str(buyer_id), 'car_id': car_part['car_id'], 'message_text': car_part['message_text']}
                 for car_part in car_data if car_part['car_id'] not in not_unique_models]
+
+
         ic(data)
         if data:
             insert_query = CacheBuyerOffers.insert_many(data)
-            await manager.execute(insert_query)
+            try:
+                await manager.execute(insert_query)
+            except:
+                pass
         return True
 
     @staticmethod

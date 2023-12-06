@@ -16,6 +16,7 @@ from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_se
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
+from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
@@ -33,6 +34,7 @@ from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiv
     CheckRecommendationsStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
+from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
 
@@ -107,6 +109,7 @@ async def start_bot():
     # await mock_values()
 
     # await get_car()
+    asyncio.create_task(fetch_currency_rate())
 
     asyncio.create_task(GetDealershipAddress.process_queue())
 
@@ -314,10 +317,14 @@ async def start_bot():
                                and_f(lambda callback: callback.data.startswith('cars_model'),
                                      StateFilter(HybridChooseStates.select_complectation)))
 
+    dp.callback_query.register(hybrid_handlers.choose_color_handler,
+                               and_f(lambda callback: callback.data.startswith('cars_complectation'),
+                                     StateFilter(HybridChooseStates.select_color)))
+
     dp.callback_query.register(hybrid_handlers.search_config_output_handler,
                                or_f(and_f(lambda callback: callback.data.startswith('cars_year_of_release'),
                                           StateFilter(HybridChooseStates.config_output)),
-                                    and_f(lambda callback: callback.data.startswith('cars_complectation'),
+                                    and_f(lambda callback: callback.data.startswith('cars_color'),
                                           StateFilter(HybridChooseStates.config_output))))
 
     dp.callback_query.register(BuyerPaginationVector.buyer_pagination, lambda callback: callback.data.startswith('buyer_car_pagination:'))
@@ -326,18 +333,16 @@ async def start_bot():
 
 
     '''second hand car'''
-    dp.callback_query.register(second_hand_car_handlers.choose_color_handler,
-                               and_f(lambda callback: callback.data.startswith('cars_complectation'),
-                                     StateFilter(SecondHandChooseStates.select_color)))
+
     dp.callback_query.register(second_hand_car_handlers.choose_mileage_handler,
                                and_f(lambda callback: callback.data.startswith('cars_color'),
                                      StateFilter(SecondHandChooseStates.select_mileage)))
     dp.callback_query.register(second_hand_car_handlers.choose_year_of_release_handler,
                                and_f(lambda callback: callback.data.startswith('cars_mileage'),
                                      StateFilter(SecondHandChooseStates.select_year)))
-    dp.callback_query.register(load_new_car.second_hand_handlers.input_photo_to_load,
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_photo_to_load,
                               F.data == 'rewrite_boot_photo')
-    dp.message.register(load_new_car.second_hand_handlers.input_photo_to_load,
+    dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
                         (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
 
     '''Состояния загрузки новых машин'''
@@ -365,20 +370,30 @@ async def start_bot():
 
     dp.callback_query.register(load_new_car.second_hand_handlers.input_year_to_load,
                               or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_year),
-                              lambda callback: callback.data.startswith('load_complectation_')),
+                              lambda callback: callback.data.startswith('load_color_')),
                               F.data=='rewrite_boot_year'))
     dp.callback_query.register(load_new_car.second_hand_handlers.input_mileage_to_load,
                               or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_mileage),
                               lambda callback: callback.data.startswith('load_year_')),
                               F.data=='rewrite_boot_mileage'))
-    dp.callback_query.register(load_new_car.second_hand_handlers.input_color_to_load,
+    dp.callback_query.register(load_new_car.hybrid_handlers.input_color_to_load,
                               or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_color),
-                              lambda callback: callback.data.startswith('load_mileage_')),
+                              lambda callback: callback.data.startswith('load_complectation_')),
                               F.data=='rewrite_boot_color'))
+
+    dp.callback_query.register(input_other_color.input_other_color_to_boot_car,
+                               or_f(and_f(
+                                   or_f(StateFilter(LoadCommodityStates.input_to_load_color),
+                                    StateFilter(LoadCommodityStates.input_other_color),
+                                    StateFilter(LoadCommodityStates.input_to_load_price)),
+                               F.data == 'rewrite_other_boot_color'), F.data == 'other_color'))
+    dp.message.register(input_other_color.validate_other_color, StateFilter(LoadCommodityStates.input_other_color))
+    dp.callback_query.register(input_other_color.success_load_other_color, StateFilter(LoadCommodityStates.input_other_color),
+                               F.data == 'make_sure_other_color')
 
     dp.callback_query.register(load_new_car.hybrid_handlers.input_price_to_load,
                               or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_price),
-                                  or_f(lambda callback: callback.data.startswith('load_complectation_'),
+                                  or_f(lambda callback: callback.data.startswith('load_mileage_'),
                                   lambda callback: callback.data.startswith('load_color_'))),
                               F.data=='rewrite_boot_price'))
 

@@ -43,7 +43,7 @@ class CarConfigs:
 
 
     @staticmethod
-    async def get_for_second_hand(year=False, color=False, mileage=False):
+    async def get_characteristic(year=False, color=False, mileage=False):
         if year:
             current_table = CarYear
         elif color:

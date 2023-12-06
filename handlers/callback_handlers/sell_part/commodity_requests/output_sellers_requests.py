@@ -47,7 +47,6 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
             heart = f'''
                     {Lexicon.commodity_year_of_realise}{car.year.name}\
                     {Lexicon.commodity_mileage}{car.mileage.name}\
-                    {Lexicon.commodity_color}{car.color.name}\
                     '''
         else:
             heart = ''
@@ -57,8 +56,9 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
                     {Lexicon.commodity_brand}{car.complectation.model.brand.name}\
                     {Lexicon.commodity_model}{car.complectation.model.name}\
                     {Lexicon.commodity_complectation}{car.complectation.name}\
-                    \n{heart.strip()}\
-                    {Lexicon.commodity_price}{car.price}\
+                    {Lexicon.commodity_color}{car.color.name}\
+                    {heart.strip()}\
+                    \n{Lexicon.commodity_price}{car.price}\
                     ''')
         current_photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 

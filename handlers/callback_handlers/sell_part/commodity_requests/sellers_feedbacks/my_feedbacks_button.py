@@ -140,12 +140,11 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                 ic(offer_id)
                 card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts']}\n{fullname}\n{buyer.phone_number}\n'''
 
+                result_string = f'''{card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n{card_body_lexicon_part['color']} {car.color.name}\n'''
                 if car.state.id == 2:
-                    result_string = f'''
-                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['color']} {car.color.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n{card_body_lexicon_part['year']} {car.year.name}\n{card_body_lexicon_part['mileage']} {car.mileage.name}\n{card_body_lexicon_part['cost']} {car.price}'''
-                elif car.state.id == 1:
-                    result_string = f'''
-                        {card_startswith}\n{card_body_lexicon_part['car_state']} {car.state.name}\n{card_body_lexicon_part['engine_type']} {car.engine_type.name}\n{card_body_lexicon_part['model']} {car.complectation.model.name}\n{card_body_lexicon_part['brand']} {car.complectation.model.brand.name}\n{card_body_lexicon_part['complectation']} {car.complectation.name}\n\n{card_body_lexicon_part['cost'].replace('X', car.price)}'''
+                    result_string += f'''{card_body_lexicon_part['year']} {car.year.name}\n{card_body_lexicon_part['mileage']} {car.mileage.name}\n'''
+
+                result_string += f'''\n{card_body_lexicon_part['cost'].replace('X', car.price)}'''
 
                 photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id, get_list=True)
 

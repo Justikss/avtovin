@@ -41,6 +41,7 @@ async def get_output_string(car, message_text, state=None, callback=None):
     startswith_text = message_text['your_configs']
     if state:
         current_state = str(await state.get_state())
+        ic(current_state)
         if current_state.startswith('CheckActiveOffersStates'):
             startswith_text = LEXICON['active_offer_caption']
             if callback:
@@ -52,9 +53,9 @@ async def get_output_string(car, message_text, state=None, callback=None):
             startswith_text = LEXICON['new_recommended_offer_startswith']
 
 
-    canon_string = f'''{startswith_text}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n'''
+    canon_string = f'''{startswith_text}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n{message_text['color']} {car.color.name}\n'''
     if used_state:
-        middle_string = f'''{message_text['color']} {car.color.name}\n{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n'''
+        middle_string = f'''{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n'''
 
     elif not used_state:
         middle_string = ''
@@ -120,7 +121,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
 
         result_part = {'car_id': car.id, 'message_text': result_string, 'album': photo_album}
         data_stack.append(result_part)
-
+    ic(data_stack)
     if first_view_mode:
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
         await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id, state_id=car_state, engine_type_id=engine_type,

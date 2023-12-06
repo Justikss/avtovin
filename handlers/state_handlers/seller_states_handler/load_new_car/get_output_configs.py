@@ -28,13 +28,13 @@ async def get_output_string(mode, boot_data: dict) -> str:
           \n{LexiconCommodityLoader.load_engine_type.message_text}: {boot_data['engine_type']}\
           \n{LexiconCommodityLoader.load_commodity_brand.message_text}: {boot_data['brand']}\
           \n{LexiconCommodityLoader.load_commodity_model.message_text}: {boot_data['model']}\
-          \n{LexiconCommodityLoader.load_commodity_complectation.message_text}: {boot_data['complectation']}\n'''
+          \n{LexiconCommodityLoader.load_commodity_complectation.message_text}: {boot_data['complectation']}\
+          \n{LexiconCommodityLoader.load_commodity_color.message_text}: {boot_data['color']}\n'''
 
-    is_second_hand = (boot_data['year_of_release'], boot_data['mileage'], boot_data['color'])
+    is_second_hand = (boot_data['year_of_release'], boot_data['mileage'])
     if None not in is_second_hand:
         middle_layer = f'''{LexiconCommodityLoader.load_commodity_year_of_realise.message_text}: {boot_data['year_of_release']}\
-              \n{LexiconCommodityLoader.load_commodity_mileage.message_text}: {boot_data['mileage']}\
-              \n{LexiconCommodityLoader.load_commodity_color.message_text}: {boot_data['color']}\n'''
+              \n{LexiconCommodityLoader.load_commodity_mileage.message_text}: {boot_data['mileage']}\n'''
         output_load_commodity_config = top_layer + middle_layer + bottom_layer
     else:
         output_load_commodity_config = top_layer + bottom_layer
@@ -52,6 +52,10 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         message = request
     else:
         message = request.message
+
+    memory_storage = await state.get_data()
+    await state.update_data(other_color_mode=False)
+    await state.update_data(rewrite_state_flag=None)
     await state.update_data(rewrite_brand_mode=False)
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     print('cstate: ', cars_state)
@@ -64,7 +68,11 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         if photo_pack:
             media_photos=photo_pack
         else:
-            await state.update_data(load_photo=photo_pack)
+            if not memory_storage.get('load_photo') and not media_photos:
+                input_photo_module = importlib.import_module(
+                    'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+                return await input_photo_module.input_photo_to_load(request, state)
+            # await state.update_data(load_photo=photo_pack)
 
     memory_storage = await state.get_data()
     if memory_storage.get('incorrect_flag'):

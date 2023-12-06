@@ -26,7 +26,7 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     'color': memory_storage.get('color_for_load'),
     'price': memory_storage['load_price'], 
     'photos': memory_storage.get('load_photo')}
-    
+    ic(sub_data)
     await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:boot_advert_ids_kwargs', value=sub_data)
     
     result_data = dict()
@@ -35,9 +35,13 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
         for key, value in sub_data.items():
             if key not in ('seller_id', 'price', 'photos') and value != None:
                 ic(key, value)
-                value = await CarConfigs.get_by_id(key, value)
+                if str(value).isdigit():
+                    value = await CarConfigs.get_by_id(key, value)
+                    value = value.name
+
+
                 ic(key, value)
-                value = value.name
+
                 ic(key, value)
                 ic()
             result_data[key] = value
