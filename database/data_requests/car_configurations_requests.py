@@ -18,6 +18,20 @@ class CarConfigs:
         return brand
 
     @staticmethod
+    async def get_by_name(name, mode):
+        query = None
+        if mode == 'color':
+            query = CarColor.select().where(CarColor.name == name)
+
+        if query:
+            try:
+                result = await manager.get(CarColor, CarColor.name == name)
+                return result
+            except:
+                pass
+
+
+    @staticmethod
     async def get_by_id(table, model_id):
         if table == 'state':
             table = CarState
@@ -67,6 +81,13 @@ class CarConfigs:
 
 
     @staticmethod
+    async def get_or_add_color(name):
+        try:
+            return await manager.get_or_create(CarColor, name=name)
+        except:
+            pass
+
+    @staticmethod
     async def get_brands_by_engine(engine_id):
         return await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
                                      .where(CarEngine.id == int(engine_id)))
@@ -109,6 +130,12 @@ class CarConfigs:
         seller = await manager.get(Seller, Seller.telegram_id == user_id)
 
         if seller:
+            if data.get('color') and str(data.get('color')).isalpha():
+                color_object = await CarConfigs.get_or_add_color(data.get('color'))
+                ic(color_object)
+                if color_object:
+                    data['color'] = color_object[0].id
+
             complectation = await manager.get(
                 CarComplectation
                 .select()

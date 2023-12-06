@@ -36,7 +36,16 @@ class RecommendationParametersBinder:
             pass
 
     @staticmethod
-    async def get_wire_by_parameters(complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id, seller_id):
+    async def get_wire_by_parameters(advert=None, complectation_id=None, state_id=None, engine_type_id=None, color_id=None, mileage_id=None, year_id=None, seller_id=None):
+        if advert:
+            complectation_id = advert.complectation.id
+            state_id = advert.state.id
+            engine_type_id = advert.engine_type.id
+            color_id = advert.color.id
+            mileage_id = advert.mileage.id if advert.mileage else None
+            year_id = advert.year.id if advert.year else None
+            seller_id = advert.seller.telegram_id
+
         ic(complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id)
 
         query = (RecommendationsToBuyer
@@ -70,16 +79,10 @@ class RecommendationParametersBinder:
 
 class RecommendationRequester:
     @staticmethod
-    async def add_recommendation(complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id, advert_id, seller_id):
-        state_id, complectation_id = int(state_id), int(complectation_id)
+    async def add_recommendation(advert):
+
         parameter_wire = await RecommendationParametersBinder.get_wire_by_parameters(
-                                                                                complectation_id=complectation_id,
-                                                                                state_id=state_id,
-                                                                                engine_type_id=engine_type_id,
-                                                                                color_id=color_id,
-                                                                                mileage_id=mileage_id,
-                                                                                year_id=year_id,
-                                                                                seller_id=seller_id)
+                                                                                advert)
         ic(parameter_wire)
         if parameter_wire:
             data = []

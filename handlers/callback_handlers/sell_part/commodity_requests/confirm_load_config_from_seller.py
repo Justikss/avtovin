@@ -106,13 +106,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     memory_storage = await state.get_data()
 
-    await RecommendationRequester.add_recommendation(complectation_id=memory_storage['complectation_for_load'],
-                                                     state_id=memory_storage['state_for_load'],
-                                                     engine_type_id=memory_storage['engine_for_load'],
-                                                     color_id=memory_storage.get('color_for_load'),
-                                                     mileage_id=memory_storage.get('mileage_for_load'),
-                                                     year_id=memory_storage.get('year_for_load'),
-                                                     advert_id=commodity_number, seller_id=callback.from_user.id)
+    await RecommendationRequester.add_recommendation(advert=commodity_number)
 
     await callback.answer()
     await state.clear()

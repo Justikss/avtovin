@@ -1,3 +1,4 @@
+from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.recomendations_request import RecommendationRequester
 from database.db_connect import database, manager
 
@@ -67,7 +68,14 @@ class AdvertRequester:
         if color_id:
             ic()
             query = query.switch(CarAdvert).join(CarColor)
-            query = query.where(CarColor.id == int(color_id))
+
+            if str(color_id).isdigit():
+                query = query.where(CarColor.id == int(color_id))
+            else:
+                color_name = color_id
+                color_object = await CarConfigs.get_by_name(color_name, 'color')
+                if color_object:
+                    query = query.where(CarColor.name == color_name)
 
         if mileage_id:
             query = query.switch(CarAdvert).join(CarMileage)
