@@ -28,6 +28,7 @@ class MessageIsPhoto(BaseFilter):
         redis_key_seller = str(message.from_user.id) + ':last_seller_message'
 
         input_photo = message.photo
+        ic(input_photo)
         reply_mode = False
         if not input_photo:
             reply_mode = True
@@ -38,4 +39,4 @@ class MessageIsPhoto(BaseFilter):
         await redis_module.redis_data.set_data(key=redis_key_seller,
                                                 value=message.message_id)
 
-        await input_photo_to_load(request=message, state=state, incorrect=True, reply_mode=reply_mode)
+        await input_photo_to_load(request=message, state=state, incorrect=True)

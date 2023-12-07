@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 from utils.Lexicon import LexiconSelectedTariffPreview, LEXICON
+from utils.get_currency_sum_usd import convertator
 
 
 async def tariff_preview_card_constructor(tariff_id) -> dict:
@@ -13,11 +14,12 @@ async def tariff_preview_card_constructor(tariff_id) -> dict:
 
     print('TID ', tariff_id)
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
-    tariff_view_card = f'{LexiconSelectedTariffPreview.header}\
+    tariff_view_card = f'''{LexiconSelectedTariffPreview.header}\
         {LexiconSelectedTariffPreview.name}{tariff_model.name}\
-            {LexiconSelectedTariffPreview.price}{tariff_model.price}\
+            {LexiconSelectedTariffPreview.price}\
+{await convertator('sum', tariff_model.price)}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}\
                 {LexiconSelectedTariffPreview.duration_time}{tariff_model.duration_time}\
-                    {LexiconSelectedTariffPreview.feedback_amount}{tariff_model.feedback_amount}'
+                    {LexiconSelectedTariffPreview.feedback_amount}{tariff_model.feedback_amount}'''
 
     lexicon_part = {'message_text': tariff_view_card, 'buttons': LexiconSelectedTariffPreview.buttons}
 

@@ -10,6 +10,8 @@ from database.data_requests.recomendations_request import RecommendationParamete
 from database.tables.offers_history import ActiveOffers
 
 from utils.Lexicon import LEXICON
+from utils.get_currency_sum_usd import convertator, get_valutes
+
 
 async def get_seller_header(seller=None, car=None, state=None):
     message_text = LEXICON.get('chosen_configuration').get('message_text')
@@ -53,14 +55,19 @@ async def get_output_string(car, message_text, state=None, callback=None):
             startswith_text = LEXICON['new_recommended_offer_startswith']
 
 
-    canon_string = f'''{startswith_text}\n{seller_header}\n\n{message_text['car_state']} {car.state.name}\n{message_text['engine_type']} {car.engine_type.name}\n{message_text['brand']} {car.complectation.model.brand.name}\n{message_text['model']} {car.complectation.model.name}\n{message_text['complectation']} {car.complectation.name}\n{message_text['color']} {car.color.name}\n'''
+    canon_string =  f'''{startswith_text}\n{seller_header}\n{LEXICON['sepp']*16}\n{message_text['car_state'].replace('X', car.state.name)}\n{message_text['engine_type'].replace('X', car.engine_type.name)}\n{message_text['model'].replace('X', car.complectation.model.name)}\n{message_text['brand'].replace('X', car.complectation.model.brand.name)}\n{message_text['complectation'].replace('X', car.complectation.name)}\n{message_text['color'].replace('X', car.color.name)}\n'''
     if used_state:
-        middle_string = f'''{message_text['year']} {car.year.name}\n{message_text['mileage']} {car.mileage.name}\n'''
+        middle_string = f'''{message_text['year'].replace('X', car.year.name)}\n{message_text['mileage'].replace('X', car.mileage.name)}\n'''
 
     elif not used_state:
         middle_string = ''
 
-    cost_string = f'''{message_text['cost'].replace('X', car.price)}'''
+    # usd_price, sum_price = await get_valutes(car.dollar_price, car.sum_price)
+    #
+    # price = f'''{usd_price}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', sum_price)}'''
+    string = await get_valutes(car.dollar_price, car.sum_price, get_string=True)
+
+    cost_string = f'''{LEXICON['sepp']*16}\n{message_text['cost'].replace('X', string)}'''
     result_string = f'{canon_string}{middle_string}{cost_string}{footer_viewed_by_seller_status}'
     return result_string
 

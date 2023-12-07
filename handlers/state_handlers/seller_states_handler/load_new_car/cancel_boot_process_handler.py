@@ -22,7 +22,8 @@ async def set_former_advert_configurations(callback: CallbackQuery, state: FSMCo
     await state.update_data(year_for_load=advert_old_configurations.get('year_of_release'))
     await state.update_data(mileage_for_load=advert_old_configurations.get('mileage'))
     await state.update_data(color_for_load=advert_old_configurations.get('color'))
-    await state.update_data(load_price=advert_old_configurations.get('price'))
+    await state.update_data(sum_price=advert_old_configurations.get('sum_price'))
+    await state.update_data(dollar_price=advert_old_configurations.get('dollar_price'))
 
 
 async def cancel_boot_process_callback_handler(callback: CallbackQuery, state: FSMContext):

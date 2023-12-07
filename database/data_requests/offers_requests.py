@@ -1,4 +1,5 @@
 import sqlite3
+import traceback
 from datetime import datetime, time
 
 from peewee import JOIN, DoesNotExist
@@ -114,6 +115,7 @@ class CachedOrderRequests:
             try:
                 await manager.execute(insert_query)
             except:
+                traceback.print_exc()
                 pass
         return True
 

@@ -22,7 +22,7 @@ async def set_language(callback: CallbackQuery, delete_mode=False, set_languange
     #Будет меняться язык от callback.data#
     lexicon_code = 'hello_text'
     lexicon_part = LEXICON[lexicon_code]
-    message_text = lexicon_part['message_text']
+    message_text = lexicon_part['message_text'].replace('X', callback.from_user.username)
     keyboard = await InlineCreator.create_markup(lexicon_part)
 
     user_id = str(callback.from_user.id)

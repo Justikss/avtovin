@@ -4,6 +4,7 @@ import asyncio
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
 from database.tables.user import User
+from peewee import BigIntegerField
 
 
 class CarState(BaseModel):
@@ -14,6 +15,7 @@ class CarEngine(BaseModel):
 
 class CarColor(BaseModel):
     name = CharField(unique=True)
+    base_status = BooleanField(null=True)
 
 class CarMileage(BaseModel):
     name = CharField(unique=True)
@@ -46,8 +48,8 @@ class CarAdvert(BaseModel):
     state = ForeignKeyField(CarState, backref='adverts')
     engine_type = ForeignKeyField(CarEngine, backref='adverts')
     color = ForeignKeyField(CarColor, backref='adverts')
-    price = CharField()
-
+    sum_price = BigIntegerField(null=True)
+    dollar_price = BigIntegerField(null=True)
     mileage = ForeignKeyField(CarMileage, backref='adverts', null=True)
     year = ForeignKeyField(CarYear, backref='adverts', null=True)
 

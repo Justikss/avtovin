@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import phonenumbers
 from typing import Union
@@ -87,8 +88,10 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
     print('user_name', user_name)
     if user_name:
-        user_name = user_name.capitalize()
+        user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
         await state.update_data(seller_name=user_name)
+    print('user_name', user_name)
+
 
     travel_object = request
 

@@ -1,3 +1,5 @@
+import traceback
+
 from peewee import JOIN
 
 from database.db_connect import manager
@@ -9,7 +11,7 @@ from database.tables.user import User
 
 class RecommendationParametersBinder:
     @staticmethod
-    async def store_parameters(buyer_id, complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id):
+    async def store_parameters(buyer_id, state_id, engine_type_id, color_id, mileage_id, year_id, complectation_id):
         try:
             state_id, complectation_id = int(state_id), int(complectation_id)
             ic(buyer_id, complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id)
@@ -21,18 +23,14 @@ class RecommendationParametersBinder:
             #         'mileage': mileage_id,
             #         'year': year_id}]
 
-            select_query = await manager.get(RecommendedOffers, buyer=buyer_id, complectation=complectation_id,
+            select_query = await manager.get_or_create(RecommendationsToBuyer, buyer=buyer_id, complectation=complectation_id,
                                                 state=state_id, engine_type=engine_type_id, color=color_id,
                                                 mileage=mileage_id, year=year_id)
-            ic(select_query)
-            if not select_query:
 
-                insert_query = await manager.create(RecommendationsToBuyer, buyer=buyer_id, complectation=complectation_id,
-                                                    state=state_id, engine_type=engine_type_id, color=color_id,
-                                                    mileage=mileage_id, year=year_id)
 
         except Exception as ex:
             ic(ex)
+            traceback.print_exc()
             pass
 
     @staticmethod
@@ -87,8 +85,8 @@ class RecommendationRequester:
         if parameter_wire:
             data = []
             for wire in parameter_wire:
-                ic(advert_id, wire.buyer.telegram_id, parameter_wire)
-                data.append({'advert': advert_id, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
+                ic(advert, wire.buyer.telegram_id, parameter_wire)
+                data.append({'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
                 return await manager.execute(RecommendedOffers.insert_many(data))
 
 

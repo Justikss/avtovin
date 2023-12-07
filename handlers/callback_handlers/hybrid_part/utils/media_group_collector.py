@@ -85,11 +85,12 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                         mediagroupss = mediagroupss[-1]
 
 
-                    pre_data = [[1, 1], [2, 2], [3, 2], [4, 2], [5, 1], [6, 1], [7, 3], [8, 3]]
+                    pre_data = [[1, 1, 2], [2, 2, 2], [3, 2, 2], [4, 2, 2], [5, 1, 2], [6, 1, 2], [7, 3, 2], [8, 3, 1]]
                     current_part = pre_data[int(state_name.split('_')[-1])-1]
                     data = [{'admin_id': message.from_user.id,
                              'car_complectation': current_part[0],
                             'car_engine': current_part[1],
+                             'car_color': current_part[2],
                              'photo_id': part['id'],
                              'photo_unique_id': part['unique_id']} for part in mediagroupss]
 

@@ -3,7 +3,7 @@ from typing import List, Union, Optional
 from aiogram.fsm.context import FSMContext
 from icecream import install, ic
 
-from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarBrand, CarEngine
+from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarBrand, CarEngine, CarColor
 from database.tables.commodity import NewCarPhotoBase
 from database.tables.commodity import AdvertPhotos
 from database.db_connect import database, manager
@@ -28,9 +28,13 @@ class PhotoRequester:
         ic(photo_data)
         car_engine = int(photo_data[0]['car_engine'])
         car_complectation = int(photo_data[0]['car_complectation'])
-        existing_photos = await manager.execute(NewCarPhotoBase.select().join(CarComplectation).switch(NewCarPhotoBase).join(CarEngine)
-        .where(
-            (CarEngine.id == car_engine) & (CarComplectation.id == car_complectation)))
+        car_color = int(photo_data[0]['car_color'])
+        existing_photos = await manager.execute(NewCarPhotoBase.select().join(CarComplectation)
+                                                                        .switch(NewCarPhotoBase).join(CarEngine)
+                                                                        .switch(NewCarPhotoBase).join(CarColor)
+                                        .where(
+                                            (CarEngine.id == car_engine) & (CarComplectation.id == car_complectation) &
+                                            (CarColor.id == car_color)))
 
         if existing_photos:
             raise BufferError('Фотографии на эту конфигурацию уже загружены.')
@@ -64,10 +68,12 @@ class PhotoRequester:
         color = memory_storage['color_for_load']
         if str(color).isalpha():
             return None
-        print('mettka')
         ic(engine, complectation)
-        query = NewCarPhotoBase.select().join(CarComplectation).switch(NewCarPhotoBase).join(CarEngine).where(
-        (CarComplectation.id == int(complectation)) & (CarEngine.id == int(engine)))
+        query = (NewCarPhotoBase.select().join(CarComplectation)
+                                .switch(NewCarPhotoBase).join(CarEngine)
+                                .switch(NewCarPhotoBase).join(CarColor).where(
+                        (CarComplectation.id == int(complectation)) & (CarEngine.id == int(engine)) &
+                                                                       (CarColor.id == color)))
         select_response = list(await manager.execute(query))
         ic(select_response)
         if select_response:

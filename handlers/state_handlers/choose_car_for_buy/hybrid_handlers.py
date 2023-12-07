@@ -148,7 +148,9 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
     if first_call:
         user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_complectation=user_answer)
+        delete_mode=True
     else:
+        delete_mode=False
         user_answer = memory_storage['cars_complectation']
 
     models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
@@ -161,7 +163,7 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
     button_texts = {car.color for car in models_range}
     lexicon_part = await create_lexicon_part(ChooseColor, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
 
     cars_type = int(memory_storage['cars_state'])
     if cars_type == 2:

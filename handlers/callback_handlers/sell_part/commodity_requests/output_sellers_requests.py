@@ -1,3 +1,5 @@
+from copy import copy
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InputMediaPhoto, Message
 from typing import List, Union
@@ -5,9 +7,9 @@ import importlib
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.tables.car_configurations import CarAdvert
-from utils.Lexicon import LexiconSellerRequests as Lexicon
+from utils.Lexicon import LexiconSellerRequests as Lexicon, LEXICON, LexiconCommodityLoader
 from handlers.utils.pagination_heart import Pagination
-
+from utils.get_currency_sum_usd import get_valutes
 
 
 async def set_car_id_in_redis(callback, output_data_part):
@@ -51,6 +53,10 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
         else:
             heart = ''
         ic(car.complectation)
+
+        block_string = await get_valutes(car.dollar_price, car.sum_price, get_string='block')
+
+
         body = (f'''{Lexicon.commodity_state}{car.state.name}\
                     {Lexicon.engine_type}{car.engine_type.name}\
                     {Lexicon.commodity_brand}{car.complectation.model.brand.name}\
@@ -58,7 +64,7 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
                     {Lexicon.commodity_complectation}{car.complectation.name}\
                     {Lexicon.commodity_color}{car.color.name}\
                     {heart.strip()}\
-                    \n{Lexicon.commodity_price}{car.price}\
+                    \n{block_string}\
                     ''')
         current_photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 

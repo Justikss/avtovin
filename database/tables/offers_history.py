@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from database.db_connect import BaseModel
 from peewee import ForeignKeyField, IntegerField, AutoField, BooleanField, DateField, CharField, DateTimeField, \
-    CompositeKey, SQL
+    CompositeKey, SQL, TextField
 
 from .car_configurations import CarAdvert, CarState, CarComplectation, CarEngine, CarMileage, CarColor, CarYear
 from .user import User
@@ -26,7 +26,7 @@ class CacheBuyerOffers(BaseModel):
     '''Кэширование неподтверждённых заявок'''
     buyer_id = ForeignKeyField(User, field=User.telegram_id, backref='cached_offers')
     car_id = ForeignKeyField(CarAdvert, field=CarAdvert.id, backref='cached_offers')
-    message_text = CharField()
+    message_text = TextField()
     # car_brand = CharField()
     datetime_of_deletion = DateTimeField(default=datetime.now() + timedelta(days=7))
 

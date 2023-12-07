@@ -40,7 +40,7 @@ class BuyerCarsPagination:
             # Здесь код для отправки данных текущей страницы
             # page_header, page_footer = await self.get_page(page_data)
             page_footer = {
-                'message_text': '-'*10 + f'[{str(self.pagination.current_page)}/{str(self.pagination.total_pages)}]' + '-'*10 + '\n'
+                'message_text': LEXICON['sepp']*7 + f'[{str(self.pagination.current_page)}/{str(self.pagination.total_pages)}]' + LEXICON['sepp']*7 + '\n'
             }
             ic()
             await self.try_delete_last_media_group(request)
@@ -78,6 +78,7 @@ class BuyerCarsPagination:
         for key, value in buttons_lexicon_part.items():
             if backward_callback_data and key == 'backward_in_carpooling':
                 key = backward_callback_data
+                value = LEXICON['backward_name']
 
             elif key == 'confirm_buy_settings:':
                 if str(await state.get_state()).startswith(('CheckActiveOffersStates')):

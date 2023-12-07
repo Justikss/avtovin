@@ -100,7 +100,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                     await callback.bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=last_message_id,
                                                                  reply_markup=keyboard)
                 except Exception as ex:
-                    ic( )
+                    traceback.print_exc()
                     ic(ex)
                     pagination_data['data'].pop(pagination_data['data'].index([part
                                                                          for part in pagination_data['data']
@@ -148,12 +148,13 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                 pagination_data = await activate_offer_handler(callback, state, car_model=car_model, car_id=car_id, pagination_data=pagination_data)
             except BufferError as ex:
                 print(ex)
+                traceback.print_exc()
                 insert_response = None
                 await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
             except Exception as ex:
                 ic(ex)
                 traceback.print_exc()
-
+    ic(cached_data, is_recommendated_state, car_id)
     if (not cached_data and not is_recommendated_state) or not car_model:
         car_dont_exists = True
 
@@ -167,7 +168,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     if is_recommendated_state:
         await RecommendationRequester.remove_recommendation_by_advert_id(car_id)
 
-    ic(len(pagination_data['data']), cached_data, car_dont_exists)
+    ic(pagination_data, cached_data, car_dont_exists)
     if (not cached_data and not is_recommendated_state) or (not insert_response and len(pagination_data['data']) <= 1):#
         await message_editor.redis_data.delete_key(key=f'{str(callback.from_user.id)}:buyer_cars_pagination')
 

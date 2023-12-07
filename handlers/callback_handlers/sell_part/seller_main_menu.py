@@ -13,17 +13,17 @@ from utils.user_registartion_notificator import user_dont_registrated
 async def create_tarifs():
     a = importlib.import_module('database.data_requests.tariff_requests')
     data = {'name': 'minimum',
-            'price': 50,
+            'price': 500000,
             'duration_time': '365',
             'feedback_amount': 100}
 
     data2 = {'name': 'medium',
-             'price': 200,
+             'price': 1000000,
              'duration_time': '365',
              'feedback_amount': 500}
 
     data3 = {'name': 'maximum',
-             'price': 1000,
+             'price': 15000000,
              'duration_time': '365',
              'feedback_amount': 10000}
 

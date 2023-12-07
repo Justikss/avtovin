@@ -1,4 +1,5 @@
 import importlib
+import traceback
 from typing import Union
 
 from aiogram.types import CallbackQuery, Message
@@ -35,6 +36,7 @@ async def header_controller(request: Union[CallbackQuery, Message], need_delete=
             #                                                      message_id=header_message_id)
         except TelegramBadRequest as ex:
             ic(ex)
+            traceback.print_exc()
             send_flag = True
     # ic(header_message_id)
     # ic(send_flag, copied_message)
@@ -60,6 +62,7 @@ async def header_controller(request: Union[CallbackQuery, Message], need_delete=
             await redis_module.redis_data.set_data(key=f'{request.from_user.id}:bot_header_message', value=new_header_message.message_id)
         except Exception as ex:
             ic(ex)
+            traceback.print_exc()
             ic(new_header_message.message_id)
             pass
 

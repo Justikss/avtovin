@@ -4,7 +4,7 @@ from database.db_connect import database, manager
 
 from database.tables.car_configurations import (CarBrand, CarModel, CarComplectation, CarState,
                                                 CarEngine, CarColor, CarMileage, User, CarAdvert, CarYear)
-from database.tables.commodity import AdvertPhotos
+from database.tables.commodity import AdvertPhotos, NewCarPhotoBase
 from database.tables.seller import Seller
 
 
@@ -55,6 +55,16 @@ class CarConfigs:
         if model_id and table:
             return await manager.get(table.select().where(table.id == model_id))
 
+    @staticmethod
+    async def get_color_by_complectaiton(complectation_id):
+        if not isinstance(complectation_id, int):
+            complectation_id = int(complectation_id)
+
+        query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.id == complectation_id)
+        result = await manager.execute(query)
+        if result:
+            result = {photo.car_color for photo in result}
+            return list(result)
 
     @staticmethod
     async def get_characteristic(year=False, color=False, mileage=False):
@@ -145,7 +155,7 @@ class CarConfigs:
                 .where((CarModel.id == data['model']) & (CarBrand.id == data['brand']))
             )
             ic(data, data['engine_type'])
-            listing = await manager.create(CarAdvert, seller=seller.telegram_id, complectation=complectation.id, price=data['price'],
+            listing = await manager.create(CarAdvert, seller=seller.telegram_id, complectation=complectation.id, sum_price=data['sum_price'], dollar_price=data['dollar_price'],
                                             state=data['state'], engine_type=data['engine_type'],
                                             color=data.get('color'), mileage=data.get('mileage'), year=data.get('year_of_release'))
 
@@ -178,6 +188,10 @@ async def insert_many(table, names):
 
                 name = name.split(head_symbol)
                 name = head_symbol.join([f"{int(nam):,}".replace(",", ".") for nam in name])
+        elif table == CarColor:
+            await manager.create(table, name=name, base_status=True)
+            continue
+
         await manager.create(table, name=name)
 
 async def insert_many_with_foregin(table, wire_to_name):
@@ -220,7 +234,7 @@ async def mock_values():
     engine_names = ['ГИБРИД', 'ЭЛЕКТРО', 'ДВС']
     await insert_many(CarEngine, engine_names)
 
-    await insert_many(CarColor, ['Серый', 'Белый', 'Чёрный', 'Синий', 'Коричневый', 'Бирюзовый'])
+    await insert_many(CarColor, ['Серый', 'Чёрный'])
     await insert_many(CarYear, ['2010-2013', '2013-2016', '2016-2019', '2019-2022'])
     await insert_many(CarMileage, ['5000-10000', '10000-15000', '15000-20000', '20000-25000', '25000-30000', '30000-35000', '35000-40000', '40000-45000', '45000-50000', '50000-75000', '75000-100000', '100000+'])
 
@@ -235,11 +249,11 @@ async def mock_values():
     pass
 
 async def get_car():
-    await manager.create(CarAdvert, seller=902230076, complectation=1, state=1, engine_type=1, price=56634, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=2, state=1, engine_type=2, price=45545, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=3, state=1, engine_type=2, price=5556645, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=4, state=1, engine_type=2, price=75632, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=5, state=1, engine_type=1, price=23423, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=6, state=1, engine_type=1, price=22222, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, engine_type=3, price=1234223, color=None, mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, engine_type=3, price=53458799, color=None, mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=1, state=1, engine_type=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=2, state=1, engine_type=2, dollar_price=45545, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=3, state=1, engine_type=2, sum_price=5556645, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=4, state=1, engine_type=2, dollar_price=75632, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=5, state=1, engine_type=1, sum_price=2312423, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=6, state=1, engine_type=1, sum_price=2322222, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, engine_type=3, dollar_price=1234223, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)
+    await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, engine_type=3, dollar_price=53458799, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None)

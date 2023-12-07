@@ -190,7 +190,7 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
         pass
 
     if user_name:
-        user_name = user_name.capitalize()
+        user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
         await state.update_data(username=user_name)
 
     if incorrect:

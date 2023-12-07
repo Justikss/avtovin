@@ -24,7 +24,8 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     'year_of_release': memory_storage.get('year_for_load'),
     'mileage': memory_storage.get('mileage_for_load'),
     'color': memory_storage.get('color_for_load'),
-    'price': memory_storage['load_price'], 
+    'sum_price': memory_storage.get('sum_price'),
+    'dollar_price': memory_storage.get('dollar_price'),
     'photos': memory_storage.get('load_photo')}
     ic(sub_data)
     await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:boot_advert_ids_kwargs', value=sub_data)
@@ -33,7 +34,7 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     ic(sub_data)
     if not id_values:
         for key, value in sub_data.items():
-            if key not in ('seller_id', 'price', 'photos') and value != None:
+            if key not in ('seller_id', 'sum_price', 'dollar_price', 'photos') and value != None:
                 ic(key, value)
                 if str(value).isdigit():
                     value = await CarConfigs.get_by_id(key, value)

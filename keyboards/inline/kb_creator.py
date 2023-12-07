@@ -37,7 +37,7 @@ class InlineCreator:
 
     @staticmethod
     async def create_markup(input_data: Dict[str, Union[str, int]], get_buttons: bool=False,
-                            button_texts: Set[str] = None, callback_sign: str = None, dynamic_buttons: bool = False):
+                            button_texts: Set[str] = None, callback_sign: str = None, dynamic_buttons: Union[bool, int] = False):
         kbuilder = InlineKeyboardBuilder()
 
         buttons = list()
@@ -74,21 +74,29 @@ class InlineCreator:
         if get_buttons:
             return buttons
         ic(width)
-        if dynamic_buttons and width == 2:
-            ic(dynamic_buttons)
-            result_format = []
-            for index, number in enumerate(buttons[:-1]):
-                if index == len(buttons)-2:
-                    if len(buttons) % 2 == 0: 
-                        result_format.append([number])
-                    result_format.append([buttons[index+1]])
-                    break
+        if dynamic_buttons and isinstance(width, int):
+            if isinstance(dynamic_buttons, bool) and dynamic_buttons:
+                dynamic_count = 1  # Если dynamic_buttons True, то одна кнопка внизу будет одиночной
+            elif isinstance(dynamic_buttons, int):
+                dynamic_count = dynamic_buttons  # Целое число определяет количество одиночных кнопок
 
-                elif index == 0 or index % 2 == 0:
-                    result_format.append([buttons[index], buttons[index+1]])
+
+            result_format = []
+            num_buttons = len(buttons)
+            index = 0
+
+            # Добавление кнопок в result_format
+            while index < num_buttons - dynamic_count:
+                row = buttons[index:min(index + width, num_buttons - dynamic_count)]
+                result_format.append(row)
+                index += width
+
+            # Обработка оставшихся кнопок
+            for i in range(dynamic_count):
+                if num_buttons - dynamic_count + i < num_buttons:
+                    result_format.append([buttons[num_buttons - dynamic_count + i]])
 
             return InlineKeyboardMarkup(inline_keyboard=result_format)
-
 
         elif not isinstance(width, int):
 

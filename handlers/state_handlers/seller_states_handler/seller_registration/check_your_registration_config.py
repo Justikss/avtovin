@@ -26,6 +26,7 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
         bot = request.chat.bot
 
     if dealership_address:
+        dealership_address = ' '.join([address_part.capitalize() for address_part in dealership_address.split(' ')])
         await state.update_data(dealership_address=dealership_address)
         print('dealership_address', dealership_address)
 

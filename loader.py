@@ -7,6 +7,7 @@ from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
+from database.data_requests.car_configurations_requests import mock_values, get_car
 from database.db_connect import create_tables
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
@@ -14,6 +15,7 @@ from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests impor
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
+from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
 from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
@@ -119,7 +121,7 @@ async def start_bot():
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
-
+    dp.message.register(drop_table_handler, Command(commands=['dt']))
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 
     '''обработка Сообщений'''

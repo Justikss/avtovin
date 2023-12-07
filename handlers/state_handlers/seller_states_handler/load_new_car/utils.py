@@ -1,3 +1,4 @@
+import traceback
 from copy import copy
 
 from aiogram.types import Message, CallbackQuery
@@ -47,7 +48,7 @@ async def change_boot_car_state_controller(callback, state):
             # await state.update_data(color_for_load=None)
 
 
-async def data_update_controller(request: Union[Message, CallbackQuery], state: FSMContext):
+async def data_update_controller(request: Union[Message, CallbackQuery], state: FSMContext, other_color_mode=None):
     '''Метод контроллирует процесс переписи полей добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
@@ -57,7 +58,10 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
     print('can_editt ', there_data_update)
     if isinstance(request, CallbackQuery):
         print('totest: ', request.data.startswith('rewrite_boot_'))
+    current_state = str(await state.get_state())
+
     ic()
+    ic(current_state, type(request))
     if there_data_update:
         last_config_message = await message_editor.redis_data.get_data(key=str(request.from_user.id) + ':last_message')
         ic(last_config_message)
@@ -68,15 +72,20 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                 'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
 
             ic(memory_storage.get('state_for_load'))
-            current_state = str(await state.get_state())
             rewrite_state_flag = memory_storage.get('rewrite_state_flag')
             ic(rewrite_state_flag)
 
             # if memory_storage.get('state_for_load') == 1 and current_state == (''):
+            if memory_storage.get('state_for_load') == 1:
+                if current_state in ('LoadCommodityStates:input_to_load_complectation',
+                                             'LoadCommodityStates:input_to_load_model'):
+                    await set_photo_for_new_state_car(request, state)
 
-            if current_state in ('LoadCommodityStates:input_to_load_complectation',
-                                         'LoadCommodityStates:input_to_load_model') and memory_storage.get('state_for_load') == 1:
-                await set_photo_for_new_state_car(request, state)
+                if current_state == 'LoadCommodityStates:input_to_load_price' and isinstance(request, CallbackQuery) and request.data[-1].isdigit():
+                    ic()
+                    await state.set_state(LoadCommodityStates.input_to_load_photo)
+                    await input_photo_module.input_photo_to_load(request, state)
+                    return True
 
             ic(rewrite_state_flag)
             if rewrite_state_flag:
@@ -164,6 +173,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             ic(await message.bot.delete_message(chat_id=message.chat.id, message_id=last_config_message))
         except TelegramBadRequest as ex:
             ic(ex)
+            traceback.print_exc()
             pass
 
         if ((isinstance(request, CallbackQuery) and not request.data.startswith('rewrite_boot_')) or isinstance(request, Message)):
@@ -171,6 +181,9 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             await output_load_config_for_seller(request=request, state=state)
             return True
 
+async def get_price_string(head_valute, captions, index):
+    result = copy(LexiconCommodityLoader.price_only) + f'''{LEXICON['uzbekistan_valute'].replace('X', str(captions[index])) if head_valute == 'sum' else  str(captions[index+1]) + '$'}'''
+    return result.strip()
 
 async def create_edit_buttons_for_boot_config(boot_data, output_string, state, rewrite_mode=False):
     '''Метод генерирует заготовку кнопок (для InlineCreator) с назначением переписи полей добавляемого автомобиля'''
@@ -180,6 +193,8 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
     ic(boot_config_value)
     lexicon_button_part = LEXICON['confirm_load_config_from_seller_button']
     memory_storage = await state.get_data()
+    head_valute = memory_storage['head_valute']
+
     if rewrite_mode:
         # all_captions = None
         print('pre ', LexiconCommodityLoader.config_for_seller_button_callbacks)
@@ -193,11 +208,11 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             # config_slice = ((1, 6), (9, 11))
             config_edit_buttons_callback_data = copy(LexiconCommodityLoader.config_for_seller_button_callbacks)
             callbacks = config_edit_buttons_callback_data[0:5] + config_edit_buttons_callback_data[7:9] + config_edit_buttons_callback_data[additional_index:]
-            captions = list(boot_config_value[1:6] + boot_config_value[8:10])
+            captions = list(boot_config_value[1:6] + boot_config_value[8:11])
             ic(callbacks)
             ic(captions)
 
-            captions[6] = copy(LexiconCommodityLoader.load_commodity_price)['message_text'] + ' ' + str(captions[6] + ' '+ money_valute)
+            captions[6] = await get_price_string(head_valute, captions, 6)
 
             if additional_index == 9:
                 captions.append(copy(LexiconCommodityLoader.edit_photo_caption))
@@ -207,17 +222,18 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             #config_slice = (1, 11)
             config_edit_buttons_callback_data = copy(LexiconCommodityLoader.config_for_seller_button_callbacks)
             callbacks = config_edit_buttons_callback_data[0:11]
-            captions = list(boot_config_value[1:10])
+            captions = list(boot_config_value[1:11])
             ic(captions)
             captions[5] = copy(LexiconCommodityLoader.load_commodity_year_of_realise).message_text + ' ' + captions[5]
             captions[6] = copy(LexiconCommodityLoader.load_commodity_mileage).message_text + ' ' + captions[6]
-            captions[8] = copy(LexiconCommodityLoader.load_commodity_price)['message_text'] + ' ' + str(captions[8] + ' '+ money_valute)
+            captions[8] = await get_price_string(head_valute, captions, 8)
             ic(type(captions))
             captions.append(copy(LexiconCommodityLoader.edit_photo_caption))
             # all_captions = captions + (LexiconCommodityLoader.edit_photo_caption,)
             ic(captions)
 
         ic(captions)
+        captions = [caption for caption in captions if caption is not None]
 
         captions = tuple(captions)
 

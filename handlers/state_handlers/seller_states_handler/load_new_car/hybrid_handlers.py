@@ -179,13 +179,17 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
     else:
         delete_mode = False
     if not callback.data.startswith('rewrite_boot_'):
-        await state.update_data(complectation_for_load=int(callback.data.split('_')[-1]))
+        user_answer = int(callback.data.split('_')[-1])
+        await state.update_data(complectation_for_load=user_answer)
+    else:
+        memory_storage = await state.get_data()
+        user_answer = memory_storage.get('complectation_for_load')
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
 
     lexicon_part = await create_lexicon_part(lexicon_part_abc=LexiconCommodityLoader.load_commodity_color,
-                                             buttons_captions=await CarConfigs.get_characteristic(color=True))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=True, delete_mode=delete_mode)
+                                             buttons_captions=await CarConfigs.get_color_by_complectaiton(complectation_id=user_answer))
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=2, delete_mode=delete_mode)
 
     await callback.answer()
     cars_state = await get_load_car_state(state=state)
@@ -231,6 +235,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
 
 
         if await data_update_controller(request=request, state=state):
+            ic()
             return
 
         reply_mode = False
@@ -242,10 +247,11 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
         lexicon_part = LEXICON['message_not_digit']
 
     if not lexicon_part:
-        lexicon_part = LexiconCommodityLoader.load_commodity_price
+        lexicon_part = copy(LexiconCommodityLoader.load_commodity_price)
+        lexicon_part['message_text'] = copy(LexiconCommodityLoader.price_only)
 
     print('replm: ', reply_mode)
-
+    ic(await state.get_state())
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True, bot=bot)
 
     if isinstance(request, CallbackQuery):
@@ -255,11 +261,13 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
 
 
 
-async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, car_price=None, bot=None, need_photo_flag=False):
+async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=False, price=None, head_valute=None, bot=None, need_photo_flag=False):
     '''Вставить фото добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     rewrite_controller_module = importlib.import_module(
         'handlers.state_handlers.seller_states_handler.load_new_car.utils')
+    get_load_car_state_module = importlib.import_module(
+        'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
 
     lexicon_part = copy(LexiconCommodityLoader.load_commodity_photo)
     if not bot:
@@ -283,24 +291,31 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         memory_storage = await state.get_data()
         if memory_storage.get('incorrect_flag'):
             delete_mode = True
-        if car_price != None:
-            get_load_car_state_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+        if None not in (price, head_valute):
 
-            ic(car_price)
-            await state.update_data(load_price=f"{int(car_price):,}".replace(",", "."))
-            cars_state = await get_load_car_state_module.get_load_car_state(state=state)
-            print('cstate: ', cars_state)
-            if cars_state == 'new' and str(memory_storage.get('color_for_load')).isdigit():
-                output_config_module = importlib.import_module(
-                    'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
+            ic(price, head_valute)
+            if head_valute == 'sum':
+                await state.update_data(sum_price=price)
+                await state.update_data(dollar_price=None)
+            elif head_valute == 'usd':
+                await state.update_data(dollar_price=price)
+                await state.update_data(sum_price=None)
+
+        else:
+            logging.info(f'{request.from_user.id} ::: Цена не была найдена в input_photo_to_load handler')
+
+        cars_state = await get_load_car_state_module.get_load_car_state(state=state)
+        print('cstate: ', cars_state)
+        if cars_state == 'new' and str(memory_storage.get('color_for_load')).isdigit() and not need_photo_flag:
+            output_config_module = importlib.import_module(
+                'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
             #
             #
             #     photo_pack = await PhotoRequester.try_get_photo(state)
             #     ic(photo_pack)
-                await output_config_module.output_load_config_for_seller(request, state)
-                return
-        else:
-            logging.info(f'{request.from_user.id} ::: Цена не была найдена в input_photo_to_load handler')
+            await output_config_module.output_load_config_for_seller(request, state, need_photo_flag=True)
+            return
+
         if not need_photo_flag:
             if await rewrite_controller_module.data_update_controller(request=request, state=state):
                 ic()

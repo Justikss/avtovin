@@ -86,6 +86,8 @@ async def success_load_other_color(callback: CallbackQuery, state: FSMContext):
 
                 return await input_photo_module.input_photo_to_load(callback, state, need_photo_flag=True)
         await state.set_state(LoadCommodityStates.input_to_load_price)
+        print('go_to_price')
+        ic()
         await input_price_to_load(callback, state, other_color_mode=True)
         # await state.set_state(LoadCommodityStates.input_to_load_color)
     elif cars_state == 'second_hand':
