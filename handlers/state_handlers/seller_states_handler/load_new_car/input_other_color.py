@@ -9,7 +9,8 @@ from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers 
     input_price_to_load
 from handlers.state_handlers.seller_states_handler.load_new_car.second_hand_handlers import input_year_to_load
 from states.load_commodity_states import LoadCommodityStates
-from utils.Lexicon import LexiconCommodityLoader
+from utils.lexicon_utils.commodity_loader import LexiconCommodityLoader
+
 
 async def delete_last_user_message(message: Message):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт

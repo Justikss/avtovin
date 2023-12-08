@@ -13,7 +13,7 @@ from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requ
 
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     my_feedbacks_callback_handler, CheckFeedbacksHandler
-from utils.Lexicon import LexiconSellerRequests
+from utils.lexicon_utils.Lexicon import LexiconSellerRequests
 
 
 class DeleteCarRequest:
@@ -77,7 +77,7 @@ class DeleteCarRequest:
             if not return_requests:
                 return_requests = await seller_requests_callback_handler(callback, state)
                 if not return_requests:
-                    await commodity_reqests_by_seller(callback)
+                    await commodity_reqests_by_seller(callback, state)
         # await redis_module.redis_data.delete_key(
         #     key=f'{str(callback.from_user.id)}:return_path_after_delete_car')
 

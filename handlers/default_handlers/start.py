@@ -3,17 +3,16 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from handlers.message_editor import InlineCreator
-from handlers.callback_handlers.buy_part.language_callback_handler import redis_data
+from keyboards.inline.kb_creator import InlineCreator
+from utils.redis_for_language import redis_data
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
-from database.data_requests.tariff_to_seller_requests import TariffsToSellers
 from handlers.callback_handlers.sell_part.seller_main_menu import delete_media_groups
 from utils.chat_header_controller import header_controller
 
 
+
 async def bot_start(message: Message, state: FSMContext):
     travel_editor = importlib.import_module('handlers.message_editor')
-    redis_module = importlib.import_module('utils.redis_for_language')
 
     await header_controller(message, need_delete=True)
     await delete_media_groups(request=message)
@@ -41,10 +40,10 @@ async def bot_start(message: Message, state: FSMContext):
     #redis_key = str(message.from_user.id) + ':active_non_confirm_seller_registrations'
     #seller_registration_stack = await redis_module.redis_data.delete_key(key=redis_key)
 
-    await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':seller_registration_mode')
+    await redis_data.delete_key(key=str(message.from_user.id) + ':seller_registration_mode')
 
     await travel_editor.travel_editor.edit_message(lexicon_key='choose_language', request=message, delete_mode=True)
-    await redis_module.redis_data.delete_key(key=str(message.from_user.id) + ':can_edit_seller_registration_data')
+    await redis_data.delete_key(key=str(message.from_user.id) + ':can_edit_seller_registration_data')
 
     # lexicon_part = LEXICON['choose_language']
     # message_text = lexicon_part['message_text']

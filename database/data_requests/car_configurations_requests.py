@@ -111,7 +111,8 @@ class CarConfigs:
 
     @staticmethod
     async def get_models_by_brand_and_engine(brand_id, engine_id):
-        return await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id)))
+        ic(brand_id, engine_id)
+        return list(await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
 
 
     @staticmethod

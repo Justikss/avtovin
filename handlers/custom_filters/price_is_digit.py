@@ -35,7 +35,8 @@ class PriceIsDigit(BaseFilter):
                 try:
                     await message.bot.delete_message(chat_id=message.chat.id, message_id=last_seller_message)
                     await redis_module.redis_data.delete_key(key=redis_key_user_message)
-                except: pass
+                except:
+                    pass
             ic()
             head_valute = 'sum' if not dollar_cost else 'usd'
             ic(head_valute)

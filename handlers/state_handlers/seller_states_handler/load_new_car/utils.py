@@ -12,7 +12,6 @@ from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
 from handlers.state_handlers.seller_states_handler.load_new_car import second_hand_handlers
-from utils.Lexicon import LEXICON, LexiconCommodityLoader
 from states.load_commodity_states import LoadCommodityStates
 
 async def rewrite_boot_state_stopper(request: Union[CallbackQuery, Message], state: FSMContext, return_output=None):
@@ -182,31 +181,37 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             return True
 
 async def get_price_string(head_valute, captions, index):
-    result = copy(LexiconCommodityLoader.price_only) + f'''{LEXICON['uzbekistan_valute'].replace('X', str(captions[index])) if head_valute == 'sum' else  str(captions[index+1]) + '$'}'''
+    boot_car_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+    result = copy(boot_car_lexicon_module.LexiconCommodityLoader.price_only) + f'''{lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(captions[index])) if head_valute == 'sum' else  str(captions[index+1]) + '$'}'''
     return result.strip()
 
 async def create_edit_buttons_for_boot_config(boot_data, output_string, state, rewrite_mode=False):
     '''Метод генерирует заготовку кнопок (для InlineCreator) с назначением переписи полей добавляемого автомобиля'''
     get_load_car_state_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    boot_car_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     boot_config_value = list(value for value in boot_data.values())
     ic(boot_config_value)
-    lexicon_button_part = LEXICON['confirm_load_config_from_seller_button']
+    lexicon_button_part = lexicon_module.LEXICON['confirm_load_config_from_seller_button']
     memory_storage = await state.get_data()
     head_valute = memory_storage['head_valute']
 
     if rewrite_mode:
         # all_captions = None
-        print('pre ', LexiconCommodityLoader.config_for_seller_button_callbacks)
+        print('pre ', boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
         if cars_state == 'new':
             if str(memory_storage.get('color_for_load')).isalpha():
                 additional_index = 9
                 ic(additional_index)
-                ic(LexiconCommodityLoader.config_for_seller_button_callbacks)
+                ic(boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
             else:
                 additional_index = 10
             # config_slice = ((1, 6), (9, 11))
-            config_edit_buttons_callback_data = copy(LexiconCommodityLoader.config_for_seller_button_callbacks)
+            config_edit_buttons_callback_data = copy(boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
             callbacks = config_edit_buttons_callback_data[0:5] + config_edit_buttons_callback_data[7:9] + config_edit_buttons_callback_data[additional_index:]
             captions = list(boot_config_value[1:6] + boot_config_value[8:11])
             ic(callbacks)
@@ -215,20 +220,20 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             captions[6] = await get_price_string(head_valute, captions, 6)
 
             if additional_index == 9:
-                captions.append(copy(LexiconCommodityLoader.edit_photo_caption))
+                captions.append(copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_photo_caption))
 
 
         elif cars_state == 'second_hand':
             #config_slice = (1, 11)
-            config_edit_buttons_callback_data = copy(LexiconCommodityLoader.config_for_seller_button_callbacks)
+            config_edit_buttons_callback_data = copy(boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
             callbacks = config_edit_buttons_callback_data[0:11]
             captions = list(boot_config_value[1:11])
             ic(captions)
-            captions[5] = copy(LexiconCommodityLoader.load_commodity_year_of_realise).message_text + ' ' + captions[5]
-            captions[6] = copy(LexiconCommodityLoader.load_commodity_mileage).message_text + ' ' + captions[6]
+            captions[5] = copy(boot_car_lexicon_module.LexiconCommodityLoader.load_commodity_year_of_realise).message_text + ' ' + captions[5]
+            captions[6] = copy(boot_car_lexicon_module.LexiconCommodityLoader.load_commodity_mileage).message_text + ' ' + captions[6]
             captions[8] = await get_price_string(head_valute, captions, 8)
             ic(type(captions))
-            captions.append(copy(LexiconCommodityLoader.edit_photo_caption))
+            captions.append(copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_photo_caption))
             # all_captions = captions + (LexiconCommodityLoader.edit_photo_caption,)
             ic(captions)
 

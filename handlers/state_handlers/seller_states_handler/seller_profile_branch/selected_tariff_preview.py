@@ -3,7 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.Lexicon import LexiconSelectedTariffPreview, LEXICON
+from utils.lexicon_utils.Lexicon import LexiconSelectedTariffPreview, LEXICON
 from utils.get_currency_sum_usd import convertator
 
 

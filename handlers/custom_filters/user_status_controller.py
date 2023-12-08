@@ -3,7 +3,7 @@ from typing import Union
 import importlib
 
 from database.data_requests.person_requests import PersonRequester
-from utils.Lexicon import LEXICON
+from utils.lexicon_utils.Lexicon import LEXICON
 
 from aiogram.filters import BaseFilter
 

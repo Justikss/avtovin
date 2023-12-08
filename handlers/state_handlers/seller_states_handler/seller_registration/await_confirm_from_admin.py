@@ -6,19 +6,20 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from handlers.state_handlers.seller_states_handler.seller_registration import utils
 from config_data.config import ADMIN_CHAT
-from utils.Lexicon import LEXICON
 from database.data_requests.person_requests import PersonRequester
 
 async def output_for_admin_formater(callback: CallbackQuery):
     '''Форматировщик текста сообщения в Админский чат о регистрации нового продавца'''
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
     await redis_module.redis_data.set_data(key=str(callback.from_user.id) + ':chat_id', value=callback.message.chat.id)
     new_seller = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if new_seller:
         new_seller = new_seller[0]
         ic(new_seller.phone_number)
         if not new_seller.authorized:
-            lexicon_part = LEXICON['seller_waiting_registration_confirm']
+            lexicon_part = lexicon_module.LEXICON['seller_waiting_registration_confirm']
             lexicon_middle_part = lexicon_part[new_seller.entity + '_message']
             user_link = '@' + callback.from_user.username
             head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
@@ -43,7 +44,9 @@ async def output_for_admin_formater(callback: CallbackQuery):
 
 async def send_message_to_admins(callback: CallbackQuery):
     '''Метод отправки оповещения о регистрации нового продавца в чат Админов.'''
-    lexicon_part = LEXICON['confirm_new_seller_registration_from_admin_button']
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+    lexicon_part = lexicon_module.LEXICON['confirm_new_seller_registration_from_admin_button']
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
     text=lexicon_part['confirm_from_admin'],

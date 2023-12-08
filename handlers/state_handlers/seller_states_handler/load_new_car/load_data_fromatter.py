@@ -6,7 +6,6 @@ from typing import Union
 from aiogram.fsm.context import FSMContext
 
 from database.data_requests.car_configurations_requests import CarConfigs
-from utils.Lexicon import LexiconCommodityLoader
 
 
 async def data_formatter(request: Union[Message, CallbackQuery], state: FSMContext, id_values=False):

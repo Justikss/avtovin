@@ -14,7 +14,7 @@ from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
 
-from utils.Lexicon import LEXICON, LexiconCommodityLoader
+from utils.lexicon_utils.Lexicon import LEXICON
 
 
 async def buyer_get_requests__chose_brand(callback: CallbackQuery, state: FSMContext):

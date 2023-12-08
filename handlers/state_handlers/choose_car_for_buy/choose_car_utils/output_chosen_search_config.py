@@ -4,17 +4,16 @@ from typing import Optional, List
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from config_data.config import lifetime_of_redis_record_of_request_caching
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.tables.offers_history import ActiveOffers
-
-from utils.Lexicon import LEXICON
-from utils.get_currency_sum_usd import convertator, get_valutes
+from utils.get_currency_sum_usd import get_valutes
 
 
 async def get_seller_header(seller=None, car=None, state=None):
-    message_text = LEXICON.get('chosen_configuration').get('message_text')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+    message_text = lexicon_module.LEXICON.get('chosen_configuration').get('message_text')
     if car:
         seller = car.seller
     seller_number = ''
@@ -33,6 +32,9 @@ async def get_seller_header(seller=None, car=None, state=None):
 
 async def get_output_string(car, message_text, state=None, callback=None):
     offer_requester = importlib.import_module('database.data_requests.offers_requests')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+
     if isinstance(car, set) and len(car) == 1:
         car = car.pop()
     used_state = car.mileage
@@ -45,17 +47,17 @@ async def get_output_string(car, message_text, state=None, callback=None):
         current_state = str(await state.get_state())
         ic(current_state)
         if current_state.startswith('CheckActiveOffersStates'):
-            startswith_text = LEXICON['active_offer_caption']
+            startswith_text = lexicon_module.LEXICON['active_offer_caption']
             if callback:
                 offer_model = await offer_requester.OffersRequester.get_offer_model(int(callback.from_user.id), car.id)
                 if offer_model:
-                    viewed_status_lexicon = LEXICON["footer_for_output_active_offers"]
+                    viewed_status_lexicon = lexicon_module.LEXICON["footer_for_output_active_offers"]
                     footer_viewed_by_seller_status = f'''\n\n{viewed_status_lexicon['viewed_status']}\n{viewed_status_lexicon['status_true'] if offer_model.viewed else viewed_status_lexicon['status_false']}'''
         elif current_state.startswith('CheckRecommendationsStates'):
-            startswith_text = LEXICON['new_recommended_offer_startswith']
+            startswith_text = lexicon_module.LEXICON['new_recommended_offer_startswith']
 
 
-    canon_string =  f'''{startswith_text}\n{seller_header}\n{LEXICON['sepp']*16}\n{message_text['car_state'].replace('X', car.state.name)}\n{message_text['engine_type'].replace('X', car.engine_type.name)}\n{message_text['model'].replace('X', car.complectation.model.name)}\n{message_text['brand'].replace('X', car.complectation.model.brand.name)}\n{message_text['complectation'].replace('X', car.complectation.name)}\n{message_text['color'].replace('X', car.color.name)}\n'''
+    canon_string =  f'''{startswith_text}\n{seller_header}\n{lexicon_module.LEXICON['sepp']*16}\n{message_text['car_state'].replace('X', car.state.name)}\n{message_text['engine_type'].replace('X', car.engine_type.name)}\n{message_text['model'].replace('X', car.complectation.model.name)}\n{message_text['brand'].replace('X', car.complectation.model.brand.name)}\n{message_text['complectation'].replace('X', car.complectation.name)}\n{message_text['color'].replace('X', car.color.name)}\n'''
     if used_state:
         middle_string = f'''{message_text['year'].replace('X', car.year.name)}\n{message_text['mileage'].replace('X', car.mileage.name)}\n'''
 
@@ -67,7 +69,7 @@ async def get_output_string(car, message_text, state=None, callback=None):
     # price = f'''{usd_price}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', sum_price)}'''
     string = await get_valutes(car.dollar_price, car.sum_price, get_string=True)
 
-    cost_string = f'''{LEXICON['sepp']*16}\n{message_text['cost'].replace('X', string)}'''
+    cost_string = f'''{lexicon_module.LEXICON['sepp']*16}\n{message_text['cost'].replace('X', string)}'''
     result_string = f'{canon_string}{middle_string}{cost_string}{footer_viewed_by_seller_status}'
     return result_string
 
@@ -75,12 +77,12 @@ async def get_output_string(car, message_text, state=None, callback=None):
 async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_models=None):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
-
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     redis_key = str(callback.from_user.id) + ':cars_type'
     cars_state = await redis_module.redis_data.get_data(redis_key)
 
-    lexicon_part = LEXICON.get('chosen_configuration')
+    lexicon_part = lexicon_module.LEXICON.get('chosen_configuration')
 
     message_text = lexicon_part.get('message_text')
 

@@ -8,7 +8,6 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message, chat
 from phonenumbers import NumberParseException
 from handlers.callback_handlers.buy_part.main_menu import main_menu
-from utils.Lexicon import LEXICON
 from database.data_requests.person_requests import PersonRequester
 
 
@@ -18,24 +17,6 @@ class BuyerRegistationStates(StatesGroup):
     finish_check_phone_number = State()
 
 
-# async def number_is_valid(number, country):
-#     '''Проверка номера на валидность, учитывая выбранный регион
-#     [number]: Вводимый номер
-#     [country]: Выбраная страна'''
-#     input_number = phonenumbers.parse(number, country)
-#     number_is_valid = phonenumbers.is_valid_number(input_number)
-#     if number_is_valid:
-#
-#         number = [element for element in number if (element.isdigit() or element == '+')]
-#         number = ''.join(number)
-#         if number.startswith('+7') and country.lower() == 'ru' and len(number) == 12:
-#             formatted_phone_number = ' '.join([number[:4], number[4:7], number[7:]])
-#             return formatted_phone_number
-#         elif number.startswith('+998') and country.lower() == 'uz' and len(number) == 14:
-#             formatted_phone_number = ' '.join([number[:2], number[2:5], number[5:]])
-#             return formatted_phone_number
-#
-#     return False
 
 async def elements_is_alpha(string: list) -> bool:
     '''Проверка списка из слов: состоян ли они только из букв'''
@@ -131,7 +112,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
     await state.update_data(incorrect_answer=False)
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
-
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     memory_storage = await state.get_data()
     message_id = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_message')
@@ -150,7 +131,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
         except:
             pass
 
-    lexicon_part = LEXICON[lexicon_code]
+    lexicon_part = lexicon_module.LEXICON[lexicon_code]
 
     await state.update_data(last_lexicon_code=None)
     await state.update_data(last_state=None)
@@ -180,6 +161,7 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
 async def input_phone_number(message: Message, state: FSMContext, incorrect=None, user_name: str = None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     memory_storage = await state.get_data()
     message_id = await redis_module.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
@@ -204,7 +186,7 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
 
     await registartion_view_corrector(request=message, state=state)
 
-    lexicon_part = LEXICON[lexicon_code]
+    lexicon_part = lexicon_module.LEXICON[lexicon_code]
     await state.update_data(last_lexicon_code=memory_storage['current_lexicon_code'])
     await state.update_data(last_state=await state.get_state())
 

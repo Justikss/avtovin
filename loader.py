@@ -12,6 +12,7 @@ from database.db_connect import create_tables
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
 from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
+from handlers.callback_handlers.sell_part.commodity_requests.backward_command_load_config import backward_in_boot_car
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
@@ -182,15 +183,6 @@ async def start_bot():
                                lambda callback: callback.data.startswith('load_brand_'))
 
     '''delete request'''
-    # dp.callback_query.register(seller_deletes_request.seller_start_delete_request.start_process_delete_request_handler,
-    #                            F.data == 'delete_request_from_seller')
-    #
-    # dp.message.register(seller_deletes_request.check_input_commodity_number.check_input_id_handler,
-    #                            and_f(StateFilter(DeleteRequestStates.awaited_input_deletion_number_of_commodity)))
-    #
-    # dp.callback_query.register(seller_deletes_request.confirm_delete_exists_commodity.confirm_delete_exists_commodity_handler,
-    #                            and_f(StateFilter(DeleteRequestStates.check_input_on_valid),
-    #                                  F.data == 'confirm_delete'))
 
     dp.callback_query.register(DeleteCarRequest.delete_car_handler, F.data == 'withdrawn')
 
@@ -199,8 +191,6 @@ async def start_bot():
 
     '''обработка Коллбэков'''
 
-
-    # dp.callback_query.register(FAQ_tech_support.testor)
     dp.callback_query.register(FAQ_tech_support.tech_support_callback_handler, F.data == 'support')
     dp.callback_query.register(FAQ_tech_support.write_to_support_callback_handler, F.data == 'write_to_support')
     dp.callback_query.register(FAQ_tech_support.call_to_support_callback_handler, F.data == 'call_to_support')
@@ -221,14 +211,8 @@ async def start_bot():
     dp.callback_query.register(confirm_search_config.confirm_settings_handler,
                                lambda callback: callback.data.startswith('confirm_buy_settings:'))
 
-    # dp.callback_query.register(confirm_from_seller_callback_handler.confirm_from_seller,
-    #                            lambda callback: callback.data.startswith('confirm_from_seller'))
-
     dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')))
-    # dp.callback_query.register(show_offers_history.history_pagination_left, F.data == 'pagination_left')
-    # dp.callback_query.register(show_offers_history.history_pagination_right, F.data == 'pagination_right')
-    # dp.callback_query.register(return_main_menu_from_offers_history.return_from_offers_history,
-    #                            F.data == 'return_from_offers_history')
+
 
     '''Seller'''
     dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
@@ -244,7 +228,6 @@ async def start_bot():
     dp.callback_query.register(faq.FAQ_callback_handler, F.data == 'faq')
     dp.callback_query.register(seller_faq.seller_faq, F.data == 'seller_faq')
     dp.callback_query.register(buyer_faq.buyer_faq, F.data == 'buyer_faq')
-    # dp.callback_query.register(buyer_faq.buyer_faq, F.data == 'buyer_faq')
 
     dp.callback_query.register(sell_part.commodity_requests.commodity_requests_handler.commodity_reqests_by_seller,
                         F.data == 'seller_requests')
@@ -348,7 +331,7 @@ async def start_bot():
                         (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
 
     '''Состояния загрузки новых машин'''
-
+    dp.callback_query.register(backward_in_boot_car, F.data == 'boot_car_backward')
     dp.callback_query.register(cancel_boot_process_callback_handler, F.data == 'cancel_boot_new_commodity')
 
     dp.callback_query.register(load_new_car.hybrid_handlers.input_state_to_load,

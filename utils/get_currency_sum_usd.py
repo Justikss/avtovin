@@ -7,8 +7,6 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup
 
-from utils.Lexicon import LEXICON, LexiconCommodityLoader
-
 
 async def convertator(valute, cost):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -35,20 +33,24 @@ async def convertator(valute, cost):
             return result
 
 
-async def get_valutes(usd, sum, get_string=None):
-    ic(usd, sum)
+async def get_valutes(usd, sum_valute, get_string=None):
+    ic(usd, sum_valute)
+    boot_commodity_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+
 
     if not usd:
-        usd = await convertator('sum', sum)
-    elif not sum:
-        sum = await convertator('usd', usd)
-    ic(usd, sum)
-    usd, sum = "{:,}".format(usd), "{:,}".format(sum)
-    if None not in (usd, sum):
-        result = (usd, sum)
+        usd = await convertator('sum', sum_valute)
+    elif not sum_valute:
+        sum_valute = await convertator('usd', usd)
+    ic(usd, sum_valute)
+    usd, sum_valute = "{:,}".format(usd), "{:,}".format(sum_valute)
+    if None not in (usd, sum_valute):
+        result = (usd, sum_valute)
         if get_string:
-            price_string = f'''{usd}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', sum)}'''
-            block_string = copy(LexiconCommodityLoader.load_commodity_price['message_text']).replace('X', price_string)
+            price_string = f'''{usd}$ {lexicon_module.LEXICON['convertation_sub_string']} {lexicon_module.LEXICON['uzbekistan_valute'].replace('X', sum_valute)}'''
+            block_string = copy(await boot_commodity_lexicon_module.LexiconCommodityLoader.load_commodity_price().part())['message_text'].replace('X', price_string)
             if get_string == 'block':
                 return block_string
             else:

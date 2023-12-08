@@ -3,7 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from utils.Lexicon import LexiconCommodityLoader
+
 
 
 async def lost_photos_handler(message: Message, state: FSMContext):

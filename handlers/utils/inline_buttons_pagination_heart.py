@@ -7,7 +7,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from icecream import ic
 from handlers.utils.pagination_heart import Pagination
-from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
 
 
 class CachedRequestsView:
@@ -51,6 +50,7 @@ class CachedRequestsView:
     async def send_message_with_keyboard(callback, keyboard, pagination, redis_key, state: Optional[FSMContext] = None):
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         if state:
             current_state = str(await state.get_state())
@@ -60,17 +60,17 @@ class CachedRequestsView:
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
         if user_state == 'buy' and current_state:
             if current_state.startswith('CheckNonConfirmRequestsStates'):
-                message_text = LEXICON['cached_requests_for_buyer_message_text']
+                message_text = lexicon_module.LEXICON['cached_requests_for_buyer_message_text']
             elif current_state.startswith('CheckActiveOffersStates'):
-                message_text = LEXICON['active_offers_for_buyer_message_text']
+                message_text = lexicon_module.LEXICON['active_offers_for_buyer_message_text']
             elif current_state.startswith('CheckRecommendationsStates'):
-                message_text = LEXICON['recommended_offers_for_buyer_message_text']
+                message_text = lexicon_module.LEXICON['recommended_offers_for_buyer_message_text']
             else:
                 message_text = None
             if message_text:
-                message_text['message_text'] = f'''{message_text['message_text']}{LEXICON['make_choose_brand']}'''
+                message_text['message_text'] = f'''{message_text['message_text']}{lexicon_module.LEXICON['make_choose_brand']}'''
         elif user_state == 'sell':
-            message_text = LexiconSellerRequests.select_brand_message_text
+            message_text = lexicon_module.LexiconSellerRequests.select_brand_message_text
 
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                         lexicon_part=message_text,
@@ -82,17 +82,18 @@ class CachedRequestsView:
     async def get_keyboard(callback, pagination, operation):
         inline_creator_module = importlib.import_module('handlers.callback_handlers.buy_part.language_callback_handler')
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
         if user_state == 'buy':
-            backward_command = LEXICON['backward_from_buyer_offers']
+            backward_command = lexicon_module.LEXICON['backward_from_buyer_offers']
         elif user_state == 'sell':
-            backward_command = LexiconSellerRequests.keyboard_end_part
+            backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
 
-        page_count_button = LEXICON['output_inline_brands_pagination']['page_count'].replace('C',
+        page_count_button = lexicon_module.LEXICON['output_inline_brands_pagination']['page_count'].replace('C',
                                                                                              str(pagination.current_page))
         page_count_button = page_count_button.replace('M', str(pagination.total_pages))
-        pagination_interface_buttons = LEXICON['output_inline_brands_pagination']
+        pagination_interface_buttons = lexicon_module.LEXICON['output_inline_brands_pagination']
         pagination_interface_buttons['page_count'] = page_count_button
         ic(pagination_interface_buttons, backward_command)
         current_page = await pagination.get_page(operation)

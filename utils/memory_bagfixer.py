@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery
 
-from utils.Lexicon import LEXICON
+from utils.lexicon_utils.Lexicon import LEXICON
 from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
 
 

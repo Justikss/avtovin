@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
-from utils.Lexicon import LEXICON
 
 from utils.chat_cleaner.media_group_messages import delete_media_groups
 from utils.user_notification import try_delete_notification

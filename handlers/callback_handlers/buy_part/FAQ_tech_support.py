@@ -2,8 +2,8 @@ import importlib
 
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM
-from utils.Lexicon import LEXICON
+from config_data.config import SUPPORT_TELEGRAM
+from utils.lexicon_utils.Lexicon import LEXICON
 
 
 async def call_to_support_callback_handler(callback: CallbackQuery):

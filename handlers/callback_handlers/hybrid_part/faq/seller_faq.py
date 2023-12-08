@@ -1,7 +1,6 @@
 from aiogram.types import CallbackQuery
 import importlib
 
-from utils.Lexicon import LEXICON
 
 async def seller_faq(callback: CallbackQuery):
     message_editor_module = importlib.import_module('handlers.message_editor')

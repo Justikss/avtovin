@@ -1,13 +1,9 @@
 import sys
-from datetime import datetime
 import pytest
 from unittest.mock import AsyncMock, patch
-from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 
-
-import asyncio
 sys.path.insert(0, '..')
 print(sys.path)
 
@@ -17,11 +13,10 @@ sys.path.insert(0, '..')
 from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
 from keyboards.inline.kb_creator import InlineCreator
-from utils.Lexicon import LEXICON
-from states.load_commodity_states import LoadCommodityStates
+from utils.lexicon_utils.Lexicon import LEXICON
 from utils.redis_for_language import redis_data
 
-from tests.conftest import dispatcher, storage
+from tests.conftest import storage
 from tests.utils import get_message
 
 

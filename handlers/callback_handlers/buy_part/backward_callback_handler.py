@@ -7,12 +7,8 @@ from aiogram.exceptions import TelegramBadRequest
 from handlers.callback_handlers.buy_part.search_auto_handler import search_auto_callback_handler
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     my_feedbacks_callback_handler
-from handlers.state_handlers.buyer_registration_handlers import LEXICON, input_full_name, BuyerRegistationStates
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
-from handlers.callback_handlers.buy_part.callback_handler_start_buy import start_buy
-
 from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
-from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
 from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import hybrid_input_seller_number, dealership_input_address
 from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
 from handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config import check_your_config
@@ -21,7 +17,7 @@ from handlers.callback_handlers.sell_part import checkout_seller_person_profile
 from handlers.state_handlers.seller_states_handler import seller_profile_branch
 from handlers.callback_handlers.sell_part import commodity_requests
 
-from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates, PersonSellerRegistrationStates
+from states.seller_registration_states import HybridSellerRegistrationStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import \
     output_sellers_requests_by_car_brand_handler
@@ -116,8 +112,10 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                     pass
 
             if mode == 'user_registration_number':
-                await state.set_state(BuyerRegistationStates.input_full_name)
-                await input_full_name(request=callback, state=state)
+                buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
+
+                await state.set_state(buyer_registration_handlers_module.BuyerRegistationStates.input_full_name)
+                await buyer_registration_handlers_module.input_full_name(request=callback, state=state)
             elif mode == 'user_registration':
                 await state.clear()
                 try:
@@ -127,13 +125,14 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                 await set_language(callback=callback, set_languange=False)
             else:
                 print("LEXICON_CACHA")
+                lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
                 user_id = callback.from_user.id
                 redis_key = str(user_id) + ':last_lexicon_code'
                 last_lexicon_code = await redis_data.get_data(redis_key)
                 await state.clear()
                 await callback.message.delete()
-                lexicon_part = LEXICON[last_lexicon_code]
+                lexicon_part = lexicon_module.LEXICON[last_lexicon_code]
                 message_text = lexicon_part['message_text']
                 keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
                 message_object = await callback.message.answer(text=message_text, reply_markup=keyboard)
@@ -152,7 +151,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             await seller_profile_branch.selected_tariff_preview.tariff_preview_handler(callback=callback, state=state, backward_call=True)
 
         elif mode == 'sales_brand_choose':
-            await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback=callback)
+            await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback=callback, state=state)
 
         elif mode == 'sales_order_review':
             await commodity_requests.my_requests_handler.seller_requests_callback_handler(callback=callback, state=state, delete_mode=True)
@@ -174,7 +173,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
 
         elif mode == 'seller__my_feedbacks':
 
-            await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback, delete_mode=True)
+            await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback, state=state, delete_mode=True)
 
         elif mode == 'check_feedbacks':
             ic()

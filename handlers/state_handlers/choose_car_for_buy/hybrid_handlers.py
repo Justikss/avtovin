@@ -12,14 +12,12 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_s
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.states_cacher import cache_state
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
-
-from utils.Lexicon import LEXICON, LexiconCommodityLoader, ChooseEngineType, ChooseBrand, ChooseModel, \
-    ChooseComplectation, ChooseColor
 from utils.create_lexicon_part import create_lexicon_part
 
 
 async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     await cache_state(callback=callback, state=state, first=True)
 
@@ -36,7 +34,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
     await state.update_data(cars_class=cars_type)
 
     button_texts = {car.engine_type for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseEngineType, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseEngineType, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                      lexicon_part=lexicon_part, lexicon_cache=False)
 
@@ -47,6 +45,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
 async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first_call: object = True) -> object:
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     await cache_state(callback=callback, state=state)
 
@@ -64,7 +63,7 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
                                                     )
 
     button_texts = {car.complectation.model.brand for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseBrand, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseBrand, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                      lexicon_part=lexicon_part, lexicon_cache=False)
 
@@ -77,6 +76,8 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
 
 async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
     await cache_state(callback=callback, state=state)
 
@@ -95,7 +96,7 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
     models_range = await AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type)
 
     button_texts = {car.complectation.model for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseModel, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseModel, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part=lexicon_part, lexicon_cache=False)
 
@@ -109,7 +110,8 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
 
 async def choose_complectation_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-    print('pre-tarue')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
     await cache_state(callback=callback, state=state)
 
     memory_storage = await state.get_data()
@@ -127,20 +129,18 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
                                                        model_id=user_answer)
 
     button_texts = {car.complectation for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseComplectation, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseComplectation, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
-
-
-
 
     await state.set_state(HybridChooseStates.select_color)
 
     await callback.answer()
 
 async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
-    print('pre-true')
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
     await cache_state(callback=callback, state=state)
 
@@ -161,7 +161,7 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
 
     button_texts = {car.color for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseColor, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseColor, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
 
@@ -174,9 +174,6 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
     await callback.answer()
 
 async def search_config_output_handler(callback: CallbackQuery, state: FSMContext):
-    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-    redis_module = importlib.import_module('utils.redis_for_language')
-
     await cache_state(callback=callback, state=state)
 
     memory_storage = await state.get_data()
@@ -190,33 +187,15 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
         ic()
         await state.update_data(cars_color=user_answer)
 
-
-    # average_cost = sum(car.price for car in result_model) // len(result_model)
-    # await state.update_data(average_cost=average_cost)
-    # print(model)
     formatted_config_output = await get_cars_data_pack(callback=callback, state=state)
 
-
-
-    # range_car_id = [str(car.car_id) for car in result_model]
-    # await state.update_data(offer_cars_range=range_car_id)
     await state.update_data(buyer_id=str(callback.from_user.id))
-
-
-    # self.message_editor.redis_data.get_data(key=f'{str(request.from_user.id)}:buyer_cars_pagination',
-    #                                         use_json=True)
 
     await callback.message.delete()
 
     pagination = BuyerCarsPagination(data=formatted_config_output, page_size=1, current_page=0)
 
-
     await pagination.send_page(request=callback, state=state)
-
-    # message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
-    #                                         )
-    #
-    # photo_album = CommodityRequester.get_photo_album_by_car_id(car_id=result_car.car_id)
 
     await callback.answer()
 

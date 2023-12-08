@@ -14,8 +14,7 @@ from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.m
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
     BuyerCarsPagination
 from states.buyer_offers_states import CheckActiveOffersStates
-from utils.Lexicon import LEXICON
-from database.data_requests.person_requests import PersonRequester
+from utils.lexicon_utils.Lexicon import LEXICON
 from utils.user_notification import send_notification_for_seller
 
 # ic.disable()

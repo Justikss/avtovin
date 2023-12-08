@@ -1,9 +1,9 @@
-from aiogram.types import Message, CallbackQuery, LabeledPrice
+from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.fsm.context import FSMContext
 import importlib
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.Lexicon import LexiconCreateInvoice
+from utils.lexicon_utils.Lexicon import LexiconCreateInvoice
 
 
 async def send_invoice_offer(request: CallbackQuery, state: FSMContext):

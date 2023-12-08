@@ -4,18 +4,15 @@ import phonenumbers
 from typing import Union
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
-from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 
-from utils.Lexicon import LEXICON
-from handlers.state_handlers.buyer_registration_handlers import registartion_view_corrector
 from states.seller_registration_states import HybridSellerRegistrationStates, PersonSellerRegistrationStates, CarDealerShipRegistrationStates
-from handlers.custom_filters import correct_name, correct_number
 
 
 async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = None, from_backward_Delete_mode=None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     delete_mode = False
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
     print('seller_mode', seller_mode)
@@ -50,7 +47,7 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
         delete_last_message_mode = True
 
             
-        await registartion_view_corrector(request=request, state=state)
+        await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state)
         
 
         await redis_module.redis_data.set_data(
@@ -84,6 +81,7 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
 async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], state: FSMContext, user_name=None, incorrect = None, from_backward_Delete_mode=None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
 
     print('user_name', user_name)
@@ -118,7 +116,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
             delete_mode = False
         else:
             delete_mode = True
-        await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode)
+        await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state, delete_mode=delete_mode)
         
         
 
@@ -160,6 +158,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
 async def dealership_input_address(request: Union[CallbackQuery, Message], state: FSMContext, input_number=None, incorrect=None):
     print('dealer', type(request))
+    buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
@@ -183,7 +182,7 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
     if seller_mode == 'dealership':
         if incorrect:
             await state.update_data(incorrect_answer=True)
-            await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
+            await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
 
             message_reply_mode = True
             message_delete_mode = False
@@ -192,14 +191,14 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
                                         value=request.message_id)
             lexicon_code = 'write_dealership_address' + incorrect
         else:
-            await registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
+            await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state, delete_mode=delete_mode )
             message_delete_mode = True
             message_reply_mode = False
             lexicon_code = 'write_dealership_address'
 
         await message_editor_module.travel_editor.edit_message(request=request, lexicon_key=lexicon_code, reply_mode=message_reply_mode, delete_mode=message_delete_mode)
     else:
-        await registartion_view_corrector(request=request, state=state, delete_mode=True)
+        await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state, delete_mode=True)
         await check_reg_config_module.check_your_config(request=request, state=state)
     await state.set_state(HybridSellerRegistrationStates.check_input_data)
     

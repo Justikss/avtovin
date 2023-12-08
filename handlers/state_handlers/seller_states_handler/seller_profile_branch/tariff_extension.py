@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
 
-from utils.Lexicon import LexiconTariffSelection
+from utils.lexicon_utils.Lexicon import LexiconTariffSelection
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 
 async def lexicon_part_constructor():

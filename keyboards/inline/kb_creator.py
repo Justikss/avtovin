@@ -4,7 +4,6 @@ from typing import List, Dict, Tuple, Set, Union
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from utils.Lexicon import LEXICON
 
 
 class InlineCreator:

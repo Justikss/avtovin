@@ -2,13 +2,14 @@ import importlib
 from aiogram.exceptions import TelegramBadRequest
 
 from aiogram.types import CallbackQuery
-from utils.Lexicon import LEXICON
+
 from keyboards.inline.kb_creator import InlineCreator
 from utils.redis_for_language import redis_data
 
 
 async def set_language(callback: CallbackQuery, delete_mode=False, set_languange=True):
     travel_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     user_id = callback.from_user.id
     if set_languange:
@@ -21,7 +22,7 @@ async def set_language(callback: CallbackQuery, delete_mode=False, set_languange
 
     #Будет меняться язык от callback.data#
     lexicon_code = 'hello_text'
-    lexicon_part = LEXICON[lexicon_code]
+    lexicon_part = lexicon_module.LEXICON[lexicon_code]
     message_text = lexicon_part['message_text'].replace('X', callback.from_user.username)
     keyboard = await InlineCreator.create_markup(lexicon_part)
 

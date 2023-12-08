@@ -9,18 +9,12 @@ from database.tables.offers_history import ActiveOffers
 
 from states.second_hand_choose_states import SecondHandChooseStates
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_state
-from utils.Lexicon import ChooseColor, ChooseMileage, ChooseYearOfRelease
 from utils.create_lexicon_part import create_lexicon_part
-
-
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[0])
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[3])
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[1])
-# ActiveOffers.create(seller=sellers[0], buyer=buyer[0], car=cars[2])
 
 
 async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     await cache_state(callback=callback, state=state)
 
@@ -38,7 +32,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
                                                        color_id=user_answer)
 
     button_texts = {car.mileage for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseMileage, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseMileage, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part=lexicon_part, lexicon_cache=False)
     await callback.answer()
@@ -49,6 +43,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
 async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     choose_car_states_module = importlib.import_module('states.hybrid_choose_states')
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     await cache_state(callback=callback, state=state)
 
@@ -72,7 +67,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
                                                        mileage_id=user_answer)
 
     button_texts = {car.year for car in models_range}
-    lexicon_part = await create_lexicon_part(ChooseYearOfRelease, button_texts)
+    lexicon_part = await create_lexicon_part(lexicon_module.ChooseYearOfRelease, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
     await callback.answer()

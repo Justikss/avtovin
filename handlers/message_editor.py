@@ -1,10 +1,10 @@
 from typing import Set
 
-from aiogram.types import Message, chat, CallbackQuery, InputMediaPhoto
+from aiogram.types import chat, CallbackQuery, InputMediaPhoto
 from aiogram.exceptions import TelegramBadRequest
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
-from utils.Lexicon import LEXICON
+from utils.lexicon_utils.Lexicon import LEXICON
 
 
 class TravelEditor:

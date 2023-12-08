@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.Lexicon import LexiconChoicePaymentSystem
+from utils.lexicon_utils.Lexicon import LexiconChoicePaymentSystem
 
 async def payments_lexicon_part_constructor():
     '''Конструктор lexicon_part'a для предоставления выбора оплат'''

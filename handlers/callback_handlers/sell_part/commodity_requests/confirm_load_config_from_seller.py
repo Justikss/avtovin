@@ -10,9 +10,7 @@ from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.person_requests import PersonRequester
 from database.data_requests.recomendations_request import RecommendationRequester
-from handlers.callback_handlers.buy_part.language_callback_handler import set_language
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_seller_header
-from utils.Lexicon import LexiconCommodityLoader, LEXICON, LexiconSellerRequests
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
 
@@ -35,13 +33,14 @@ async def check_match_adverts_the_sellers(callback, state: FSMContext):
 
 async def create_notification_for_admins(callback):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
 
     seller_model = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if seller_model:
         seller_model = seller_model[0]
 
         last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-        boot_config_string_startswith = f'{copy(LexiconCommodityLoader.config_for_admins)}{callback.from_user.username}\n{await get_seller_header(seller=seller_model)}\n'
+        boot_config_string_startswith = f'{copy(lexicon_module.LexiconCommodityLoader.config_for_admins)}{callback.from_user.username}\n{await get_seller_header(seller=seller_model)}\n'
 
         message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
         message_for_admin_chat[0] = boot_config_string_startswith
@@ -50,7 +49,10 @@ async def create_notification_for_admins(callback):
 
 async def create_notification_for_seller(request_number) -> str:
     '''Плашка "Заявка №XXXX Создана"'''
-    create_request_notification = LexiconCommodityLoader.seller_notification['message_text']
+    lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+
+
+    create_request_notification = lexicon_module.LexiconCommodityLoader.seller_notification['message_text']
     create_request_notification = create_request_notification.split('_')
     create_request_notification = f'{request_number}'.join(create_request_notification)
 
@@ -60,6 +62,7 @@ async def create_notification_for_seller(request_number) -> str:
 async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMContext):
     '''Обработчик одобрения собственных конфигураций загрузки нового авто от селлера.'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     media_group_delete_module = importlib.import_module('utils.chat_cleaner.media_group_messages')
 
     message_for_admin_chat = await create_notification_for_admins(callback)
@@ -72,7 +75,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     if await check_match_adverts_the_sellers(callback, state):
         logging.info(f'{callback.from_user.id} ::: Попытался выложить товар, который уже имеет на витрине.')
-        return await callback.answer(LexiconSellerRequests.matched_advert)
+        return await callback.answer(lexicon_module.LexiconSellerRequests.matched_advert)
 
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
 
@@ -83,7 +86,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     notification_string = await create_notification_for_seller(request_number=commodity_number)
     mock_lexicon_part = {'message_text': notification_string}
-    lexicon_part = LEXICON['seller_load_notification_button']
+    lexicon_part = lexicon_module.LEXICON['seller_load_notification_button']
     for key, value in lexicon_part.items():
         mock_lexicon_part[key] = value
     mock_lexicon_part['width'] = 1
@@ -95,16 +98,10 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     if not photos:
         memory_data = await state.get_data()
         photos = memory_data.get('load_photo')
-    print('load_photos hand??: ', photos)
-    print('photo_id: ', photos)
-    print('isit: ', message_for_admin_chat)
-    # await callback.message.bot.send_photo(chat_id=ADMIN_CHAT, caption=message_for_admin_chat, photo=photo)
-    ic(photos)
+
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part={'message_text': message_for_admin_chat},
                                                     send_chat=ADMIN_CHAT, media_group=photos)
-
-    # memory_storage = await state.get_data()
 
     await RecommendationRequester.add_recommendation(advert=commodity_number)
 

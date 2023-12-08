@@ -1,5 +1,3 @@
-from copy import copy
-
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InputMediaPhoto, Message
 from typing import List, Union
@@ -7,14 +5,14 @@ import importlib
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.tables.car_configurations import CarAdvert
-from utils.Lexicon import LexiconSellerRequests as Lexicon, LEXICON, LexiconCommodityLoader
+from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon
 from handlers.utils.pagination_heart import Pagination
 from utils.get_currency_sum_usd import get_valutes
 
 
 async def set_car_id_in_redis(callback, output_data_part):
     '''Метод подставляет id машины в коллбэк дату'''
-    redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     load_data = dict()
 
@@ -33,7 +31,7 @@ async def set_car_id_in_redis(callback, output_data_part):
 
     ic()
     ic(car_id)
-    await redis_module.redis_data.set_data(
+    await message_editor.redis_data.set_data(
         key=f'{str(callback.from_user.id)}:seller_request_data', value=load_data)
 
 async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:

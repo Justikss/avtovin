@@ -4,7 +4,7 @@ from copy import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from utils.Lexicon import LexiconSellerRequests
+from utils.lexicon_utils.Lexicon import LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import CheckFeedbacksHandler, my_feedbacks_callback_handler
 
 

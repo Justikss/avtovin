@@ -4,7 +4,7 @@ from abc import ABC
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests import Pagination, output_sellers_commodity_page
-from utils.Lexicon import LexiconSellerRequests as Lexicon
+from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon
 
 class SellerRequestsPagination(ABC):
     @staticmethod

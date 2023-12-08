@@ -8,9 +8,6 @@ from database.tables.commodity import NewCarPhotoBase
 from database.tables.commodity import AdvertPhotos
 from database.db_connect import database, manager
 
-
-from utils.Lexicon import LexiconCommodityLoader
-
 install()
 
 

@@ -2,8 +2,6 @@ import asyncio
 import importlib
 
 import aiohttp
-import phonenumbers
-import json
 
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
@@ -11,9 +9,7 @@ from aiogram.types import Message, CallbackQuery
 from typing import Union
 
 from config_data.config import LOCATIONIQ_TOKEN, geolocation_cahce_expire
-from handlers.state_handlers.buyer_registration_handlers import input_phone_number
-from database.data_requests.person_requests import PersonRequester
-from utils.Lexicon import LEXICON, SecondsEndswith
+from utils.lexicon_utils.Lexicon import LEXICON, SecondsEndswith
 
 queue = asyncio.Queue()
 

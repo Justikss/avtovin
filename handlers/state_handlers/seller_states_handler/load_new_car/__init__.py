@@ -1,1 +1,1 @@
-from . import hybrid_handlers, get_output_configs, second_hand_handlers, load_data_fromatter, utils, edit_boot_data, cancel_boot_process_handler
+from . import hybrid_handlers, get_output_configs, second_hand_handlers, load_data_fromatter, utils, edit_boot_data, cancel_boot_process_handler, boot_car_buttons_controller

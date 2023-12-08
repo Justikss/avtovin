@@ -6,8 +6,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto, CallbackQuery, Message
 
 from handlers.utils.pagination_heart import Pagination
-from utils import Lexicon
-from utils.Lexicon import LEXICON
 
 
 class BuyerCarsPagination:
@@ -30,6 +28,8 @@ class BuyerCarsPagination:
 
     async def send_page(self, request: Union[Message, CallbackQuery], state: FSMContext, operation: str = None):
         message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
         if not operation:
             operation = '+'
 
@@ -40,7 +40,7 @@ class BuyerCarsPagination:
             # Здесь код для отправки данных текущей страницы
             # page_header, page_footer = await self.get_page(page_data)
             page_footer = {
-                'message_text': LEXICON['sepp']*7 + f'[{str(self.pagination.current_page)}/{str(self.pagination.total_pages)}]' + LEXICON['sepp']*7 + '\n'
+                'message_text': lexicon_module.LEXICON['sepp']*7 + f'[{str(self.pagination.current_page)}/{str(self.pagination.total_pages)}]' + lexicon_module.LEXICON['sepp']*7 + '\n'
             }
             ic()
             await self.try_delete_last_media_group(request)
@@ -56,13 +56,14 @@ class BuyerCarsPagination:
                                                      value=await self.pagination.to_dict())
 
         else:
-            await request.answer(LEXICON['confirm_from_buyer']['non_data_more'])
+            await request.answer(lexicon_module.LEXICON['confirm_from_buyer']['non_data_more'])
 
     @staticmethod
     async def get_keyboard(state, car_id=None):
         inline_keyboard_creator_module = importlib.import_module('keyboards.inline.kb_creator')
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-        buttons_lexicon_part = LEXICON.get('chosen_configuration')
+        buttons_lexicon_part = lexicon_module.LEXICON.get('chosen_configuration')
         ic(await state.get_state())
         current_state = str(await state.get_state())
         if (current_state.startswith(('CheckNonConfirmRequestsStates',
@@ -78,7 +79,7 @@ class BuyerCarsPagination:
         for key, value in buttons_lexicon_part.items():
             if backward_callback_data and key == 'backward_in_carpooling':
                 key = backward_callback_data
-                value = LEXICON['backward_name']
+                value = lexicon_module.LEXICON['backward_name']
 
             elif key == 'confirm_buy_settings:':
                 if str(await state.get_state()).startswith(('CheckActiveOffersStates')):
@@ -93,16 +94,3 @@ class BuyerCarsPagination:
         keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(
             input_data={'buttons': correct_buttons}, dynamic_buttons=True)
         return keyboard
-
-    # async def get_page(self, page_data) -> tuple:
-    #     page_data = page_data[0]
-    #     message_text = page_data.get('message_text')
-    #     photo_album = page_data.get('album')
-    #     # Первая фотография с текстом
-    #     media = [InputMediaPhoto(media=photo.get('id'), caption=message_text if index == 0 else None)
-    #              for index, photo in enumerate(photo_album)]
-    #
-    #     lexicon_part = {'message_text': LEXICON['confirm_from_buyer']['separator'], 'buttons': LEXICON.get('chosen_configuration')}
-    #
-    #     return media, lexicon_part
-

@@ -8,7 +8,6 @@ from database.tables.seller import Seller
 from database.tables.tariff import Tariff, TariffsToSellers
 from database.data_requests import person_requests, tariff_requests
 from utils.custom_exceptions.database_exceptions import NonExistentIdException, NonExistentTariffException, TariffExpiredException, SellerWithoutTariffException
-from utils.Lexicon import DateTimeFormat
 from config_data.config import DATETIME_FORMAT
 from database.db_connect import database, manager
 

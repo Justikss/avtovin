@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.recomendations_request import RecommendationRequester
-from utils.Lexicon import LEXICON
+from utils.lexicon_utils.Lexicon import LEXICON
 
 
 async def insert_numbers_in_buttons(callback: CallbackQuery):

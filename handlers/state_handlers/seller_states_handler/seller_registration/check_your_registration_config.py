@@ -4,8 +4,7 @@ import importlib
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
-from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import registartion_view_corrector
-from utils.Lexicon import LEXICON
+from utils.lexicon_utils.Lexicon import LEXICON
 
 
 #Фильтр Dealership_name
@@ -14,6 +13,7 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     Сверка введённых рег. данных'''
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+    buyer_registration_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
 
     if isinstance(request, CallbackQuery):
         chat_id = request.message.chat.id
@@ -33,7 +33,7 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
     memory_storage = await state.get_data()
-    await registartion_view_corrector(request=request, state=state)
+    await buyer_registration_module.registartion_view_corrector(request=request, state=state)
 
     lexicon_part = copy(LEXICON['checking_seller_entered_data'])
     lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']

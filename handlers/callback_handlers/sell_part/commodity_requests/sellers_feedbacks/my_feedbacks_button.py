@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from states.seller_feedbacks_states import SellerFeedbacks
-from utils.Lexicon import LEXICON, LexiconCommodityLoader, LexiconSellerRequests
+from utils.lexicon_utils.Lexicon import LEXICON, LexiconSellerRequests
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import output_sellers_commodity_page
 from utils.custom_exceptions.database_exceptions import UserExistsError, CarExistsError
 from utils.get_currency_sum_usd import get_valutes

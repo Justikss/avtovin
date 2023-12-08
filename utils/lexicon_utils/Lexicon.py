@@ -1,8 +1,3 @@
-import importlib
-from abc import ABC
-
-from dataclasses import dataclass
-
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
     SUPPORT_NUMBER_2
 from utils.safe_dict_class import SafeDict
@@ -69,7 +64,7 @@ LEXICON = {
             'recommended_offers_for_buyer_message_text' : {
                 'message_text': 'Просмотр рекомендованных предложений\n'},
             'backward_from_buyer_offers': {'buyer_requests': 'Назад'},
-            'output_inline_brands_pagination': {'inline_buttons_pagination:-': '<', 'page_count': '[C/M]', 'inline_buttons_pagination:+': '>'},
+            'output_inline_brands_pagination': {'inline_buttons_pagination:-': '←', 'page_count': '[C/M]', 'inline_buttons_pagination:+': '→'},
             'confirm_from_buyer': {'separator': '=' * 40, 'non_data_more': 'Нет данных для отображения'},
             'start_registration': 'Пройдите регистрацию!',
             'unexpected_behavior': 'Неожиданное поведение',
@@ -82,7 +77,7 @@ LEXICON = {
             'user_in_system': {'message_text': 'Вы в системе'},
             'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': '🇺🇿 Uzb',
                                 'language_ru': "🇷🇺 Rus", 'width': 2},
-            'hello_text': {'message_text': '<b>Привет</b>, <i>X</i>!\nУ нас ты можешь купить или продать своё авто.\nВыбери один из пунктов ниже 👇🏼', 'start_sell': 'Продажа 👨🏻‍💼',
+            'hello_text': {'message_text': '<b>Привет, <i>X</i></b>!\nУ нас ты можешь купить или продать своё авто.\nВыбери один из пунктов ниже 👇🏼', 'start_sell': 'Продажа 👨🏻‍💼',
                            'start_buy': '👨🏻‍💻 Покупка', 'width': 2},
             'write_full_name': {'message_text': 'Укажите ФИО', 'backward:user_registration': 'Назад', 'width': 1},
             'write_full_name(novalid)': {
@@ -97,7 +92,7 @@ LEXICON = {
 
             # 'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
             'main_menu': {'message_text': 'Меню покупателя 👨🏻‍💻\nВыберите ваше действие:', 'buyer_requests': 'Предложения 📋', 'car_search': '🚘 Поиск Авто',
-                          'faq': 'F.A.Q 💬', 'support': '🌐 Поддержка', 'backward:set_language': 'Назад ', 'width': 2},
+                          'faq': 'Инструкции 💬', 'support': '🌐 Поддержка', 'backward:set_language': 'Назад ', 'width': 2},
             'buyer_requests': {'message_text': 'Список предложений:', 'buttons': {'buyer_active_offers': '✅ Подтверждённые (X) ✅', 'buyer_cached_offers': '❌ Неподтверждённые (X) ❌', 'buyers_recommended_offers': '🔰 Новые (X) 🔰', 'return_main_menu': 'В меню', 'width': 1}},
             'f_a_q': {'message_text': f'Ответы на часто задаваемые вопросы: \n\nДля ознакомления с устройством купле-продажи в боте, выберите кнопки ниже.\n{faq}', 'seller_faq': 'Продажа 👨🏻‍💼', 'buyer_faq': '👨🏻‍💻 Покупка',
                       'return_main_menu': 'Назад', 'width': 2},
@@ -173,7 +168,7 @@ LEXICON = {
 
             'confirm_seller_profile_notification': {'message_text': '✅Успешно, профиль продавца подтверждён!', 'buttons': {'seller_main_menu': 'В меню продавца', 'close_seller_notification_by_redis:seller': 'Скрыть', 'width': 1}},
 
-            'seller_main_menu': {'message_text': 'Меню продавца:', 'seller_pofile': 'Профиль', 'faq': 'FAQ', 'support': 'Поддержка', 'seller_requests': 'Заявки', 'backward:set_language': 'Назад', 'width': 2},
+            'seller_main_menu': {'message_text': 'Меню продавца 👨🏻‍💼\nВыберите ваше действие:', 'seller_pofile': 'Профиль 📱', 'faq': '💬 Инструкции', 'support': 'Поддержка 🌐', 'seller_requests': '📋 Заявки', 'backward:set_language': 'Назад', 'width': 2},
 
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить', 'callback_startswith': 'confirm_new_seller_registration_from:'},
             'seller_waiting_registration_confirm': {'start_text_legal': 'Заявка на регистрацию автосалона:', 'start_text_natural': 'Заявка на регистрацию частного продавца:',
@@ -184,7 +179,7 @@ LEXICON = {
 
             'seller_faq': {'message_text': faq_seller, 'return_main_menu': 'В меню', 'faq': 'Назад', 'width': 1},
             'buyer_faq': {'message_text': faq_buyer, 'return_main_menu': 'В меню', 'faq': 'Назад', 'width': 1},
-            'seller_requests': {'message_text': 'Заявки', 'my_sell_requests': 'Мои объявления', 'my_sell_feedbacks': 'Отклики', 'create_new_seller_request': 'Создать объявление', 'return_main_menu': 'В меню', 'width': 1},
+            'seller_requests': {'message_text': 'Раздел работы с заявками\nВыберите ваше действие:', 'create_new_seller_request': '📨 Создать объявление 📨 ', 'my_sell_requests': '💰 Мои объявления 💰', 'my_sell_feedbacks': '📥 Отклики 📥', 'return_main_menu': 'В меню', 'width': 1},
 
 
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'edit_boot_car_data': 'Изменить', 'return_main_menu': 'В меню', 'width': 1},
@@ -198,7 +193,7 @@ LEXICON = {
             'incorrect_input_removed_car_id': 'Неверный ввод номера заявки.\nСверьте номер по кнопке "Назад" и введите снова.',
             'confirm_delete_request': {'message_text': 'Вы действительно хотите удалить это авто?', 'confirm_delete': 'Подтвердить', 'backward:seller_delete_request': 'Назад', 'width': 1},
 
-            'seller___my_feedbacks': {'message_text': 'Мои отклики', 'buttons': {'new_feedbacks': 'Новые', 'viewed_feedbacks': 'Просмотренные', 'backward:seller__my_feedbacks': 'Назад', 'width': 2}},
+            'seller___my_feedbacks': {'message_text': 'Мои отклики', 'buttons': {'new_feedbacks': '✓ Новые ✓', 'viewed_feedbacks': '👁 Просмотренные 👁', 'backward:seller__my_feedbacks': 'Назад', 'width': 2}},
 
 
             'retry_now_allert': 'Попробуйте снова',
@@ -214,71 +209,7 @@ LEXICON = {
 
 LEXICON = SafeDict(LEXICON)
 
-class LexiconCommodityLoader:
-    class load_commodity_state:
-        message_text = 'Состояние'
-        buttons_callback_data = 'load_state_'
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-        width = 2
 
-    class load_engine_type:
-        message_text = 'Тип двигателя'
-        buttons_callback_data = 'load_engine_'
-        width = 2
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-
-    class load_commodity_brand:
-        message_text = 'Марка'
-        buttons_callback_data = 'load_brand_'
-        width = 2
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-
-    class load_commodity_model:
-        message_text = 'Модель'
-        buttons_callback_data = 'load_model_'
-        width = 2
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-
-    # load_commodity_model = {, 'buttons': {, , 'width': 2}}
-    class load_commodity_complectation:
-        message_text = 'Комплектация'
-        buttons_callback_data = 'load_complectation_'
-        width = 1
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-
-    class load_commodity_year_of_realise:
-        message_text = 'Год выпуска'
-        buttons_callback_data = 'load_year_'
-        width = 2
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-    class load_commodity_mileage:
-        message_text = 'Пробег'
-        buttons_callback_data = 'load_mileage_'
-        width = 2
-        last_buttons = {'cancel_boot_new_commodity': 'Отмена'}
-    class load_commodity_color:
-        message_text = 'Цвет'
-        buttons_callback_data = 'load_color_'
-        width = 2
-        last_buttons = {'other_color': 'Другой цвет', 'cancel_boot_new_commodity': 'Отмена'}
-
-    load_other_color = {'message_text': 'Введите цвет автомобиля:', 'buttons': {'rewrite_boot_color': 'Назад', 'cancel_boot_new_commodity': 'Отмена', 'width': 1}}
-    make_sure_selected_other_color = {'message_text': 'Ваш цвет: X', 'buttons': {'make_sure_other_color': 'Подтвердить', 'rewrite_other_boot_color': 'Изменить', 'width': 1}}
-    load_other_color_incorrect_message_text = '\n<b>Цвет должен состоять только из букв, без пробелов(либо с дефисом).</b>'
-    price_only = f'''Стоимость '''
-    load_commodity_price = {'message_text': '<blockquote>Стоимость: X</blockquote>', 'buttons': {'cancel_boot_new_commodity': 'Отмена', 'width': 1}}
-    load_commodity_photo = {'message_text': 'Пришлите фото автомобиля\n(значок скрепки в левом углу чата)\n\n(!от 3 до 5 экземпляров!)\n\nНе отменяйте сжатие при отправке\nфотографии в телеграмм.', 'buttons': {'cancel_boot_new_commodity': 'Отмена', 'width': 1}}
-
-    edit_photo_caption = 'Фото'
-
-
-    config_for_seller = 'Ваши конфигурации:'
-    can_rewrite_config = '\nВозможна перепись полей по нажатию на нужную кнопку'
-    config_for_seller_button_callbacks = ('rewrite_boot_state', 'rewrite_boot_engine', 'rewrite_boot_brand', 'rewrite_boot_model', 'rewrite_boot_complectation', 'rewrite_boot_year', 'rewrite_boot_mileage', 'rewrite_boot_color', 'rewrite_boot_price', 'rewrite_boot_photo')
-
-    config_for_admins = 'Заявка от продавца @'
-
-    seller_notification = {'message_text': 'Заявка №_ создана!'}
 
 
 class LexiconSellerRequests:
@@ -295,12 +226,12 @@ class LexiconSellerRequests:
     keyboard_end_part = {'backward:sales_brand_choose': 'Назад'}
     # choose_brand_keyboard_width = 1
     return_to_requests_buttons = {'buttons': {'backward:rewrite_price_by_seller': 'К заявкам', 'width': 1}}
-    input_new_price = {'message_text': 'Введите новую стоимость.\n<blockquote>[Нынешняя цена: X]</blockquote>', **return_to_requests_buttons}
+    input_new_price = {'message_text': 'Введите новую стоимость.\nНынешняя цена: X', **return_to_requests_buttons}
     input_new_price_incorrect_message_text = '\nПожалуйста, укажите целочисленное значение.'
     input_new_price_car_dont_exists = {'message_text': 'К сожалению автомобиль снят с продажи.\nИли введено большое число.', **return_to_requests_buttons}
     succes_rewrite_price = {'message_text': 'Цена успешно изменена', **return_to_requests_buttons}
 
-    pagination_vectors = {'seller_requests_pagination_left': '<', 'seller_requests_pagination_right': '>'}
+    pagination_vectors = {'seller_requests_pagination_left': '←', 'seller_requests_pagination_right': '→'}
 
     selected_brand_output_buttons = {'buttons': {**pagination_vectors,
                                                  'rewrite_price_by_seller': 'Изменить цену',
@@ -314,16 +245,16 @@ class LexiconSellerRequests:
     check_new_feedbacks_buttons = {'buttons': {**pagination_vectors,
                                                'backward:check_feedbacks': 'Назад', 'width': (2, 1)}}
 
-    output_car_request_header = 'Заявка №_'
-    commodity_state = '\nСостояние: '
-    engine_type = '\nТип двигателя: '
-    commodity_brand = '\nМарка: '
-    commodity_model = '\nМодель: '
-    commodity_complectation = '\nКомплектация: '
-    commodity_year_of_realise = '\nГод выпуска: '
-    commodity_mileage = '\nПробег: '
-    commodity_color = '\nЦвет: '
-    commodity_price = '\nСтоимость: '
+    output_car_request_header = '<b>Заявка <i>№_</i></b>'
+    commodity_state = '\nСостояние: <i>X</i>'
+    engine_type = '\nТип двигателя: <i>X</i>'
+    commodity_brand = '\nМарка: <i>X</i>'
+    commodity_model = '\nМодель: <i>X</i>'
+    commodity_complectation = '\nКомплектация: <i>X</i>'
+    commodity_year_of_realise = '\nГод выпуска: <i>X</i>'
+    commodity_mileage = '\nПробег: <i>X</i>'
+    commodity_color = '\nЦвет: <i>X</i>'
+    commodity_price = '\n<b>Стоимость: <i>X</i></b>'
 
     pagination_pagesize = 1
 
@@ -340,17 +271,17 @@ class LexiconSellerRequests:
 
 
 class LexiconSellerProfile:
-    header = 'Профиль: \n'
-    dealership_prefix = 'Юридическое лицо'
-    seller_prefix = 'Частное лицо\n'
-    dealership_name_prefix = 'Название автосалона: '
-    dealership_address_prefix = 'Адрес автосалона : '
-    seller_name_prefix = 'ФИО продавца: '
-    phonenumber_prefix = 'Телефонный номер: '
+    header = '<b>Профиль продавца</b>\n\n'
+    dealership_prefix = 'Юридическое лицо 🤵🏻‍♂️'
+    seller_prefix = 'Частное лицо 👨🏻‍💼\n'
+    dealership_name_prefix = 'Название автосалона: <i>X</i>'
+    dealership_address_prefix = 'Адрес автосалона: <i>X</i>'
+    seller_name_prefix = 'Ф.И.О продавца: <i>X</i>'
+    phonenumber_prefix = 'Телефонный номер: <i>X</i>'
 
-    tariff_prefix = '\n- Тариф: '
-    tariff_out_date_prefix = '\nДо '
-    residual_feedback_prefix = '\n- Остаток откликов: '
+    tariff_prefix = '\n<blockquote>💰 Тариф: </blockquote>'
+    tariff_out_date_prefix = '\nДо <i>X</i>'
+    residual_feedback_prefix = '\n<blockquote>📥 Остаток откликов: </blockquote>'
     tariff_extension_button = {'tariff_extension': 'Продлить тариф', 'return_main_menu': 'В меню', 'width': 1}
     tarif_expired = 'Ваш тариф истёк'
 
@@ -367,17 +298,17 @@ class LexiconTariffSelection:
 
 class LexiconSelectedTariffPreview:
     header = 'Информация о тарифе:'
-    name = '\n- '
-    price = '\n- Стоимость: '
-    duration_time = '\n- Срок действия: '
-    feedback_amount = '\n- Лимит отзывов: '
+    name = '\n<blockquote>Подписка: X</blockquote>'
+    price = '\n<blockquote>Стоимость: X</blockquote>'
+    duration_time = '\n<blockquote>Срок действия: X</blockquote>'
+    feedback_amount = '\n<blockquote>Лимит отзывов: X</blockquote>'
     buttons = {'start_choose_payment_method': 'Выбор платёжной системы', 'backward:tariff_preview': 'Назад', 'width': 1}
 
 class LexiconChoicePaymentSystem:
     message_text = 'Выберите платёжную систему'
-    payment_click = {'run_tariff_payment:click': 'CLICK'}
-    payment_payme = {'run_tariff_payment:payme': 'PayMe'}
-    payment_uzumPay = {'run_tariff_payment:uzumPay': 'UzumPay'}
+    payment_click = {'run_tariff_payment:click': '💷 CLICK'}
+    payment_payme = {'run_tariff_payment:payme': '💴 PayMe'}
+    payment_uzumPay = {'run_tariff_payment:uzumPay': '💶 UzumPay'}
     bottom_buttons = {'backward:choose_payment_system': 'Назад', 'width': 1} 
     buttons_list = [payment_click, payment_payme, payment_uzumPay, bottom_buttons]
 
