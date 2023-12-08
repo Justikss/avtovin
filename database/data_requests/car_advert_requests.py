@@ -13,11 +13,15 @@ class AdvertRequester:
     async def update_price(advert_id, new_price, head_valute):
         try:
             if head_valute == 'sum':
-                select_request = await manager.execute(CarAdvert.update(sum_price=int(new_price)).where(CarAdvert.id == int(advert_id)))
-            elif head_valute == 'usd':
-                select_request = await manager.execute(CarAdvert.update(dollar_price=int(new_price)).where(CarAdvert.id == int(advert_id)))
+                update_request = await manager.execute(CarAdvert.update(sum_price=int(new_price)).where(CarAdvert.id == int(advert_id)))
+                delete_update_request = await manager.execute(CarAdvert.update(dollar_price=None).where(CarAdvert.id == int(advert_id)))
 
-            return select_request if select_request else False
+            elif head_valute == 'usd':
+                update_request = await manager.execute(CarAdvert.update(dollar_price=int(new_price)).where(CarAdvert.id == int(advert_id)))
+                delete_update_request = await manager.execute(CarAdvert.update(sum_price=None).where(CarAdvert.id == int(advert_id)))
+
+
+            return (update_request, delete_update_request) if (update_request, delete_update_request) else False
         except Exception as ex:
             ic(ex)
             return False

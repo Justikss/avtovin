@@ -17,19 +17,6 @@ from states.buyer_offers_states import CheckActiveOffersStates
 from utils.lexicon_utils.Lexicon import LEXICON
 from utils.user_notification import send_notification_for_seller
 
-# ic.disable()
-
-# async def get_keyboard_on_active_offer(state: FSMContext):
-#     inline_keyboard_creator_module = importlib.import_module('keyboards.inline.kb_creator')
-#
-#     buttons = {key: value
-#                for key, value in LEXICON['chosen_configuration'].items()
-#                if key not in ('confirm_buy_settings:', 'message_text')}
-#     if str(await state.get_state()).startswith(('CheckNonConfirmRequestsStates', ('CheckActiveOffersStates'), ('CheckRecommendationsStates'))):
-#         buttons['backward_in_carpooling'] = 'return_to_choose_requests_brand'
-#     ic(buttons)
-#     keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(input_data=buttons)
-#     return keyboard
 
 async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car_model, car_id, pagination_data):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт

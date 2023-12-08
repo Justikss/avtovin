@@ -137,17 +137,19 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                 except:
                     await cached_requests_module.OffersRequester.delete_offer(offer_id)
                     raise UserExistsError()
+
                 fullname = f'''{buyer.surname} {buyer.name} {buyer.patronymic if buyer.patronymic else ''}'''
                 ic(offer_id)
-                card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user']} @{buyer.username}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts']}\n{fullname}\n{buyer.phone_number}\n'''
-
-                result_string = f'''{card_startswith}{LEXICON['sepp']*16}\n{card_body_lexicon_part['car_state'].replace('X', car.state.name)}\n{card_body_lexicon_part['engine_type'].replace('X', car.engine_type.name)}\n{card_body_lexicon_part['model'].replace('X', car.complectation.model.name)}\n{card_body_lexicon_part['brand'].replace('X', car.complectation.model.brand.name)}\n{card_body_lexicon_part['complectation'].replace('X', car.complectation.name)}\n{card_body_lexicon_part['color'].replace('X', car.color.name)}\n'''
+                card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user'].replace('X', f'@{buyer.username}')}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts'].replace('S', for_seller_lexicon_part['separator']).replace('N', fullname).replace('P', buyer.phone_number)}'''
+                result_string = f'''{card_startswith}\
+                \n{for_seller_lexicon_part['separator']}\
+                \n{card_body_lexicon_part['car_state'].replace('X', car.state.name)}\n{card_body_lexicon_part['engine_type'].replace('X', car.engine_type.name)}\n{card_body_lexicon_part['model'].replace('X', car.complectation.model.name)}\n{card_body_lexicon_part['brand'].replace('X', car.complectation.model.brand.name)}\n{card_body_lexicon_part['complectation'].replace('X', car.complectation.name)}\n{card_body_lexicon_part['color'].replace('X', car.color.name)}\n'''
                 if car.state.id == 2:
                     result_string += f'''{card_body_lexicon_part['year'].replace('X', car.year.name)}\n{card_body_lexicon_part['mileage'].replace('X', car.mileage.name)}\n'''
 
                 price_string = await get_valutes(car.dollar_price, car.sum_price, get_string='block')
 
-                result_string += f'''{LEXICON['sepp']*16}\n{price_string}'''
+                result_string += f'''{for_seller_lexicon_part['separator']}\n{price_string}'''
 
                 photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id, get_list=True)
 

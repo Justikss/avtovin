@@ -133,8 +133,8 @@ LEXICON = {
             'notification_from_seller_by_buyer_buttons': {'my_sell_feedbacks:': 'Смотреть отклики', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
 
 
-            'confirm_from_seller': {'message_text': {'feedback_header': 'Отлкик №X', 'from_user': 'Пользователь', 'tendered': 'оставил отклик на заявку #X :',
-                                    'contacts': 'Контакты:', 'separator': '=' * 40}, 'confirm_button': 'Подтвердить'},
+            'confirm_from_seller': {'message_text': {'feedback_header': '<b>Отлкик №X</b>', 'from_user': 'Пользователь <i>X</i>', 'tendered': 'оставил отклик на заявку <i>№X</i> :',
+                                    'contacts': ' '*10 + 'Контакты:\nS<i>\nN\nP</i>', 'separator': ' ' *10 + '—' * 5}, 'confirm_button': 'Подтвердить'},
 
             'backward_name': 'Назад',
             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль',
@@ -194,7 +194,7 @@ LEXICON = {
             'confirm_delete_request': {'message_text': 'Вы действительно хотите удалить это авто?', 'confirm_delete': 'Подтвердить', 'backward:seller_delete_request': 'Назад', 'width': 1},
 
             'seller___my_feedbacks': {'message_text': 'Мои отклики', 'buttons': {'new_feedbacks': '✓ Новые ✓', 'viewed_feedbacks': '👁 Просмотренные 👁', 'backward:seller__my_feedbacks': 'Назад', 'width': 2}},
-
+            'return_main_menu_button': {'return_main_menu': 'В меню'},
 
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',
@@ -279,10 +279,12 @@ class LexiconSellerProfile:
     seller_name_prefix = 'Ф.И.О продавца: <i>X</i>'
     phonenumber_prefix = 'Телефонный номер: <i>X</i>'
 
-    tariff_prefix = '\n<blockquote>💰 Тариф: </blockquote>'
+    tariff_prefix = '\n<blockquote>💰 Тариф: <i>X</i></blockquote>'
     tariff_out_date_prefix = '\nДо <i>X</i>'
-    residual_feedback_prefix = '\n<blockquote>📥 Остаток откликов: </blockquote>'
-    tariff_extension_button = {'tariff_extension': 'Продлить тариф', 'return_main_menu': 'В меню', 'width': 1}
+    residual_feedback_prefix = '\n<blockquote>📥 Остаток откликов: <i>X</i></blockquote>'
+    tariff_extension_button = {'tariff_extension': 'Продлить тариф ✅'}
+    width = 1
+    tariff_store_button = {'tariff_extension': 'Каталог тарифов 🎫'}
     tarif_expired = 'Ваш тариф истёк'
 
 class DateTimeFormat:
@@ -298,10 +300,12 @@ class LexiconTariffSelection:
 
 class LexiconSelectedTariffPreview:
     header = 'Информация о тарифе:'
-    name = '\n<blockquote>Подписка: X</blockquote>'
-    price = '\n<blockquote>Стоимость: X</blockquote>'
-    duration_time = '\n<blockquote>Срок действия: X</blockquote>'
-    feedback_amount = '\n<blockquote>Лимит отзывов: X</blockquote>'
+    name = '\n<blockquote>🪪 Название: <i>X</i></blockquote>'
+    price = '\n<blockquote>💰 Стоимость: <i>X</i></blockquote>'
+    duration_time = '\n<blockquote>🕰 Срок действия: <i>X</i></blockquote>'
+    feedback_amount = '\n<blockquote>📛 Лимит отзывов: <i>X</i></blockquote>'
+    separator = '—' * 13
+    low_separator = '—' * 7
     buttons = {'start_choose_payment_method': 'Выбор платёжной системы', 'backward:tariff_preview': 'Назад', 'width': 1}
 
 class LexiconChoicePaymentSystem:
@@ -325,5 +329,4 @@ class LexiconPaymentOperation:
     success_payment_text = 'Удачно!'
 
     cancel_button = {'Отмена': 'backward:make_payment'}
-    return_main_menu = {'В меню': 'return_main_menu'}
     width_parameter = {'width': 1}

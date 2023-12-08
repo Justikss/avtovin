@@ -21,7 +21,7 @@ async def set_car_id_in_redis(callback, output_data_part):
     ic(output_data_part)
     car_id = output_data_part.get('car_id')
     if not car_id:
-        car_id = output_data_part['message_text'].split('\n')[0].split('№')[-1]
+        car_id = output_data_part['message_text'].split('\n')[0].split('№')[-1].split('<')[0]
 
     load_data['car_id'] = car_id
 
@@ -36,6 +36,8 @@ async def set_car_id_in_redis(callback, output_data_part):
 
 async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
     '''Создатель строк для вывода зарегистрированных заявок продавца'''
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
     output_data = []
     for car in commodity_models:
         print('construct_string')
@@ -44,24 +46,26 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
         header = Lexicon.output_car_request_header.replace('_', str(car.id))
 
         if car.mileage:
-            heart = f'''
-                    {Lexicon.commodity_year_of_realise}{car.year.name}\
-                    {Lexicon.commodity_mileage}{car.mileage.name}\
+            heart = f'''\
+                    {Lexicon.commodity_year_of_realise.replace('X', car.year.name)}\
+                    {Lexicon.commodity_mileage.replace('X', car.mileage.name)}\
                     '''
         else:
             heart = ''
         ic(car.complectation)
 
         block_string = await get_valutes(car.dollar_price, car.sum_price, get_string='block')
+        for_seller_lexicon_part = lexicon_module.LEXICON['confirm_from_seller']['message_text']
 
-
-        body = (f'''{Lexicon.commodity_state}{car.state.name}\
-                    {Lexicon.engine_type}{car.engine_type.name}\
-                    {Lexicon.commodity_brand}{car.complectation.model.brand.name}\
-                    {Lexicon.commodity_model}{car.complectation.model.name}\
-                    {Lexicon.commodity_complectation}{car.complectation.name}\
-                    {Lexicon.commodity_color}{car.color.name}\
-                    {heart.strip()}\
+        body = (f'''\n{' '*2 + for_seller_lexicon_part['separator']}\
+                    {Lexicon.commodity_state.replace('X', car.state.name)}\
+                    {Lexicon.engine_type.replace('X', car.engine_type.name)}\
+                    {Lexicon.commodity_brand.replace('X', car.complectation.model.brand.name)}\
+                    {Lexicon.commodity_model.replace('X', car.complectation.model.name)}\
+                    {Lexicon.commodity_complectation.replace('X', car.complectation.name)}\
+                    {Lexicon.commodity_color.replace('X', car.color.name)}\
+                    {heart}\
+                    \n{' '*2 + for_seller_lexicon_part['separator']}\
                     \n{block_string}\
                     ''')
         current_photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)

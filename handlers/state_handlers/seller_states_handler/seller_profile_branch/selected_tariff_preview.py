@@ -11,15 +11,22 @@ async def tariff_preview_card_constructor(tariff_id) -> dict:
     '''Метод структурирует данные тарифа с кнопками в lexicon_part по которому выводится блок
     сообщения с теми же кнопками'''
     tariff_request_module = importlib.import_module('database.data_requests.tariff_requests')
+    tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
 
     print('TID ', tariff_id)
-    tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
-    tariff_view_card = f'''{LexiconSelectedTariffPreview.header}\
-        {LexiconSelectedTariffPreview.name}{tariff_model.name}\
-            {LexiconSelectedTariffPreview.price}\
-{await convertator('sum', tariff_model.price)}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}\
-                {LexiconSelectedTariffPreview.duration_time}{tariff_model.duration_time}\
-                    {LexiconSelectedTariffPreview.feedback_amount}{tariff_model.feedback_amount}'''
+    price = f'''{await convertator('sum', tariff_model.price)}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
+    tariff_view_card = f'''\
+        {LexiconSelectedTariffPreview.header}\n\
+{LexiconSelectedTariffPreview.separator}\
+        {LexiconSelectedTariffPreview.name.replace('X', tariff_model.name)}\
+            {LexiconSelectedTariffPreview.low_separator}\
+                {LexiconSelectedTariffPreview.duration_time.replace('X', str(tariff_model.duration_time))}\
+            {LexiconSelectedTariffPreview.low_separator}\
+                    {LexiconSelectedTariffPreview.feedback_amount.replace('X', str(tariff_model.feedback_amount))}\
+            {LexiconSelectedTariffPreview.low_separator}\
+                    {LexiconSelectedTariffPreview.price.replace('X', price)}\
+{LexiconSelectedTariffPreview.separator}\
+                    '''
 
     lexicon_part = {'message_text': tariff_view_card, 'buttons': LexiconSelectedTariffPreview.buttons}
 
