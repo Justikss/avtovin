@@ -44,7 +44,7 @@ LEXICON = {
                 'backward:user_registration': 'Назад', 'width': 2},
             'write_phone_number': {'message_text': 'Укажите номер телефона:',
                                    'backward:user_registration_number': 'Назад', 'width': 1},
-            'write_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
+            'write_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер.',
                                               'backward:user_registration_number': 'Назад', 'width': 1},
             'write_phone_number(exists)': {'message_text': 'Некорректный ввод номера!\nОн уже зарегистрирован\nожидается иной',
                                               'backward:user_registration_number': 'Назад', 'width': 1},
@@ -144,7 +144,7 @@ LEXICON = {
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': 'Подтвердить', 'edit_boot_car_data': 'Изменить', 'return_main_menu': 'В меню', 'width': 1},
             'seller_load_notification_button': {'return_main_menu': 'В меню'},
 
-            'message_not_digit': {'message_text': 'Сумма должна состоять только из цифр'},
+            'message_not_digit': 'Сумма должна состоять только из цифр',
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
 
             'seller_start_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'buttons': {'backward:seller_start_delete_request': 'Назад', 'width': 1}},

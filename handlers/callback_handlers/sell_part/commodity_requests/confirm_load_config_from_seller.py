@@ -103,7 +103,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
                                                     lexicon_part={'message_text': message_for_admin_chat},
                                                     send_chat=ADMIN_CHAT, media_group=photos)
 
-    await RecommendationRequester.add_recommendation(advert=commodity_number)
+    store_query_in_recommendations = await RecommendationRequester.add_recommendation(advert=commodity_number)
 
     await callback.answer()
     await state.clear()

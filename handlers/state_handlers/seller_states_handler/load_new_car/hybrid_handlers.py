@@ -214,6 +214,8 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     '''Выбрать цену добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    base_lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
     if not bot:
         if isinstance(request, CallbackQuery):
@@ -221,9 +223,12 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
         else:
             bot = request.bot
 
-    lexicon_part = None
+    lexicon_part = lexicon_module.LexiconCommodityLoader.load_commodity_price()
+    ic(lexicon_part)
+    lexicon_part.message_text = copy(lexicon_module.LexiconCommodityLoader.price_only)
+    ic(lexicon_part.message_text)
+
     print('bpart ', lexicon_part)
-    ic(request.data)
     if not incorrect:
         if not request.data.startswith('rewrite_boot_') and request.data[-1].isdigit():
             ic()
@@ -252,13 +257,11 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
         await state.update_data(incorrect_flag=True)
         reply_mode = True
 
-        lexicon_part = lexicon_module.LEXICON['message_not_digit']
+        lexicon_part.message_text = base_lexicon_module.LEXICON['message_not_digit']
 
-    if not lexicon_part:
-        lexicon_part = lexicon_module.LexiconCommodityLoader.load_commodity_price()
-        lexicon_part.message_text = copy(lexicon_module.LexiconCommodityLoader.price_only)
-        ic(lexicon_part.message_text)
-    await lexicon_part.initializate(request, state)
+
+    if not isinstance(lexicon_part, dict):
+        await lexicon_part.initializate(request, state)
     ic(lexicon_part.message_text)
 
     lexicon_part = await lexicon_part.part()
@@ -354,7 +357,9 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
                                                             bot=bot, delete_mode=delete_mode, reply_message=request.message_id)
 
     if (isinstance(request, Message) and request.photo) or not incorrect_flag:
-        lexicon_part = await lexicon_part.part()
+        if not isinstance(lexicon_part, dict):
+            lexicon_part = await lexicon_part.part()
+        ic(lexicon_part)
         await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,  bot=bot, delete_mode=delete_mode)
     await state.update_data(rewrite_state_flag=None)
 

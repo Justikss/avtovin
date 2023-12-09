@@ -90,6 +90,8 @@ class RecommendationRequester:
                 return await manager.execute(RecommendedOffers.insert_many(data))
 
 
+
+
     @staticmethod
     async def retrieve_by_buyer_id(buyer_id, get_brands=False, by_brand=None):
         ic(buyer_id)
