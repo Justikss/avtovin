@@ -1,1 +1,1 @@
-from . import mediagroup_chat_cleaner
+from . import mediagroup_chat_cleaner, messages_dupe_defender

@@ -37,13 +37,22 @@ class SellerRequestsPagination(ABC):
 
 class SellerRequestPaginationHandlers(SellerRequestsPagination):
     @staticmethod
-    async def right_button(callback: CallbackQuery, state: FSMContext, pagination_operation=None):
-        pagination_operation = '+'
-        await SellerRequestPaginationHandlers.pagination_button(callback, state, pagination_operation)
+    async def seller_request_pagination_vectors(callback: CallbackQuery, state: FSMContext, pagination_operation=None):
+        if callback.data.endswith('right'):
+            pagination_operation = '+'
+        elif callback.data.endswith('left'):
+            pagination_operation = '-'
+        # redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+        # user_id = str(callback.from_user.id)
+        # pagination_stopper = await redis_module.redis_data.get_data(key=f'{user_id}:pagination_stopper')
+        # if not pagination_stopper:
+        #     await redis_module.redis_data.set_data(key=f'{user_id}:pagination_stopper', value=True)
 
-    @staticmethod
-    async def left_button(callback: CallbackQuery, state: FSMContext, pagination_operation=None):
-        pagination_operation = '-'
-        await SellerRequestPaginationHandlers.pagination_button(callback, state, pagination_operation)
+            await SellerRequestPaginationHandlers.pagination_button(callback, state, pagination_operation)
+#
+#             await redis_module.redis_data.delete_key(key=f'{user_id}:pagination_stopper')
+#         else:
+#             lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+#             await callback.answer(lexicon_module.LEXICON['awaiting_process'])
 
 

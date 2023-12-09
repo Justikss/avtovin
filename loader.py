@@ -39,6 +39,7 @@ from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
+from utils.middleware.messages_dupe_defender import DupeDefenderMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
@@ -117,6 +118,7 @@ async def start_bot():
     asyncio.create_task(GetDealershipAddress.process_queue())
 
     dp.callback_query.middleware(CleanerMiddleware())
+    dp.callback_query.middleware(DupeDefenderMiddleware())
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
@@ -251,10 +253,9 @@ async def start_bot():
         sell_part.commodity_requests.output_sellers_requests.output_sellers_requests_by_car_brand_handler, StateFilter(SellerRequestsState.await_input_brand),
         lambda callback: callback.data.startswith('seller_requests_brand:'))
 
-    dp.callback_query.register(SellerRequestPaginationHandlers.left_button,
-                               F.data == 'seller_requests_pagination_left')
-    dp.callback_query.register(SellerRequestPaginationHandlers.right_button,
-                               F.data == 'seller_requests_pagination_right')
+    dp.callback_query.register(SellerRequestPaginationHandlers.seller_request_pagination_vectors,
+                               F.data.in_(('seller_requests_pagination_left', 'seller_requests_pagination_right')))
+
 
     dp.callback_query.register(rewrite_price_by_seller_handler, F.data == 'rewrite_price_by_seller')
     dp.message.register(get_input_to_rewrite_price_by_seller_handler, StateFilter(RewritePriceBySellerStates.await_input), price_is_digit.PriceIsDigit())

@@ -7,6 +7,7 @@ from utils.safe_dict_class import SafeDict
 
 LEXICON = {
             'sepp': '—',
+            'awaiting_process': 'Ожидайте',
             'new_recommended_offer_startswith': 'Поступило новое предложение:',
             'make_choose_brand': 'Выберите марку:',
             'buyer_havent_recommendated_offers': 'Список рекомендованных объявлений пуст!',

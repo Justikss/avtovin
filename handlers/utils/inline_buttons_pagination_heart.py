@@ -108,5 +108,14 @@ class CachedRequestsView:
 
     @staticmethod
     async def inline_buttons_pagination_vector_handler(callback: CallbackQuery):
+        # redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+        # user_id = str(callback.from_user.id)
+        # pagination_stopper = await redis_module.redis_data.get_data(key=f'{user_id}:pagination_stopper')
+        # if not pagination_stopper:
+        #     await redis_module.redis_data.set_data(key=f'{user_id}:pagination_stopper', value=True)
         operation = callback.data.split(':')[-1]
         await CachedRequestsView.choose_brand_for_output(callback, operation=operation)
+        #     await redis_module.redis_data.delete_key(key=f'{user_id}:pagination_stopper')
+        # else:
+        #     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        #     await callback.answer(lexicon_module.LEXICON['awaiting_process'])
