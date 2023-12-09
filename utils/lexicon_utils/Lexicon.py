@@ -1,51 +1,9 @@
+from abc import ABC
+
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
     SUPPORT_NUMBER_2
 from utils.safe_dict_class import SafeDict
 
-
-class ChooseEngineType:
-    message_text = 'Выберите тип двигателя'
-    buttons_callback_data = 'cars_engine_type_'
-    last_buttons = {'backward': 'Назад'}
-    width = 1
-
-
-class ChooseBrand:
-    message_text = 'Выберите марку'
-    last_buttons = {'backward_in_carpooling': 'Назад'}
-    buttons_callback_data = 'cars_brand_'
-    width = 1
-class ChooseModel:
-    message_text = 'Выберите модель'
-    last_buttons = {'backward_in_carpooling': 'Назад'}
-    buttons_callback_data = 'cars_model_'
-    width = 1
-
-class ChooseComplectation:
-    message_text = 'Выберите комплектацию'
-    last_buttons = {'backward_in_carpooling': 'Назад'}
-    buttons_callback_data = 'cars_complectation_'
-    width = 1
-
-class ChooseYearOfRelease:
-    message_text = 'Выберите год'
-    last_buttons = {'backward_in_carpooling': 'Назад'}
-    buttons_callback_data = 'cars_year_of_release_'
-    width = 1
-class ChooseMileage:
-    message_text = 'Выберите пробег'
-    last_buttons = {'backward_in_carpooling': 'Назад'}
-    buttons_callback_data = 'cars_mileage_'
-    width = 1
-class ChooseColor:
-    message_text = 'Выберите цвет'
-    last_buttons = {'backward_in_carpooling': 'Назад'}
-    buttons_callback_data = 'cars_color_'
-    width = 1
-
-class SecondsEndswith:
-    one = 'а'
-    two_four = 'ы'
 
 LEXICON = {
             'sepp': '—',
@@ -83,7 +41,7 @@ LEXICON = {
             'write_full_name(novalid)': {
                 'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
                 'backward:user_registration': 'Назад', 'width': 2},
-            'write_phone_number': {'message_text': 'Укажите номер телефона, начиная с +',
+            'write_phone_number': {'message_text': 'Укажите номер телефона:',
                                    'backward:user_registration_number': 'Назад', 'width': 1},
             'write_phone_number(novalid)': {'message_text': 'Некорректный ввод номера, укажите номер начиная с +',
                                               'backward:user_registration_number': 'Назад', 'width': 1},
@@ -109,7 +67,7 @@ LEXICON = {
             'search_configuration': {'message_text': 'Настройте ваш поиск', 'start_configuration_search': 'Начать',
                                      'backward': 'Назад', 'width': 1},
             'footer_for_output_active_offers': {'viewed_status': 'Статус просмотра продавцом: ', 'status_true': 'Просмотрено ✅', 'status_false': 'Не просмотрено ❌'},
-            'active_offer_caption': 'Активная заявка:',
+            'active_offer_caption': '<b>Активная заявка:</b>',
             'chosen_configuration': {
                 'message_text': {'phone_number': 'Мобильный телефон: ',
                                 'your_configs': '<b>Предложения по вашему запросу:</b>',
@@ -209,8 +167,54 @@ LEXICON = {
 
 LEXICON = SafeDict(LEXICON)
 
+class LastButtonsInCarpooling(ABC):
+    last_buttons = {'backward_in_carpooling': 'Назад', **LEXICON['return_main_menu_button']}
+    buttons_callback_data = None
+    width = 2
+    message_text = ''
+    dynamic_buttons = 2
 
+    def __init__(self):
+        self.last_buttons = self.last_buttons
+        self.width = self.width
+        self.message_text = self.message_text
+        self.buttons_callback_data = self.buttons_callback_data
+        self.width = self.width
+        self.dynamic_buttons = self.dynamic_buttons
 
+class ChooseEngineType:
+    message_text = 'Выберите тип двигателя'
+    buttons_callback_data = 'cars_engine_type_'
+    last_buttons = {'backward': 'Назад'}
+    width = 2
+
+class ChooseBrand(LastButtonsInCarpooling):
+    message_text = 'Выберите марку'
+    buttons_callback_data = 'cars_brand_'
+
+class ChooseModel(LastButtonsInCarpooling):
+    message_text = 'Выберите модель'
+    buttons_callback_data = 'cars_model_'
+
+class ChooseComplectation(LastButtonsInCarpooling):
+    message_text = 'Выберите комплектацию'
+    buttons_callback_data = 'cars_complectation_'
+
+class ChooseYearOfRelease(LastButtonsInCarpooling):
+    message_text = 'Выберите год'
+    buttons_callback_data = 'cars_year_of_release_'
+
+class ChooseMileage(LastButtonsInCarpooling):
+    message_text = 'Выберите пробег'
+    buttons_callback_data = 'cars_mileage_'
+
+class ChooseColor(LastButtonsInCarpooling):
+    message_text = 'Выберите цвет'
+    buttons_callback_data = 'cars_color_'
+
+class SecondsEndswith:
+    one = 'а'
+    two_four = 'ы'
 
 class LexiconSellerRequests:
     backward_from_delete_in_feedbacks = {'viewed_feedbacks': 'Назад'}

@@ -78,11 +78,11 @@ class LexiconCommodityLoader:
     edit_photo_caption = 'Фото'
 
 
-    config_for_seller = 'Ваши конфигурации:'
-    can_rewrite_config = '\nВозможна перепись полей по нажатию на нужную кнопку'
+    config_for_seller = '<b>Ваши конфигурации:</b>'
+    can_rewrite_config = 'Возможна перепись полей по нажатию на соответсвующую кнопку'
     config_for_seller_button_callbacks = ('rewrite_boot_state', 'rewrite_boot_engine', 'rewrite_boot_brand', 'rewrite_boot_model', 'rewrite_boot_complectation', 'rewrite_boot_year', 'rewrite_boot_mileage', 'rewrite_boot_color', 'rewrite_boot_price', 'rewrite_boot_photo')
 
-    config_for_admins = 'Заявка от продавца @'
+    config_for_admins = '<b>Заявка от <i>@X</i></b>'
 
     seller_notification = {'message_text': 'Заявка №_ создана!'}
 

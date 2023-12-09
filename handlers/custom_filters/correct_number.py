@@ -1,4 +1,6 @@
 import importlib
+import re
+
 import phonenumbers
 
 from aiogram.filters import BaseFilter
@@ -30,20 +32,12 @@ class CheckInputNumber(BaseFilter):
             buyer_use = True
             seller_use = None
 
-        phonenumber = message.text.strip()
+        phonenumber = message.text.strip().replace(' ', '')
         country = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':language')
-        try:
-            if not country:
-                country = 'ru'
-            parsed_number = phonenumbers.parse(phonenumber, country)
-            valid_number = phonenumbers.is_valid_number(parsed_number)
-        except phonenumbers.NumberParseException as ex:
-            print(ex)
-            valid_number = False
 
-        if valid_number:
-            ic(parsed_number)
-            formatted_number = '-'.join(phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL).split())
+        formatted_number = await self.format_and_validate_phone_number(phonenumber)
+        if formatted_number:
+
             ic(formatted_number)
 
             number_is_exists = await PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
@@ -70,7 +64,33 @@ class CheckInputNumber(BaseFilter):
             elif current_state.startswith('BuyerRegistationStates'):
                 await current_method(message=message, state=state, incorrect='(novalid)')
 
-            print('last_valid_number', valid_number)
+            print('last_valid_number')
             return False
         
-        print('flew by', number_is_exists, valid_number)
+        print('flew by', number_is_exists)
+
+
+    @staticmethod
+    async def format_and_validate_phone_number(phone_number):
+        # Регулярное выражение для проверки номера телефона
+        pattern = r'^(\+?7\d{10}|8\d{10}|\+?998\d{9}|998\d{9}|9\d{8})$'
+
+        if re.match(pattern, phone_number):
+            # Форматирование номера
+            if phone_number.startswith('8'):
+                formatted_number = '+7' + phone_number[1:]
+            elif phone_number.startswith('9') and len(phone_number) == 9:
+                # Форматирование локального узбекского номера
+                return re.sub(r"(9\d{1})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4", phone_number)
+            elif not phone_number.startswith('+'):
+                formatted_number = '+' + phone_number
+            else:
+                formatted_number = phone_number
+
+            # Добавление дефисов для разделения цифр
+            if formatted_number.startswith('+7'):
+                return re.sub(r"(\+7)(\d{3})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
+            elif formatted_number.startswith('+998'):
+                return re.sub(r"(\+998)(\d{2})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
+        else:
+            return False

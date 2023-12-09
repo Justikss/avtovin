@@ -40,7 +40,7 @@ async def create_notification_for_admins(callback):
         seller_model = seller_model[0]
 
         last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-        boot_config_string_startswith = f'{copy(lexicon_module.LexiconCommodityLoader.config_for_admins)}{callback.from_user.username}\n{await get_seller_header(seller=seller_model)}\n'
+        boot_config_string_startswith = f'''{copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', callback.from_user.username)}\n{await get_seller_header(seller=seller_model)}'''
 
         message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
         message_for_admin_chat[0] = boot_config_string_startswith

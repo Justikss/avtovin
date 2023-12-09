@@ -1,29 +1,65 @@
-import asyncio
-from time import time
-import aiohttp
-import requests
-from bs4 import BeautifulSoup
+import re
 
-async def currency_sum_to_usd():
-    url = 'https://onmap.uz/usd'
 
-    # start_time = time()
+def format_and_validate_phone_number(phone_number):
+    # Регулярное выражение для проверки номера телефона
+    pattern = r'^(\+?7\d{10}|8\d{10}|\+?998\d{9}|998\d{9}|9\d{8})$'
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            html_content = await response.text()
+    if re.match(pattern, phone_number):
+        # Форматирование номера
+        if phone_number.startswith('8'):
+            formatted_number = '+7' + phone_number[1:]
+        elif phone_number.startswith('9') and len(phone_number) == 9:
+            # Форматирование локального узбекского номера
+            return re.sub(r"(9\d{1})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4", phone_number)
+        elif not phone_number.startswith('+'):
+            formatted_number = '+' + phone_number
+        else:
+            formatted_number = phone_number
 
-            soup = BeautifulSoup(html_content, 'html.parser')
-            data = soup.find('div', class_='text-green-600 text-xl font-semibold')
+        # Добавление дефисов для разделения цифр
+        if formatted_number.startswith('+7'):
+            return re.sub(r"(\+7)(\d{3})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
+        elif formatted_number.startswith('+998'):
+            return re.sub(r"(\+998)(\d{2})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
+    else:
+        return False
 
-            if data:
-                result = int(data.text.strip().replace('~', '').replace(' ', ''))
-            else:
-                result = False
 
-    #total_time = time() - start_time
-    print(str(result))
-asyncio.run(currency_sum_to_usd())
+# Примеры использования
+print(format_and_validate_phone_number("+79111234567"))  # Российский номер
+print(format_and_validate_phone_number("89111234567"))  # Российский номер без '+'
+print(format_and_validate_phone_number("+998911234567"))  # Узбекистанский номер
+print(format_and_validate_phone_number("998911234567"))  # Узбекистанский номер без '+'
+print(format_and_validate_phone_number("971234567"))  # Локальный Узбекистанский номер
+print(format_and_validate_phone_number("+1234567890"))  # Неверный номер
+
+# import asyncio
+# from time import time
+# import aiohttp
+# import requests
+# from bs4 import BeautifulSoup
+#
+# async def currency_sum_to_usd():
+#     url = 'https://onmap.uz/usd'
+#
+#     # start_time = time()
+#
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url) as response:
+#             html_content = await response.text()
+#
+#             soup = BeautifulSoup(html_content, 'html.parser')
+#             data = soup.find('div', class_='text-green-600 text-xl font-semibold')
+#
+#             if data:
+#                 result = int(data.text.strip().replace('~', '').replace(' ', ''))
+#             else:
+#                 result = False
+#
+#     #total_time = time() - start_time
+#     print(str(result))
+# asyncio.run(currency_sum_to_usd())
 ##################################################################
 # from time import time
 # import requests

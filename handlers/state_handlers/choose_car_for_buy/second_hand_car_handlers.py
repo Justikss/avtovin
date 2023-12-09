@@ -32,9 +32,10 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
                                                        color_id=user_answer)
 
     button_texts = {car.mileage for car in models_range}
-    lexicon_part = await create_lexicon_part(lexicon_module.ChooseMileage, button_texts)
+    lexicon_class = lexicon_module.ChooseMileage()
+    lexicon_part = await create_lexicon_part(lexicon_class, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=lexicon_class.dynamic_buttons)
     await callback.answer()
     await state.set_state(SecondHandChooseStates.select_year)
 
@@ -67,9 +68,11 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
                                                        mileage_id=user_answer)
 
     button_texts = {car.year for car in models_range}
-    lexicon_part = await create_lexicon_part(lexicon_module.ChooseYearOfRelease, button_texts)
+    lexicon_class = lexicon_module.ChooseYearOfRelease()
+    lexicon_part = await create_lexicon_part(lexicon_class, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode,
+                                                    dynamic_buttons=lexicon_class.dynamic_buttons)
     await callback.answer()
     await state.set_state(choose_car_states_module.HybridChooseStates.config_output)
 

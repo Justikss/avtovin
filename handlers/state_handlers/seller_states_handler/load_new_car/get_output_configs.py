@@ -11,6 +11,7 @@ from database.data_requests.new_car_photo_requests import PhotoRequester
 from states.load_commodity_states import LoadCommodityStates
 from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromatter import data_formatter
 from utils.get_currency_sum_usd import get_valutes
+from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon, LEXICON
 
 
 async def get_output_string(mode, boot_data: dict) -> str:
@@ -21,28 +22,31 @@ async def get_output_string(mode, boot_data: dict) -> str:
         start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_seller)
     elif mode.startswith('to_admins_from_'):
         seller_link = mode.split('_')[3]
-        start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins) + seller_link
+        start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', seller_link)
 
     block_string = await get_valutes(boot_data.get('dollar_price'), boot_data.get('sum_price'), get_string='block')
 
-    bottom_layer = f'''{block_string}\
-          \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
+    bottom_layer = f'''\
+    \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
+    \n{block_string}\
+    \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
 
     top_layer = f'''{start_sub_string}\
-          \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_state).message_text}: {boot_data['state']}\
-          \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_engine_type).message_text}: {boot_data['engine_type']}\
-          \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_brand).message_text}: {boot_data['brand']}\
-          \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_model).message_text}: {boot_data['model']}\
-          \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_complectation).message_text}: {boot_data['complectation']}\
-          \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_color).message_text}: {boot_data['color']}\n'''
+    \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
+          {copy(Lexicon.commodity_state).replace('X', boot_data['state'])}\
+          {copy(Lexicon.engine_type).replace('X', boot_data['engine_type'])}\
+          {copy(Lexicon.commodity_brand).replace('X', boot_data['brand'])}\
+          {copy(Lexicon.commodity_model).replace('X', boot_data['model'])}\
+          {copy(Lexicon.commodity_complectation).replace('X', boot_data['complectation'])}\
+          {copy(Lexicon.commodity_color).replace('X', boot_data['color'])}'''
 
     is_second_hand = (boot_data['year_of_release'], boot_data['mileage'])
     if None not in is_second_hand:
-        middle_layer = f'''{copy(lexicon_module.LexiconCommodityLoader.load_commodity_year_of_realise).message_text}: {boot_data['year_of_release']}\
-              \n{copy(lexicon_module.LexiconCommodityLoader.load_commodity_mileage).message_text}: {boot_data['mileage']}\n'''
+        middle_layer = f'''{copy(Lexicon.commodity_year_of_realise).replace('X', boot_data['year_of_release'])}\
+              {copy(Lexicon.commodity_mileage).replace('X', boot_data['mileage'])}'''
         output_load_commodity_config = top_layer + middle_layer + bottom_layer
     else:
-        output_load_commodity_config = top_layer + bottom_layer.strip()
+        output_load_commodity_config = top_layer + bottom_layer
 
     return output_load_commodity_config
 
@@ -78,6 +82,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
             if (not memory_storage.get('load_photo') and not media_photos) or need_photo_flag:
                 input_photo_module = importlib.import_module(
                     'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+                ic()
+                ic(need_photo_flag, memory_storage.get('load_photo'), media_photos)
+                ic(True)
                 return await input_photo_module.input_photo_to_load(request, state, need_photo_flag=True)
             # await state.update_data(load_photo=photo_pack)
 
@@ -123,7 +130,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     # output_string = '\n'.join(output_string.split('\n')[:-2])
     # ic(output_string)
     output_string = output_string.replace('None', '').strip()
-    output_string += copy(lexicon_module.LexiconCommodityLoader.can_rewrite_config)
+    # output_string += copy(lexicon_module.LexiconCommodityLoader.can_rewrite_config)
     ic(output_string)
 
     lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string, )

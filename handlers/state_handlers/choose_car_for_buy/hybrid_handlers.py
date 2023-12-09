@@ -36,7 +36,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
     button_texts = {car.engine_type for car in models_range}
     lexicon_part = await create_lexicon_part(lexicon_module.ChooseEngineType, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                     lexicon_part=lexicon_part, lexicon_cache=False)
+                                     lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=1)
 
     await callback.answer()
     await state.set_state(HybridChooseStates.select_brand)
@@ -63,9 +63,10 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
                                                     )
 
     button_texts = {car.complectation.model.brand for car in models_range}
-    lexicon_part = await create_lexicon_part(lexicon_module.ChooseBrand, button_texts)
+    lexicon_class = lexicon_module.ChooseBrand()
+    lexicon_part = await create_lexicon_part(lexicon_class, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                     lexicon_part=lexicon_part, lexicon_cache=False)
+                                     lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=lexicon_class.dynamic_buttons)
 
 
     '''Кэширование для кнопки НАЗАД'''
@@ -96,9 +97,10 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
     models_range = await AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type)
 
     button_texts = {car.complectation.model for car in models_range}
-    lexicon_part = await create_lexicon_part(lexicon_module.ChooseModel, button_texts)
+    lexicon_class = lexicon_module.ChooseModel()
+    lexicon_part = await create_lexicon_part(lexicon_class, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=lexicon_class.dynamic_buttons)
 
 
     await callback.answer()
@@ -129,9 +131,10 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
                                                        model_id=user_answer)
 
     button_texts = {car.complectation for car in models_range}
-    lexicon_part = await create_lexicon_part(lexicon_module.ChooseComplectation, button_texts)
+    lexicon_class = lexicon_module.ChooseComplectation()
+    lexicon_part = await create_lexicon_part(lexicon_class, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await state.set_state(HybridChooseStates.select_color)
 
@@ -161,9 +164,11 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
 
     button_texts = {car.color for car in models_range}
-    lexicon_part = await create_lexicon_part(lexicon_module.ChooseColor, button_texts)
+    lexicon_class = lexicon_module.ChooseColor()
+    lexicon_part = await create_lexicon_part(lexicon_class, button_texts)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode)
+                                                    lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode,
+                                                    dynamic_buttons=lexicon_class.dynamic_buttons)
 
     cars_type = int(memory_storage['cars_state'])
     if cars_type == 2:

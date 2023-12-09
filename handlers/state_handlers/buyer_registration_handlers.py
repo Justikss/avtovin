@@ -224,25 +224,21 @@ async def finish_check_phone_number(message: Message, state: FSMContext):
 
     try:
 
-        input_number = phonenumbers.parse(number, country)
-        number_is_valid = phonenumbers.is_valid_number(input_number)
+        # input_number = phonenumbers.parse(number, country)
+        # number_is_valid = phonenumbers.is_valid_number(input_number)
+        #
 
+        await message.delete()
+        await registartion_view_corrector(request=message, state=state)
+        memory_storage = await state.get_data()
+        # formatted_number = '-'.join(phonenumbers.format_number(input_number, phonenumbers.PhoneNumberFormat.NATIONAL).split())
 
+        await load_user_in_database(memory_storage, number, message)
 
-        if number_is_valid:
+        await state.clear()
 
-            await message.delete()
-            await registartion_view_corrector(request=message, state=state)
-            memory_storage = await state.get_data()
-            formatted_number = '-'.join(phonenumbers.format_number(input_number, phonenumbers.PhoneNumberFormat.NATIONAL).split())
+        await main_menu(request=message)
 
-            await load_user_in_database(memory_storage, formatted_number, message)
-
-            await state.clear()
-
-            await main_menu(request=message)
-        else:
-            await input_phone_number(message=message, state=state, incorrect=('(novalid)'))
     except NumberParseException:
         await input_phone_number(message=message, state=state, incorrect='(novalid)')
 

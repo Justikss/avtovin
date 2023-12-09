@@ -180,6 +180,7 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
     rewrite_controller_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
 
+
     there_data_update = await message_editor.redis_data.get_data(
         key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
     if there_data_update:
@@ -188,7 +189,8 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
         delete_mode = False
     if not callback.data.startswith('rewrite_boot_') and callback.data[-1].isdigit():
         user_answer = int(callback.data.split('_')[-1])
-        await state.update_data(complectation_for_load=user_answer)
+        if not there_data_update:
+            await state.update_data(complectation_for_load=user_answer)
     else:
         memory_storage = await state.get_data()
         user_answer = memory_storage.get('complectation_for_load')
@@ -281,7 +283,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
     get_load_car_state_module = importlib.import_module(
         'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
-
+    ic()
     lexicon_part = copy(lexicon_module.LexiconCommodityLoader.load_commodity_photo())
     await lexicon_part.initializate(request, state)
     if not bot:
@@ -313,14 +315,21 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
 
         cars_state = await get_load_car_state_module.get_load_car_state(state=state)
         print('cstate: ', cars_state)
+        there_data_update = await message_editor.redis_data.get_data(
+            key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
+
         if cars_state == 'new' and str(memory_storage.get('color_for_load')).isdigit() and not need_photo_flag:
             output_config_module = importlib.import_module(
                 'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
+
+            need_photo_flag = False
             #
             #
             #     photo_pack = await PhotoRequester.try_get_photo(state)
             #     ic(photo_pack)
-            await output_config_module.output_load_config_for_seller(request, state, need_photo_flag=True)
+            ic()
+            ic(True)
+            await output_config_module.output_load_config_for_seller(request, state, need_photo_flag=need_photo_flag)
             return
 
         if not need_photo_flag:

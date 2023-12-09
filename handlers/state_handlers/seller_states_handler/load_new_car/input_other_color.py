@@ -84,11 +84,11 @@ async def success_load_other_color(callback: CallbackQuery, state: FSMContext):
             if str(old_color_value) != str(memory_storage['color_to_pre_load']):
                 input_photo_module = importlib.import_module(
                     'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
-
+                ic()
+                ic(True)
                 return await input_photo_module.input_photo_to_load(callback, state, need_photo_flag=True)
         await state.set_state(LoadCommodityStates.input_to_load_price)
         print('go_to_price')
-        ic()
         await input_price_to_load(callback, state, other_color_mode=True)
         # await state.set_state(LoadCommodityStates.input_to_load_color)
     elif cars_state == 'second_hand':
