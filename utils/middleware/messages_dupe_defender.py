@@ -1,34 +1,33 @@
-from typing import Dict, Awaitable, Any, Callable
-
-from aiogram import types
-from aiogram import BaseMiddleware
 import importlib
 
-class DupeDefenderMiddleware(BaseMiddleware):
+from aiogram import BaseMiddleware
+from aiogram.types import CallbackQuery
+import time
+from typing import Callable, Any, Dict, Awaitable
+
+class ThrottlingMiddleware(BaseMiddleware):
+    def __init__(self, rate_limit: float = 1):
+        super().__init__()
+        self.rate_limit = rate_limit
+        self.last_action = {}
+
     async def __call__(
-        self, 
-        handler: Callable[[types.TelegramObject, Dict[str, Any]], Awaitable[Any]], 
-        event: types.TelegramObject, 
+        self,
+        handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
+        event: CallbackQuery,
         data: Dict[str, Any]
     ) -> Any:
-        if isinstance(event, types.CallbackQuery):
-
-            redis_module = importlib.import_module('utils.redis_for_language')
-            user_id = str(event.from_user.id)
-            message_stopper = await redis_module.redis_data.get_data(key=f'{user_id}:message_dupe_stopper')
-            # await redis_module.redis_data.delete_key(key=f'{user_id}:message_dupe_stopper')
-
-            if not message_stopper:
-                await redis_module.redis_data.set_data(key=f'{user_id}:message_dupe_stopper', value=True, expire=3)
-
-                result = await handler(event, data)
-
-                await redis_module.redis_data.delete_key(key=f'{user_id}:message_dupe_stopper')
-
-                return result
-            else:
-                lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-                await event.answer(lexicon_module.LEXICON['awaiting_process'])
+        user_id = event.from_user.id
+        current_time = time.time()
+        ic()
+        if user_id in self.last_action:
+            time_since_last_action = current_time - self.last_action[user_id]
+            if time_since_last_action < self.rate_limit:
+                ic(self.rate_limit, self.last_action, time_since_last_action, time_since_last_action < self.rate_limit)
+                # Пропуск обработки запроса, если запросы слишком частые
                 return
-        else:
-            return await handler(event, data)
+
+        self.last_action[user_id] = current_time
+        header_controller_module = importlib.import_module('handlers.default_handlers.start')
+        await header_controller_module.header_controller(event)
+        return await handler(event, data)

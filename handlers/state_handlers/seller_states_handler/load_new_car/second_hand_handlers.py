@@ -5,7 +5,9 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 import importlib
 
+from config_data.config import car_configurations_in_keyboard_page
 from database.data_requests.car_configurations_requests import CarConfigs
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from states.load_commodity_states import LoadCommodityStates
 from utils.create_lexicon_part import create_lexicon_part
 
@@ -26,9 +28,12 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext, other_c
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_year_of_realise()
-    lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
-                                             buttons_captions=await CarConfigs.get_characteristic(year=True))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=lexicon_class.dynamic_buttons)
+    await output_choose(callback, state, lexicon_class, await CarConfigs.get_characteristic(year=True),
+                        car_configurations_in_keyboard_page, need_last_buttons=False)
+
+    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
+    #                                          buttons_captions=await CarConfigs.get_characteristic(year=True))
+    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_mileage)
@@ -46,9 +51,11 @@ async def input_mileage_to_load(callback: CallbackQuery, state: FSMContext):
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_mileage()
-    lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
-                                             buttons_captions=await CarConfigs.get_characteristic(mileage=True))
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=lexicon_class.dynamic_buttons)
+    await output_choose(callback, state, lexicon_class, await CarConfigs.get_characteristic(mileage=True),
+                        car_configurations_in_keyboard_page, need_last_buttons=False)
+    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
+    #                                          buttons_captions=await CarConfigs.get_characteristic(mileage=True))
+    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
     # await state.set_state(LoadCommodityStates.input_to_load_color)

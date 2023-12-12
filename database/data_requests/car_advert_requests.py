@@ -44,6 +44,8 @@ class AdvertRequester:
                             color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None):
         ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id)
 
+        unique_models = None
+
         query = CarAdvert.select()
         if seller_id:
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
@@ -55,16 +57,26 @@ class AdvertRequester:
         ic(query)
         # Последовательно добавляем условия, если они предоставлены
         if engine_type_id:
-            query = query.switch(CarAdvert).join(CarEngine)
+            query = query.switch(CarAdvert).join(CarComplectation).join(CarEngine)
             query = query.where(CarEngine.id == int(engine_type_id))
+        else:
+            unique_models = await AdvertRequester.get_unique_values(CarEngine, query)
+
+
         ic(query)
+
+        query = query.switch(CarComplectation).join(CarModel).join(CarBrand)
         if brand_id:
-            query = query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
+
             query = query.where(CarBrand.id == int(brand_id))
+        elif not unique_models:
+            unique_models = await AdvertRequester.get_unique_values(CarBrand, query)
 
         if model_id:
             # Подразумевается, что предыдущие join уже выполнены
             query = query.where(CarModel.id == int(model_id))
+        elif not unique_models:
+            unique_models = await AdvertRequester.get_unique_values(CarModel, query)
 
         if complectation_id:
             # Подразумевается, что предыдущие join уже выполнены
@@ -72,10 +84,11 @@ class AdvertRequester:
             query = query.where(CarComplectation.id == complectation_id)
             ic()
             print(query)
-
+        elif not unique_models:
+            unique_models = await AdvertRequester.get_unique_values(CarComplectation, query)
+        query = query.switch(CarAdvert).join(CarColor)
         if color_id:
             ic()
-            query = query.switch(CarAdvert).join(CarColor)
 
             if str(color_id).isdigit():
                 query = query.where(CarColor.id == int(color_id))
@@ -84,20 +97,154 @@ class AdvertRequester:
                 color_object = await CarConfigs.get_by_name(color_name, 'color')
                 if color_object:
                     query = query.where(CarColor.name == color_name)
-
+        elif not unique_models:
+            unique_models = await AdvertRequester.get_unique_values(CarColor, query)
+        query = query.switch(CarAdvert).join(CarMileage)
         if mileage_id:
-            query = query.switch(CarAdvert).join(CarMileage)
             query = query.where(CarMileage.id == int(mileage_id))
+        elif not unique_models:
+            unique_models = await AdvertRequester.get_unique_values(CarMileage, query)
 
+        query = query.switch(CarAdvert).join(CarYear)
         if year_of_release_id:
-            query = query.switch(CarAdvert).join(CarYear)
             query = query.where(CarYear.id == int(year_of_release_id))
-
+        elif not unique_models:
+            ic()
+            unique_models = await AdvertRequester.get_unique_values(CarYear, query)
+        ic(unique_models)
         print(query)
         ic(print(query))
+        if unique_models:
+            return unique_models
         result = list(await manager.execute(query))
         ic(result)
         return result
+
+    @staticmethod
+    async def get_advert_models(state_id, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
+                            color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None):
+        # ... Предыдущий код ...
+
+        query = CarAdvert.select()
+        if seller_id:
+            query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
+            query = query.switch(CarAdvert)
+
+        query = query.join(CarState).where(CarState.id == int(state_id))
+
+        if engine_type_id:
+            query = query.switch(CarAdvert).join(CarComplectation).join(CarEngine).where(
+                CarEngine.id == int(engine_type_id))
+            query = query.switch(CarAdvert)
+
+        if brand_id:
+            query = query.switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand_id))
+            query = query.switch(CarAdvert)
+
+        if model_id:
+            query = query.where(CarModel.id == int(model_id))
+            query = query.switch(CarAdvert)
+
+        if complectation_id:
+            query = query.where(CarComplectation.id == int(complectation_id))
+            query = query.switch(CarAdvert)
+
+        if color_id:
+            query = query.join(CarColor).where(
+                CarColor.id == int(color_id) if str(color_id).isdigit() else CarColor.name == color_id)
+            query = query.switch(CarAdvert)
+
+        if mileage_id:
+            query = query.join(CarMileage).where(CarMileage.id == int(mileage_id))
+            query = query.switch(CarAdvert)
+
+        if year_of_release_id:
+            query = query.join(CarYear).where(CarYear.id == int(year_of_release_id))
+            query = query.switch(CarAdvert)
+
+        result = list(await manager.execute(query))
+        return result
+
+    @staticmethod
+    async def get_unique_values(model_class, base_query):
+        ic(model_class, base_query)
+        if model_class == CarEngine:
+            query = (CarEngine
+                     .select()
+                     .join(CarComplectation)
+                     .join(CarAdvert)
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarBrand:
+            query = (CarBrand
+                     .select()
+                     .join(CarModel)
+                     .join(CarComplectation)
+                     .join(CarAdvert)
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarModel:
+            query = (CarModel
+                     .select()
+                     .join(CarComplectation, on=(CarComplectation.model == CarModel.id))
+                     .join(CarAdvert, on=(CarAdvert.complectation == CarComplectation.id))
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarColor:
+            query = (CarColor
+                     .select()
+                     .join(CarAdvert, on=(CarAdvert.color == CarColor.id))
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarMileage:
+            query = (CarMileage
+                     .select()
+                     .join(CarAdvert, on=(CarAdvert.mileage == CarMileage.id))
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarYear:
+            query = (CarYear
+                     .select()
+                     .join(CarAdvert, on=(CarAdvert.year == CarYear.id))
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarState:
+            query = (CarState
+                     .select()
+                     .join(CarAdvert, on=(CarAdvert.state == CarState.id))
+                     .where(CarAdvert.id.in_(base_query.select(CarAdvert.id)))
+                     .distinct())
+        elif model_class == CarComplectation:
+            query = (CarComplectation.select().join(CarAdvert).where(CarAdvert.id.in_(base_query.select(CarAdvert.id))).distinct())
+        return list(await manager.execute(query))
+
+    @staticmethod
+    async def get_unique_engine_types(current_query):
+        # Подзапрос для получения уникальных типов двигателей
+        unique_engine_types_query = (CarEngine
+                                     .select()
+                                     .join(CarComplectation)
+                                     .where(CarComplectation.id.in_(current_query.select(CarComplectation.id)))
+                                     .distinct())
+
+        return list(await manager.execute(unique_engine_types_query))
+
+    @staticmethod
+    async def get_advert_brands_by_seller_id(seller_id):
+        query = (CarBrand
+                 .select()
+                 .distinct()
+                 .join(CarModel, on=(CarBrand.id == CarModel.brand))
+                 .join(CarComplectation, on=(CarModel.id == CarComplectation.model))
+                 .join(CarAdvert, on=(CarComplectation.id == CarAdvert.complectation))
+                 .join(Seller)
+                 .where(
+            Seller.telegram_id == seller_id))  # предполагаем, что seller_telegram_id - это ваш идентификатор
+
+        # Теперь выполним запрос и получим результат
+        unique_brands = list(await manager.execute(query))
+        return unique_brands
+
     @staticmethod
     async def get_advert_by_seller(seller_id):
         return list(await manager.execute(CarAdvert.select().where(CarAdvert.seller == seller_id)))

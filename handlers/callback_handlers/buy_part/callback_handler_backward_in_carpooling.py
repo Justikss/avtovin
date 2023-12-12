@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, second_hand_car_handlers
+from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import search_auto_callback_handler
 
 
 async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMContext):
@@ -19,10 +20,15 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
     states_stack = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
 
     states_stack.pop()
-    last_state = states_stack[-1]
+    if len(states_stack) < 1:
+        last_state = None
+    else:
+        last_state = states_stack[-1]
     print('last state', last_state)
     await redis_module.redis_data.set_data(key=redis_key, value=states_stack)
     await state.set_state(last_state)
+    if last_state is None:
+        await search_auto_callback_handler(callback, state)
     if last_state == 'HybridChooseStates:select_engine_type':
         await hybrid_handlers.choose_engine_type_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'HybridChooseStates:select_brand':

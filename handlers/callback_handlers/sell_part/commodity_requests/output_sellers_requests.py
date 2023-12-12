@@ -1,3 +1,5 @@
+from copy import copy
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InputMediaPhoto, Message
 from typing import List, Union
@@ -5,6 +7,7 @@ import importlib
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.tables.car_configurations import CarAdvert
+from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon
 from handlers.utils.pagination_heart import Pagination
 from utils.get_currency_sum_usd import get_valutes
@@ -43,31 +46,47 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
         print('construct_string')
         car: CarAdvert
         ic(car)
-        header = Lexicon.output_car_request_header.replace('_', str(car.id))
+        # output_string = copy(Lexicon.output_car_request_header).replace('_', str(car.id))
+        #
+        # ic(output_string)
 
         if car.mileage:
-            heart = f'''\
-                    {Lexicon.commodity_year_of_realise.replace('X', car.year.name)}\
-                    {Lexicon.commodity_mileage.replace('X', car.mileage.name)}\
-                    '''
+            mileage = car.mileage.name
+            year_of_realise = car.year.name
+            # heart = f'''\
+            #         {Lexicon.commodity_year_of_realise.replace('X', car.year.name)}\
+            #         {Lexicon.commodity_mileage.replace('X', car.mileage.name)}\
+            #         '''
         else:
-            heart = ''
-        ic(car.complectation)
+            mileage, year_of_realise = None, None
+        #     heart = ''
+        #
+        output_string = f'''{copy(Lexicon.output_car_request_header).replace('_', str(car.id))}{await create_advert_configuration_block(car_state=car.state.name, engine_type=car.complectation.engine.name,
+                                                                                                 brand=car.complectation.model.brand.name,
+                                                                                                 model=car.complectation.model.name,
+                                                                                                 complectation=car.complectation.name, color=car.color.name,
+                                                                                                 mileage=mileage, year_of_realise=year_of_realise,
+                                                                                                 sum_price=car.sum_price, usd_price=car.dollar_price)}'''
 
-        block_string = await get_valutes(car.dollar_price, car.sum_price, get_string='block')
-        for_seller_lexicon_part = lexicon_module.LEXICON['confirm_from_seller']['message_text']
 
-        body = (f'''\n{' '*2 + for_seller_lexicon_part['separator']}\
-                    {Lexicon.commodity_state.replace('X', car.state.name)}\
-                    {Lexicon.engine_type.replace('X', car.engine_type.name)}\
-                    {Lexicon.commodity_brand.replace('X', car.complectation.model.brand.name)}\
-                    {Lexicon.commodity_model.replace('X', car.complectation.model.name)}\
-                    {Lexicon.commodity_complectation.replace('X', car.complectation.name)}\
-                    {Lexicon.commodity_color.replace('X', car.color.name)}\
-                    {heart}\
-                    \n{' '*2 + for_seller_lexicon_part['separator']}\
-                    \n{block_string}\
-                    ''')
+        # output_string = '\n'.join(output_string)
+        output_string = output_string.format()
+        ic(output_string)
+
+
+        # for_seller_lexicon_part = lexicon_module.LEXICON['confirm_from_seller']['message_text']
+        #
+        # body = (f'''\n{' '*2 + for_seller_lexicon_part['separator']}\
+        #             {Lexicon.commodity_state.replace('X', car.state.name)}\
+        #             {Lexicon.engine_type.replace('X', car.engine_type.name)}\
+        #             {Lexicon.commodity_brand.replace('X', car.complectation.model.brand.name)}\
+        #             {Lexicon.commodity_model.replace('X', car.complectation.model.name)}\
+        #             {Lexicon.commodity_complectation.replace('X', car.complectation.name)}\
+        #             {Lexicon.commodity_color.replace('X', car.color.name)}\
+        #             {heart}\
+        #             \n{' '*2 + for_seller_lexicon_part['separator']}\
+        #             \n{block_string}\
+        #             ''')
         current_photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
 
         if current_photo_album:
@@ -75,7 +94,6 @@ async def output_message_constructor(commodity_models: List[CarAdvert]) -> list:
         else:
             commodity_photo_album = None
 
-        output_string = f'{header}{body}'
 
         output_data.append({'album': commodity_photo_album, 'message_text': output_string})
 
@@ -95,6 +113,10 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
         message = request.message
     else:
         message = request
+
+
+    # seller_requests_pagination = await message_editor.redis_data.delete_key(
+    #     key=user_id + ':seller_requests_pagination')
 
     seller_requests_pagination = await message_editor.redis_data.get_data(
         key=user_id + ':seller_requests_pagination', use_json=True)
@@ -195,7 +217,7 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
             await message_editor.redis_data.set_data(
                 key=f'{str(request.from_user.id)}:return_path_after_delete_car', value=request.data)
 
-        await output_sellers_commodity_page(request, pagination_data=await output_message_constructor(chosen_commodities), state=state, current_page=current_page)
+        await output_sellers_commodity_page(request, pagination_data=ic(await output_message_constructor(chosen_commodities)), state=state, current_page=current_page)
         if isinstance(request, CallbackQuery):
             await request.answer()
         return True
@@ -203,4 +225,18 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
         if isinstance(request, CallbackQuery):
             await request.answer(Lexicon.seller_does_have_active_car_by_brand)
         return False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -39,14 +39,13 @@ from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
-from utils.middleware.messages_dupe_defender import DupeDefenderMiddleware
+from utils.middleware.messages_dupe_defender import ThrottlingMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from config_data.config import BOT_TOKEN
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, \
-    confirm_search_config, language_callback_handler, \
-    search_auto_handler
+    confirm_search_config, language_callback_handler
 from handlers.callback_handlers.buy_part.buyer_offers_branch import show_requests
 from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address, price_is_digit, message_is_photo
 from handlers.default_handlers import start
@@ -111,20 +110,20 @@ async def start_bot():
 
     await create_tables()
     # await mock_values()
-
+    #
     # await get_car()
     asyncio.create_task(fetch_currency_rate())
 
     asyncio.create_task(GetDealershipAddress.process_queue())
 
     dp.callback_query.middleware(CleanerMiddleware())
-    dp.callback_query.middleware(DupeDefenderMiddleware())
+    dp.callback_query.middleware(ThrottlingMiddleware())
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
-    dp.message.register(drop_table_handler, Command(commands=['dt']))
+    dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 
     '''обработка Сообщений'''
@@ -206,10 +205,8 @@ async def start_bot():
                                F.data == 'start_buy')
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
                                lambda callback: callback.data.startswith('backward'))
-    dp.callback_query.register(search_auto_handler.search_auto_callback_handler,
+    dp.callback_query.register(hybrid_handlers.search_auto_callback_handler,
                                F.data == 'car_search')
-    dp.callback_query.register(search_auto_handler.search_configuration_handler,
-                               F.data.in_(('second_hand_cars', 'new_cars')))
     dp.callback_query.register(confirm_search_config.confirm_settings_handler,
                                lambda callback: callback.data.startswith('confirm_buy_settings:'))
 
@@ -291,7 +288,7 @@ async def start_bot():
     '''Состояния поиска машины'''
     '''hybrid'''
     dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,
-                               and_f(F.data == 'start_configuration_search',
+                               and_f(lambda callback: callback.data.startswith('choose_state_'),
                                      StateFilter(HybridChooseStates.select_engine_type)))
     dp.callback_query.register(hybrid_handlers.choose_brand_handler,
                                and_f(lambda callback: callback.data.startswith('cars_engine_type'),

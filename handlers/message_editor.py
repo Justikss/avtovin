@@ -1,6 +1,6 @@
 from typing import Set
 
-from aiogram.types import chat, CallbackQuery, InputMediaPhoto
+from aiogram.types import chat, CallbackQuery, InputMediaPhoto, InputFile, FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
@@ -117,14 +117,14 @@ class TravelEditor:
                         # Определение списка файлов
                         file_list = media_group[album_id] if album_id else media_group
 
-
+                        ic(file_list)
                         # Создание объектов для отправки
                         caption_photo = [
-                            InputMediaPhoto(media=file_data['id'] if isinstance(file_data, dict) else file_data,
+                            InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id']) if isinstance(file_data, dict) else file_data,
                                             caption=lexicon_part['message_text'])
                             for file_data in file_list[:2]]
 
-                        new_album = [InputMediaPhoto(media=file_data['id'] if isinstance(file_data, dict) else file_data)
+                        new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id']) if isinstance(file_data, dict) else file_data)
                                      for file_data in file_list[1:]]
 
                         new_album.insert(0, caption_photo[0])  # Добавление фото с подписью в начало альбома
@@ -135,13 +135,23 @@ class TravelEditor:
                         await redis_data.set_data(key=user_id+':last_media_group',
                                                   value=[media_message.message_id
                                                          for media_message in new_media_message])
+                        print('post ', new_album)
 
                     else:
                         if album_id:
-                            ic(media_group)
-                            new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
+                            if len(media_group) > 5:
+                                media_group[album_id] = media_group[album_id][:5]
+                            # ic(media_group)
+                            # new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
+                            media_group = media_group[album_id]
                         else:
-                            new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group]
+                            if len(media_group) > 5:
+                                media_group = media_group[:5]
+
+                        if len(media_group) > 5:
+                            media_group = media_group[:5]
+
+                        new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
 
                         print('post ', new_album)
                         new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)

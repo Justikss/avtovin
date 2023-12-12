@@ -84,8 +84,9 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
 
                 if current_state == 'LoadCommodityStates:input_to_load_price' and isinstance(request, CallbackQuery) and not request.data[-1].isdigit():
                     ic()
+                    print('input_photo_to_load')#
                     await state.set_state(LoadCommodityStates.input_to_load_photo)
-                    await input_photo_module.input_photo_to_load(request, state)
+                    await input_photo_module.input_photo_to_load(request, state)#
                     return True
 
             ic(rewrite_state_flag)
@@ -112,7 +113,8 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                             pass
                         else:
                             ic()
-                            await input_photo_module.input_photo_to_load(request, state)
+                            print('input_photo_to_load')#
+                            await input_photo_module.input_photo_to_load(request, state)#
                             await state.update_data(rewrite_state_flag=None)
                             return True
                     else:
@@ -197,7 +199,7 @@ async def get_price_string(head_valute, captions, index):
     boot_car_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     if head_valute == 'sum':
-        result = copy(boot_car_lexicon_module.LexiconCommodityLoader.price_only) + lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(captions[index]))
+        result = copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_button_captions['price']).format(price=lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(captions[index])))
     else:
         index += 1
         result = str(captions[index]) + '$'
@@ -245,8 +247,8 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             callbacks = config_edit_buttons_callback_data[0:11]
             captions = list(boot_config_value[1:11])
             ic(captions)
-            captions[5] = copy(boot_car_lexicon_module.LexiconCommodityLoader.load_commodity_year_of_realise).message_text + ' ' + captions[5]
-            captions[6] = copy(boot_car_lexicon_module.LexiconCommodityLoader.load_commodity_mileage).message_text + ' ' + captions[6]
+            captions[5] = copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_button_captions['year_of_release']).format(year=captions[5])
+            captions[6] = copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_button_captions['mileage']).format(mileage=captions[6])
             caption_index, string = await get_price_string(head_valute, captions, 8)
             captions[caption_index] = string
             ic(type(captions))
@@ -283,7 +285,8 @@ async def set_photo_for_new_state_car(callback: CallbackQuery, state: FSMContext
         input_photo_module = importlib.import_module(
             'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
         ic()
-        await input_photo_module.input_photo_to_load(callback, state)
+        print('input_photo_to_load')#
+        await input_photo_module.input_photo_to_load(callback, state)#
         return True
     ic(new_photographies)
     if new_photographies:

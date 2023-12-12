@@ -7,6 +7,7 @@ from aiogram.types import CallbackQuery
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.tables.offers_history import ActiveOffers
+from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from utils.get_currency_sum_usd import get_valutes
 
 
@@ -20,7 +21,7 @@ async def get_seller_header(seller=None, car=None, state=None):
     if state:
         current_state = str(await state.get_state())
         if current_state.startswith('CheckActiveOffersStates'):
-            seller_number = f'''\n{message_text.get('phone_number')}\n{seller.phone_number}'''
+            seller_number = f'''{message_text.get('phone_number')}\n{seller.phone_number}'''
 
     if seller.dealship_name:
         seller_header = message_text.get('from_dealership').replace('X', seller.dealship_name).replace('Y', seller.dealship_address)
@@ -56,21 +57,14 @@ async def get_output_string(car, message_text, state=None, callback=None):
         elif current_state.startswith('CheckRecommendationsStates'):
             startswith_text = lexicon_module.LEXICON['new_recommended_offer_startswith']
 
+    if car.mileage:
+        mileage = car.mileage.name
+        year_of_realise = car.year.name
+    else:
+        mileage, year_of_realise = None, None
 
-    canon_string =  f'''{startswith_text}\n{seller_header}\n{lexicon_module.LEXICON['sepp']*16}\n{message_text['car_state'].replace('X', car.state.name)}\n{message_text['engine_type'].replace('X', car.engine_type.name)}\n{message_text['model'].replace('X', car.complectation.model.name)}\n{message_text['brand'].replace('X', car.complectation.model.brand.name)}\n{message_text['complectation'].replace('X', car.complectation.name)}\n{message_text['color'].replace('X', car.color.name)}\n'''
-    if used_state:
-        middle_string = f'''{message_text['year'].replace('X', car.year.name)}\n{message_text['mileage'].replace('X', car.mileage.name)}\n'''
+    result_string = f'''{startswith_text}\n{seller_header}{await create_advert_configuration_block(car_state=car.state.name, engine_type=car.complectation.engine.name, brand=car.complectation.model.brand.name, model=car.complectation.model.name, complectation=car.complectation.name, color=car.color.name, mileage=mileage, year_of_realise=year_of_realise, sum_price=car.sum_price, usd_price=car.dollar_price)}{footer_viewed_by_seller_status}'''
 
-    elif not used_state:
-        middle_string = ''
-
-    # usd_price, sum_price = await get_valutes(car.dollar_price, car.sum_price)
-    #
-    # price = f'''{usd_price}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', sum_price)}'''
-    string = await get_valutes(car.dollar_price, car.sum_price, get_string=True)
-
-    cost_string = f'''{lexicon_module.LEXICON['sepp']*16}\n{message_text['cost'].replace('X', string)}'''
-    result_string = f'{canon_string}{middle_string}{cost_string}{footer_viewed_by_seller_status}'
     return result_string
 
 
@@ -105,7 +99,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
         ic(car_state)
 
 
-        car_models = await AdvertRequester.get_advert_by(state_id=car_state,
+        car_models = await AdvertRequester.get_advert_models(state_id=car_state,
                                                          engine_type_id=engine_type,
                                                          brand_id=brand,
                                                          model_id=model,

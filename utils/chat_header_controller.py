@@ -35,25 +35,9 @@ async def header_controller(request: Union[CallbackQuery, Message], need_delete=
             # copied_message = await message.chat.bot.copy_message(chat_id='-4084384240', from_chat_id=message.chat.id,
             #                                                      message_id=header_message_id)
         except TelegramBadRequest as ex:
-            ic(ex)
-            traceback.print_exc()
+            # ic(ex)
+            # traceback.print_exc()
             send_flag = True
-    # ic(header_message_id)
-    # ic(send_flag, copied_message)
-    # if not send_flag and copied_message:
-    #     redis_key = str(request.from_user.id) + ':last_message'
-    #     try:
-    #         await message.chat.bot.delete_message(chat_id='-4084384240', message_id=copied_message.message_id)
-    #     except:
-    #         pass
-
-    # elif send_flag:
-    #     try:
-    #         await message.chat.bot.delete_message(chat_id=message.chat.id, message_id=copied_message.message_id)
-    #     except:
-    #         pass
-    #     await redis_module.redis_data.set_data(key=f'{request.from_user.id}:bot_header_message',
-    #                                            value=copied_message.message_id)
 
     if send_flag and (request.from_user.id == message.chat.id):
         ic(send_flag)

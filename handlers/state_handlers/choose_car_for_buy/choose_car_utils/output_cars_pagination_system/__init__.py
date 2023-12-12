@@ -1,1 +1,1 @@
-from . import pagination_system_for_buyer
+from . import pagination_system_for_buyer, pagination_system_controller

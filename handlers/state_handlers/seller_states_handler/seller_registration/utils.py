@@ -1,4 +1,6 @@
 import importlib
+import logging
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from typing import Union
@@ -103,7 +105,8 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
         }
     print(formatted_load_pattern)
     try_load = await PersonRequester.store_data(formatted_load_pattern, seller=True)
-    if try_load:
+    if not (isinstance(try_load, tuple) and len(try_load) == 2):
         return True
     else:
+        logging.error(f'Продавцу на удалось зарегестрироваться с такими данными в методе "load_seller_in_database": {load_seller_in_database}\nС ошибкой:\b{try_load[1]}')
         return False

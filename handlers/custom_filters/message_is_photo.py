@@ -39,4 +39,5 @@ class MessageIsPhoto(BaseFilter):
         await redis_module.redis_data.set_data(key=redis_key_seller,
                                                 value=message.message_id)
         ic()
-        await input_photo_to_load(request=message, state=state, incorrect=True)
+        print('input_photo_to_load')#
+        await input_photo_to_load(request=message, state=state, incorrect=True)#

@@ -1,4 +1,17 @@
+import os
 import re
+
+from aiogram.types import InputFile, FSInputFile
+
+path = 'utils/carss\\9\\mers — копия (2).jpg'
+
+if os.path.exists(path):
+    print('true')
+
+with open(path, 'rb') as file:
+
+    if FSInputFile(path):
+        print('aasd')
 
 
 def format_and_validate_phone_number(phone_number):
@@ -27,12 +40,12 @@ def format_and_validate_phone_number(phone_number):
 
 
 # Примеры использования
-print(format_and_validate_phone_number("+79111234567"))  # Российский номер
-print(format_and_validate_phone_number("89111234567"))  # Российский номер без '+'
-print(format_and_validate_phone_number("+998911234567"))  # Узбекистанский номер
-print(format_and_validate_phone_number("998911234567"))  # Узбекистанский номер без '+'
-print(format_and_validate_phone_number("971234567"))  # Локальный Узбекистанский номер
-print(format_and_validate_phone_number("+1234567890"))  # Неверный номер
+# print(format_and_validate_phone_number("+79111234567"))  # Российский номер
+# print(format_and_validate_phone_number("89111234567"))  # Российский номер без '+'
+# print(format_and_validate_phone_number("+998911234567"))  # Узбекистанский номер
+# print(format_and_validate_phone_number("998911234567"))  # Узбекистанский номер без '+'
+# print(format_and_validate_phone_number("971234567"))  # Локальный Узбекистанский номер
+# print(format_and_validate_phone_number("+1234567890"))  # Неверный номер
 
 # import asyncio
 # from time import time

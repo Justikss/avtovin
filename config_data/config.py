@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv, find_dotenv
 import logging
 
-logger = logging.getLogger('peewee')
+# logger = logging.getLogger('peewee')
+logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
@@ -41,6 +42,8 @@ faq = '''
 <b>Тех поддержка:</b>
 Контакты доступны с главного меню по кнопке [Поддержка]
 '''
+
+car_configurations_in_keyboard_page = 4
 
 faq_seller = '''
 \n<b>Продажа:</b>

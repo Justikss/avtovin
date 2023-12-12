@@ -46,7 +46,7 @@ class CarAdvert(BaseModel):
     seller = ForeignKeyField(Seller, field=Seller.telegram_id, backref='adverts')
     complectation = ForeignKeyField(CarComplectation, backref='adverts')
     state = ForeignKeyField(CarState, backref='adverts')
-    engine_type = ForeignKeyField(CarEngine, backref='adverts')
+    # engine_type = ForeignKeyField(CarEngine, backref='adverts')
     color = ForeignKeyField(CarColor, backref='adverts')
     sum_price = BigIntegerField(null=True)
     dollar_price = BigIntegerField(null=True)

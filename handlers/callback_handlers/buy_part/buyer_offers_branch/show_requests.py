@@ -56,7 +56,7 @@ async def buyer_get_requests__chose_brand(callback: CallbackQuery, state: FSMCon
         ic(type(current_brands))
         # await callback.message.edit_text(text=)
         await state.set_state(current_state)
-        await CachedRequestsView.choose_brand_for_output(callback, car_brands=current_brands, state=state)
+        await CachedRequestsView.output_message_with_inline_pagination(callback, car_brands=current_brands, state=state, pagesize=8)
 
 
 async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):

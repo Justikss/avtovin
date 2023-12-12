@@ -13,8 +13,6 @@ class CleanerMiddleware(BaseMiddleware):
         self.latency = latency
 
     async def __call__(self, handler: Callable[[types.Message, dict[str, Any]], Awaitable[Any]], request: Union[types.Message, types.CallbackQuery], data: dict[str, Any]) -> Any:
-        header_controller_module = importlib.import_module('handlers.default_handlers.start')
-        await header_controller_module.header_controller(request)
 
         if isinstance(request, types.CallbackQuery):
             print('MIDDLEWARE: ', request.data, request.data.startswith('rewrite_boot_'))

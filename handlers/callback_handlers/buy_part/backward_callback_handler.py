@@ -4,11 +4,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
 
-from handlers.callback_handlers.buy_part.search_auto_handler import search_auto_callback_handler
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     my_feedbacks_callback_handler
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
 from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
+from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import search_auto_callback_handler
 from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import hybrid_input_seller_number, dealership_input_address
 from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
 from handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config import check_your_config
@@ -93,9 +93,9 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
         elif mode == 'support':
             await tech_support_callback_handler(callback=callback)
 
-        elif mode == 'choose_car_category':
-            print('choty')
-            await search_auto_callback_handler(callback=callback)
+        # elif mode == 'choose_car_category':
+        #     print('choty')
+        #     await search_auto_callback_handler(callback=callback)
 
         elif mode == 'set_language':
             await set_language(callback=callback, set_languange=False)

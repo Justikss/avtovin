@@ -39,7 +39,7 @@ async def get_valutes(usd, sum_valute, get_string=None):
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
-
+    ic(sum_valute, usd)
     if not usd:
         usd = await convertator('sum', sum_valute)
     elif not sum_valute:
@@ -50,7 +50,7 @@ async def get_valutes(usd, sum_valute, get_string=None):
         result = (usd, sum_valute)
         if get_string:
             price_string = f'''{usd}$ {lexicon_module.LEXICON['convertation_sub_string']} {lexicon_module.LEXICON['uzbekistan_valute'].replace('X', sum_valute)}'''
-            block_string = copy(await boot_commodity_lexicon_module.LexiconCommodityLoader.load_commodity_price().part())['message_text'].replace('X', price_string)
+            block_string = copy(boot_commodity_lexicon_module.LexiconCommodityLoader.price_digital).replace('X', price_string)
             if get_string == 'block':
                 return block_string
             else:
@@ -92,5 +92,4 @@ async def fetch_currency_rate():
         if sum_currency:
             await message_editor.redis_data.set_data(key='usd_to_sum_currency', value=sum_currency)
 
-        # Пауза перед следующим обновлением (например, каждые 10 минут)
         await asyncio.sleep(3600)

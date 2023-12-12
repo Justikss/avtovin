@@ -8,6 +8,7 @@ import importlib
 
 from config_data.config import money_valute
 from database.data_requests.new_car_photo_requests import PhotoRequester
+from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from states.load_commodity_states import LoadCommodityStates
 from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromatter import data_formatter
 from utils.get_currency_sum_usd import get_valutes
@@ -24,29 +25,31 @@ async def get_output_string(mode, boot_data: dict) -> str:
         seller_link = mode.split('_')[3]
         start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', seller_link)
 
-    block_string = await get_valutes(boot_data.get('dollar_price'), boot_data.get('sum_price'), get_string='block')
 
-    bottom_layer = f'''\
-    \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
-    \n{block_string}\
-    \n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
+    bottom_layer = f'''\n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
 
     top_layer = f'''{start_sub_string}\
-    \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
-          {copy(Lexicon.commodity_state).replace('X', boot_data['state'])}\
-          {copy(Lexicon.engine_type).replace('X', boot_data['engine_type'])}\
-          {copy(Lexicon.commodity_brand).replace('X', boot_data['brand'])}\
-          {copy(Lexicon.commodity_model).replace('X', boot_data['model'])}\
-          {copy(Lexicon.commodity_complectation).replace('X', boot_data['complectation'])}\
-          {copy(Lexicon.commodity_color).replace('X', boot_data['color'])}'''
-
-    is_second_hand = (boot_data['year_of_release'], boot_data['mileage'])
-    if None not in is_second_hand:
-        middle_layer = f'''{copy(Lexicon.commodity_year_of_realise).replace('X', boot_data['year_of_release'])}\
-              {copy(Lexicon.commodity_mileage).replace('X', boot_data['mileage'])}'''
-        output_load_commodity_config = top_layer + middle_layer + bottom_layer
-    else:
-        output_load_commodity_config = top_layer + bottom_layer
+{await create_advert_configuration_block(car_state=boot_data['state'], engine_type=boot_data['engine_type'], 
+                                         brand=boot_data['brand'], model=boot_data['model'], 
+                                         complectation=boot_data['complectation'], color=boot_data['color'], 
+                                         mileage=boot_data['mileage'], year_of_realise=boot_data['year_of_release'], 
+                                         sum_price= boot_data.get('sum_price'),
+                                         usd_price=boot_data.get('dollar_price'))}'''
+    # \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
+    #       {copy(Lexicon.commodity_state).replace('X', boot_data['state'])}\
+    #       {copy(Lexicon.engine_type).replace('X', boot_data['engine_type'])}\
+    #       {copy(Lexicon.commodity_brand).replace('X', boot_data['brand'])}\
+    #       {copy(Lexicon.commodity_model).replace('X', boot_data['model'])}\
+    #       {copy(Lexicon.commodity_complectation).replace('X', boot_data['complectation'])}\
+    #       {copy(Lexicon.commodity_color).replace('X', boot_data['color'])}'''
+    #
+    # is_second_hand = (boot_data['year_of_release'], boot_data['mileage'])
+    # if None not in is_second_hand:
+    #     middle_layer = f'''{copy(Lexicon.commodity_year_of_realise).replace('X', boot_data['year_of_release'])}\
+    #           {copy(Lexicon.commodity_mileage).replace('X', boot_data['mileage'])}'''
+    #     output_load_commodity_config = top_layer + middle_layer + bottom_layer
+    # else:
+    output_load_commodity_config = top_layer + bottom_layer
 
     return output_load_commodity_config
 
@@ -82,10 +85,10 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
             if (not memory_storage.get('load_photo') and not media_photos) or need_photo_flag:
                 input_photo_module = importlib.import_module(
                     'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
-                ic()
                 ic(need_photo_flag, memory_storage.get('load_photo'), media_photos)
-                ic(True)
-                return await input_photo_module.input_photo_to_load(request, state, need_photo_flag=True)
+                ic()
+                print('input_photo_to_load')#
+                return await input_photo_module.input_photo_to_load(request, state, need_photo_flag=True)#
             # await state.update_data(load_photo=photo_pack)
 
     memory_storage = await state.get_data()

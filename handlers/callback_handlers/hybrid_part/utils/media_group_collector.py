@@ -4,7 +4,10 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto
 
+from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
+from database.db_connect import manager
+from database.tables.car_configurations import CarComplectation, CarBrand, CarModel, CarEngine, CarColor
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 
 mediagroups = {}
@@ -84,15 +87,32 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                     if isinstance(mediagroupss[0], list):
                         mediagroupss = mediagroupss[-1]
 
-
-                    pre_data = [[1, 1, 2], [2, 2, 2], [3, 2, 2], [4, 2, 2], [5, 1, 2], [6, 1, 2], [7, 3, 2], [8, 3, 1]]
-                    current_part = pre_data[int(state_name.split('_')[-1])-1]
-                    data = [{'admin_id': message.from_user.id,
-                             'car_complectation': current_part[0],
-                            'car_engine': current_part[1],
-                             'car_color': current_part[2],
-                             'photo_id': part['id'],
-                             'photo_unique_id': part['unique_id']} for part in mediagroupss]
+                    executor = int(state_name.split('_')[-1])-1
+                    if executor:
+                        pre_data = [[1, 1, 2], [2, 2, 2], [3, 2, 2], [4, 2, 2], [5, 1, 2], [6, 1, 2], [7, 3, 2], [8, 3, 1]]
+                        current_part = pre_data[executor]
+                        data = [{'admin_id': message.from_user.id,
+                                 'car_complectation': current_part[0],
+                                'car_engine': current_part[1],
+                                 'car_color': current_part[2],
+                                 'photo_id': part['id'],
+                                 'photo_unique_id': part['unique_id']} for part in mediagroupss]
+                    # else:
+                    #     executor -= 3
+                    #     data = []
+                    #     complectations = await manager.execute(CarComplectation.select().join(CarModel).join(CarBrand).where(CarBrand.id == executor))
+                    #     engines = await manager.execute(CarEngine.select().join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == executor))
+                    #     car_color = await manager.execute(CarColor.select())
+                    #     for complect in complectations:
+                    #         for engine in engines:
+                    #             for color in car_color:
+                    #                 for part in mediagroupss:
+                    #                     data.append({'admin_id': message.from_user.id,
+                    #                                         'car_complectation': complect.id,
+                    #                                         'car_engine': engine.id,
+                    #                                         'car_color': color.id,
+                    #                                         'photo_id': part['id'],
+                    #                                         'photo_unique_id': part['unique_id']})
 
                     print('load_moment')
                     await state.clear()

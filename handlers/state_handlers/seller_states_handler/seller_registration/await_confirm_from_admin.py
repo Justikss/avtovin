@@ -20,24 +20,24 @@ async def output_for_admin_formater(callback: CallbackQuery):
         ic(new_seller.phone_number)
         if not new_seller.authorized:
             lexicon_part = lexicon_module.LEXICON['seller_waiting_registration_confirm']
-            lexicon_middle_part = lexicon_part[new_seller.entity + '_message']
-            user_link = '@' + callback.from_user.username
-            head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
+            # user_link = '@' + callback.from_user.username
+            # head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
             if new_seller.entity == 'legal':
-                body_string = f'''\n\n{lexicon_middle_part['name']}\n{new_seller.dealship_name}\n\n{lexicon_middle_part['address']}\n{new_seller.dealship_address}'''
-
+                # body_string = f'''\n\n{lexicon_middle_part['name']}\n{new_seller.dealship_name}\n\n{lexicon_middle_part['address']}\n{new_seller.dealship_address}'''
+                head_string = f'''{lexicon_part['start_text_legal'].format(address=new_seller.dealship_address)}{lexicon_part['legal_body_header'].format(dealership_name=new_seller.dealship_name)}'''
             elif new_seller.entity == 'natural':
-                patronymic = new_seller.patronymic
-                if patronymic:
-                    patronymic_string = f'''\n{lexicon_middle_part['patronymic'] + new_seller.patronymic}'''
-                else:
-                    patronymic_string = ' '
+                ic(new_seller.name,new_seller.patronymic)
+                head_string = f'''{lexicon_part['start_text_natural']}{lexicon_part['natural_body_header'].format(name=new_seller.name, surname=new_seller.surname, patronymic=str(new_seller.patronymic))}'''
+                head_string = '\n'.join([part for part in head_string.split('\n') if 'None' not in part])
 
-                body_string = f'''\n\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
+            head_string += f'''{lexicon_part['body'].format(username=callback.from_user.username, phone_number=new_seller.phone_number)}'''
 
-            result_string = head_string + body_string
-            ic(result_string)
-            return result_string
+
+                # body_string = f'''\n\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
+
+            # result_string = head_string + body_string
+            ic(head_string)
+            return head_string
         else:
             await utils.seller_are_registrated_notification(callback=callback)
 

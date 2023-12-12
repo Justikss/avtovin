@@ -13,11 +13,20 @@ from database.data_requests.recomendations_request import RecommendationRequeste
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_seller_header
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
+# async def recommendation_notifications(callback: CallbackQuery, store_query):
+#     if store_query:
+#         for recommendation_model in store_query:
+#             buyer_model = recommendation_model.buyer
+#             user_recommendations = await RecommendationRequester.retrieve_by_buyer_id(buyer_model)
+#             if len(user_recommendations) > 5:
+#                 user_id = buyer_model.telegram_id
+#
+#
 
 async def check_match_adverts_the_sellers(callback, state: FSMContext):
     memory_storage = await state.get_data()
 
-    match_result = await AdvertRequester.get_advert_by(state_id=memory_storage['state_for_load'],
+    match_result = await AdvertRequester.get_advert_models(state_id=memory_storage['state_for_load'],
                                                  engine_type_id=memory_storage['engine_for_load'],
                                                  brand_id=memory_storage['brand_for_load'],
                                                  model_id=memory_storage['model_for_load'],
@@ -40,7 +49,7 @@ async def create_notification_for_admins(callback):
         seller_model = seller_model[0]
 
         last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-        boot_config_string_startswith = f'''{copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', callback.from_user.username)}\n{await get_seller_header(seller=seller_model)}'''
+        boot_config_string_startswith = f'''{copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', callback.from_user.username)}{await get_seller_header(seller=seller_model)}'''
 
         message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
         message_for_admin_chat[0] = boot_config_string_startswith
@@ -80,7 +89,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
 
     boot_data = await data_formatter(request=callback, state=state, id_values=True)
-
+    ic(boot_data)
     print('load_photos??: ', boot_data.get('photos'))
     commodity_number = await CarConfigs.add_advert(callback.from_user.id, boot_data)
 
@@ -104,6 +113,8 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
                                                     send_chat=ADMIN_CHAT, media_group=photos)
 
     store_query_in_recommendations = await RecommendationRequester.add_recommendation(advert=commodity_number)
+
+    # await recommendation_notifications(callback, store_query_in_recommendations)
 
     await callback.answer()
     await state.clear()

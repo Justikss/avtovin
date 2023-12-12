@@ -5,6 +5,8 @@ from typing import Union
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
+from database.data_requests.car_configurations_requests import CarConfigs
+from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import get_load_car_state, \
     input_price_to_load
 from handlers.state_handlers.seller_states_handler.load_new_car.second_hand_handlers import input_year_to_load
@@ -29,7 +31,7 @@ async def input_other_color_to_boot_car(request: Union[CallbackQuery, Message], 
     lexicon_part = copy(LexiconCommodityLoader.load_other_color)
     if incorrect:
         lexicon_part['message_text'] = f'''{lexicon_part['message_text']}{copy(LexiconCommodityLoader.load_other_color_incorrect_message_text)}'''
-        reply_message = await message_editor.redis_data.get_data(key=f'{str(request.from_user.id)}:last_seller_message')
+        # reply_message = await message_editor.redis_data.get_data(key=f'{str(request.from_user.id)}:last_seller_message')
         reply_mode=True
 
     else:
@@ -39,18 +41,26 @@ async def input_other_color_to_boot_car(request: Union[CallbackQuery, Message], 
 
 async def validate_other_color(message: Message, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    incorrect_flag = None
     await delete_last_user_message(message)
 
     if message.text.isalpha() or message.text.replace('-', '').isalpha():
         memory_storage = await state.get_data()
         correct_answer = message.text.capitalize()
-        await state.update_data(color_to_pre_load=correct_answer)
+
         try:
             await message.delete()
         except:
             pass
 
+        match_check_status = await CarConfigs.get_colors_by_name(color_name=correct_answer)
+
+        if not match_check_status:
+            color_value = correct_answer
+        else:
+            color_value = match_check_status[0].id
+
+        await state.update_data(color_to_pre_load=color_value)
         if memory_storage.get('incorrect_flag'):
             await state.update_data(incorrect_flag=False)
             delete_mode = True
@@ -59,7 +69,8 @@ async def validate_other_color(message: Message, state: FSMContext):
 
         lexicon_part = copy(LexiconCommodityLoader.make_sure_selected_other_color)
         lexicon_part['message_text'] = lexicon_part['message_text'].replace('X', correct_answer)
-        await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, delete_mode=delete_mode)
+        return await message_editor.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part, delete_mode=delete_mode)
+
     else:
         await state.update_data(incorrect_flag=True)
         await input_other_color_to_boot_car(request=message, state=state, incorrect=True)
@@ -70,7 +81,8 @@ async def success_load_other_color(callback: CallbackQuery, state: FSMContext):
 
     memory_storage = await state.get_data()
     old_color_value = memory_storage.get('color_for_load')
-    await state.update_data(color_for_load=memory_storage['color_to_pre_load'])
+    current_color_value = memory_storage['color_to_pre_load']
+    await state.update_data(color_for_load=current_color_value)
     ic(memory_storage.get('color_to_pre_load'))
     await state.update_data(other_color_mode=True)
 
@@ -79,14 +91,19 @@ async def success_load_other_color(callback: CallbackQuery, state: FSMContext):
     if cars_state == 'new':
         ic()
         ic(cars_state)
-        ic(old_color_value, memory_storage['color_to_pre_load'])
+        ic(old_color_value, current_color_value)
         if old_color_value:
-            if str(old_color_value) != str(memory_storage['color_to_pre_load']):
+            if str(old_color_value) != str(current_color_value):
                 input_photo_module = importlib.import_module(
                     'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+                if current_color_value.isalpha():
+                    need_photo_flag = True
+                else:
+                    need_photo_flag = False
                 ic()
-                ic(True)
-                return await input_photo_module.input_photo_to_load(callback, state, need_photo_flag=True)
+                print('input_photo_to_load')#
+                if not (old_color_value.isalpha() and current_color_value.isalpha()):
+                    return await input_photo_module.input_photo_to_load(callback, state, need_photo_flag=need_photo_flag)#
         await state.set_state(LoadCommodityStates.input_to_load_price)
         print('go_to_price')
         await input_price_to_load(callback, state, other_color_mode=True)

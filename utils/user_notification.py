@@ -1,6 +1,6 @@
 import importlib
 
-from aiogram.types import CallbackQuery, InputMediaPhoto
+from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from keyboards.inline.kb_creator import InlineCreator
@@ -80,11 +80,21 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     active_seller_notifications = []
     reply_media_message_id = None
     if media_mode:
-        [active_seller_notifications.append(media.message_id)
-         for media in await callback.bot.send_media_group(chat_id=seller_id,
-                                                          media=[InputMediaPhoto(media=file_data['id'] if isinstance(file_data, dict) else file_data)
-                                                                 for file_data in data_for_seller['album']]
-                                                          )]
+        media_group = []
+        for file_data in data_for_seller['album']:
+            if isinstance(file_data, dict):
+                file_data = file_data['id']
+            if '/' in file_data:
+                file_data = FSInputFile(file_data['id'])
+
+            media_group.append(InputMediaPhoto(media=file_data))
+
+        media_message = await callback.bot.send_media_group(chat_id=seller_id,
+                                                          media=media_group)
+
+        for media in media_message:
+            active_seller_notifications.append(media.message_id)
+
         reply_media_message_id = active_seller_notifications[0]
         # active_seller_notifications.append(notification_media_part)
 

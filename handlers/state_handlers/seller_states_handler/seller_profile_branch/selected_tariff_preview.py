@@ -18,15 +18,10 @@ async def tariff_preview_card_constructor(tariff_id) -> dict:
     tariff_view_card = f'''\
         {LexiconSelectedTariffPreview.header}\n\
 {LexiconSelectedTariffPreview.separator}\
-        {LexiconSelectedTariffPreview.name.replace('X', tariff_model.name)}\
-            {LexiconSelectedTariffPreview.low_separator}\
-                {LexiconSelectedTariffPreview.duration_time.replace('X', str(tariff_model.duration_time))}\
-            {LexiconSelectedTariffPreview.low_separator}\
-                    {LexiconSelectedTariffPreview.feedback_amount.replace('X', str(tariff_model.feedback_amount))}\
-            {LexiconSelectedTariffPreview.low_separator}\
-                    {LexiconSelectedTariffPreview.price.replace('X', price)}\
-{LexiconSelectedTariffPreview.separator}\
-                    '''
+{LexiconSelectedTariffPreview.tariff_block.replace('T', tariff_model.name).replace('D', str(tariff_model.duration_time)).replace('R', str(tariff_model.feedback_amount)).replace('P', price)}
+{LexiconSelectedTariffPreview.separator}'''
+
+    print(tariff_view_card)
 
     lexicon_part = {'message_text': tariff_view_card, 'buttons': LexiconSelectedTariffPreview.buttons}
 

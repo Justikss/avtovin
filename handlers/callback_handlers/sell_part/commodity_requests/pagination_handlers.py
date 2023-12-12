@@ -48,7 +48,7 @@ class SellerRequestPaginationHandlers(SellerRequestsPagination):
         # if not pagination_stopper:
         #     await redis_module.redis_data.set_data(key=f'{user_id}:pagination_stopper', value=True)
 
-            await SellerRequestPaginationHandlers.pagination_button(callback, state, pagination_operation)
+        await SellerRequestPaginationHandlers.pagination_button(callback, state, pagination_operation)
 #
 #             await redis_module.redis_data.delete_key(key=f'{user_id}:pagination_stopper')
 #         else:

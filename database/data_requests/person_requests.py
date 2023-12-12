@@ -18,7 +18,7 @@ class PersonRequester:
             return False
 
     @staticmethod
-    async def store_data(*data: Union[List[dict], dict], user=False, seller=False) -> bool:
+    async def store_data(*data: Union[List[dict], dict], user=False, seller=False) -> tuple | bool:
         '''Асинхронный метод для загрузки моделей в таблицу'''
         try:
             if user:
@@ -30,7 +30,7 @@ class PersonRequester:
                 return True
         except IntegrityError as ex:
             print('IntegrityError', ex)
-            return False
+            return False, ex
 
     @staticmethod
     async def change_authorized_state(telegram_id, boolean: bool):

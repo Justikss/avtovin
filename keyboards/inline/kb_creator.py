@@ -8,9 +8,42 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 class InlineCreator:
     @staticmethod
-    async def create_keyboard_width_is_tuple(buttons, width_config):
+    async def create_keyboard_width_dynamic_buttons(buttons, width_config, dynamic_buttons):
         keyboard = InlineKeyboardBuilder()
 
+        # Индекс для отслеживания текущей кнопки
+        current_button_index = 0
+
+        # Обработка всех кнопок, за исключением dynamic_buttons
+        for config in width_config:
+            if isinstance(config, dict):
+                for buttons_in_row, total_buttons in config.items():
+                    rows_needed = math.ceil(total_buttons / buttons_in_row)
+                    for _ in range(rows_needed):
+                        buttons_to_add = min(buttons_in_row, total_buttons - current_button_index)
+                        row_buttons = buttons[current_button_index:current_button_index + buttons_to_add]
+                        keyboard.row(*row_buttons)
+                        current_button_index += buttons_to_add
+            else:
+                while current_button_index < len(buttons) - dynamic_buttons:
+                    row_buttons = buttons[current_button_index:current_button_index + config]
+                    keyboard.row(*row_buttons)
+                    current_button_index += config
+
+        # Обработка последних dynamic_buttons
+        if dynamic_buttons > 0:
+            last_config = width_config[-1] if isinstance(width_config[-1], int) else list(width_config[-1].keys())[0]
+            while current_button_index < len(buttons):
+                row_buttons = buttons[current_button_index:current_button_index + last_config]
+                keyboard.row(*row_buttons)
+                current_button_index += last_config
+
+        return keyboard.as_markup()
+
+    @staticmethod
+    async def create_keyboard_width_is_tuple(buttons, width_config):
+        keyboard = InlineKeyboardBuilder()
+        print('istiplekebe')
         # Индекс для отслеживания текущей кнопки
         current_button_index = 0
 
@@ -27,10 +60,10 @@ class InlineCreator:
                         current_button_index += buttons_to_add
             else:
                 # Обработка конфигурации в виде числа (количество кнопок в ряду)
-                if current_button_index < len(buttons):
-                    row_buttons = buttons[current_button_index:current_button_index + config]
-                    keyboard.row(*row_buttons)
-                    current_button_index += config
+                buttons_to_add = min(config, len(buttons) - current_button_index)
+                row_buttons = buttons[current_button_index:current_button_index + buttons_to_add]
+                keyboard.row(*row_buttons)
+                current_button_index += buttons_to_add
 
         return keyboard.as_markup()
 
@@ -38,7 +71,6 @@ class InlineCreator:
     async def create_markup(input_data: Dict[str, Union[str, int]], get_buttons: bool=False,
                             button_texts: Set[str] = None, callback_sign: str = None, dynamic_buttons: Union[bool, int] = False):
         kbuilder = InlineKeyboardBuilder()
-
         buttons = list()
         print(input_data.keys())
 
@@ -48,9 +80,8 @@ class InlineCreator:
         print('indd: ', input_data)
 
         width = input_data['width']
-        ic(width)
 
-
+        ic(input_data, dynamic_buttons, width)
 
         if button_texts:
             backward_is_exists = input_data.get('backward')
@@ -74,6 +105,7 @@ class InlineCreator:
             return buttons
         ic(width)
         if dynamic_buttons and isinstance(width, int):
+            print('istiplekebe0')
             if isinstance(dynamic_buttons, bool) and dynamic_buttons:
                 dynamic_count = 1  # Если dynamic_buttons True, то одна кнопка внизу будет одиночной
             elif isinstance(dynamic_buttons, int):
@@ -98,8 +130,13 @@ class InlineCreator:
             return InlineKeyboardMarkup(inline_keyboard=result_format)
 
         elif not isinstance(width, int):
-
-            return await InlineCreator.create_keyboard_width_is_tuple(buttons, width)
+            ic(dynamic_buttons)
+            if isinstance(dynamic_buttons, bool):
+                print('istiplekebe')
+                return await InlineCreator.create_keyboard_width_is_tuple(buttons, width)
+            elif dynamic_buttons:
+                print('istiplekebe-1')
+                return await InlineCreator.create_keyboard_width_dynamic_buttons(buttons, width, dynamic_buttons)
 
 
         keyboard = kbuilder.row(*buttons, width=width)

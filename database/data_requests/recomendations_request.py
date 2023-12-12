@@ -38,7 +38,7 @@ class RecommendationParametersBinder:
         if advert:
             complectation_id = advert.complectation.id
             state_id = advert.state.id
-            engine_type_id = advert.engine_type.id
+            engine_type_id = advert.complectation.engine.id
             color_id = advert.color.id
             mileage_id = advert.mileage.id if advert.mileage else None
             year_id = advert.year.id if advert.year else None
@@ -87,7 +87,7 @@ class RecommendationRequester:
             for wire in parameter_wire:
                 ic(advert, wire.buyer.telegram_id, parameter_wire)
                 data.append({'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
-                return await manager.execute(RecommendedOffers.insert_many(data))
+                return list(await manager.execute(RecommendedOffers.insert_many(data)))
 
 
 
@@ -119,3 +119,4 @@ class RecommendationRequester:
             await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.advert == int(advert_id)))
         except:
             pass
+

@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime
 
 from aiogram.types import CallbackQuery
@@ -50,13 +51,16 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
 
     if seller_tariff_model:
         seller_tariff_model = seller_tariff_model[0]
-
+        output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
         if seller_tariff_model.end_date_time < datetime.now():
-            output_string += f'\n{lexicon_module.LexiconSellerProfile.tarif_expired}'
+            output_string += f'\n\n{lexicon_module.LexiconSellerProfile.tarif_expired}'
         else:
-            output_string += f'''\n{lexicon_module.LexiconSellerProfile.tariff_prefix.replace('X', seller_tariff_model.tariff.name)}\
-                {lexicon_module.LexiconSellerProfile.tariff_out_date_prefix.replace('X', str(seller_tariff_model.end_date_time))}\
-                    \n{lexicon_module.LexiconSellerProfile.residual_feedback_prefix.replace('X', str(seller_tariff_model.residual_feedback))}'''
+            days_to_end = seller_tariff_model.end_date_time - datetime.now()
+            output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.replace('T', seller_tariff_model.tariff.name).replace('D', str(days_to_end.days)).replace('R', str(seller_tariff_model.residual_feedback)))
+            print(output_string)
+            # output_string += f'''\n{lexicon_module.LexiconSellerProfile.tariff_prefix.replace('X', seller_tariff_model.tariff.name)}\
+            #     {lexicon_module.LexiconSellerProfile.tariff_out_date_prefix.replace('X', str(days_to_end.days))}\
+            #         \n{lexicon_module.LexiconSellerProfile.residual_feedback_prefix.replace('X', str(seller_tariff_model.residual_feedback))}'''
 
     return output_string
 
@@ -67,7 +71,7 @@ async def output_seller_profile(callback: CallbackQuery):
 
     message_editor_module = importlib.import_module('handlers.message_editor')
     message_text = await seller_profile_card_constructor(callback=callback)
-    tariff_button = lexicon_module.LexiconSellerProfile.tariff_extension_button if lexicon_module.LexiconSellerProfile.tariff_prefix.split('>')[1] in message_text else lexicon_module.LexiconSellerProfile.tariff_store_button
+    tariff_button = lexicon_module.LexiconSellerProfile.tariff_extension_button if lexicon_module.LexiconSellerProfile.tariff_prefix.split('>')[1].split(':')[0] in message_text else lexicon_module.LexiconSellerProfile.tariff_store_button
     lexicon_part = {'message_text': message_text,
                     'buttons': {**tariff_button, **lexicon_module.LEXICON['return_main_menu_button'], 'width': lexicon_module.LexiconSellerProfile.width}}
 

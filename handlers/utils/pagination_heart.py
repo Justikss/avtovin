@@ -26,7 +26,9 @@ class Pagination:
 
         start_index = (self.current_page - 1) * self.page_size
         end_index = start_index + self.page_size
+        ic(self.page_size)
         ic(self.current_page)
+        ic(self.data[start_index:end_index], start_index,end_index)
         return self.data[start_index:end_index]
 
 
