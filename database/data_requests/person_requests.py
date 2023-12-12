@@ -1,3 +1,4 @@
+import traceback
 from typing import Union, List
 
 from peewee import IntegrityError
@@ -7,6 +8,15 @@ from database.db_connect import manager
 from database.tables.seller import Seller
 
 class PersonRequester:
+
+    @staticmethod
+    async def get_seller_by_advert(advert):
+        try:
+            seller = await manager.get(Seller, Seller.telegram_id == advert.seller)
+            return seller
+        except:
+            traceback.print_exc()
+
     @staticmethod
     async def retrieve_all_data(user=False, seller=False) -> Union[bool, List[User]]:
         '''Асинхронный метод для извлечения всех моделей строк'''

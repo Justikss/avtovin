@@ -1,7 +1,7 @@
 from copy import copy
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InputMediaPhoto, Message
+from aiogram.types import CallbackQuery, InputMediaPhoto, Message, FSInputFile
 from typing import List, Union
 import importlib
 
@@ -144,15 +144,15 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
     commodity_card_messages_id = []
     commodity_card_message = None
     for output_part in output_data_part:
-        ic(output_part)
+        # ic(output_part)
 
 
         if output_part.get('album'):
-            print('output_part ', output_part)
-            media_group = [InputMediaPhoto(media=photo_id) for photo_id in output_part['album'][:-1]]
-            print(output_part)
-            media_group.append(InputMediaPhoto(media=output_part['album'][-1],
+            output_part['album'] = output_part['album'][:5]
+            media_group = [InputMediaPhoto(media=photo_id if '/' not in photo_id else FSInputFile(photo_id)) for photo_id in output_part['album'][:-1]]
+            media_group.append(InputMediaPhoto(media=output_part['album'][-1] if '/' not in output_part['album'][-1] else FSInputFile(output_part['album'][-1]),
                                                caption=output_part['message_text']))
+
             commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
                                                                       media=media_group)
             for message in commodity_card_message:

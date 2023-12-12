@@ -18,3 +18,6 @@ class UserExistsError(BaseException):
 
 class CarExistsError(BaseException):
     pass
+
+class SubtractLastFeedback(BaseException):
+    pass

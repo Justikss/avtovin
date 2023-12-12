@@ -124,7 +124,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
 
         result_part = {'car_id': car.id, 'message_text': result_string, 'album': photo_album}
         data_stack.append(result_part)
-    ic(data_stack)
+    # ic(data_stack)
     if first_view_mode:
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
         await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id, state_id=car_state, engine_type_id=engine_type,

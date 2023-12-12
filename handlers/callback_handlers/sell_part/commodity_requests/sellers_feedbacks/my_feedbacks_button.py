@@ -52,7 +52,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
         if callback_data == 'new_feedbacks':
             viewed = False
-            keyboard_part = LexiconSellerRequests.check_new_feedbacks_buttons
+            keyboard_part = LexiconSellerRequests.check_viewed_feedbacks_buttons
         elif 'viewed_feedbacks' in (command, callback_data):
             viewed = True
             keyboard_part = LexiconSellerRequests.check_viewed_feedbacks_buttons
@@ -162,7 +162,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
                 result_part = {'offer_id': offer_id, 'car_id': car.id, 'message_text': result_string, 'album': photo_album}
                 output_unpacked_data.append(result_part)
-                ic(result_part)
+                # ic(result_part)
             return output_unpacked_data
 
 

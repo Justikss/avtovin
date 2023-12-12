@@ -144,18 +144,21 @@ class CachedOrderRequests:
         if buyer_id:
             query = CacheBuyerOffers.select().join(User).where(
                 User.telegram_id == buyer_id)
-            
+            ic(brand, buyer_id, car_id)
             if car_id:
                 query = query.switch(CacheBuyerOffers).join(CarAdvert).where(CarAdvert.id == car_id)
             if brand and not car_id:
                 query = (query.switch(CacheBuyerOffers).join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
                          .where(CarBrand.id == int(brand)))
+                aquery = CacheBuyerOffers.select().join(User).where(
+                    User.telegram_id == buyer_id)
+
 
             select_query = await manager.execute(query)
             result = await CachedOrderRequests.check_overtime_requests(select_query)
             if brand:
                 result = [offer.car_id for offer in result]
-
+            ic(result)
             return result if result else False
             # if brand:
             #     result = [request.car_id for request in select_query if request.car_id.brand == brand]

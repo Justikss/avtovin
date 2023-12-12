@@ -52,6 +52,7 @@ class CarAdvert(BaseModel):
     dollar_price = BigIntegerField(null=True)
     mileage = ForeignKeyField(CarMileage, backref='adverts', null=True)
     year = ForeignKeyField(CarYear, backref='adverts', null=True)
+    sleep_status = BooleanField(null=True)
 
     additional_info = TextField(null=True)
 

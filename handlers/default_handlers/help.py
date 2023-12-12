@@ -47,6 +47,6 @@ async def bot_help(message: Message):
             'tariff': 'minimum'
             }
 
-    await TariffToSellerBinder.set_bind(data=data)
+    await TariffToSellerBinder.set_bind(data=data, bot=message.bot)
 
 

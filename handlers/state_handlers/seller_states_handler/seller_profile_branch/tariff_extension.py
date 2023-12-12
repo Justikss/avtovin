@@ -4,6 +4,8 @@ import importlib
 
 from utils.lexicon_utils.Lexicon import LexiconTariffSelection
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
+from utils.user_notification import try_delete_notification
+
 
 async def lexicon_part_constructor():
     '''Метод структурирует своеобразный 'Мок' lexicon_part'a по которому выводится блок сообщения с кнопками'''
@@ -29,6 +31,7 @@ async def output_affordable_tariffs_handler(callback: CallbackQuery, state: FSMC
     Предоставляет список всех доступных тарифов'''
     message_editor_module = importlib.import_module('handlers.message_editor')
 
+    await try_delete_notification(callback, user_status='lose_tariff')
     lexicon_part = await lexicon_part_constructor()
     
     if not lexicon_part:

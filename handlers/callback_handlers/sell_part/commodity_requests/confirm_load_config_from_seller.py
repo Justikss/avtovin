@@ -10,6 +10,7 @@ from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.person_requests import PersonRequester
 from database.data_requests.recomendations_request import RecommendationRequester
+from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_seller_header
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
@@ -73,7 +74,11 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     media_group_delete_module = importlib.import_module('utils.chat_cleaner.media_group_messages')
+    if not await TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+        await callback.answer(lexicon_module.LEXICON['tariff_non_actuallity'], show_alert=True)
+        return
     message_for_admin_chat = await create_notification_for_admins(callback)
 
     if not message_for_admin_chat:

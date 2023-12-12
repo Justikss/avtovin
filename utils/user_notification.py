@@ -1,5 +1,6 @@
 import importlib
 
+from aiogram import Bot
 from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
 from database.data_requests.car_advert_requests import AdvertRequester
@@ -19,6 +20,8 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         redis_sub_key = ':seller_registration_notification'
     elif user_status == 'buyer':
         redis_sub_key = ':buyer_offer_notification'
+    elif user_status == 'lose_tariff':
+        redis_sub_key = ':seller_without_tariff_notification'
     if redis_sub_key:
         notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
         if notification_message_id:
@@ -32,7 +35,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
             await callback.answer()
 
 
-async def send_notification(callback: CallbackQuery, user_status: str, chat_id=None):
+async def send_notification(callback: CallbackQuery | None, user_status: str, chat_id=None, bot: Bot = None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
@@ -44,6 +47,10 @@ async def send_notification(callback: CallbackQuery, user_status: str, chat_id=N
     elif user_status == 'buyer':
         redis_sub_key = ':buyer_offer_notification'
         lexicon_key = 'buyer_offer_notification'
+    elif user_status == 'seller_without_tariff':
+        lexicon_key = 'seller_without_tariff_notification'
+        redis_sub_key = f':{lexicon_key}'
+        current_id = str(chat_id)
 
     if not current_id:
         current_id = str(callback.from_user.id)
@@ -56,15 +63,17 @@ async def send_notification(callback: CallbackQuery, user_status: str, chat_id=N
         #return
         pass
 
-    await callback.answer()
-
-
-    await callback.answer(lexicon_module.LEXICON['success_notification'])
-
     lexicon_part = lexicon_module.LEXICON[lexicon_key]
     keyboard = await InlineCreator.create_markup(input_data=lexicon_part)
-    notification_message = await callback.message.bot.send_message(chat_id=chat_id, text=lexicon_part['message_text'],
-                                            reply_markup=keyboard)
+
+    if callback:
+        await callback.answer(lexicon_module.LEXICON['success_notification'])
+        notification_message = await callback.message.bot.send_message(chat_id=chat_id, text=lexicon_part['message_text'],
+                                                reply_markup=keyboard)
+
+    elif bot:
+        notification_message = await bot.send_message(chat_id=chat_id, text=lexicon_part['message_text'], reply_markup=keyboard)
+
 
     await redis_module.redis_data.set_data(key=str(chat_id) + redis_sub_key,
                                             value=notification_message.message_id)
@@ -81,11 +90,12 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     reply_media_message_id = None
     if media_mode:
         media_group = []
+        data_for_seller['album'] = data_for_seller['album'][:5]
         for file_data in data_for_seller['album']:
             if isinstance(file_data, dict):
                 file_data = file_data['id']
             if '/' in file_data:
-                file_data = FSInputFile(file_data['id'])
+                file_data = FSInputFile(file_data)
 
             media_group.append(InputMediaPhoto(media=file_data))
 

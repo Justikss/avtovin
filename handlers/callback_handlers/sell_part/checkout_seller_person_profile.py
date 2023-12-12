@@ -50,7 +50,8 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
     output_string = f'''{lexicon_module.LexiconSellerProfile.header}{seller_data}\n{lexicon_module.LexiconSellerProfile.phonenumber_prefix.replace('X', seller_model.phone_number)}'''
 
     if seller_tariff_model:
-        seller_tariff_model = seller_tariff_model[0]
+        if isinstance(seller_tariff_model, list):
+            seller_tariff_model = seller_tariff_model[0]
         output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
         if seller_tariff_model.end_date_time < datetime.now():
             output_string += f'\n\n{lexicon_module.LexiconSellerProfile.tarif_expired}'

@@ -47,7 +47,7 @@ async def get_tariff(callback):
                 'tariff': 'minimum'
                 }
 
-        try_set_bind = await TariffToSellerBinder.set_bind(data=data)
+        try_set_bind = await TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=None) #days=1 seconds=5
         if not try_set_bind:
             await user_dont_registrated(callback)
 

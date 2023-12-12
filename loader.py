@@ -37,6 +37,7 @@ from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiv
     CheckRecommendationsStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
+from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 from utils.middleware.messages_dupe_defender import ThrottlingMiddleware
@@ -113,7 +114,7 @@ async def start_bot():
     #
     # await get_car()
     asyncio.create_task(fetch_currency_rate())
-
+    asyncio.create_task(schedule_tariff_deletion(bot))
     asyncio.create_task(GetDealershipAddress.process_queue())
 
     dp.callback_query.middleware(CleanerMiddleware())
@@ -269,8 +270,7 @@ async def start_bot():
 
 
     '''Оформление тарифа продавца'''
-    dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler,
-                              and_f(StateFilter(default_state), F.data == 'tariff_extension'))
+    dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler, F.data == 'tariff_extension')
     dp.callback_query.register(seller_profile_branch.selected_tariff_preview.tariff_preview_handler,
                               and_f(StateFilter(ChoiceTariffForSellerStates.choose_tariff), lambda callback: callback.data.startswith('select_tariff:')))
     dp.callback_query.register(seller_profile_branch.choose_payment.choice_payments_handler,

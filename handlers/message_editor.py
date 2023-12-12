@@ -40,7 +40,7 @@ class TravelEditor:
             send_chat_id = send_chat
 
         chat_object = message_object.chat
-        ic(save_media_group, media_group, delete_media_group_mode)
+        # ic(save_media_group, media_group, delete_media_group_mode)
         if (not media_group and not save_media_group) or (delete_media_group_mode):
             ic()
             media_group_message = await redis_data.get_data(key=user_id + ':last_media_group', use_json=True)
@@ -117,7 +117,9 @@ class TravelEditor:
                         # Определение списка файлов
                         file_list = media_group[album_id] if album_id else media_group
 
+                        file_list = file_list[:5]
                         ic(file_list)
+
                         # Создание объектов для отправки
                         caption_photo = [
                             InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id']) if isinstance(file_data, dict) else file_data,

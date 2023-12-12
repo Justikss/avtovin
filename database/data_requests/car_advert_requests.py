@@ -10,6 +10,13 @@ from database.tables.seller import Seller
 
 class AdvertRequester:
     @staticmethod
+    async def set_sleep_status(sleep_status: bool, seller_id=None, advert_id=None):
+        adverts = await AdvertRequester.get_advert_by_seller(seller_id)
+        if adverts:
+            adverts = [advert.id for advert in adverts]
+            await manager.execute(CarAdvert.update(sleep_status=sleep_status).where(CarAdvert.id.in_(adverts)))
+
+    @staticmethod
     async def update_price(advert_id, new_price, head_valute):
         try:
             if head_valute == 'sum':
@@ -30,7 +37,7 @@ class AdvertRequester:
     async def get_where_id(advert_id: str):
         '''Получение моделей с определённым параметром id'''
         try:
-            select_request = await manager.get(CarAdvert.select().where(CarAdvert.id == int(advert_id)))
+            select_request = await manager.get(CarAdvert.select().join(Seller).where(CarAdvert.id == int(advert_id)))
             ic()
             ic(advert_id, select_request.seller.telegram_id)
             return select_request
@@ -39,6 +46,11 @@ class AdvertRequester:
             ic(advert_id)
             print('exx', ex)
             return False
+
+    # @staticmethod
+    # async def delete_adverts_by_seller(seller):
+    #     await manager.execute(CarAdvert.delete().where(CarAdvert.seller == seller))
+
     @staticmethod
     async def get_advert_by(state_id, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
                             color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None):
@@ -46,7 +58,7 @@ class AdvertRequester:
 
         unique_models = None
 
-        query = CarAdvert.select()
+        query = CarAdvert.select().where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
         if seller_id:
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
             query = query.switch(CarAdvert)
@@ -125,7 +137,8 @@ class AdvertRequester:
                             color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None):
         # ... Предыдущий код ...
 
-        query = CarAdvert.select()
+        query = CarAdvert.select().where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+
         if seller_id:
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
             query = query.switch(CarAdvert)
@@ -285,12 +298,24 @@ class AdvertRequester:
             return False
 
     @staticmethod
-    async def delete_advert_by_id(advert_id, seller_id):
-        ic(advert_id, seller_id)
-        car_advert_subquery = CarAdvert.select().where((CarAdvert.id == advert_id) & (CarAdvert.seller == int(seller_id)))
-        await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
-        await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
-        await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
-        await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
-        return await manager.execute(CarAdvert.delete().where((CarAdvert.id == int(advert_id)) & (CarAdvert.seller == int(seller_id))))
+    async def delete_advert_by_id(seller_id, advert_id=None):
+        if isinstance(seller_id, str):
+            seller_id = int(seller_id)
 
+        if not advert_id:
+            adverts = await AdvertRequester.get_advert_by_seller(seller_id)
+        else:
+            adverts = [advert_id]
+        ic(advert_id, seller_id)
+        result = []
+        for advert_id in adverts:
+            if not isinstance(advert_id, int):
+                advert_id = advert_id.id
+            car_advert_subquery = CarAdvert.select().where((CarAdvert.id == advert_id) & (CarAdvert.seller == seller_id))
+            await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
+            await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
+            await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
+            await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
+            result.append(await manager.execute(CarAdvert.delete().where((CarAdvert.id == int(advert_id)) & (CarAdvert.seller == int(seller_id)))))
+        if result:
+            return result

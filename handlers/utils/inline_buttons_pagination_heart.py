@@ -32,7 +32,7 @@ class CachedRequestsView:
             operation = '+'
         else:
             pagination_data = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
-            ic(pagination_data)
+            # ic(pagination_data)
             pagination = Pagination(**pagination_data)
 
         if not operation:

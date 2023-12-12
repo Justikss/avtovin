@@ -1,43 +1,84 @@
-import os
-import re
+# import asyncio
+# from peewee import *
+# from datetime import datetime, timedelta
+#
+# # Ваши классы моделей: Seller, Tariff, TariffsToSellers
+# # Инициализация менеджера (предполагается, что у вас уже есть инициализированный объект database)
+# manager = peewee_async.Manager(database)
+#
+#
+# async def delete_expired_tariff(tariff_id, wait_seconds):
+#     # Ждем до момента истечения срока действия тарифа
+#     await asyncio.sleep(wait_seconds)
+#
+#     # Удаление тарифа
+#     async with manager.atomic():
+#         tariff = await manager.get(TariffsToSellers, TariffsToSellers.id == tariff_id)
+#         if tariff:
+#             await manager.delete(tariff)
+#             print(f"Тариф {tariff.tariff.name} для продавца {tariff.seller.telegram_id} удален.")
+#
+#
+# async def schedule_tariff_deletion():
+#     now = datetime.now()
+#
+#     # Получение всех активных тарифов, которые еще не истекли
+#     active_tariffs = await manager.execute(TariffsToSellers.select().where(
+#         TariffsToSellers.end_date_time > now
+#     ))
+#
+#     # Запланировать задачи для удаления тарифов
+#     for tariff in active_tariffs:
+#         wait_seconds = (tariff.end_date_time - now).total_seconds()
+#         asyncio.create_task(delete_expired_tariff(tariff.id, wait_seconds))
+#
+#
+# # Запуск планировщика удаления тарифов
+# # asyncio.run(schedule_tariff_deletion())
+#
 
-from aiogram.types import InputFile, FSInputFile
-
-path = 'utils/carss\\9\\mers — копия (2).jpg'
-
-if os.path.exists(path):
-    print('true')
-
-with open(path, 'rb') as file:
-
-    if FSInputFile(path):
-        print('aasd')
-
-
-def format_and_validate_phone_number(phone_number):
-    # Регулярное выражение для проверки номера телефона
-    pattern = r'^(\+?7\d{10}|8\d{10}|\+?998\d{9}|998\d{9}|9\d{8})$'
-
-    if re.match(pattern, phone_number):
-        # Форматирование номера
-        if phone_number.startswith('8'):
-            formatted_number = '+7' + phone_number[1:]
-        elif phone_number.startswith('9') and len(phone_number) == 9:
-            # Форматирование локального узбекского номера
-            return re.sub(r"(9\d{1})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4", phone_number)
-        elif not phone_number.startswith('+'):
-            formatted_number = '+' + phone_number
-        else:
-            formatted_number = phone_number
-
-        # Добавление дефисов для разделения цифр
-        if formatted_number.startswith('+7'):
-            return re.sub(r"(\+7)(\d{3})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
-        elif formatted_number.startswith('+998'):
-            return re.sub(r"(\+998)(\d{2})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
-    else:
-        return False
-
+#
+# ##############################################
+# import os
+# import re
+#
+# from aiogram.types import InputFile, FSInputFile
+#
+# path = 'utils/carss\\9\\mers — копия (2).jpg'
+#
+# if os.path.exists(path):
+#     print('true')
+#
+# with open(path, 'rb') as file:
+#
+#     if FSInputFile(path):
+#         print('aasd')
+#
+#
+# def format_and_validate_phone_number(phone_number):
+#     # Регулярное выражение для проверки номера телефона
+#     pattern = r'^(\+?7\d{10}|8\d{10}|\+?998\d{9}|998\d{9}|9\d{8})$'
+#
+#     if re.match(pattern, phone_number):
+#         # Форматирование номера
+#         if phone_number.startswith('8'):
+#             formatted_number = '+7' + phone_number[1:]
+#         elif phone_number.startswith('9') and len(phone_number) == 9:
+#             # Форматирование локального узбекского номера
+#             return re.sub(r"(9\d{1})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4", phone_number)
+#         elif not phone_number.startswith('+'):
+#             formatted_number = '+' + phone_number
+#         else:
+#             formatted_number = phone_number
+#
+#         # Добавление дефисов для разделения цифр
+#         if formatted_number.startswith('+7'):
+#             return re.sub(r"(\+7)(\d{3})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
+#         elif formatted_number.startswith('+998'):
+#             return re.sub(r"(\+998)(\d{2})(\d{3})(\d{2})(\d{2})", r"\1-\2-\3-\4-\5", formatted_number)
+#     else:
+#         return False
+#
 
 # Примеры использования
 # print(format_and_validate_phone_number("+79111234567"))  # Российский номер
