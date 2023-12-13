@@ -25,38 +25,50 @@ class DyingTariffRequester:
         tariff_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
         ic(seller)
         ic(tariff_model)
-        if not seller and tariff_model:
-            tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_id(tariff_model)
-
-        if not tariff_model:
-            tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_seller_id(seller.telegram_id)
-
-
         if not seller:
             ic(tariff_model)
             seller = tariff_model.seller
+
+        if isinstance(tariff_model, int):
+            ic(seller)
+            ic(tariff_model)
+            tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_id(tariff_model)
+
+        if not tariff_model and seller:
+            ic(seller)
+            ic(tariff_model)
+            tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_seller_id(seller.telegram_id)
+
+
+
         ic(seller)
         ic(tariff_model)
         await AdvertRequester.set_sleep_status(True, seller)
         if bot:
             await send_notification_about_lose_tariff(seller_id=seller, bot=bot)
         ic(tariff_model)
-        dying_tariff = await manager.create(DyingTariffs, tariff_wire=tariff_model)
+        ic(seller)
+        try:
+            dying_tariff = await manager.get(DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller.telegram_id))
+        except:
+            dying_tariff = None
+        if not dying_tariff:
+            dying_tariff = await manager.create(DyingTariffs, tariff_wire=tariff_model)
+        ic(dying_tariff)
         if dying_tariff:
+            car_adverts = await AdvertRequester.get_advert_by_seller(seller)
+            ic(car_adverts)
+            if car_adverts:
+                await AdvertRequester.remove_user_view_to_advert(advert_id=car_adverts, seller_id=seller)
             await set_timer_on_dying_tariff(dying_tariff, bot)
 
     @staticmethod
     async def check_end_time():
         end_tariffs = list(await manager.execute(DyingTariffs.select(Seller).where(DyingTariffs.end_time < datetime.now())))
-        # if end_tariffs:
-        #     for tariff in end_tariffs:
-        #         await AdvertRequester.delete_advert_by_id(seller_id=tariff.seller.telegram_id)
-        #
-        # select_query = await manager.execute(DyingTariffs.delete().where(DyingTariffs.end_time < datetime.now()))
         return end_tariffs
 
     @staticmethod
-    async def remove_dying_tariff_to_lose(tariff_id):
+    async def remove_dying_tariff_to_lose(tariff_id, bot):
         '''стёрка деятельности продавца по id мёртвого тарифа'''
         try:
             ic(tariff_id)
@@ -67,6 +79,8 @@ class DyingTariffRequester:
         if dying_tariff:
             active_tariffs_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
 
+            await send_notification_about_lose_tariff(seller_id=dying_tariff.tariff_wire.seller.telegram_id, bot=bot, last_notif=True)
+
             await manager.execute(DyingTariffs.delete().where(DyingTariffs.id == tariff_id))
             await active_tariffs_module.TariffToSellerBinder.remove_bind(dying_tariff.tariff_wire.seller)
             await AdvertRequester.delete_advert_by_id(seller_id=dying_tariff.tariff_wire.seller)
@@ -75,9 +89,9 @@ class DyingTariffRequester:
     async def remove_old_tariff_to_update(seller):
         if not isinstance(seller, int):
             seller = seller.telegram_id
-        old_tariff = await manager.execute(DyingTariffs.select().join(Seller).where(Seller.telegram_id == seller))
-        if old_tariff:
-            await manager.execute(DyingTariffs.delete().where(DyingTariffs.id == old_tariff.id))
+        old_tariff = DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller)
+
+        await manager.execute(DyingTariffs.delete().where(DyingTariffs.id.in_(old_tariff)))
 
     @staticmethod
     async def tariff_was_dying(seller):

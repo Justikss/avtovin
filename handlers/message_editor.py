@@ -1,7 +1,8 @@
+import traceback
 from typing import Set
 
 from aiogram.types import chat, CallbackQuery, InputMediaPhoto, InputFile, FSInputFile
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramServerError
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
 from utils.lexicon_utils.Lexicon import LEXICON
@@ -131,9 +132,15 @@ class TravelEditor:
 
                         new_album.insert(0, caption_photo[0])  # Добавление фото с подписью в начало альбома
 
-                        new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+                        try:
+                            new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+                        except TelegramServerError:
+                            traceback.print_exc()
 
-
+                            try:
+                                new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+                            except:
+                                traceback.print_exc()
                         await redis_data.set_data(key=user_id+':last_media_group',
                                                   value=[media_message.message_id
                                                          for media_message in new_media_message])
@@ -156,7 +163,16 @@ class TravelEditor:
                         new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
 
                         print('post ', new_album)
-                        new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+                        try:
+                            new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+                        except TelegramServerError:
+                            traceback.print_exc()
+                            try:
+                                new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
+
+                            except:
+                                traceback.print_exc()
+
                         new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'],
                                                              reply_markup=keyboard,
                                                              reply_to_message_id=new_media_message[0].message_id)

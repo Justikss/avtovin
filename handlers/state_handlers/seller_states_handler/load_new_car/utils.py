@@ -171,7 +171,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
 
 
                         elif current_state in (
-                        'LoadCommodityStates:input_to_load_price', 'LoadCommodityStates:input_to_load_year'):
+                        'LoadCommodityStates:input_to_load_color', 'LoadCommodityStates:input_to_load_year'):
                             ic()
                             ic('complectation1221', selected_id)
                             if (not edit_mode) or (memory_storage.get('rewrite_brand_mode')):

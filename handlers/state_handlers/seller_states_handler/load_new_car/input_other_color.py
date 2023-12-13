@@ -102,7 +102,7 @@ async def success_load_other_color(callback: CallbackQuery, state: FSMContext):
                     need_photo_flag = False
                 ic()
                 print('input_photo_to_load')#
-                if not (old_color_value.isalpha() and current_color_value.isalpha()):
+                if not (str(old_color_value).isalpha() and str(current_color_value).isalpha()):
                     return await input_photo_module.input_photo_to_load(callback, state, need_photo_flag=need_photo_flag)#
         await state.set_state(LoadCommodityStates.input_to_load_price)
         print('go_to_price')

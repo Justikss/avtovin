@@ -14,6 +14,7 @@ async def set_former_advert_configurations(callback: CallbackQuery, state: FSMCo
     advert_old_configurations = await message_editor.redis_data.get_data(
         key=f'{str(callback.from_user.id)}:boot_advert_ids_kwargs',
         use_json=True)
+    ic(advert_old_configurations)
     await state.update_data(state_for_load=advert_old_configurations.get('state'))
     await state.update_data(engine_for_load=advert_old_configurations.get('engine_type'))
     await state.update_data(brand_for_load=advert_old_configurations.get('brand'))

@@ -115,8 +115,11 @@ class RecommendationRequester:
 
     @staticmethod
     async def remove_recommendation_by_advert_id(advert_id=None):
+        if not isinstance(advert_id, list):
+            advert_id = [advert_id]
         try:
-            await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.advert == int(advert_id)))
+            await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.advert.in_(advert_id)))
         except:
+            traceback.print_exc()
             pass
 

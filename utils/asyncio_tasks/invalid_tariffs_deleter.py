@@ -11,13 +11,13 @@ from config_data.config import DATETIME_FORMAT
 # Ваши классы моделей: Seller, Tariff, TariffsToSellers
 # Инициализация менеджера (предполагается, что у вас уже есть инициализированный объект database)
 
-async def delete_expired_dying_tariff(tariff, wait_seconds):
+async def delete_expired_dying_tariff(tariff, wait_seconds, bot):
     dying_tariffs_module = importlib.import_module('database.data_requests.dying_tariff')
     print('stop_dying_trff')
     # Ждем до момента истечения срока действия тарифа
     await asyncio.sleep(wait_seconds)
     # Удаление тарифа
-    await dying_tariffs_module.DyingTariffRequester.remove_dying_tariff_to_lose(tariff)
+    await dying_tariffs_module.DyingTariffRequester.remove_dying_tariff_to_lose(tariff, bot)
 
 async def stop_active_tariff(tariff, wait_seconds, bot):
     dying_tariffs_module = importlib.import_module('database.data_requests.dying_tariff')
@@ -34,7 +34,7 @@ async def set_timer_on_dying_tariff(dying_tariff, bot):
     if isinstance(end_time, str):
         end_time = datetime.strptime(end_time, DATETIME_FORMAT)
     wait_seconds = (end_time - now).total_seconds()
-    asyncio.create_task(delete_expired_dying_tariff(dying_tariff.id, wait_seconds))
+    asyncio.create_task(delete_expired_dying_tariff(dying_tariff.id, wait_seconds, bot))
 
 
 async def set_timer_on_active_tariff(active_tariff, bot):

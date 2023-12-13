@@ -16,6 +16,7 @@ from handlers.callback_handlers.sell_part.commodity_requests.backward_command_lo
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
+from handlers.default_handlers.admin_part_default_handlers.save_seller_tariff import save_tariff_handler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
@@ -126,6 +127,7 @@ async def start_bot():
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
     dp.message.register(bot_help, Command(commands=['free_tariff']))
+    dp.message.register(save_tariff_handler, Command(commands=['ut']))
 
     '''обработка Сообщений'''
     dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))

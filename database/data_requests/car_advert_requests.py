@@ -244,6 +244,8 @@ class AdvertRequester:
 
     @staticmethod
     async def get_advert_brands_by_seller_id(seller_id):
+        if not isinstance(seller_id, int):
+            seller_id = seller_id.telegram_id
         query = (CarBrand
                  .select()
                  .distinct()
@@ -298,6 +300,20 @@ class AdvertRequester:
             return False
 
     @staticmethod
+    async def remove_user_view_to_advert(seller_id, advert_id):
+        ic(advert_id)
+        if not isinstance(advert_id, list):
+            advert_id = [advert_id]
+        advert_id = [advert.id if isinstance(advert, CarAdvert) else advert for advert in advert_id]
+        ic(advert_id)
+        car_advert_subquery = CarAdvert.select().where((CarAdvert.id.in_(advert_id)) & (CarAdvert.seller == seller_id))
+
+        await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
+        await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
+
+        return car_advert_subquery
+
+    @staticmethod
     async def delete_advert_by_id(seller_id, advert_id=None):
         if isinstance(seller_id, str):
             seller_id = int(seller_id)
@@ -306,16 +322,17 @@ class AdvertRequester:
             adverts = await AdvertRequester.get_advert_by_seller(seller_id)
         else:
             adverts = [advert_id]
-        ic(advert_id, seller_id)
+        ic(adverts, seller_id)
         result = []
-        for advert_id in adverts:
-            if not isinstance(advert_id, int):
-                advert_id = advert_id.id
-            car_advert_subquery = CarAdvert.select().where((CarAdvert.id == advert_id) & (CarAdvert.seller == seller_id))
-            await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
-            await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
-            await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
-            await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
-            result.append(await manager.execute(CarAdvert.delete().where((CarAdvert.id == int(advert_id)) & (CarAdvert.seller == int(seller_id)))))
+        # for advert_id in adverts:
+        #     if not isinstance(advert_id, int):
+        #         advert_id = advert_id.id
+        car_advert_subquery = await AdvertRequester.remove_user_view_to_advert(seller_id, adverts)
+        # await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
+        # await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
+        # await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
+        await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
+        await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
+        result.append(await manager.execute(CarAdvert.delete().where((CarAdvert.id.in_(car_advert_subquery)) & (CarAdvert.seller == seller_id))))
         if result:
             return result

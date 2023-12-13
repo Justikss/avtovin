@@ -1,5 +1,7 @@
+import traceback
 from copy import copy
 
+from aiogram.exceptions import TelegramServerError
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InputMediaPhoto, Message, FSInputFile
 from typing import List, Union
@@ -152,9 +154,17 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
             media_group = [InputMediaPhoto(media=photo_id if '/' not in photo_id else FSInputFile(photo_id)) for photo_id in output_part['album'][:-1]]
             media_group.append(InputMediaPhoto(media=output_part['album'][-1] if '/' not in output_part['album'][-1] else FSInputFile(output_part['album'][-1]),
                                                caption=output_part['message_text']))
-
-            commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
+            try:
+                commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
                                                                       media=media_group)
+            except TelegramServerError:
+                traceback.print_exc()
+                try:
+                    commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
+                                                                                     media=media_group)
+                except:
+                    traceback.print_exc()
+
             for message in commodity_card_message:
                 ic(message)
                 commodity_card_messages_id.append(message.message_id)

@@ -1,1 +1,1 @@
-from . import boot_new_car_photos
+from . import boot_new_car_photos, save_seller_tariff

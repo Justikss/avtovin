@@ -1,6 +1,8 @@
 import importlib
+import traceback
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramServerError
 from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
 from database.data_requests.car_advert_requests import AdvertRequester
@@ -22,6 +24,9 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         redis_sub_key = ':buyer_offer_notification'
     elif user_status == 'lose_tariff':
         redis_sub_key = ':seller_without_tariff_notification'
+    elif user_status == 'delete_tariff':
+        redis_sub_key = ':seller_lose_self_tariff'
+
     if redis_sub_key:
         notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
         if notification_message_id:
@@ -47,8 +52,8 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
     elif user_status == 'buyer':
         redis_sub_key = ':buyer_offer_notification'
         lexicon_key = 'buyer_offer_notification'
-    elif user_status == 'seller_without_tariff':
-        lexicon_key = 'seller_without_tariff_notification'
+    elif user_status in ('seller_without_tariff', 'seller_lose_self_tariff'):
+        lexicon_key = f'{user_status}_notification'
         redis_sub_key = f':{lexicon_key}'
         current_id = str(chat_id)
 
@@ -98,9 +103,13 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
                 file_data = FSInputFile(file_data)
 
             media_group.append(InputMediaPhoto(media=file_data))
-
-        media_message = await callback.bot.send_media_group(chat_id=seller_id,
-                                                          media=media_group)
+        try:
+            media_message = await callback.bot.send_media_group(chat_id=seller_id,
+                                                              media=media_group)
+        except TelegramServerError:
+            traceback.print_exc()
+            media_message = await callback.bot.send_media_group(chat_id=seller_id,
+                                                                    media=media_group)
 
         for media in media_message:
             active_seller_notifications.append(media.message_id)

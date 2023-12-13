@@ -46,7 +46,7 @@ class TariffToSellerBinder:
                                        .where(Seller.telegram_id == seller_id))
             return tariff
         except TariffsToSellers.DoesNotExist:
-            traceback.print_exc()
+            # traceback.print_exc()
             # Обработка ситуации, когда запись не найдена
             return None
 
