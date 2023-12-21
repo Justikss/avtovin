@@ -68,7 +68,6 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         message = request.message
     ic(media_photos)
     memory_storage = await state.get_data()
-    await state.update_data(other_color_mode=False)
     await state.update_data(rewrite_state_flag=None)
     await state.update_data(rewrite_brand_mode=False)
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
@@ -136,7 +135,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     # output_string += copy(lexicon_module.LexiconCommodityLoader.can_rewrite_config)
     ic(output_string)
 
-    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string, )
+    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string)
     print('lp: ', lexicon_part)
 
     await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity', value=True)
@@ -149,5 +148,5 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
     if isinstance(request, CallbackQuery):
         await request.answer()
-
+    ic(memory_storage.get('color_for_load'))
     await state.set_state(LoadCommodityStates.load_config_output)

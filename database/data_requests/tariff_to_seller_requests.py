@@ -7,6 +7,7 @@ from peewee import DoesNotExist, IntegrityError
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.dying_tariff import DyingTariffRequester
 from database.data_requests.person_requests import PersonRequester
+from database.data_requests.tariff_requests import TarifRequester
 from database.tables.seller import Seller
 from database.tables.tariff import Tariff, TariffsToSellers
 from database.data_requests import person_requests, tariff_requests
@@ -104,7 +105,7 @@ class TariffToSellerBinder:
                     ic(await TariffToSellerBinder.tariff_waste(seller_telegram_id, bot))
                     return False
             except SellerWithoutTariffException as ex:
-                return ex
+                raise SellerWithoutTariffException()
 
     @staticmethod
     async def tariff_waste(telegram_id, bot):
@@ -127,6 +128,8 @@ class TariffToSellerBinder:
     @staticmethod
     async def set_bind(data: dict, bot, seconds) -> bool:
         '''Асинхронный метод установки связей тарифов с продавцом'''
+        if await TariffToSellerBinder.get_by_seller_id(data.get('seller')):
+            await TariffToSellerBinder.remove_bind(data.get('seller'))
         great_data = await TariffToSellerBinder.__data_extraction_to_boot(data, seconds)
         try:
             new_bind = await manager.create(TariffsToSellers, **great_data)
@@ -141,30 +144,33 @@ class TariffToSellerBinder:
         '''Асинхронный вспомогательный метод для извлечения и обработки данных'''
         if isinstance(data, dict):
             seller_id = data.get('seller')
-            tariff_name = data.get('tariff')
+            tariff = data.get('tariff')
             if seller_id:
                 data['seller'] = await PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
                 data['seller'] = data['seller'][0] if data['seller'] else None
-                if tariff_name:
-                    tariff_object = await manager.get(Tariff, Tariff.name == tariff_name)
+                if tariff:
+                    if tariff.isalpha():
+                        tariff = await manager.get(Tariff, Tariff.name == tariff)
+                    else:
+                        tariff = await TarifRequester.get_by_id(tariff)
                     now_time = datetime.datetime.now()
                     '''Эта часть только для теста'''
                     if not seconds:
-                        days = int(tariff_object.duration_time)
+                        days = int(tariff.duration_time)
                         end_plut_datetime = datetime.timedelta(days=days)
                     else:
                         end_plut_datetime = datetime.timedelta(seconds=seconds)
 
                     end_time = now_time + end_plut_datetime
 
-                    data['tariff'] = tariff_object
+                    data['tariff'] = tariff
                     data['start_date_time'] = now_time.strftime(DATETIME_FORMAT)
                     data['end_date_time'] = end_time.strftime(DATETIME_FORMAT)
-                    data['residual_feedback'] = tariff_object.feedback_amount
+                    data['residual_feedback'] = tariff.feedback_amount
 
                     return data
                 else:
-                    raise NonExistentTariffException(f'Tariff name {tariff_name} not exist in database.')
+                    raise NonExistentTariffException(f'Tariff id {tariff.id} not exist in database.')
             else:
                 raise NonExistentIdException(f'Seller id {seller_id} not exist in database.')
 

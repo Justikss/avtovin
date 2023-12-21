@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from typing import Union
 
-from config_data.config import LOCATIONIQ_TOKEN, geolocation_cahce_expire
+from config_data.config import LOCATIONIQ_TOKEN, geolocation_cahce_expire, max_contact_info_len
 from utils.lexicon_utils.Lexicon import LEXICON, SecondsEndswith
 
 queue = asyncio.Queue()
@@ -88,9 +88,12 @@ class GetDealershipAddress(BaseFilter):
                 await queue.put((lat, lon, result_future))
                 address = await result_future
                 return {'dealership_address': address}
-            for symbol in request.text:
-                if symbol.isalpha():
-                    return {'dealership_address': request.text}
-            await input_dealship_name_module.dealership_input_address(request=request, state=state, incorrect='(novalid)')
+            else:
+                dealership_address = request.text.strip()
+                if len(dealership_address) < max_contact_info_len:
+                    for symbol in request.text:
+                        if symbol.isalpha():
+                            return {'dealership_address': request.text}
+                await input_dealship_name_module.dealership_input_address(request=request, state=state, incorrect='(novalid)')
         else:
             return True

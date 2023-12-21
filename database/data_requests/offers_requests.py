@@ -7,6 +7,8 @@ from peewee import JOIN, DoesNotExist
 from icecream import ic
 
 from config_data.config import DATETIME_FORMAT
+from database.data_requests.car_advert_requests import AdvertRequester
+from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.tables.car_configurations import CarComplectation, CarAdvert, CarModel, CarBrand
 from database.tables.offers_history import ActiveOffers, CacheBuyerOffers
 from database.tables.seller import Seller
@@ -22,9 +24,30 @@ from database.db_connect import database, manager
 
 class OffersRequester:
     @staticmethod
+    async def get_by_offer_id(offer_id):
+        if not isinstance(offer_id, int):
+            offer_id = int(offer_id)
+        try:
+            result = await manager.get((ActiveOffers
+                                            .select(ActiveOffers, CarAdvert, Seller)
+                                            .join(CarAdvert)
+                                            .switch(ActiveOffers)
+                                            .join(Seller)
+                                            .switch(ActiveOffers)
+                                            .join(User)
+                                        .where(ActiveOffers.id == offer_id)))
+
+            advert_model = await AdvertRequester.load_related_data_for_advert(result.car_id)
+            result.car_id = advert_model
+            ic(result, result.car_id)
+        except:
+            result = None
+        return result
+
+    @staticmethod
     async def get_offer_model(buyer, car):
         '''Асинхронный метод получения модели предложения'''
-        query = ActiveOffers.select().where((ActiveOffers.buyer_id == buyer) & (ActiveOffers.car_id == car))
+        query = ActiveOffers.select().join(CarAdvert).where((ActiveOffers.buyer_id == buyer) & (ActiveOffers.car_id == car))
         try:
             select_response = await manager.get(query)
         except:
@@ -37,6 +60,8 @@ class OffersRequester:
         if not await OffersRequester.get_offer_model(buyer_id, car_id):
             query = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id, seller_id=seller_id, viewed=False)
             select_response = await manager.execute(query)
+            if select_response:
+                await AdvertFeedbackRequester.write_string(seller_id, car_id)
             return select_response if select_response else False
         else:
             raise BufferError('Такая заявка уже создана')
@@ -44,9 +69,9 @@ class OffersRequester:
     @staticmethod
     async def get_for_buyer_id(buyer_id, brand=None, get_brands=False, car_id=None):
         '''Асинхронный метод получения открытых предложений для покупателя'''
-        query = ActiveOffers.select().where(ActiveOffers.buyer_id == int(buyer_id))
+        query = ActiveOffers.select(ActiveOffers, CarAdvert).join(CarAdvert).switch(ActiveOffers).join(User).where(ActiveOffers.buyer_id == int(buyer_id))
         if brand:
-            query = query.join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand))
+            query = query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand))
         elif car_id:
             query = query.where(ActiveOffers.car_id == int(car_id))
         try:
@@ -67,7 +92,7 @@ class OffersRequester:
     @staticmethod
     async def get_by_seller_id(seller_id_value, viewed_value):
         '''Асинхронный метод получения предложений по ID продавца'''
-        active_offers = list(await manager.execute(ActiveOffers.select().join(Seller).where(
+        active_offers = list(await manager.execute(ActiveOffers.select(ActiveOffers, Seller, User).join(Seller).switch(ActiveOffers).join(User).where(
             (ActiveOffers.viewed == viewed_value) & (Seller.telegram_id == seller_id_value)
         )))
         ic(active_offers)
@@ -95,7 +120,7 @@ class CachedOrderRequests:
         exists_offers = await OffersRequester.get_for_buyer_id(buyer_id)
 
 
-        car_ids = [car['car_id'] for car in car_data]
+        car_ids = car_data
         query = CacheBuyerOffers.select().where(
             (CacheBuyerOffers.buyer_id == buyer_id) & (CacheBuyerOffers.car_id.in_(car_ids)))
         select_query = list(await manager.execute(query))
@@ -105,8 +130,8 @@ class CachedOrderRequests:
             not_unique_models = [offer.car_id.id for offer in select_query] if select_query else []
         except:
             not_unique_models = []
-        data = [{'buyer_id': str(buyer_id), 'car_id': car_part['car_id'], 'message_text': car_part['message_text']}
-                for car_part in car_data if car_part['car_id'] not in not_unique_models]
+        data = [{'buyer_id': int(buyer_id), 'car_id': car_part}
+                for car_part in car_data if car_part not in not_unique_models]
 
 
         ic(data)
@@ -142,20 +167,19 @@ class CachedOrderRequests:
     async def get_cache(buyer_id, brand=None, car_id=None):
         '''Асинхронный метод получения кэша'''
         if buyer_id:
-            query = CacheBuyerOffers.select().join(User).where(
+            query = CacheBuyerOffers.select(CacheBuyerOffers, CarAdvert).join(CarAdvert).switch(CacheBuyerOffers).join(User).where(
                 User.telegram_id == buyer_id)
             ic(brand, buyer_id, car_id)
             if car_id:
-                query = query.switch(CacheBuyerOffers).join(CarAdvert).where(CarAdvert.id == car_id)
+                query = query.where(CarAdvert.id == car_id)
             if brand and not car_id:
-                query = (query.switch(CacheBuyerOffers).join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
+                query = (query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
                          .where(CarBrand.id == int(brand)))
-                aquery = CacheBuyerOffers.select().join(User).where(
-                    User.telegram_id == buyer_id)
 
-
-            select_query = await manager.execute(query)
+            select_query = list(await manager.execute(query))
+            ic(select_query)
             result = await CachedOrderRequests.check_overtime_requests(select_query)
+            ic(result)
             if brand:
                 result = [offer.car_id for offer in result]
             ic(result)

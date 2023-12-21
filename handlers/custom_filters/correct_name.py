@@ -5,12 +5,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 import importlib
 
-from handlers.state_handlers.buyer_registration_handlers import input_full_name
+from config_data.config import max_contact_info_len
 from database.data_requests.person_requests import PersonRequester
 
 
 class CheckInputName(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        input_full_name_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
         print('iamcorrect_name')
         seller_registration_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers')
         memory_storage = await state.get_data()
@@ -26,7 +27,7 @@ class CheckInputName(BaseFilter):
             buyer_use = None
             seller_use = True
         elif current_state.startswith('BuyerRegistationStates'):
-            current_object = input_full_name
+            current_object = input_full_name_module.input_full_name
             seller_use = None
             buyer_use = True
 
@@ -38,7 +39,7 @@ class CheckInputName(BaseFilter):
 
 
         print('correct_name,', dealership_mode, seller_mode)
-        if not dealership_mode and 1 < len(formatted_full_name) < 4 or dealership_mode and len(formatted_full_name) <= 250:
+        if not dealership_mode and 1 < len(formatted_full_name) < 4 or dealership_mode and len(formatted_full_name) <= max_contact_info_len:
             for word in formatted_full_name:
                 if not word.isalpha() and not dealership_mode or dealership_mode and not (word.isalpha() or word.isdigit() or word==' '):
                     try:

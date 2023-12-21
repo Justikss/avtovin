@@ -1,11 +1,12 @@
 from abc import ABC
 
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
-    SUPPORT_NUMBER_2
+    SUPPORT_NUMBER_2, max_price_len, max_contact_info_len
 from utils.safe_dict_class import SafeDict
+from utils.lexicon_utils.admin_lexicon import __ADMIN_LEXICON
 
 
-LEXICON = {
+__LEXICON = {
             'sepp': '—',
             'tariff_non_actuallity': 'Вам следует приобрести тариф!',
             'awaiting_process': 'Ожидайте',
@@ -31,6 +32,7 @@ LEXICON = {
             'car_was_withdrawn_from_sale': 'Автомобиль был снят с продажи',
             'car_search_parameters_incactive': 'Данные параметры поиска больше неактивны. Пожалуйста обновите их.',
             'seller_dont_exists': 'Продавец больше неактивен',
+            'search_parameter_invalid': 'Данный параметр не активен',
             'order_was_created': 'Вы откликнулись! Теперь в объявлении указан контакт продавца,\nТак же пополнен список ваших предложений!',
             'too_late': 'Вы опоздали',
             'success_notification': 'Принято',
@@ -45,7 +47,7 @@ LEXICON = {
                            'start_buy': '👨🏻‍💻 Покупка', 'width': 2},
             'write_full_name': {'message_text': 'Укажите ФИО', 'backward:user_registration': '◂ Назад ▸', 'width': 1},
             'write_full_name(novalid)': {
-                'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
+                'message_text': f'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом\nДлиной до {max_contact_info_len} символов.',
                 'backward:user_registration': '◂ Назад ▸', 'width': 2},
             'write_phone_number': {'message_text': 'Введите ваш номер телефона:',
                                    'backward:user_registration_number': '◂ Назад ▸', 'width': 1},
@@ -107,12 +109,12 @@ LEXICON = {
             'who_is_seller': {'message_text': 'Выберите пункты ниже:', 'i_am_private_person': 'Частное лицо 👨🏻', 'i_am_car_dealership': 'Автосалон 🚘', 'backward:set_language': '◂ Назад ▸', 'width': 2},
             'write_full_seller_name': {'message_text': 'Укажите ФИО', 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 1},
             'write_full_seller_name(novalid)': {
-                'message_text': 'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом',
+                'message_text': f'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом\nДлиной до {max_contact_info_len} символов.',
                 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 2},
             'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 1},
 
             'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
-            'write_dealership_name(novalid)': {'message_text': 'Название автосалона должно быть длинной меньше чем 250 символов\nИ состоять только из букв и цифр:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
+            'write_dealership_name(novalid)': {'message_text': f'Название автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
             'write_dealership_name(exists)': {'message_text': 'Это название уже зарегестрировано\nожидается иное', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
 
             'write_seller_phone_number': {'message_text': 'Введите ваш номер телефона:',
@@ -123,7 +125,7 @@ LEXICON = {
                                               'backward:seller_registration_number': '◂ Назад ▸', 'width': 1},
 
             'write_dealership_address': {'message_text': 'Введите адрес автосалона\nИли отправьте вашу геолокацию\n(значок скрепки в левом углу чата)', 'backward:seller_registration_dealership_address': '◂ Назад ▸', 'width': 1},
-            'write_dealership_address(novalid)': {'message_text': 'Ошибка\n Адрес автосалона должен содержать буквы', 'backward:seller_registration_dealership_address': '◂ Назад ▸', 'width': 1},
+            'write_dealership_address(novalid)': {'message_text': f'Ошибка\n Адрес автосалона должен содержать буквы\nи содержать менее {max_contact_info_len} символов', 'backward:seller_registration_dealership_address': '◂ Назад ▸', 'width': 1},
 
 
             'checking_seller_entered_data': {'message_text': 'Введённые данные корректны?\n(Нажмите на поле для его переписи)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Подтвердить ✅', 'width': 1},
@@ -152,7 +154,7 @@ LEXICON = {
             'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': '✓ Подтвердить ✓', 'edit_boot_car_data': '⚙️ Изменить ⚙️', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
             'seller_load_notification_button': {'return_main_menu': '🏡 В Меню 🏡'},
 
-            'message_not_digit': 'Сумма должна состоять только из цифр',
+            'message_not_digit': f'Сумма должна состоять только из цифр, в количестве до {max_price_len}',
             'message_not_photo': 'Прикрепите фотографию\n(значок скрепки в левом углу чата)\nНе отменяйте сжатие при отправке\nфотографии в телеграмм',
 
             'seller_start_delete_request': {'message_text': 'Введите номер удаляемой заявки', 'buttons': {'backward:seller_start_delete_request': '◂ Назад ▸', 'width': 1}},
@@ -171,10 +173,16 @@ LEXICON = {
             'successfully': 'Успешно',
             'seller_does_have_this_car': 'У вас не продаётся такая машина',
             'convertation_sub_string': '~',
-            'uzbekistan_valute': 'X сум'
+            'uzbekistan_valute': 'X сум',
+            'other_caption': 'Другой',
+            'color_caption': 'Цвет'
         }
 
-LEXICON = SafeDict(LEXICON)
+
+
+
+ADMIN_LEXICON = SafeDict(__ADMIN_LEXICON)
+LEXICON = SafeDict(__LEXICON)
 
 class LastButtonsInCarpooling(ABC):
     last_buttons = {'backward_in_carpooling': '◂ Назад ▸', **LEXICON['return_main_menu_button']}
@@ -224,7 +232,6 @@ class ChooseMileage(LastButtonsInCarpooling):
 class ChooseColor(LastButtonsInCarpooling):
     message_text = 'Выберите цвет'
     buttons_callback_data = 'cars_color_'
-    last_buttons = None
 
 class SecondsEndswith:
     one = 'а'
@@ -245,8 +252,8 @@ class LexiconSellerRequests:
     # choose_brand_keyboard_width = 1
     return_to_requests_buttons = {'buttons': {'backward:rewrite_price_by_seller': 'К заявкам', 'width': 1}}
     input_new_price = {'message_text': 'Введите новую стоимость.\nНынешняя цена: X', **return_to_requests_buttons}
-    input_new_price_incorrect_message_text = '\nПожалуйста, укажите целочисленное значение.'
-    input_new_price_car_dont_exists = {'message_text': 'К сожалению автомобиль снят с продажи.\nИли введено большое число.', **return_to_requests_buttons}
+    input_new_price_incorrect_message_text = f'\nПожалуйста, укажите целочисленное значение до {max_price_len} цифр.'
+    input_new_price_car_dont_exists = {'message_text': 'К сожалению автомобиль снят с продажи.', **return_to_requests_buttons}
     succes_rewrite_price = {'message_text': 'Цена успешно изменена', **return_to_requests_buttons}
 
     pagination_vectors = {'seller_requests_pagination_left': '←', 'seller_requests_pagination_right': '→'}

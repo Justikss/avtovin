@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 import importlib
 
-from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_photo_to_load
 
 
 class MessageIsPhoto(BaseFilter):
@@ -26,6 +25,7 @@ class MessageIsPhoto(BaseFilter):
         '''Сама вызывающаяся функция фильтра. Контролирует вхождение фотографии'''
         redis_module = importlib.import_module('utils.redis_for_language')
         redis_key_seller = str(message.from_user.id) + ':last_seller_message'
+        photo_to_load_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
 
         input_photo = message.photo
         ic(input_photo)
@@ -40,4 +40,4 @@ class MessageIsPhoto(BaseFilter):
                                                 value=message.message_id)
         ic()
         print('input_photo_to_load')#
-        await input_photo_to_load(request=message, state=state, incorrect=True)#
+        await photo_to_load_module.input_photo_to_load(request=message, state=state, incorrect=True)#

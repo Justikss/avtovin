@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 import importlib
 
+from config_data.config import max_price_len
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_price_to_load
@@ -26,7 +27,7 @@ class PriceIsDigit(BaseFilter):
             ic(message_text)
         else:
             dollar_cost = False
-        if message_text.isdigit():
+        if message_text.isdigit() and len(str(message_text)) < max_price_len:
             ic(message.text.isdigit())
             car_price = int(message_text)
             await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)

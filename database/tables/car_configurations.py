@@ -1,10 +1,6 @@
-import peewee_async
-from peewee import *
-import asyncio
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
-from database.tables.user import User
-from peewee import BigIntegerField
+from peewee import BigIntegerField, ForeignKeyField, BooleanField, TextField, CharField
 
 
 class CarState(BaseModel):
@@ -46,12 +42,13 @@ class CarAdvert(BaseModel):
     seller = ForeignKeyField(Seller, field=Seller.telegram_id, backref='adverts')
     complectation = ForeignKeyField(CarComplectation, backref='adverts')
     state = ForeignKeyField(CarState, backref='adverts')
-    # engine_type = ForeignKeyField(CarEngine, backref='adverts')
-    color = ForeignKeyField(CarColor, backref='adverts')
     sum_price = BigIntegerField(null=True)
     dollar_price = BigIntegerField(null=True)
+
+    color = ForeignKeyField(CarColor, backref='adverts', null=True)
     mileage = ForeignKeyField(CarMileage, backref='adverts', null=True)
     year = ForeignKeyField(CarYear, backref='adverts', null=True)
+
     sleep_status = BooleanField(null=True)
 
     additional_info = TextField(null=True)

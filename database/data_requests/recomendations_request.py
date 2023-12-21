@@ -2,10 +2,12 @@ import traceback
 
 from peewee import JOIN
 
+from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarState, CarEngine, CarColor, CarMileage, \
     CarYear, CarModel, CarBrand
 from database.tables.offers_history import RecommendedOffers, RecommendationsToBuyer
+from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
 
 
@@ -22,10 +24,14 @@ class RecommendationParametersBinder:
             #         'color': color_id,
             #         'mileage': mileage_id,
             #         'year': year_id}]
-
-            select_query = await manager.get_or_create(RecommendationsToBuyer, buyer=buyer_id, complectation=complectation_id,
-                                                state=state_id, engine_type=engine_type_id, color=color_id,
-                                                mileage=mileage_id, year=year_id)
+            parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(
+                state_id=state_id,
+                engine_type_id=engine_type_id,
+                color_id=color_id,
+                mileage_id=mileage_id,
+                year_id=year_id,
+                complectation_id=complectation_id)
+            select_query = await manager.get_or_create(RecommendationsToBuyer, buyer=buyer_id, parameters=parameters[0])
 
 
         except Exception as ex:
@@ -40,31 +46,20 @@ class RecommendationParametersBinder:
             state_id = advert.state.id
             engine_type_id = advert.complectation.engine.id
             color_id = advert.color.id
+            # if advert.color:
+            #     color_id = advert.color.id
+            # else:
+            #     color_id = None
             mileage_id = advert.mileage.id if advert.mileage else None
             year_id = advert.year.id if advert.year else None
             seller_id = advert.seller.telegram_id
 
         ic(complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id)
-
+        parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(state_id, engine_type_id, color_id, mileage_id, year_id, complectation_id, only_get=True)
         query = (RecommendationsToBuyer
                  .select()
-                 .join(CarComplectation)
-                 .where(CarComplectation.id == complectation_id)
-                 .switch(RecommendationsToBuyer)
-                 .join(CarState)
-                 .where(CarState.id == state_id)
-                 .switch(RecommendationsToBuyer)
-                 .join(CarEngine)
-                 .where(CarEngine.id == engine_type_id)
-                 .switch(RecommendationsToBuyer)
-                 .join(CarColor, JOIN.LEFT_OUTER)  # Используйте LEFT JOIN для полей, которые могут быть NULL
-                 .where((CarColor.id == color_id) | (CarColor.id.is_null(True)))  # Проверка на NULL
-                 .switch(RecommendationsToBuyer)
-                 .join(CarMileage, JOIN.LEFT_OUTER)
-                 .where((CarMileage.id == mileage_id) | (CarMileage.id.is_null(True)))
-                 .switch(RecommendationsToBuyer)
-                 .join(CarYear, JOIN.LEFT_OUTER)
-                 .where((CarYear.id == year_id) | (CarYear.id.is_null(True)))
+                 .join(AdvertParameters)
+                 .where(AdvertParameters.id == parameters.id)
                  .switch(RecommendationsToBuyer)
                  .join(User)
                  .where(User.telegram_id != int(seller_id))
@@ -89,13 +84,10 @@ class RecommendationRequester:
                 data.append({'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
                 return list(await manager.execute(RecommendedOffers.insert_many(data)))
 
-
-
-
     @staticmethod
     async def retrieve_by_buyer_id(buyer_id, get_brands=False, by_brand=None):
         ic(buyer_id)
-        query = RecommendedOffers.select().join(User).where(User.telegram_id == int(buyer_id))
+        query = RecommendedOffers.select(RecommendedOffers, CarAdvert, AdvertParameters, RecommendationsToBuyer).join(CarAdvert).switch(RecommendedOffers).join(User).switch(RecommendedOffers).join(RecommendationsToBuyer).join(AdvertParameters).where(User.telegram_id == int(buyer_id))
         result = await manager.execute(query)
         if get_brands and result:
             ic()
@@ -103,7 +95,7 @@ class RecommendationRequester:
             return result
         elif by_brand:
             ic()
-            result = query.switch(RecommendedOffers).join(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(
+            result = query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(
                 CarBrand.id == int(by_brand)
             )
         ic(result)

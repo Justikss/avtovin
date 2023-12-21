@@ -5,7 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from utils.lexicon_utils.Lexicon import LexiconSellerRequests
-from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import CheckFeedbacksHandler, my_feedbacks_callback_handler
+from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import CheckFeedbacksHandler, \
+    DeleteCarRequest
 
 
 class DeleteFeedback:
@@ -40,8 +41,10 @@ class DeleteFeedback:
 
         await callback.answer(LexiconSellerRequests.success_delete)
 
-        return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks', state=state)
-        # return_requests = await my_feedbacks_callback_handler(callback, return_path)
-
+        if not await DeleteCarRequest.send_seller_requests_page_without_current(callback, state):
+            return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks', state=state)
+        else:
+            return_requests = True
         if not return_requests:
-            return_requests = await my_feedbacks_callback_handler(callback)
+
+            return_requests = await CheckFeedbacksHandler.my_feedbacks_callback_handler(callback, state)

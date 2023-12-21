@@ -11,7 +11,6 @@ from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.person_requests import PersonRequester
 from database.data_requests.recomendations_request import RecommendationRequester
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
-from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_seller_header
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
 # async def recommendation_notifications(callback: CallbackQuery, store_query):
@@ -26,8 +25,8 @@ from handlers.state_handlers.seller_states_handler.load_new_car.get_output_confi
 
 async def check_match_adverts_the_sellers(callback, state: FSMContext):
     memory_storage = await state.get_data()
-
-    match_result = await AdvertRequester.get_advert_models(state_id=memory_storage['state_for_load'],
+    ic(memory_storage.get('color_for_load'))
+    match_result = await AdvertRequester.get_advert_by(state_id=memory_storage['state_for_load'],
                                                  engine_type_id=memory_storage['engine_for_load'],
                                                  brand_id=memory_storage['brand_for_load'],
                                                  model_id=memory_storage['model_for_load'],
@@ -44,13 +43,14 @@ async def check_match_adverts_the_sellers(callback, state: FSMContext):
 async def create_notification_for_admins(callback):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    get_seller_header_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config')
 
     seller_model = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if seller_model:
         seller_model = seller_model[0]
 
         last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-        boot_config_string_startswith = f'''{copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', callback.from_user.username)}{await get_seller_header(seller=seller_model)}'''
+        boot_config_string_startswith = f'''{copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', callback.from_user.username)}{await get_seller_header_module.get_seller_header(seller=seller_model)}'''
 
         message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
         message_for_admin_chat[0] = boot_config_string_startswith

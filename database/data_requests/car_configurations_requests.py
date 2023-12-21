@@ -5,12 +5,15 @@ from collections import defaultdict
 
 from peewee import JOIN
 
+from database.data_requests.new_car_photo_requests import PhotoRequester
+from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.db_connect import database, manager
 
 from database.tables.car_configurations import (CarBrand, CarModel, CarComplectation, CarState,
-                                                CarEngine, CarColor, CarMileage, User, CarAdvert, CarYear)
+                                                CarEngine, CarColor, CarMileage, CarAdvert, CarYear)
 from database.tables.commodity import AdvertPhotos, NewCarPhotoBase
 from database.tables.seller import Seller
+from database.tables.user import User
 
 
 class CarConfigs:
@@ -57,7 +60,7 @@ class CarConfigs:
             table = CarColor
         else:
             table = None
-
+        ic(table, model_id)
         if model_id and table:
             return await manager.get(table.select().where(table.id == model_id))
 
@@ -67,11 +70,12 @@ class CarConfigs:
             complectation_id = int(complectation_id)
 
         # query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.id == complectation_id)
-        query = CarColor.select().join(NewCarPhotoBase).join(CarComplectation).where(CarComplectation.id == complectation_id)
+        query = CarColor.select().join(NewCarPhotoBase).join(CarComplectation).where(CarComplectation.id == complectation_id).distinct()
         result = await manager.execute(query)
         if result:
-            # result = {photo.car_color for photo in result}
-            return list(result)
+            result = await set_other_color_on_last_position(result)
+
+            return result
 
 
     @staticmethod
@@ -243,7 +247,7 @@ async def mock_values():
     engine_names = ['ГИБРИД', 'ЭЛЕКТРО', 'ДВС']
     await insert_many(CarEngine, engine_names)
 
-    await insert_many(CarColor, ['Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
+    await insert_many(CarColor, ['Другой', 'Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
     await insert_many(CarYear, ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2022'])
     await insert_many(CarMileage, ['5000-10000', '10000-15000', '15000-20000', '20000-25000', '25000-30000', '30000-35000', '35000-40000', '40000-45000', '45000-50000', '50000-75000', '75000-100000', '100000+'])
 
@@ -335,11 +339,12 @@ async def insert_advert_photos(new_car_photos):
     await manager.connect()
     try:
         advert_photo_data_list = []
+        photo_base = []
 
         for brand_id, photos in new_car_photos.items():
             # Получаем все объявления для данного бренда
             matching_adverts = await manager.execute(
-                CarAdvert.select().join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
+                CarAdvert.select().join(CarColor).switch(CarAdvert).join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
             )
             ic(brand_id, len(matching_adverts))
             # Подготовка данных для массовой вставки
@@ -350,14 +355,29 @@ async def insert_advert_photos(new_car_photos):
                         'photo_id': photo_id,
                         'photo_unique_id': str(uuid.uuid4())
                     })
+                    if advert.color.id != 1:
+                        photo_base.append({
+                            'admin_id': 902230076,
+                         'car_complectation': advert.complectation.id,
+                         'car_engine': advert.complectation.engine.id,
+                         'car_color': advert.color.id,
+                         'photo_id': photo_id,
+                         'photo_unique_id': f'{brand_id}_{uuid.uuid4()}'
+                        })
 
+        photo_base = list(set(photo_base))
         # Массовая вставка данных
         if advert_photo_data_list:
             await manager.execute(AdvertPhotos.insert_many(advert_photo_data_list))
             print(f"Вставлено {len(advert_photo_data_list)} записей фотографий.")
         else:
             print("Нет данных для вставки")
-
+        try:
+            await PhotoRequester.load_photo_in_base(photo_base)
+        except:
+            traceback.print_exc()
+            ic(photo_base)
+            pass
     except Exception as e:
         print(f"Ошибка при вставке данных: {e}")
 
@@ -406,7 +426,7 @@ async def add_photo(car_photos_info, car_info_list):
     except Exception as e:
         ic(e)  # Выводим исключение, если оно возникло
 
-async def get_car(photos):
+async def get_car(photos=None):
     global insert_carars
     # await get_seller_account()
     await manager.create(CarAdvert, seller=902230076, complectation=1, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
@@ -418,7 +438,6 @@ async def get_car(photos):
     await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, dollar_price=1234223, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year= None)
     await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, dollar_price=53458799, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None )
     car_id = 0
-    insert_photos = list()
     for index in range(9, 132):
         for state_index in range(1, 3):
             for color_index in range(1, 10):
@@ -435,7 +454,7 @@ async def get_car(photos):
                     for mileage in range(1, 13):
                         for year in range(1, 8):
                             car_id += 1
-                            insert_photos.append({"car_id": car_id, 'photo_id': 1, 'photo_unique_id': 1})
+                            # insert_photos.append({"car_id": car_id, 'photo_id': 1, 'photo_unique_id': 1})
                             insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
                                                   'dollar_price': random.randint(500000, 3800000),
                                                   'color': color_index,
@@ -445,7 +464,8 @@ async def get_car(photos):
 
     await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
-    await insert_advert_photos(photos)
+    if photos:
+        await insert_advert_photos(photos)
     # if insert_data:
     #     insert_photo_query = AdvertPhotos.insert_many(insert_data)
     #     await manager.execute(insert_photo_query)

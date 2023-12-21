@@ -5,6 +5,8 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import car_configurations_in_keyboard_page
 from database.data_requests.car_advert_requests import AdvertRequester
+from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
+from database.tables.car_configurations import CarEngine
 
 # from database.data_requests.offers_requests import CachedOrderRequests
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
@@ -12,10 +14,9 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_cars_data_pack
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.states_cacher import cache_state
-from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
-from utils.create_lexicon_part import create_lexicon_part
+from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import create_lexicon_part
 
 
 async def search_auto_callback_handler(callback: CallbackQuery, state: FSMContext):
@@ -34,7 +35,7 @@ async def search_auto_callback_handler(callback: CallbackQuery, state: FSMContex
 async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+    ic()
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':cars_type'
 
@@ -47,7 +48,9 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
     await cache_state(callback=callback, state=state, first=True)
 
+    # models_range = await AdvertRequester.get_advert_by(state_id=cars_type)
     models_range = await AdvertRequester.get_advert_by(state_id=cars_type)
+    ic(models_range)
     if not models_range:
         return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found', lexicon_cache=False)
 
@@ -59,6 +62,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
     lexicon_class = lexicon_module.ChooseEngineType()
     lexicon_part = await create_lexicon_part(lexicon_class, models_range)
     lexicon_part['buttons']['width'] = lexicon_class.width
+    ic(lexicon_part)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                      lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=lexicon_class.dynamic_buttons)
 
@@ -187,11 +191,12 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=memory_storage['cars_model'],
                                                        complectation_id=user_answer)
-
+    if models_range:
+        models_range = await set_other_color_on_last_position(models_range)
 
     # button_texts = {car.color for car in models_range}
     lexicon_class = lexicon_module.ChooseColor()
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page)
+    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page, need_last_buttons=False)
 
     # lexicon_part = await create_lexicon_part(lexicon_class, models_range)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
@@ -199,9 +204,10 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
     #                                                 dynamic_buttons=lexicon_class.dynamic_buttons)
 
     cars_type = int(memory_storage['cars_state'])
-    if cars_type == 2:
+    ic(cars_type)
+    if int(cars_type) == 2:
         await state.set_state(SecondHandChooseStates.select_mileage)
-    elif cars_type == 1:
+    elif int(cars_type) == 1:
         await state.set_state(HybridChooseStates.config_output)
 
     await callback.answer()

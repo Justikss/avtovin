@@ -1,1 +1,1 @@
-from . import drop_tables
+from . import drop_tables, set_color_1_in_last_position

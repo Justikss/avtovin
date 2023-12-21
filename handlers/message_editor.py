@@ -172,7 +172,7 @@ class TravelEditor:
 
                             except:
                                 traceback.print_exc()
-
+                        print(lexicon_part['message_text'])
                         new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'],
                                                              reply_markup=keyboard,
                                                              reply_to_message_id=new_media_message[0].message_id)

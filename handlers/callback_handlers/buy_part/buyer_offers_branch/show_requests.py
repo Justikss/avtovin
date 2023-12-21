@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 from icecream import ic
 
 from database.data_requests.recomendations_request import RecommendationRequester
+from database.tables.offers_history import RecommendedOffers
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 # from handlers.callback_handlers.buy_part.main_menu import main_menu
 # from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
@@ -56,7 +57,7 @@ async def buyer_get_requests__chose_brand(callback: CallbackQuery, state: FSMCon
         ic(type(current_brands))
         # await callback.message.edit_text(text=)
         await state.set_state(current_state)
-        await CachedRequestsView.output_message_with_inline_pagination(callback, car_brands=current_brands, state=state, pagesize=8)
+        await CachedRequestsView.output_message_with_inline_pagination(callback, buttons_data=current_brands, state=state, pagesize=8)
 
 
 async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):
@@ -64,36 +65,48 @@ async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):
     choose_hybrid_handlers_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.hybrid_handlers')
 
     current_state = str(await state.get_state())
+    ic(current_state)
     buyer_id = int(callback.from_user.id)
     # if callback.data.startswith('confirm_buy_settings'):
     #     advert_id =
     # else:
+    adverts = None
+    offers = None
+    advert_ids = None
+
     car_brand = int(callback.data.split('_')[-1])
     if current_state.startswith('CheckActiveOffersStates'):
-        cars = await offer_requester_module.OffersRequester.get_for_buyer_id(buyer_id=buyer_id, brand=car_brand)
+        offers = await offer_requester_module.OffersRequester.get_for_buyer_id(buyer_id=buyer_id, brand=car_brand)
         state_object = CheckActiveOffersStates.brand_flipping_process
         non_exists_alert_text = LEXICON['active_offers_non_exists']
 
     elif current_state.startswith('CheckNonConfirmRequestsStates'):
-        cars = await offer_requester_module.CachedOrderRequests.get_cache(buyer_id=buyer_id, brand=car_brand)
+        adverts = await offer_requester_module.CachedOrderRequests.get_cache(buyer_id=buyer_id, brand=car_brand)
         state_object = CheckNonConfirmRequestsStates.brand_flipping_process
         non_exists_alert_text = LEXICON["buyer_haven't_cached_requests"]
     elif current_state.startswith('CheckRecommendationsStates'):
-        cars = await RecommendationRequester.retrieve_by_buyer_id(buyer_id=buyer_id, by_brand=car_brand)
-        if cars:
-            cars = [offer.advert for offer in cars]
+        offers = await RecommendationRequester.retrieve_by_buyer_id(buyer_id=buyer_id, by_brand=car_brand)
         state_object = CheckRecommendationsStates.brand_flipping_process
         non_exists_alert_text = LEXICON['buyer_havent_recommendated_offers']
     else:
-        cars = None
         state_object = None
         non_exists_alert_text = None
-    ic(cars)
-    if cars:
-        formatted_cars_data = await choose_hybrid_handlers_module.get_cars_data_pack(callback=callback, state=state, car_models=cars)
-        pagination = BuyerCarsPagination(data=formatted_cars_data, page_size=1, current_page=0)
+    if offers:
+        advert_ids = []
+        for offer in offers:
+            if isinstance(offer, RecommendedOffers):
+                advert_id = offer.advert.id
+            else:
+                advert_id = offer.car_id.id
 
+        advert_ids.append(advert_id)
+    elif adverts:
+        advert_ids = [advert.id for advert in adverts]
+
+    if advert_ids:
+        pagination = BuyerCarsPagination(data=advert_ids, page_size=1, current_page=0)
         await pagination.send_page(request=callback, state=state)
+
         if state_object:
             await state.set_state(state_object)
     else:

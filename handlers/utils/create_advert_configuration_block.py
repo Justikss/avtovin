@@ -1,11 +1,18 @@
 from copy import copy
 
+from database.tables.car_configurations import CarColor
 from utils.get_currency_sum_usd import get_valutes
-from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon
+from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon, LEXICON
 
 
 async def create_advert_configuration_block(car_state, engine_type, brand, model, complectation, color, sum_price, usd_price, year_of_realise=None, mileage=None):
     # configurate_block = f'''{copy(Lexicon.commodity_output_block).replace('SN', car_state).replace('EN', engine_type).replace('BN', brand).replace('MN', model).replace('COMPN', complectation).replace('COLN', color).replace('YV', str(year_of_realise)).replace('MV', str(mileage))}'''
+    ic(isinstance(color, CarColor))
+    ic(color)
+    # if isinstance(color, CarColor):
+    #     color = color.name
+    # elif color is None:
+    #     color = LEXICON['other_caption']
     configurate_block = copy(Lexicon.commodity_output_block).format(state=car_state, engine_type=engine_type,
                                             brand_name=brand, model_name=model,
                                             complectation=complectation, year_of_release=year_of_realise,

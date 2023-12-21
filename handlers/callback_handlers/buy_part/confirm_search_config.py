@@ -16,6 +16,7 @@ from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.m
     CheckFeedbacksHandler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
     BuyerCarsPagination
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_output_string
 from states.buyer_offers_states import CheckActiveOffersStates
 from utils.custom_exceptions.database_exceptions import SellerWithoutTariffException, SubtractLastFeedback
 from utils.lexicon_utils.Lexicon import LEXICON
@@ -27,26 +28,27 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
 
-
+    current_state = str(await state.get_state())
+    ic(current_state, car_id)
     insert_response = await cached_requests_module.OffersRequester.set_offer_model(buyer_id=callback.from_user.id,
                                                                                    car_id=car_id,
                                                                                    seller_id=car_model.seller.telegram_id)
-    if not insert_response and not str(await state.get_state()).startswith('CheckRecommendationsStates'):
+    if not insert_response and not current_state.startswith(('CheckRecommendationsStates', 'CheckActiveOffersStates')):
         await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
     if car_model:
         choose_hybrid_handlers_module = importlib.import_module(
             'handlers.state_handlers.choose_car_for_buy.hybrid_handlers')
 
-        data_for_seller = await CheckFeedbacksHandler.make_unpacked_data_for_seller_output(callback,
+        offer_ids = await CheckFeedbacksHandler.make_unpacked_data_for_seller_output(callback,
                                                                                            from_buyer=True,
                                                                                            viewed=False,
                                                                                            car_id=car_id)
-        data_for_seller = data_for_seller[0]
-        # ic(data_for_seller)
-        media_mode = True if data_for_seller.get('album') else False
-        await send_notification_for_seller(callback, data_for_seller, media_mode=media_mode)
-
-        current_state = str(await state.get_state())
+        if offer_ids:
+            data_for_seller = await CheckFeedbacksHandler.create_offer_data(offer_ids[0])
+            if data_for_seller:
+                ic(data_for_seller)
+                media_mode = True if data_for_seller.get('album') else False
+                await send_notification_for_seller(callback, data_for_seller, media_mode=media_mode)
 
         if current_state.startswith('CheckNonConfirmRequestsStates'):
             await state.set_state(CheckActiveOffersStates.show_from_non_confirm_offers)
@@ -57,18 +59,22 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
 
         formatted_cars_data = await choose_hybrid_handlers_module.get_cars_data_pack(callback=callback,
                                                                                      state=state,
-                                                                                     car_models=await AdvertRequester.get_where_id(
+                                                                                     advert_models=await AdvertRequester.get_where_id(
                                                                                          car_id))
+
+        result_string = await get_output_string(car_id, state=state, callback=callback)
+
+        photo_album = await AdvertRequester.get_photo_album_by_advert_id(advert_id=car_id)
 
         iteration_pagination_data = copy(pagination_data['data'])
         # ic(formatted_cars_data)
         # ic(pagination_data)
         pagination_data['data'] = []
-        for part in iteration_pagination_data:
+        for advert_id in iteration_pagination_data:
             # ic(part)
-            if int(part['car_id']) == int(car_id):
-                part = formatted_cars_data[0]
-            pagination_data['data'].append(part)
+            if int(advert_id) == int(car_id):
+                advert_id = formatted_cars_data[0]
+            pagination_data['data'].append(advert_id)
         try:
             media_groups = await message_editor.redis_data.get_data(
                 key=f'{str(callback.from_user.id)}:last_media_group',
@@ -79,16 +85,18 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
             last_message_id = await message_editor.redis_data.get_data(
                 key=f'{str(callback.from_user.id)}:last_message')
             ic(last_message_id)
+            ic(pagination_data['data'])
+
             if not media_groups:
 
                 await callback.bot.edit_message_text(chat_id=callback.message.chat.id, message_id=last_message_id,
-                                                     text=formatted_cars_data[0]['message_text'], reply_markup=keyboard)
+                                                     text=result_string, reply_markup=keyboard)
 
             else:
                 media_group_message = media_groups[0]
                 try:
                     await callback.bot.edit_message_caption(chat_id=callback.message.chat.id, message_id=media_group_message,
-                                                            caption=formatted_cars_data[0]['message_text'])
+                                                            caption=result_string)
                     await callback.bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=last_message_id,
                                                                  reply_markup=keyboard)
                 except Exception as ex:
@@ -96,7 +104,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                     ic(ex)
                     pagination_data['data'].pop(pagination_data['data'].index([part
                                                                          for part in pagination_data['data']
-                                                                         if pagination_data['data']['car_id'] == int(car_id)][0]))
+                                                                         if pagination_data['data'][0] == int(car_id)][0]))
 
         except Exception as ex:
             ic(ex)
@@ -118,11 +126,16 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     car_dont_exists = False
     ic(callback.data)
     car_id = callback.data.split(':')[-1]
+
     ic(car_id)
     dying_tariff_status = False
     seller_tariff_run_out = False
     insert_response = True
-    is_recommendated_state = str(await state.get_state()).startswith('CheckRecommendationsStates')
+    advert_offer_already_exists = False
+    current_state = str(await state.get_state())
+    ic(current_state)
+    is_recommendated_state = current_state.startswith(('CheckRecommendationsStates', 'CheckActiveOffersStates'))
+    ic(is_recommendated_state)
     pagination_data = await message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
                                              use_json=True)
     car_was_withdrawn_from_sale = False
@@ -137,13 +150,16 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                 seller_have_feedbacks = await TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot, check_mode=True)
                 ic(seller_have_feedbacks)
             except SellerWithoutTariffException:
+                traceback.print_exc()
                 await AdvertRequester.delete_advert_by_id(seller_model)
                 seller_have_feedbacks = None
                 insert_response = None
                 car_model = None
             ic(cached_data)
+            ic(car_id)
             cached_data = await cached_requests_module.CachedOrderRequests.get_cache(buyer_id=callback.from_user.id, car_id=car_id)
             ic(cached_data)
+            ic(seller_have_feedbacks)
             if seller_have_feedbacks:
                 if cached_data or is_recommendated_state:
                     ic(cached_data, is_recommendated_state)
@@ -157,17 +173,16 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                         ic(substract_status)
 
                         if substract_status == 'last_feedback':
-
                             dying_tariff_status = True
                         elif not substract_status:
                             seller_tariff_run_out = True
 
-                    except BufferError as ex:
+                    except (BufferError, TypeError) as ex:
                         print(ex)
                         traceback.print_exc()
                         insert_response = None
                         await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
-                        car_was_withdrawn_from_sale = True
+                        advert_offer_already_exists = True
 
                     except Exception as ex:
                         ic(ex)
@@ -194,12 +209,13 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
         else:
             insert_response = None
             await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
+            advert_offer_already_exists = True
 
     if is_recommendated_state:
         await RecommendationRequester.remove_recommendation_by_advert_id(car_id)
 
     # ic(pagination_data, cached_data, car_dont_exists)
-    if not car_was_withdrawn_from_sale or (car_was_withdrawn_from_sale and len(pagination_data['data']) <= 1):
+    if (not advert_offer_already_exists or (advert_offer_already_exists and len(pagination_data['data'])) <= 1) and (not car_was_withdrawn_from_sale or (car_was_withdrawn_from_sale and len(pagination_data['data']) <= 1)):
         if (not cached_data and not is_recommendated_state) or (not insert_response and len(pagination_data['data']) <= 1):#
             await message_editor.redis_data.delete_key(key=f'{str(callback.from_user.id)}:buyer_cars_pagination')
 

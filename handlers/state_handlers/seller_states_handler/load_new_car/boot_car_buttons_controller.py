@@ -13,12 +13,15 @@ class RedisBootCommodityHelper:
             there_data_update = await message_editor.redis_data.get_data(
                 key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
             ic(there_data_update)
+            ic(self.last_buttons, self.dynamic_buttons)
             if there_data_update and isinstance(self.last_buttons, dict) and isinstance(self.dynamic_buttons, int):
                 ic()
                 # Предполагаем, что вы хотите оставить последнюю пару в словаре
-                self.last_buttons = {key: value for key, value in self.last_buttons.items() if key != 'boot_car_backward'}
+                self.last_buttons = {key: value for key, value in self.last_buttons.items() if key != 'cancel_boot_new_commodity'}
                 if self.dynamic_buttons != 1:
                     self.dynamic_buttons -= 1
+                ic(self.last_buttons, self.dynamic_buttons)
+
             ic(state)
             if state:
                 memory_storage = await state.get_data()

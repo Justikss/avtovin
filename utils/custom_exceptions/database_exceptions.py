@@ -21,3 +21,9 @@ class CarExistsError(BaseException):
 
 class SubtractLastFeedback(BaseException):
     pass
+
+class UserNonExistsError(BaseException):
+    pass
+
+class AdminDoesNotExistsError(BaseException):
+    pass

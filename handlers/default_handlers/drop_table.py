@@ -1,3 +1,4 @@
+import traceback
 import uuid
 
 from aiogram.types import Message
@@ -52,11 +53,12 @@ async def load_type_photos(dota):
                      'photo_unique_id': f'{idd}_{uuid.uuid4()}'})
 
     await insert_phototo(data)
-    # ic(data)
-    # try:
-    #     await PhotoRequester.load_photo_in_base(data)
-    # except:
-    #     pass
+    ic(data)
+    try:
+        await PhotoRequester.load_photo_in_base(data)
+    except:
+        traceback.print_exc()
+        pass
 
 def read_photos_by_brand(directory):
     brand_photos = {}
@@ -77,15 +79,19 @@ def read_photos_by_brand(directory):
     return brand_photos
 
 async def drop_table_handler(message: Message):
-
-    await message.answer('Waiting..')
+    # return
+    # await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
     await mock_values()
     await get_seller_account()
 
+    photos = None
     photos = read_photos_by_brand('utils/carss')
     await get_car(photos)
+
     type_photos = read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)
+
+
     await message.answer('SUCCESS')

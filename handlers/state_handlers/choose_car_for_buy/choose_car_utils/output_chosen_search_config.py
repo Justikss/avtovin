@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.recomendations_request import RecommendationParametersBinder
+from database.tables.car_configurations import CarAdvert
 from database.tables.offers_history import ActiveOffers
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from utils.get_currency_sum_usd import get_valutes
@@ -31,44 +32,46 @@ async def get_seller_header(seller=None, car=None, state=None):
     seller_header = f'{seller_header}{seller_number}'
     return seller_header
 
-async def get_output_string(car, message_text, state=None, callback=None):
+async def get_output_string(advert, state=None, callback=None):
     offer_requester = importlib.import_module('database.data_requests.offers_requests')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
-    if isinstance(car, set) and len(car) == 1:
-        car = car.pop()
-    used_state = car.mileage
-
-    seller_header = await get_seller_header(car=car, state=state)
+    if isinstance(advert, set) and len(advert) == 1:
+        advert = advert.pop()
+    if isinstance(advert, int | str):
+        advert = await AdvertRequester.get_where_id(advert)
+    seller_header = await get_seller_header(car=advert, state=state)
     footer_viewed_by_seller_status = ''
 
-    startswith_text = message_text['your_configs']
     if state:
         current_state = str(await state.get_state())
         ic(current_state)
         if current_state.startswith('CheckActiveOffersStates'):
-            startswith_text = lexicon_module.LEXICON['active_offer_caption']
+            startswith_text = f'''{lexicon_module.LEXICON['active_offer_caption']}\n'''
             if callback:
-                offer_model = await offer_requester.OffersRequester.get_offer_model(int(callback.from_user.id), car.id)
+                offer_model = await offer_requester.OffersRequester.get_offer_model(int(callback.from_user.id), advert.id)
                 if offer_model:
                     viewed_status_lexicon = lexicon_module.LEXICON["footer_for_output_active_offers"]
                     footer_viewed_by_seller_status = f'''\n\n{viewed_status_lexicon['viewed_status']}\n{viewed_status_lexicon['status_true'] if offer_model.viewed else viewed_status_lexicon['status_false']}'''
         elif current_state.startswith('CheckRecommendationsStates'):
-            startswith_text = lexicon_module.LEXICON['new_recommended_offer_startswith']
+            startswith_text = f'''{lexicon_module.LEXICON['new_recommended_offer_startswith']}\n'''
+        # elif current_state.startswith('HybridChooseStates'):
+        else:
+            startswith_text = ''
 
-    if car.mileage:
-        mileage = car.mileage.name
-        year_of_realise = car.year.name
+    if advert.mileage:
+        mileage = advert.mileage.name
+        year_of_realise = advert.year.name
     else:
         mileage, year_of_realise = None, None
 
-    result_string = f'''{startswith_text}\n{seller_header}{await create_advert_configuration_block(car_state=car.state.name, engine_type=car.complectation.engine.name, brand=car.complectation.model.brand.name, model=car.complectation.model.name, complectation=car.complectation.name, color=car.color.name, mileage=mileage, year_of_realise=year_of_realise, sum_price=car.sum_price, usd_price=car.dollar_price)}{footer_viewed_by_seller_status}'''
+    result_string = f'''{startswith_text}{seller_header}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name, brand=advert.complectation.model.brand.name, model=advert.complectation.model.name, complectation=advert.complectation.name, color=advert.color.name, mileage=mileage, year_of_realise=year_of_realise, sum_price=advert.sum_price, usd_price=advert.dollar_price)}{footer_viewed_by_seller_status}'''
 
     return result_string
 
 
-async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_models=None):
+async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_models=None):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -82,8 +85,8 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
 
     data_stack = []
     ic()
-    ic(car_models)
-    if not car_models:
+    ic(advert_models)
+    if not advert_models:
         first_view_mode = True
         memory_storage = await state.get_data()
         ic(memory_storage)
@@ -99,52 +102,39 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, car_mod
         ic(car_state)
 
 
-        car_models = await AdvertRequester.get_advert_models(state_id=car_state,
+        advert_models = await AdvertRequester.get_advert_by(state_id=int(car_state),
                                                          engine_type_id=engine_type,
                                                          brand_id=brand,
                                                          model_id=model,
-                                                         complectation_id=complectation,
+                                                         complectation_id=int(complectation),
                                                          color_id=color,
                                                          mileage_id=mileage,
                                                          year_of_release_id=year_of_release
                                                          )
-        ic(car_models)
     else:
         first_view_mode = False
     ic()
-    ic(car_models)
-    if not isinstance(car_models, list):
-        car_models = [car_models]
-    for car in car_models:
-        if isinstance(car, ActiveOffers):
-            car = car.car_id
-        result_string = await get_output_string(car, message_text, state=state, callback=callback)
+    ic(advert_models)
+    if not isinstance(advert_models, list):
+        advert_models = [advert_models]
 
-        photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id)
+    if advert_models:
+        if isinstance(advert_models[0], ActiveOffers):
+            data_stack = [offer_model.car_id.id for offer_model in advert_models]
+        # elif isinstance(advert_models, int):
+        #     advert_models = await AdvertRequester.get_where_id(advert_models)
+    else:
+        return False
 
-        result_part = {'car_id': car.id, 'message_text': result_string, 'album': photo_album}
-        data_stack.append(result_part)
-    # ic(data_stack)
+    if not data_stack:
+        data_stack = [advert.id for advert in advert_models]
+    ic(data_stack)
     if first_view_mode:
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
         await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id, state_id=car_state, engine_type_id=engine_type,
-                                                              complectation_id=complectation,
+                                                                  complectation_id=complectation,
                                                               color_id=color, mileage_id=mileage, year_id=year_of_release)
 
-    # await redis_module.redis_data.set_data(key=cache_non_confirm_cars_redis_key,
-    #                                        value=data_stack, expire=lifetime_of_redis_record_of_request_caching)
-    #
-    # cache_redis_keys = await redis_module.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys',
-    #                                        use_json=True)
-    # if not cache_redis_keys:
-    #     cache_redis_keys = []
-    # if cache_non_confirm_cars_redis_key in cache_redis_keys:
-    #     pass
-    # else:
-    #     cache_redis_keys.append(cache_non_confirm_cars_redis_key)
-    #
-    # await redis_module.redis_data.set_data(key=f'{str(callback.from_user.id)}:buyer_non_confirm_cars_redis_keys',
-    #                                        value=cache_redis_keys)
 
     return data_stack
 

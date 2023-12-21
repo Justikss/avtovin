@@ -1,14 +1,31 @@
 import traceback
 from typing import Union, List
 
-from peewee import IntegrityError
+from peewee import IntegrityError, DoesNotExist
 
 from database.tables.user import User
 from database.db_connect import manager
 from database.tables.seller import Seller
 
-class PersonRequester:
 
+class PersonRequester:
+    @staticmethod
+    async def remove_user(telegram_id, seller=False, user=False):
+        if not isinstance(telegram_id, int):
+            telegram_id = int(telegram_id)
+        if seller:
+            table_model = Seller
+        elif user:
+            table_model = User
+        else:
+            return
+
+        try:
+            user = await manager.get(table_model, table_model.telegram_id == telegram_id)
+            await manager.execute(table_model.delete().where(table_model.telegram_id == telegram_id))
+            return user
+        except DoesNotExist:
+            return False
     @staticmethod
     async def get_seller_by_advert(advert):
         try:
@@ -18,12 +35,16 @@ class PersonRequester:
             traceback.print_exc()
 
     @staticmethod
-    async def retrieve_all_data(user=False, seller=False) -> Union[bool, List[User]]:
+    async def retrieve_all_data(user=False, seller=False, entity=None) -> Union[bool, List[User]]:
         '''Асинхронный метод для извлечения всех моделей строк'''
         if user:
             return await manager.execute(User.select())
         elif seller:
-            return await manager.execute(Seller.select())
+            if entity:
+                query = await manager.execute(Seller.select().where(Seller.entity == entity))
+            else:
+                query = await manager.execute(Seller.select())
+            return list(query)
         else:
             return False
 

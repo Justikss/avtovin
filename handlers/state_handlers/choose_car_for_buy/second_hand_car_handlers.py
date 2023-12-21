@@ -6,11 +6,9 @@ from aiogram.types import CallbackQuery
 from config_data.config import car_configurations_in_keyboard_page
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.tables.offers_history import ActiveOffers
-from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 
 from states.second_hand_choose_states import SecondHandChooseStates
-from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_state
-from utils.create_lexicon_part import create_lexicon_part
+from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_state, output_choose
 
 
 async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, first_call=True):

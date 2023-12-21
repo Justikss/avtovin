@@ -6,6 +6,8 @@ from typing import Optional
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from icecream import ic
+
+from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from handlers.utils.pagination_heart import Pagination
 from utils.lexicon_utils.Lexicon import LastButtonsInCarpooling
 
@@ -14,7 +16,7 @@ from utils.lexicon_utils.Lexicon import LastButtonsInCarpooling
 class CachedRequestsView:
     '''Сердце класса - output_message_with_inline_pagination'''
     @staticmethod
-    async def output_message_with_inline_pagination(callback: CallbackQuery, car_brands=None, operation=None, state: Optional[FSMContext] = None, pagesize=None):
+    async def output_message_with_inline_pagination(callback: CallbackQuery, buttons_data=None, operation=None, state: Optional[FSMContext] = None, pagesize=None):
         '''Пока что адаптирован под покупателя(см. get_keyboard)
         Требует контент в виде key: value для кнопок'''
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -22,8 +24,8 @@ class CachedRequestsView:
 
         redis_key = f'{str(callback.from_user.id)}:inline_buttons_pagination_data'
 
-        if car_brands:
-            data = [car_brands]
+        if buttons_data:
+            data = [buttons_data]
             ic(type(data))
             ic(data)
             if len(data) == 1:
@@ -33,8 +35,10 @@ class CachedRequestsView:
         else:
             pagination_data = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
             # ic(pagination_data)
-            pagination = Pagination(**pagination_data)
-
+            if pagination_data:
+                pagination = Pagination(**pagination_data)
+            else:
+                return await return_main_menu_callback_handler(callback, state)
         if not operation:
             operation = callback.data.split(':')[-1]
 
@@ -59,6 +63,7 @@ class CachedRequestsView:
 
         if state:
             current_state = str(await state.get_state())
+            ic(current_state)
             memory_storage = await state.get_data()
         else:
             current_state = None
@@ -79,7 +84,7 @@ class CachedRequestsView:
         elif user_state == 'sell':
             message_text = lexicon_module.LexiconSellerRequests.select_brand_message_text
         if current_state:
-            if ('ChooseStates' in current_state) or ('LoadCommodityStates' in current_state):
+            if any(state_sub_string in current_state for state_sub_string in ['ChooseStates', 'LoadCommodityStates', 'SellerReviewStates', 'BuyerReviewStates']):
                 ic(memory_storage.get('message_text'))
                 message_text = {'message_text': memory_storage.get('message_text')}
                 sub_text = False
@@ -102,6 +107,13 @@ class CachedRequestsView:
         if state:
             current_state = await state.get_state()
             memory_storage = await state.get_data()
+            
+            if memory_storage.get('width'):
+                width_value = memory_storage.get('width')
+                ic(width_value)
+                ic()
+            if memory_storage.get('dynamic_buttons'):
+                dynamic_buttons = memory_storage.get('dynamic_buttons')
         else:
             memory_storage = None
             current_state = None
@@ -110,6 +122,8 @@ class CachedRequestsView:
             backward_command = lexicon_module.LEXICON['backward_from_buyer_offers']
         elif user_state == 'sell':
             backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
+        elif user_state == 'admin':
+            backward_command = memory_storage.get('backward_command')
 
         current_page = await pagination.get_page(operation)
 
@@ -124,11 +138,15 @@ class CachedRequestsView:
         if isinstance(current_page, list):
             current_page = {key: value for data_part in current_page for key, value in data_part.items()}
         ic(current_page)
-        # if current_page:
-        #     current_page = {key: value for data_part in current_page for key, value in data_part.items()}
-        # if 'width' in current_page.keys():
-        #     width = current_page.pop('width')
-        width = ({width_value: len(current_page)}, 3, 1)
+        if current_page:
+            ic(len(current_page))
+            width_value = width_value if len(current_page) >= 2 else 1
+            ic([len(caption) for caption in current_page])
+            max_text_width = max([len(caption) for callback_data, caption in current_page.items()])
+            ic(max_text_width)
+            if max_text_width > 14:
+                width_value = 1
+        width = ({width_value: len(current_page)}, 3, 1, 1)
 
         if current_state:
             if 'ChooseStates' in current_state:
@@ -141,9 +159,9 @@ class CachedRequestsView:
                 dynamic_buttons = memory_storage.get('dynamic_buttons')
                 backward_command = memory_storage.get('last_buttons')
                 ic(backward_command)
-                if 'input_to_load_color' in current_state:
-                    ic(len(current_page))
-                    width = ({width_value: len(current_page)}, 3, 1, 1)
+                # if 'input_to_load_color' in current_state:
+                #     ic(len(current_page))
+                #     width = ({width_value: len(current_page)}, 3, 1, 1)
 
         ic(width)
         ic(current_page, pagination_interface_buttons, backward_command)

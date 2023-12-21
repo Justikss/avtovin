@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 
+from config_data.config import DATETIME_FORMAT
 from database.db_connect import BaseModel
-from peewee import ForeignKeyField, IntegerField, AutoField, BooleanField, DateField, CharField, DateTimeField, \
-    CompositeKey, SQL, TextField
+from peewee import ForeignKeyField, BooleanField, DateTimeField, CompositeKey
 
-from .car_configurations import CarAdvert, CarState, CarComplectation, CarEngine, CarMileage, CarColor, CarYear
-from .user import User
-from .seller import Seller
+from database.tables.car_configurations import CarAdvert, CarState, CarComplectation, CarEngine, CarMileage, CarColor, CarYear
+from database.tables.statistic_tables.advert_parameters import AdvertParameters
+from database.tables.user import User
+from database.tables.seller import Seller
 
 
 
@@ -26,7 +27,6 @@ class CacheBuyerOffers(BaseModel):
     '''Кэширование неподтверждённых заявок'''
     buyer_id = ForeignKeyField(User, field=User.telegram_id, backref='cached_offers')
     car_id = ForeignKeyField(CarAdvert, field=CarAdvert.id, backref='cached_offers')
-    message_text = TextField()
     # car_brand = CharField()
     datetime_of_deletion = DateTimeField(default=datetime.now() + timedelta(days=7))
 
@@ -36,20 +36,24 @@ class CacheBuyerOffers(BaseModel):
 
 
 class RecommendationsToBuyer(BaseModel):
-    buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendation_parameters')
+    buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations_to_buyer')
 
-    complectation = ForeignKeyField(CarComplectation, backref='recommendations')
-    state = ForeignKeyField(CarState, backref='recommendations')
-    engine_type = ForeignKeyField(CarEngine, backref='recommendations')
-
-    color = ForeignKeyField(CarColor, backref='recommendations', null=True)
-    mileage = ForeignKeyField(CarMileage, backref='recommendations', null=True)
-    year = ForeignKeyField(CarYear, backref='recommendations', null=True)
+    parameters = ForeignKeyField(AdvertParameters, backref='recommendations_to_buyer')
+    # complectation = ForeignKeyField(CarComplectation, backref='recommendations')
+    # state = ForeignKeyField(CarState, backref='recommendations')
+    # engine_type = ForeignKeyField(CarEngine, backref='recommendations')
+    #
+    # color = ForeignKeyField(CarColor, backref='recommendations', null=True)
+    # mileage = ForeignKeyField(CarMileage, backref='recommendations', null=True)
+    # year = ForeignKeyField(CarYear, backref='recommendations', null=True)
 
     class Meta:
         db_table = 'Параметры_Рекомендаций'
 
-
+class SellerFeedbacksHistory(BaseModel):
+    seller_id = ForeignKeyField(Seller, backref='feedbacks_history')
+    advert_parameters = ForeignKeyField(AdvertParameters, backref='feedbacks_history')
+    feedback_time = DateTimeField(default=datetime.now().strftime(DATETIME_FORMAT))
 
 class RecommendedOffers(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')

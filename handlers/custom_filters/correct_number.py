@@ -7,13 +7,12 @@ from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 
-
-from handlers.state_handlers.buyer_registration_handlers import input_phone_number
 from database.data_requests.person_requests import PersonRequester
 
 
 class CheckInputNumber(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        input_phone_number_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
         print('in_number_filter')
         redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         seller_registration_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers')
@@ -28,7 +27,7 @@ class CheckInputNumber(BaseFilter):
             seller_use = True
 
         elif current_state.startswith('BuyerRegistationStates'):
-            current_method = input_phone_number
+            current_method = input_phone_number_module.input_phone_number
             buyer_use = True
             seller_use = None
 

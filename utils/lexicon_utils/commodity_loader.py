@@ -3,7 +3,7 @@ from handlers.state_handlers.seller_states_handler.load_new_car.boot_car_buttons
 
 class BaseBootButtons:
     last_buttons = {'boot_car_backward': '◂ Назад ▸', 'cancel_boot_new_commodity': 'Отмена'}
-    width = 0
+    width = 2
     message_text = ''
     dynamic_buttons = 2
     def __init__(self):
@@ -18,7 +18,7 @@ class BaseBootButtons:
 
 
 class LexiconCommodityLoader:
-    class load_commodity_state(BaseBootButtons, RedisBootCommodityHelper):
+    class load_commodity_state(BaseBootButtons):
         message_text = 'Выберите состояние авто:'
         buttons_callback_data = 'load_state_'
         width = 2
@@ -58,9 +58,8 @@ class LexiconCommodityLoader:
     class load_commodity_color(BaseBootButtons, RedisBootCommodityHelper):
         message_text = 'Предпочитаемый цвет:'
         buttons_callback_data = 'load_color_'
-        width = 3
-        dynamic_buttons = 3
-        last_buttons = {'other_color': 'Другой цвет', **BaseBootButtons.last_buttons}
+        width = 2
+        dynamic_buttons = 2
 
     load_other_color = {'message_text': 'Введите цвет автомобиля:', 'buttons': {'rewrite_boot_color': '◂ Назад ▸', 'cancel_boot_new_commodity': '🚫 Отмена 🚫', 'width': 1}}
     make_sure_selected_other_color = {'message_text': 'Вы выбрали: <i>X цвет</i>', 'buttons': {'make_sure_other_color': '✓ Подтвердить ✓', 'rewrite_other_boot_color': '⚙️ Изменить ⚙️', 'width': 1}}

@@ -1,1 +1,1 @@
-from . import accept_registration_request_button
+from . import accept_registration_request_button, admin_panel_ui

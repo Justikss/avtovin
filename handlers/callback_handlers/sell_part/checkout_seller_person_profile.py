@@ -10,7 +10,7 @@ from database.data_requests.person_requests import PersonRequester, Seller
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 
 
-async def get_seller_name(seller_model: Seller) -> Union[Tuple[str, str], str]:
+async def get_seller_name(seller_model: Seller, get_only_fullname=False) -> Union[Tuple[str, str], str]:
     '''Метод сопоставляющий имя/название продавца/автосалона'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
@@ -18,7 +18,10 @@ async def get_seller_name(seller_model: Seller) -> Union[Tuple[str, str], str]:
     if seller_model.dealship_name:
         name = f'''{lexicon_module.LexiconSellerProfile.dealership_prefix}\n{lexicon_module.LexiconSellerProfile.dealership_name_prefix.replace('X', seller_model.dealship_name)}'''
         address = f'''{lexicon_module.LexiconSellerProfile.dealership_address_prefix.replace('X', seller_model.dealship_address)}'''
-        return (name, address)
+        if get_only_fullname:
+            return seller_model.dealship_name
+        else:
+            return (name, address)
     else:
         if seller_model.patronymic:
             patronymic = seller_model.patronymic
@@ -27,20 +30,39 @@ async def get_seller_name(seller_model: Seller) -> Union[Tuple[str, str], str]:
 
         fullname = f'{seller_model.name} {seller_model.surname} {patronymic}'
         name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{lexicon_module.LexiconSellerProfile.seller_name_prefix.replace('X', fullname)}'''
+        if get_only_fullname:
+            return fullname
+        else:
+            return name
 
-        return name
-    
+async def get_seller_entity(seller_model):
+    if seller_model.dealship_name:
+        seller_entity = 'legal'
+    else:
+        seller_entity = 'natural'
 
-async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
+    return  seller_entity
+
+async def seller_profile_card_constructor(callback: CallbackQuery = None, user_id=None, get_part=None) -> tuple | bool:
     '''Метод конструирования выводимой карточки профиля'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
-    user_id = callback.from_user.id
-    seller_tariff_model = await TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
+    ic()
+    if not user_id and callback:
+        user_id = callback.from_user.id
+    elif isinstance(user_id, str):
+        user_id = int(user_id)
+    ic(user_id)
 
 
     seller_model = await PersonRequester.get_user_for_id(user_id=user_id, seller=True)
-    seller_model = seller_model[0]
+    ic(seller_model)
+    if not seller_model:
+        return False
+    else:
+        seller_model = seller_model[0]
+
+    seller_entity = await get_seller_entity(seller_model)
+
     seller_data = await get_seller_name(seller_model)
     if len(seller_data) == 2:
         seller_data = f'{seller_data[0]}\n{seller_data[1]}'
@@ -48,6 +70,17 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
         seller_data = f'{seller_data}'
     
     output_string = f'''{lexicon_module.LexiconSellerProfile.header}{seller_data}\n{lexicon_module.LexiconSellerProfile.phonenumber_prefix.replace('X', seller_model.phone_number)}'''
+
+    if get_part == 'top':
+        return output_string, seller_entity
+    elif get_part == 'bottom':
+        ic()
+        output_string = ''
+
+    tariff_exists = False
+
+    seller_tariff_model = await TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
+    ic(seller_tariff_model)
 
     if seller_tariff_model:
         if isinstance(seller_tariff_model, list):
@@ -58,17 +91,21 @@ async def seller_profile_card_constructor(callback: CallbackQuery) -> str:
             output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
             output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.replace('T', seller_tariff_model.tariff.name).replace('D', str(days_to_end.days)).replace('R', str(seller_tariff_model.residual_feedback)))
+            tariff_exists = True
             print(output_string)
+        ic(output_string)
+    if not get_part:
+        return output_string
+    elif get_part == 'bottom':
+        return output_string, tariff_exists
 
-    return output_string
 
 async def output_seller_profile(callback: CallbackQuery):
     '''Обработчик кнопки ПРОФИЛЬ селлера.'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
-
     message_editor_module = importlib.import_module('handlers.message_editor')
-    message_text = await seller_profile_card_constructor(callback=callback)
+
+    message_text, seller_entity = await seller_profile_card_constructor(callback=callback)
     tariff_button = lexicon_module.LexiconSellerProfile.tariff_extension_button if lexicon_module.LexiconSellerProfile.tariff_prefix.split('>')[1].split(':')[0] in message_text else lexicon_module.LexiconSellerProfile.tariff_store_button
     lexicon_part = {'message_text': message_text,
                     'buttons': {**tariff_button, **lexicon_module.LEXICON['return_main_menu_button'], 'width': lexicon_module.LexiconSellerProfile.width}}

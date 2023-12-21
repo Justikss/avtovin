@@ -6,7 +6,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from states.requests_by_seller import SellerRequestsState
 
 
@@ -22,6 +21,7 @@ async def seller_requests_callback_handler(callback: CallbackQuery, state: FSMCo
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     media_group_delete_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    cached_requests_view_module = importlib.import_module('handlers.utils.inline_buttons_pagination_heart')
 
 
     await media_group_delete_module.delete_media_groups(request=callback)
@@ -35,7 +35,7 @@ async def seller_requests_callback_handler(callback: CallbackQuery, state: FSMCo
         await callback.answer()
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_module.LexiconSellerRequests.select_brand_message_text, delete_mode=delete_mode)
         ic()
-        await CachedRequestsView.output_message_with_inline_pagination(callback, car_brands=car_brands_keyboard_part, pagesize=8)
+        await cached_requests_view_module.CachedRequestsView.output_message_with_inline_pagination(callback, buttons_data=car_brands_keyboard_part, pagesize=8)
         await state.set_state(SellerRequestsState.await_input_brand)
         return True
     else:

@@ -1,4 +1,4 @@
-from . import commodity, offers_history, seller, user, tariff, car_configurations
+from . import commodity, offers_history, seller, user, tariff, car_configurations, admin, statistic_tables
 # from .start_tables import BaseModel, database
 #
 # manager = Manager(database)

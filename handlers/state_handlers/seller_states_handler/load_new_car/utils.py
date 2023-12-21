@@ -48,7 +48,7 @@ async def change_boot_car_state_controller(callback, state):
             # await state.update_data(color_for_load=None)
 
 
-async def data_update_controller(request: Union[Message, CallbackQuery], state: FSMContext, other_color_mode=None):
+async def data_update_controller(request: Union[Message, CallbackQuery], state: FSMContext):
     '''Метод контроллирует процесс переписи полей добавляемого автомобиля'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
@@ -70,6 +70,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
         else:
             input_photo_module = importlib.import_module(
                 'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
+            ic(current_state, type(request), request.data, request.data[-1])
 
             ic(memory_storage.get('state_for_load'))
             rewrite_state_flag = memory_storage.get('rewrite_state_flag')
@@ -82,11 +83,11 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             #         print(set_photo_for_new_state_car)
             #         await set_photo_for_new_state_car(request, state)
 
-                if current_state == 'LoadCommodityStates:input_to_load_price' and isinstance(request, CallbackQuery) and not request.data[-1].isdigit():
+                if current_state == 'LoadCommodityStates:input_to_load_price' and isinstance(request, CallbackQuery) and request.data[-1] == '1':
                     ic()
                     print('input_photo_to_load')#
                     await state.set_state(LoadCommodityStates.input_to_load_photo)
-                    await input_photo_module.input_photo_to_load(request, state)#
+                    await input_photo_module.input_photo_to_load(request, state, need_photo_flag=True)#
                     return True
 
             ic(rewrite_state_flag)
@@ -109,7 +110,8 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                         ic()
                         await state.set_state(LoadCommodityStates.photo_verification)
                         await state.set_state(LoadCommodityStates.input_to_load_photo)
-                        if str(memory_storage.get('color_for_load')).isalpha():
+                        if int(memory_storage.get('color_for_load')) == 1:
+                            ic()
                             pass
                         else:
                             ic()
@@ -157,7 +159,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                             last_value = memory_storage.get('model_for_load')
                             await state.update_data(model_for_load=selected_id)
                             if (memory_storage.get('rewrite_brand_mode')) or (
-                                    last_value != int(request.data.split('_')[-1])):
+                                    int(last_value) != int(selected_id)):
                                 ic()
                                 return False
 
@@ -165,13 +167,12 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                             last_value = memory_storage.get('complectation_for_load')
                             await state.update_data(complectation_for_load=selected_id)
                             if (memory_storage.get('rewrite_brand_mode')) or (
-                                    last_value != int(request.data.split('_')[-1])):
+                                    int(last_value) != int(selected_id)):
                                 ic()
                                 return False
 
 
-                        elif current_state in (
-                        'LoadCommodityStates:input_to_load_color', 'LoadCommodityStates:input_to_load_year'):
+                        elif current_state == 'LoadCommodityStates:input_to_load_color':
                             ic()
                             ic('complectation1221', selected_id)
                             if (not edit_mode) or (memory_storage.get('rewrite_brand_mode')):
@@ -211,6 +212,11 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     boot_car_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
 
+    async def get_color_caption(index):
+        ic(captions[index])
+        if captions[index] == 1:
+            captions[index] = f'''{captions[index]} {lexicon_module.LEXICON['color_caption']}'''
+
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     boot_config_value = list(value for value in boot_data.values())
     ic(boot_config_value)
@@ -222,7 +228,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
         # all_captions = None
         print('pre ', boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
         if cars_state == 'new':
-            if str(memory_storage.get('color_for_load')).isalpha():
+            if str(memory_storage.get('color_for_load')) == '1':
                 additional_index = 9
                 ic(additional_index)
                 ic(boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
@@ -236,6 +242,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             ic(captions)
             caption_index, price_caption = await get_price_string(head_valute, captions, 6)
             captions[caption_index] = price_caption
+            color_caption_index = 5
 
             if additional_index == 9:
                 captions.append(copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_photo_caption))
@@ -254,7 +261,9 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
             ic(type(captions))
             captions.append(copy(boot_car_lexicon_module.LexiconCommodityLoader.edit_photo_caption))
             # all_captions = captions + (LexiconCommodityLoader.edit_photo_caption,)
-            ic(captions)
+            color_caption_index = 7
+
+        await get_color_caption(color_caption_index)
 
         ic(captions)
         captions = [caption for caption in captions if caption is not None]
@@ -281,7 +290,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
 async def set_photo_for_new_state_car(callback: CallbackQuery, state: FSMContext):
     memory_storage = await state.get_data()
     new_photographies = await PhotoRequester.try_get_photo(state)
-    if not new_photographies and not str(memory_storage.get('color_for_load')).isalpha():
+    if not new_photographies and not int(memory_storage.get('color_for_load')) == 1:
         input_photo_module = importlib.import_module(
             'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
         ic()

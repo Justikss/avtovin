@@ -28,7 +28,12 @@ class TarifRequester:
     @staticmethod
     async def get_by_id(tariff_id):
         '''Асинхронный метод получения тарифа по ID'''
-        tariff = await manager.get(Tariff, Tariff.id == tariff_id)
+        if not isinstance(tariff_id, int):
+            tariff_id = int(tariff_id)
+        try:
+            tariff = await manager.get(Tariff, Tariff.id == tariff_id)
+        except:
+            tariff = None
         return tariff
 
     @staticmethod

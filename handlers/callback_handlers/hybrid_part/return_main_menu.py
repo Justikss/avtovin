@@ -2,6 +2,9 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.start_admin_panel_window import start_admin_menu
+
+
 async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMContext):
     redis_data = importlib.import_module('utils.redis_for_language')
     buy_main_module = importlib.import_module('handlers.callback_handlers.buy_part.main_menu')
@@ -17,5 +20,7 @@ async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMC
         await sell_main_module.seller_main_menu(callback=callback)
     elif user_state == 'buy':
         await buy_main_module.main_menu(request=callback)
+    elif user_state == 'admin':
+        await start_admin_menu(callback, state)
 
     await callback.answer()

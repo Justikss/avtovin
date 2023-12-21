@@ -2,10 +2,10 @@ import os
 from dotenv import load_dotenv, find_dotenv
 import logging
 
-# logger = logging.getLogger('peewee')
-logger = logging.getLogger()
-logger.addHandler(logging.StreamHandler())
+
+logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -32,8 +32,14 @@ DEFAULT_COMMANDS = (
 
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
 
+REGISTRATION_DATETIME_FORMAT = '%d-%m-%Y'
+
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600
+
+max_price_len = 20
+max_contact_info_len = 100
+block_user_reason_text_len = {'max': 256, 'min': 3}
 header_message_text: str = f'<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
 
 money_valute = '$'
@@ -44,6 +50,9 @@ faq = '''
 '''
 
 car_configurations_in_keyboard_page = 4
+
+user_pagesize_by_admin = 6
+tariffs_pagesize = 6
 
 faq_seller = '''
 \n<b>Продажа:</b>

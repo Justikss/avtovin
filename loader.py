@@ -1,32 +1,37 @@
 import asyncio
 import importlib
-from aiogram import Bot, Dispatcher, F
+
+from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
-from database.data_requests.car_configurations_requests import mock_values, get_car
 from database.db_connect import create_tables
+from handlers.callback_handlers.admin_part import admin_panel_ui
+from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
 from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
 from handlers.callback_handlers.sell_part.commodity_requests.backward_command_load_config import backward_in_boot_car
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
+from handlers.custom_filters.admin_filters.admin_status_controller import AdminStatusController
+from handlers.custom_filters.admin_filters.block_user_reason_input import ControlInputUserBlockReason
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
 from handlers.default_handlers.admin_part_default_handlers.save_seller_tariff import save_tariff_handler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
-from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
+# from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.delete_feedback import DeleteFeedback
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
-    my_feedbacks_callback_handler, CheckFeedbacksHandler
+    CheckFeedbacksHandler
 from handlers.custom_handlers.lost_photos_handler import lost_photos_handler
 from handlers.default_handlers.admin_part_default_handlers.boot_new_car_photos import \
     start_state_boot_new_car_photos_message_handler
@@ -34,10 +39,12 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
+from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
+from states.seller_feedbacks_states import SellerFeedbacks
 from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
@@ -73,24 +80,6 @@ from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.hybrid_part.faq import seller_faq, buyer_faq, faq
 
 from handlers.callback_handlers.hybrid_part.utils.media_group_collector import collect_and_send_mediagroup
-#from utils.middleware.media_album_middleware import AlbumMiddleware
-
-
-# from database.data_requests.offers_requests import OffersRequester
-# from database.data_requests.person_requests import PersonRequester
-
-# a = OffersRequester.store_data(buyer_id=902230076, seller_id=902230076, cars=[1, 2, 5])
-# print(a)
-
-# offer = ActiveOffers.get(ActiveOffers.id == 1)
-# related_cars = offer.offer_id
-# print(type(offer))
-
-#active_offer_to_car = [offer_wire for offer_wire in ActiveOffersToCars.get(ActiveOffersToCars.offer_id == 4)]
-# related_offer = active_offer_to_car.offer_id
-
-#print(active_offer_to_car)
-
 
 '''echo.router обязан последней позици.'''
 
@@ -109,6 +98,10 @@ async def start_bot():
     storage = RedisStorage(redis=redis)
 
     dp = Dispatcher(storage=storage)
+
+    admin_router = Router()
+    dp.include_router(admin_router)
+
 
     await create_tables()
     # await mock_values()
@@ -170,16 +163,10 @@ async def start_bot():
                         and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
                         pass_on_dealership_address.GetDealershipAddress()))
 
-
-      # rewrite_seller_name
-      # rewrite_seller_number
-      # confirm_registration_from_seller
     '''Пагинация клавиатуры'''
-
     dp.callback_query.register(CachedRequestsView.inline_buttons_pagination_vector_handler, F.data.in_(('inline_buttons_pagination:-', 'inline_buttons_pagination:+')))
 
     '''Пагинация неподтверждённых заявок'''
-
     dp.callback_query.register(output_buyer_offers,
                                or_f(StateFilter(CheckNonConfirmRequestsStates.await_input_brand),
                                     StateFilter(CheckActiveOffersStates.await_input_brand),
@@ -187,14 +174,12 @@ async def start_bot():
                                lambda callback: callback.data.startswith('load_brand_'))
 
     '''delete request'''
-
     dp.callback_query.register(DeleteCarRequest.delete_car_handler, F.data == 'withdrawn')
 
     dp.callback_query.register(DeleteCarRequest.accept_delete_car_and_backward_from_delete_menu_handler, F.data.in_(
         ("i'm_sure_delete", 'backward_from_delete_car_menu', 'backward_from_delete_feedback_menu')))
 
     '''обработка Коллбэков'''
-
     dp.callback_query.register(FAQ_tech_support.tech_support_callback_handler, F.data == 'support')
     dp.callback_query.register(FAQ_tech_support.write_to_support_callback_handler, F.data == 'write_to_support')
     dp.callback_query.register(FAQ_tech_support.call_to_support_callback_handler, F.data == 'call_to_support')
@@ -214,7 +199,6 @@ async def start_bot():
                                lambda callback: callback.data.startswith('confirm_buy_settings:'))
 
     dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')))
-
 
     '''Seller'''
     dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
@@ -256,20 +240,18 @@ async def start_bot():
     dp.callback_query.register(SellerRequestPaginationHandlers.seller_request_pagination_vectors,
                                F.data.in_(('seller_requests_pagination_left', 'seller_requests_pagination_right')))
 
-
     dp.callback_query.register(rewrite_price_by_seller_handler, F.data == 'rewrite_price_by_seller')
     dp.message.register(get_input_to_rewrite_price_by_seller_handler, StateFilter(RewritePriceBySellerStates.await_input), price_is_digit.PriceIsDigit())
     '''seller"s feedbacks'''
 
-    dp.callback_query.register(my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))
+    dp.callback_query.register(CheckFeedbacksHandler.my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))
 
-    dp.callback_query.register(CheckFeedbacksHandler.check_feedbacks_handler,
-                               F.data.in_(('new_feedbacks', 'viewed_feedbacks')))
+    dp.callback_query.register(CheckFeedbacksHandler.check_feedbacks_handler, and_f(StateFilter(SellerFeedbacks.choose_feedbacks_state),
+                               F.data.in_(('new_feedbacks', 'viewed_feedbacks'))))
 
     dp.callback_query.register(DeleteFeedback.delete_feedback_handler, F.data == "i'm_sure_delete_feedback")
 
     dp.callback_query.register(DeleteFeedback.did_you_sure_to_delete_feedback_ask, F.data == 'deal_fell_through')
-
 
     '''Оформление тарифа продавца'''
     dp.callback_query.register(seller_profile_branch.tariff_extension.output_affordable_tariffs_handler, F.data == 'tariff_extension')
@@ -287,6 +269,52 @@ async def start_bot():
     dp.callback_query.register(return_main_menu.return_main_menu_callback_handler,
                                F.data == 'return_main_menu')
 
+    '''admin'''
+    dp.callback_query.register(admin_panel_ui.utils.admin_backward_command.admin_backward_command_handler,
+                               lambda callback: callback.data.startswith('admin_backward'))
+
+    dp.callback_query.register(admin_panel_ui.start_admin_panel_window.start_admin_menu, F.data == 'admin_panel_button')
+
+    '''user actions'''
+    dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_users_category.choose_user_category_by_admin_handler,
+                               F.data == 'admin_button_users', AdminStatusController())
+    dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_seller_category.choose_seller_category_by_admin_handler,
+                               F.data == 'seller_category_actions', AdminStatusController())
+
+    dp.callback_query.register(user_actions.choose_specific_user.choose_specific.choose_specific_person.choose_specific_person_by_admin_handler,
+                               F.data.in_(('buyer_category_actions',
+                                           'legal_seller_actions',
+                                           'natural_seller_actions')))
+
+    dp.callback_query.register(user_actions.choose_specific_user.choose_specific.output_specific_seller.output_specific_user_profile_handler,
+                               lambda callback: callback.data.startswith('seller_select_action'))
+
+    dp.callback_query.register(user_actions.choose_specific_user.choose_specific.output_specific_buyer.output_buyer_profile,
+                               lambda callback: callback.data.startswith('user_select_action'))
+
+    '''admin_seller_tariff'''
+    dp.callback_query.register(tariff_for_seller.checkout_tariff_by_admin.checkout_seller_tariff_by_admin_handler,
+        F.data == 'tariff_actions_by_admin')
+    dp.callback_query.register(tariff_for_seller.choose_tariff_for_seller.choose_tariff_for_seller_by_admin_handler,
+                               F.data == 'set_seller_tariff_by_admin')
+    dp.callback_query.register(tariff_for_seller.choose_tariff_for_seller.checkout_tariff_for_seller_by_admin_handler,
+                               lambda callback: callback.data.startswith('select_tariff_for_seller_by_admin:'))
+
+    dp.callback_query.register(tariff_for_seller.confirm_action_set_tariff_by_admin.confirm_question_set_tariff_to_seller_by_admin,
+                               F.data == 'activate_tariff_by_admin_for_seller')
+    dp.callback_query.register(tariff_for_seller.confirm_action_set_tariff_by_admin.confirm_action_tariff_to_seller_by_admin,
+                               F.data == 'confirm_set_tariff_to_seller_by_admin', AdminStatusController())
+
+    dp.callback_query.register(tariff_for_seller.tariff_reset.tariff_reset_for_seller_from_admin_handler,
+                               F.data == 'reset_seller_tariff_by_admin')
+    dp.callback_query.register(tariff_for_seller.tariff_reset.confirm_action_reset_seller_tariff,
+                               F.data == 'confirm_reset_seller_tariff_action', AdminStatusController())
+    '''ban'''
+    dp.callback_query.register(user_ban.start_ban_process_input_reason.input_ban_reason_handler, F.data == 'user_block_action_by_admin')
+    dp.message.register(user_ban.awaited_confirm_ban_process.ban_user_final_decision, or_f(StateFilter(SellerReviewStates.review_state), StateFilter(BuyerReviewStates.review_state)),
+                        ControlInputUserBlockReason())
+    dp.callback_query.register(user_ban.confirm_block_user_action.confirm_user_block_action,
+                               F.data == 'confirm_block_user_by_admin')
     '''Состояния поиска машины'''
     '''hybrid'''
     dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,
@@ -365,16 +393,6 @@ async def start_bot():
                               or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_color),
                               lambda callback: callback.data.startswith('load_complectation_')),
                               F.data=='rewrite_boot_color'))
-
-    dp.callback_query.register(input_other_color.input_other_color_to_boot_car,
-                               or_f(and_f(
-                                   or_f(StateFilter(LoadCommodityStates.input_to_load_color),
-                                    StateFilter(LoadCommodityStates.input_other_color),
-                                    StateFilter(LoadCommodityStates.input_to_load_price)),
-                               F.data == 'rewrite_other_boot_color'), F.data == 'other_color'))
-    dp.message.register(input_other_color.validate_other_color, StateFilter(LoadCommodityStates.input_other_color))
-    dp.callback_query.register(input_other_color.success_load_other_color, StateFilter(LoadCommodityStates.input_other_color),
-                               F.data == 'make_sure_other_color')
 
     dp.callback_query.register(load_new_car.hybrid_handlers.input_price_to_load,
                               or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_price),

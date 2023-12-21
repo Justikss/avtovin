@@ -1,6 +1,6 @@
 import datetime
 
-from peewee import CharField, IntegerField, ForeignKeyField, DateTimeField, BigIntegerField, BooleanField
+from peewee import CharField, ForeignKeyField, DateTimeField, BigIntegerField
 
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
