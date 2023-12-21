@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from config_data.config import DATETIME_FORMAT
+from config_data.config import DATETIME_FORMAT, REGISTRATION_DATETIME_FORMAT
 from database.db_connect import BaseModel
-from peewee import ForeignKeyField, BooleanField, DateTimeField, CompositeKey
+from peewee import ForeignKeyField, BooleanField, DateTimeField, CompositeKey, DateField
 
 from database.tables.car_configurations import CarAdvert, CarState, CarComplectation, CarEngine, CarMileage, CarColor, CarYear
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
@@ -53,7 +53,7 @@ class RecommendationsToBuyer(BaseModel):
 class SellerFeedbacksHistory(BaseModel):
     seller_id = ForeignKeyField(Seller, backref='feedbacks_history')
     advert_parameters = ForeignKeyField(AdvertParameters, backref='feedbacks_history')
-    feedback_time = DateTimeField(default=datetime.now().strftime(DATETIME_FORMAT))
+    feedback_time = DateField(default=datetime.now().strftime(REGISTRATION_DATETIME_FORMAT))
 
 class RecommendedOffers(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')

@@ -10,7 +10,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_us
     backward_from_user_profile_review
 from utils.get_user_name import get_user_name
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon import BanUser
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import BanUser
 
 async def get_user_entity(callback: CallbackQuery, state: FSMContext):
     current_state = str(await state.get_state())

@@ -203,7 +203,10 @@ async def start_bot():
     '''Seller'''
     dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
 
-    dp.callback_query.register(try_delete_notification, lambda callback: callback.data.startswith('close_seller_notification_by_redis'))
+    dp.callback_query.register(try_delete_notification, or_f(
+        lambda callback: callback.data.startswith('close_seller_notification_by_redis'),
+        lambda callback: callback.data.startswith('close_ban_notification:')
+    ))
 
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
                               or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))

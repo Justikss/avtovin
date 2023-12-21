@@ -11,7 +11,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_us
     backward_from_user_profile_review
 from handlers.utils.message_answer_without_callback import send_message_answer
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon import BanUser
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import BanUser
 
 async def delete_mode_controller(state: FSMContext):
     memory_storage = await state.get_data()
@@ -26,6 +26,7 @@ async def ban_user_final_decision(message: Message, state: FSMContext, reason: s
     if lexicon_class:
         if lexicon_class.user_entity:
             ic(lexicon_class.user_entity, reason)
+            await state.update_data(reason=reason)
             lexicon_part = ADMIN_LEXICON['final_decision_ban_user']
             lexicon_part['message_text'] = lexicon_part['message_text'].format(
                 user_entity=lexicon_class.user_entity,

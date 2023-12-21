@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.person_requests import PersonRequester
-from database.data_requests.tariff_requests import TarifRequester
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person import \
     choose_specific_person_by_admin_handler
@@ -13,11 +12,12 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
     output_specific_user_profile_handler
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon import SelectTariff
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import SelectTariff
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
 
 async def confirm_question_set_tariff_to_seller_by_admin(callback: CallbackQuery, state: FSMContext):
+    tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
     message_editor_module = importlib.import_module('handlers.message_editor')
     memory_storage = await state.get_data()
 
@@ -25,7 +25,7 @@ async def confirm_question_set_tariff_to_seller_by_admin(callback: CallbackQuery
     seller_id = memory_storage.get('current_seller_id')
     seller_tariff_exists = memory_storage.get('tariff_exists')
 
-    tariff = await TarifRequester.get_by_id(tariff_id)
+    tariff = await tariff_requests_module.TarifRequester.get_by_id(tariff_id)
     seller = await PersonRequester.get_user_for_id(seller_id, seller=True)
     ic(seller)
     if seller and tariff:

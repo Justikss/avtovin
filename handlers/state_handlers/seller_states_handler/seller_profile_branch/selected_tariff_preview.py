@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 from utils.lexicon_utils.Lexicon import LexiconSelectedTariffPreview, LEXICON
 from utils.get_currency_sum_usd import convertator
-from utils.lexicon_utils.admin_lexicon import ChooseTariff
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import ChooseTariff
 
 
 async def tariff_preview_card_constructor(tariff_id, by_admin=False) -> dict:

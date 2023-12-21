@@ -1,21 +1,19 @@
+import importlib
 import traceback
 from typing import Union, List
 import datetime
 
 from peewee import DoesNotExist, IntegrityError
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.dying_tariff import DyingTariffRequester
 from database.data_requests.person_requests import PersonRequester
-from database.data_requests.tariff_requests import TarifRequester
 from database.tables.seller import Seller
 from database.tables.tariff import Tariff, TariffsToSellers
-from database.data_requests import person_requests, tariff_requests
 from utils.asyncio_tasks.invalid_tariffs_deleter import set_timer_on_active_tariff
 from utils.custom_exceptions.database_exceptions import NonExistentIdException, NonExistentTariffException, \
-    TariffExpiredException, SellerWithoutTariffException, SubtractLastFeedback
+    SellerWithoutTariffException
 from config_data.config import DATETIME_FORMAT
-from database.db_connect import database, manager
+from database.db_connect import manager
 
 
 
@@ -142,6 +140,7 @@ class TariffToSellerBinder:
     @staticmethod
     async def __data_extraction_to_boot(data, seconds = None):
         '''Асинхронный вспомогательный метод для извлечения и обработки данных'''
+        tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
         if isinstance(data, dict):
             seller_id = data.get('seller')
             tariff = data.get('tariff')
@@ -152,7 +151,7 @@ class TariffToSellerBinder:
                     if tariff.isalpha():
                         tariff = await manager.get(Tariff, Tariff.name == tariff)
                     else:
-                        tariff = await TarifRequester.get_by_id(tariff)
+                        tariff = await tariff_requests_module.TarifRequester.get_by_id(tariff)
                     now_time = datetime.datetime.now()
                     '''Эта часть только для теста'''
                     if not seconds:

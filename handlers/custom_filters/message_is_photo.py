@@ -1,3 +1,5 @@
+import traceback
+
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -7,17 +9,25 @@ import importlib
 
 class MessageIsPhoto(BaseFilter):
     '''Этот фильтр контролирует вхождение фотографии в конечное состояние загрузки товара'''
-    async def chat_cleaner(self, trash_redis_keys, message):
+    async def chat_cleaner(self, trash_redis_keys, message, user_id=None):
         redis_module = importlib.import_module('utils.redis_for_language')
-        user_id = str(message.from_user.id)
+        if not user_id:
+            user_id = str(message.from_user.id)
+            chat_id = message.chat.id
+        else:
+            chat_id = user_id
         for redis_key in trash_redis_keys:
             redis_key = user_id + redis_key
             last_message_id = await redis_module.redis_data.get_data(key=redis_key)
+            ic(last_message_id, redis_key)
             if last_message_id:
+                if not isinstance(last_message_id, int):
+                    last_message_id = int(last_message_id)
                 try:
-                    await message.bot.delete_message(chat_id=message.chat.id, message_id=last_message_id)
+                    await message.bot.delete_message(chat_id=chat_id, message_id=last_message_id)
                     await redis_module.redis_data.delete_key(key=redis_key)
                 except:
+                    traceback.print_exc()
                     pass
 
 

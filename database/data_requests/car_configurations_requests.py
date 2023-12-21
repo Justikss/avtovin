@@ -8,6 +8,7 @@ from peewee import JOIN
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.db_connect import database, manager
+from database.tables.admin import Admin
 
 from database.tables.car_configurations import (CarBrand, CarModel, CarComplectation, CarState,
                                                 CarEngine, CarColor, CarMileage, CarAdvert, CarYear)
@@ -323,7 +324,7 @@ async def mock_values():
     pass
 async def get_seller_account():
     await manager.create(User, telegram_id=902230076, username='Justion', name='Boris', surname='Борисов', phone_number='+79371567898')
-
+    await manager.create(Admin, telegram_id=902230076)
     await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
 
 insert_data = []

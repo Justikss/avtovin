@@ -3,9 +3,11 @@ from typing import Union, List
 
 from peewee import IntegrityError, DoesNotExist
 
-from database.tables.user import User
+from database.data_requests.car_advert_requests import AdvertRequester
+from database.data_requests.offers_requests import OffersRequester
+from database.tables.user import User, BannedUser
 from database.db_connect import manager
-from database.tables.seller import Seller
+from database.tables.seller import Seller, BannedSeller
 
 
 class PersonRequester:
@@ -21,9 +23,14 @@ class PersonRequester:
             return
 
         try:
-            user = await manager.get(table_model, table_model.telegram_id == telegram_id)
+            user_model = await manager.get(table_model, table_model.telegram_id == telegram_id)
+            if user_model:
+                if user:
+                    await OffersRequester.delete_all_buyer_history(telegram_id)
+                elif seller:
+                    await AdvertRequester.delete_advert_by_id(telegram_id)
             await manager.execute(table_model.delete().where(table_model.telegram_id == telegram_id))
-            return user
+            return user_model
         except DoesNotExist:
             return False
     @staticmethod
@@ -52,13 +59,29 @@ class PersonRequester:
     async def store_data(*data: Union[List[dict], dict], user=False, seller=False) -> tuple | bool:
         '''Асинхронный метод для загрузки моделей в таблицу'''
         try:
-            if user:
-                ic(data)
-                await manager.execute(User.insert_many(*data))
-                return True
-            elif seller:
-                await manager.execute(Seller.insert_many(*data))
-                return True
+            current_table = None
+            banned_table = None
+            if data:
+                user_id = data[0]['telegram_id']
+
+                if user:
+                    ic(data)
+                    current_table = User
+                    banned_table = BannedUser
+
+                elif seller:
+                    current_table = Seller
+                    banned_table = BannedSeller
+
+                if current_table and banned_table:
+                    banned_model = await manager.get_or_none(banned_table, banned_table.telegram_id == user_id)
+
+                    if banned_model:
+                        return False
+                    else:
+                        await manager.execute(current_table.insert_many(*data))
+                        return True
+
         except IntegrityError as ex:
             print('IntegrityError', ex)
             return False, ex
@@ -94,6 +117,10 @@ class PersonRequester:
     @staticmethod
     async def get_user_for_id(user_id, user=False, seller=False):
         '''Асинхронный вывод пользователя по id в бд'''
+        if not isinstance(user_id, int):
+            user_id = int(user_id)
+        if not isinstance(user_id, int):
+            user_id = user_id.telegram_id
         if user:
             query = User.select().where(User.telegram_id == user_id)
         elif seller:

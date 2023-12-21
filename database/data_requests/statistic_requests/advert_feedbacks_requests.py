@@ -17,7 +17,7 @@ class AdvertFeedbackRequester:
 
         query = await manager_method(AdvertParameters,
                                      complectation=complectation_id,
-                                     state=state_id, engine_type=engine_type_id, color=color_id,
+                                     state=state_id, color=color_id,
                                      mileage=mileage_id, year=year_id)
         return query
 

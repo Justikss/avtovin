@@ -1,7 +1,8 @@
 from config_data.config import block_user_reason_text_len
 
 return_main_menu = {'return_main_menu': 'В меню'}
-captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить'}
+captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
+            'sales': 'продажам', 'purchases': 'покупкам'}
 
 __ADMIN_LEXICON = {
     'admin_panel_button_caption': '🔑 Админ Панель',
@@ -22,7 +23,7 @@ __ADMIN_LEXICON = {
                                       'admin_backward:admin_main_menu': 'Выход',
                                       'width': 2}},
 
-    'select_user_category': {'message_text': 'Выберите категорию:',
+    'select_user_category': {'message_text': 'Выберите категорию пользователей:',
                              'buttons': {'buyer_category_actions': 'Покупатели',
                                          'seller_category_actions': 'Продавцы',
                                          **return_main_menu,
@@ -52,7 +53,11 @@ __ADMIN_LEXICON = {
                                 'confirm_block_user_by_admin': captions['confirm'],
                                 'admin_backward:final_confirm_block_user': captions['backward'],
                                 'admin_backward:review_result_profile_protocol': captions['cancel'],
-                                'width': 1}
+                                'width': 1},
+
+    'user_ban_notification': {
+        'message_text': 'ВНИМАНИЕ!\nВаше отношения к {activity} в нашем боте заблокировано навсегда по причине: {reason}',
+    'buttons': {'close_ban_notification': 'Скрыть', 'width': 1}}
 
 }
 

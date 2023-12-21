@@ -3,6 +3,8 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person import \
+    choose_specific_person_by_admin_handler
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import seller_profile_card_constructor
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
@@ -38,7 +40,8 @@ async def output_specific_user_profile_handler(callback: CallbackQuery, state: F
                                                                lexicon_part=lexcion_part, dynamic_buttons=2)
     else:
 
-        return await callback.answer(ADMIN_LEXICON['user_non_active'])
+        await callback.answer(ADMIN_LEXICON['user_non_active'])
+        return await choose_specific_person_by_admin_handler(callback, state, first_call=False)
 
 
 

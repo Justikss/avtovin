@@ -10,7 +10,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import seller_profile_card_constructor, \
     get_seller_name
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon import ReviewSellerTariff
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import ReviewSellerTariff
 
 
 async def construct_review_tariff_by_admin(callback: CallbackQuery, state: FSMContext, get_header=False):

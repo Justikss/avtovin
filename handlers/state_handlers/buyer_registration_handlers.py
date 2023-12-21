@@ -166,6 +166,8 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
     memory_storage = await state.get_data()
     message_id = await redis_module.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
 
+    lexicon_part = lexicon_module.LEXICON['write_phone_number']
+
     try:
         await chat.Chat.delete_message(self=message.chat, message_id=message_id)
     except:
@@ -176,17 +178,16 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
         await state.update_data(username=user_name)
 
     if incorrect:
-        lexicon_code = 'write_phone_number' + incorrect
+        lexicon_part['message_text'] = lexicon_module.LEXICON[f'write_phone_number{incorrect}']
         await state.update_data(incorrect_answer=True)
 
     else:
         await message.delete()
         await state.update_data(incorrect_answer=False)
-        lexicon_code = 'write_phone_number'
 
     await registartion_view_corrector(request=message, state=state)
 
-    lexicon_part = lexicon_module.LEXICON[lexicon_code]
+
     await state.update_data(last_lexicon_code=memory_storage['current_lexicon_code'])
     await state.update_data(last_state=await state.get_state())
 

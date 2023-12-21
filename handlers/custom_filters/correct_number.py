@@ -7,6 +7,7 @@ from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 
+from database.data_requests.banned_person_requests import BannedRequester
 from database.data_requests.person_requests import PersonRequester
 
 
@@ -40,14 +41,17 @@ class CheckInputNumber(BaseFilter):
             ic(formatted_number)
 
             number_is_exists = await PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
-            if number_is_exists:
+            banned_number = await BannedRequester.check_banned_number(formatted_number, user=buyer_use, seller=seller_use)
+
+            if number_is_exists or banned_number:
                 print('number_is_exists', number_is_exists)
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                if banned_number:
+                    incorrect_flag = '(banned)'
+                elif number_is_exists:
+                    incorrect_flag = '(exists)'
 
-                if current_state.startswith('CarDealerShipRegistrationStates'):
-                    await current_method(request=message, state=state, incorrect='(exists)')
-                elif current_state.startswith('BuyerRegistationStates'):
-                    await current_method(message=message, state=state, incorrect='(exists)')
+                await current_method(message, state=state, incorrect=incorrect_flag)
 
 
                 return False

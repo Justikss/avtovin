@@ -5,10 +5,12 @@ from aiogram.types import CallbackQuery, Message
 
 from config_data.config import user_pagesize_by_admin
 from database.data_requests.person_requests import PersonRequester
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
+    choose_user_category_by_admin_handler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon import SellerList, UserList
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import SellerList, UserList
 
 async def construct_user_list_pagination_data(callback: CallbackQuery, state: FSMContext):
     user_mode = callback.data.split('_')[0]
@@ -50,6 +52,8 @@ async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Mess
     ic(lexicon_class, users)
     ic(users)
     if not users:
-        return await callback.answer(ADMIN_LEXICON['users_category_non_exists'])
+        await callback.answer(ADMIN_LEXICON['users_category_non_exists'])
+        await choose_user_category_by_admin_handler(callback, state)
+        return
 
     await output_choose(callback, state, lexicon_class, users, user_pagesize_by_admin)

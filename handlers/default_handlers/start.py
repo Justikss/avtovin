@@ -1,8 +1,13 @@
 import importlib
+from datetime import datetime
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from config_data.config import REGISTRATION_DATETIME_FORMAT
+from database.data_requests.admin_requests import AdminManager
+from database.db_connect import manager
+from database.tables.user import User
 from keyboards.inline.kb_creator import InlineCreator
 from utils.redis_for_language import redis_data
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
@@ -22,9 +27,21 @@ async def bot_start(message: Message, state: FSMContext):
         await message.delete()
     except:
         pass
-
+    # try:
+    #     await AdminManager.get_admin(message, message.from_user.id)
+    # except:
+    #     await AdminManager.set_admin(message.from_user.id)
     await MessageIsPhoto.chat_cleaner(self=MessageIsPhoto,
                                     trash_redis_keys=(':last_seller_message', ':last_user_message', ':last_message'), message=message)
+#     if message.from_user.id == 6306554751:
+#         await manager.create(User, telegram_id = 6306554751,
+# username = '@levtips',
+# name = 'asddas',
+# surname = 'sdafg',
+# patronymic = None,
+# phone_number = '+79371567373',
+# data_registration = datetime.now().strftime(REGISTRATION_DATETIME_FORMAT))
+
 
     # if last_user_message:
     #     try:

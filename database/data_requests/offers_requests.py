@@ -10,19 +10,29 @@ from config_data.config import DATETIME_FORMAT
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.tables.car_configurations import CarComplectation, CarAdvert, CarModel, CarBrand
-from database.tables.offers_history import ActiveOffers, CacheBuyerOffers
+from database.tables.offers_history import ActiveOffers, CacheBuyerOffers, RecommendationsToBuyer, RecommendedOffers
 from database.tables.seller import Seller
 
-from database.data_requests.person_requests import PersonRequester
 from typing import List, Union
 
 from database.tables.user import User
-from utils.custom_exceptions.database_exceptions import UserExistsError
-from database.db_connect import database, manager
+from database.db_connect import manager
 
 
 
 class OffersRequester:
+    @staticmethod
+    async def delete_all_buyer_history(telegram_id):
+        if not isinstance(telegram_id, int):
+            telegram_id = int(telegram_id)
+        await manager.execute(ActiveOffers.delete().where(ActiveOffers.buyer_id == telegram_id))
+        await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.buyer_id == telegram_id))
+        await manager.execute(RecommendationsToBuyer.delete().where(RecommendationsToBuyer.buyer == telegram_id))
+        await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.buyer == telegram_id))
+
+
+
+
     @staticmethod
     async def get_by_offer_id(offer_id):
         if not isinstance(offer_id, int):
