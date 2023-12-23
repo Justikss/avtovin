@@ -10,7 +10,7 @@ from aiogram.fsm.context import FSMContext
 
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
-from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions
+from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
@@ -20,9 +20,13 @@ from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_se
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.admin_filters.admin_status_controller import AdminStatusController
 from handlers.custom_filters.admin_filters.block_user_reason_input import ControlInputUserBlockReason
+from handlers.custom_filters.admin_filters.digit_input_filter import DigitFilter
+from handlers.custom_filters.admin_filters.tariff_duration_time_filter import TimeDurationFilter
+from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
 from handlers.default_handlers.admin_part_default_handlers.save_seller_tariff import save_tariff_handler
 from handlers.default_handlers.drop_table import drop_table_handler
+from handlers.default_handlers.help import bot_help
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
 # from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
@@ -39,6 +43,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
+from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
@@ -75,7 +80,6 @@ from handlers.callback_handlers.admin_part import accept_registration_request_bu
 from handlers.callback_handlers import sell_part
 from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car, seller_profile_branch
-from handlers.default_handlers.help import  bot_help
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.hybrid_part.faq import seller_faq, buyer_faq, faq
 
@@ -119,7 +123,7 @@ async def start_bot():
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
-    dp.message.register(bot_help, Command(commands=['free_tariff']))
+    dp.message.register(bot_help, Command(commands=['fr']))
     dp.message.register(save_tariff_handler, Command(commands=['ut']))
 
     '''обработка Сообщений'''
@@ -289,11 +293,53 @@ async def start_bot():
                                            'legal_seller_actions',
                                            'natural_seller_actions')))
 
-    dp.callback_query.register(user_actions.choose_specific_user.choose_specific.output_specific_seller.output_specific_user_profile_handler,
+    dp.callback_query.register(user_actions.choose_specific_user.choose_specific.output_specific_seller.output_specific_seller_profile_handler,
                                lambda callback: callback.data.startswith('seller_select_action'))
 
     dp.callback_query.register(user_actions.choose_specific_user.choose_specific.output_specific_buyer.output_buyer_profile,
                                lambda callback: callback.data.startswith('user_select_action'))
+
+    dp.callback_query.register(user_actions.choose_specific_user.choose_specific.input_name_to_search.start_input_name_request.input_person_name_to_search_request_handler,
+                              lambda callback: callback.data.startswith('from_admin_search_by_name'))
+    dp.message.register(user_actions.choose_specific_user.choose_specific.input_name_to_search.inputted_name_handler.inputted_name_from_admin_handler,
+                        or_f(StateFilter(SellerReviewStates.natural_entity_search),
+                            StateFilter(SellerReviewStates.legal_entity_search),
+                            StateFilter(BuyerReviewStates.buyer_entity_search)),
+                        correct_name.CheckInputName())
+
+    dp.callback_query.register(user_actions.actions_admin_to_user.check_seller_statistic.seller_statistic_output.handle_stats_callback,
+                               lambda callback: callback.data.startswith('select_seller_statistic_period'))
+
+    '''admin_tariff'''
+    dp.callback_query.register(tariff_actions.output_tariff_list.output_tariffs_for_admin,
+                               F.data == 'admin_button_tariffs')
+
+    dp.callback_query.register(tariff_actions.input_tariff_data.process_tariff_cost,
+                               F.data == 'add_tariff_by_admin',
+                               StateFilter(TariffAdminBranchStates.tariffs_review))
+
+    dp.callback_query.register(tariff_actions.output_specific_tariff.output_specific_tariff_for_admin_handler,
+                               lambda callback: callback.data.startswith('admin_select_tariff:'))
+
+    dp.callback_query.register(tariff_actions.delete_tariff.delete_tariff_model_by_admin,
+                               F.data == 'delete_tariff_by_admin')
+    dp.callback_query.register(tariff_actions.delete_tariff.confirm_delete_tariff_action,
+                               F.data == 'confirm_delete_tariff_by_admin')
+    dp.callback_query.register(F.data == 'edit_tariff_by_admin')
+    'add_tariff'
+
+    dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_cost,
+                        StateFilter(TariffAdminBranchStates.write_tariff_cost), price_is_digit.PriceIsDigit())
+
+    dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_feedbacks_residual,
+                        StateFilter(TariffAdminBranchStates.write_tariff_feedbacks_residual), DigitFilter())
+
+    dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_time_duration,
+                        StateFilter(TariffAdminBranchStates.write_tariff_duration_time), TimeDurationFilter())
+
+    dp.message.register(tariff_actions.input_tariff_data.process_tariff_name,
+                        StateFilter(TariffAdminBranchStates.write_tariff_name), UniqueTariffNameFilter())
+
 
     '''admin_seller_tariff'''
     dp.callback_query.register(tariff_for_seller.checkout_tariff_by_admin.checkout_seller_tariff_by_admin_handler,
@@ -318,6 +364,7 @@ async def start_bot():
                         ControlInputUserBlockReason())
     dp.callback_query.register(user_ban.confirm_block_user_action.confirm_user_block_action,
                                F.data == 'confirm_block_user_by_admin')
+
     '''Состояния поиска машины'''
     '''hybrid'''
     dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,

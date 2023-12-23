@@ -1,19 +1,23 @@
 import importlib
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
-from database.data_requests.person_requests import PersonRequester
 from utils.get_user_name import get_user_name
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 
-async def output_buyer_profile(callback: CallbackQuery, state: FSMContext):
+async def output_buyer_profile(request: CallbackQuery | Message, state: FSMContext, user_id=None):
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
     message_editor_module = importlib.import_module('handlers.message_editor')
 
-    user_id = callback.data.split(':')[-1]
-
-    user_model = await PersonRequester.get_user_for_id(user_id, user=True)
+    if isinstance(request, CallbackQuery):
+        if request.data[-1].isdigit():
+            user_id = request.data.split(':')[-1]
+        else:
+            memory_storage = await state.get_data()
+            user_id = memory_storage.get('current_user_id')
+    user_model = await person_requester_module.PersonRequester.get_user_for_id(user_id, user=True)
     if user_model:
         ic()
         ic(user_id)
@@ -24,5 +28,5 @@ async def output_buyer_profile(callback: CallbackQuery, state: FSMContext):
         lexicon_part['message_text'] = lexicon_part['message_text'].format(full_name=user_fullname,
                                                                            phone_number=user_model.phone_number)
 
-        await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                                   lexicon_part=lexicon_part, dynamic_buttons=2)
+        await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='',
+                                                                   lexicon_part=lexicon_part, dynamic_buttons=2, delete_mode=True)

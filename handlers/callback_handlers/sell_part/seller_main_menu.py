@@ -2,8 +2,6 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
 
-from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
-
 from utils.chat_cleaner.media_group_messages import delete_media_groups
 from utils.user_notification import try_delete_notification
 from utils.user_registartion_notificator import user_dont_registrated
@@ -32,8 +30,9 @@ async def create_tarifs():
 
 async def get_tariff(callback, normal_status=False):
     tariff_module = importlib.import_module('database.data_requests.tariff_requests')
+    tariff_to_seller_requests_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
 
-    seller_bind_exists = await TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
+    seller_bind_exists = await tariff_to_seller_requests_module.TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
 
     if not seller_bind_exists:
 
@@ -47,9 +46,9 @@ async def get_tariff(callback, normal_status=False):
                 'tariff': 'minimum'
                 }
         if not normal_status:
-            try_set_bind = await TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=4) #days=1 seconds=5
+            try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=4) #days=1 seconds=5
         else:
-            try_set_bind = await TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=None) #days=1 seconds=5
+            try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=None) #days=1 seconds=5
 
 
         if not try_set_bind:

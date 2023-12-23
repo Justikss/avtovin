@@ -5,7 +5,7 @@ from aiogram.types import chat, CallbackQuery, InputMediaPhoto, InputFile, FSInp
 from aiogram.exceptions import TelegramBadRequest, TelegramServerError
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
-from utils.lexicon_utils.Lexicon import LEXICON
+from utils.lexicon_utils.Lexicon import LEXICON, ADMIN_LEXICON
 
 
 class TravelEditor:
@@ -24,7 +24,6 @@ class TravelEditor:
         redis_key = str(user_id) + ':last_message'
         last_message_id = await redis_data.get_data(redis_key)
         print('last_mas', last_message_id)
-
 
         if isinstance(request, CallbackQuery):
             message_object = request.message

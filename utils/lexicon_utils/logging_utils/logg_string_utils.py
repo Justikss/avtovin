@@ -1,4 +1,5 @@
-from database.data_requests.person_requests import PersonRequester
+import importlib
+
 from database.tables.seller import Seller
 from database.tables.user import User
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
@@ -6,6 +7,8 @@ from handlers.utils.one_len_list_in_object import one_element_in_object
 
 
 async def get_user_name(subject):
+    person_request_module = importlib.import_module('database.data_requests.person_requests')
+
     seller_model = None
     buyer_model = None
     if isinstance(subject, User):
@@ -15,7 +18,7 @@ async def get_user_name(subject):
 
     if (isinstance(subject, str) and subject.startswith('seller')) or isinstance(subject, Seller):
         if not seller_model:
-            seller_model = await PersonRequester.get_user_for_id(subject.split(':')[-1], seller=True)
+            seller_model = await person_request_module.PersonRequester.get_user_for_id(subject.split(':')[-1], seller=True)
         if seller_model:
             seller_model = await one_element_in_object(seller_model)
             name = await get_seller_name(seller_model)
@@ -25,7 +28,7 @@ async def get_user_name(subject):
 
         ic(subject)
         if not buyer_model:
-            buyer_model = await PersonRequester.get_user_for_id(subject.split(':')[-1], user=True)
+            buyer_model = await person_request_module.PersonRequester.get_user_for_id(subject.split(':')[-1], user=True)
         ic(buyer_model)
         if buyer_model:
             buyer_model = await one_element_in_object(buyer_model)

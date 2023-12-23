@@ -1,23 +1,29 @@
-from config_data.config import block_user_reason_text_len
+from config_data.config import block_user_reason_text_len, max_contact_info_len
 
 return_main_menu = {'return_main_menu': 'В меню'}
 captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
-            'sales': 'продажам', 'purchases': 'покупкам'}
+            'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
+            'month': 'месяц', 'year': 'год'}
 
 __ADMIN_LEXICON = {
     'admin_panel_button_caption': '🔑 Админ Панель',
     'user_havent_admin_permission': 'Вы не администратор',
     'users_category_non_exists': 'Пользователи данной категории не зарегистрированы.',
-    'user_non_active': 'Данный пользователь больше неактивен',
+    'user_non_active': 'Данный пользователь оказался неактивен',
     'success_set_tariff': 'Тариф успешно выдан!',
     'failed_set_tariff': 'Тариф не был выдан, пользователь не найден.',
     'tariff_was_reset': 'Тариф успешно обнулён!',
     'action_non_actuality': 'Действие неактуально',
     'user_block_success': 'Пользователь заблокирован!',
+    'information_was_updated': 'Информация обновлена!',
+    'success_input_tariff_data': 'Успешно!\nТариф {tariff_name} - успешно добавлен!',
+    'tariff_has_bindings': 'Данный тариф нельзя удалить, так как он активен у пользователей',
+    'tariff_was_successfully_removed': 'Тариф успешно удалён!',
+    'tariff_was_inactive': 'Данный тариф оказался неактивен!',
     'incorrect_input_block_reason': f'''Ваша причина должна содержать от {block_user_reason_text_len['min']} до {block_user_reason_text_len['max']} символов, включительно!\nТекущая длина (без учёта пробелов):\n''',
 
     'start_admin_panel': {'message_text': 'Добро пожаловать в админ панель.\nВыберите ваше действие:',
-                          'buttons': {'admin_button_users': 'Пользователи', 'admin_buttons_tariffs': 'Тарифы',
+                          'buttons': {'admin_button_users': 'Пользователи', 'admin_button_tariffs': 'Тарифы',
                                       'admin_button_catalog': 'Каталог', 'admin_button_advert': 'Реклама',
                                       'admin_button_bot_statistics': 'Статистика бота',
                                       'admin_backward:admin_main_menu': 'Выход',
@@ -36,7 +42,7 @@ __ADMIN_LEXICON = {
 
     'review_seller_card': {'message_header': 'Просмотр продавца:',
                            'buttons': {'tariff_actions_by_admin': 'Тариф', 'user_block_action_by_admin': 'Блокировка',
-                                       'review_seller_statistics_by_admin': 'Статистика',
+                                       'select_seller_statistic_period': 'Статистика',
                                        'admin_backward:user_profile_review': captions['backward'],
                                        **return_main_menu, 'width': 2}},
 
@@ -57,9 +63,73 @@ __ADMIN_LEXICON = {
 
     'user_ban_notification': {
         'message_text': 'ВНИМАНИЕ!\nВаше отношения к {activity} в нашем боте заблокировано навсегда по причине: {reason}',
-    'buttons': {'close_ban_notification': 'Скрыть', 'width': 1}}
+    'buttons': {'close_ban_notification': 'Скрыть', 'width': 1}},
+
+    'input_name_to_search_process': {'message_text': 'Введите имя желаемого пользователя:',
+                                     'buttons': {'admin_backward:input_name_to_search': captions['backward'],
+                                                 'width': 1}},
+
+    'input_name_to_search_process(novalid)': 'Некорректный ввод имени!\nИмя пользователя должно содержать 2-3 слова в формате "ФИО" и содержать в себе только буквы',
+    'input_name_to_search_process(novalid)dealership': f'Некорректный ввод!\nНазвание автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр: ',
+    'input_name_to_search_process(non_exists)': 'Пользователя с таким именем - не найдено',
+
+    'input_tariff_cost': {'message_text': 'Укажите стоимость тарифа:',
+                          'buttons': {'admin_backward:input_tariff_cost': captions['backward'], 'width': 1}},
+    'input_tariff_cost(incorrect)': 'Стоимость должна состоять только из цифр\nВозможен ввод со знаком " $ "',
+
+    'input_tariff_feedbacks': {'message_text': 'Укажите количество откликов:',
+                               'buttons': {'admin_backward:input_tariff_feedbacks': captions['backward'], 'width': 1}},
+    'input_tariff_feedbacks(incorrect)': 'Количество откликов указывается только в целочисленном виде.',
+
+    'input_tariff_time_duration': {
+        'message_text': 'Введите продолжительность времени тарифа\nВ формате: лет:месяцев:дней\nПример (6 месяцев и 15 дней): 0:6:15',
+        'buttons': {'admin_backward:input_tariff_duration_time': captions['backward'],
+                    'width': 1}},
+    'input_tariff_time_duration(incorrect)': 'Продолжительность времени тарифа должна вводиться в целочисленном формате: лет:месяцев:дней',
+
+    'input_tariff_name': {'message_text': 'Укажите название нового тарифа в произвольном формате:',
+                          'buttons': {'admin_backward:input_tariff_name': captions['backward'], 'width': 1}},
+    'input_tariff_name(incorrect)': 'Данное название уже присутствует у другого тарифа\nВведите другое:',
+
+
+    'tariff_view_buttons': {'edit_tariff_by_admin': 'Редактировать', 'delete_tariff_by_admin': 'Удалить',
+                            'admin_backward:check_tariff_info': captions['backward'], 'width': 2},
+
+    'tariff_delete_confirm_action': {'message_text': 'Подтвердите действие удаления тарифа:',
+                                     'buttons': {'confirm_delete_tariff_by_admin': 'Удалить',
+                                                 'admin_backward:confirm_delete_tariff_action': 'Отменить', 'width': 1}},
+
+    'start_tariff_edit_action': {'message_text': 'Выберите поле для редактирования:',
+                                 'buttons': ('edit_tariff_name', 'edit_tariff_duration_time',
+                                             'edit_tariff_feedbacks_residual', 'edit_tariff_cost',
+                                             {'admin_backward:edit_tariff': captions['backward'],
+                                              'confirm_tariff_edit': captions['confirm'],
+                                              'width': 1})}
+
+
+
 
 }
+pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{end}]', 'admin_pagination:+': '→'}
+
+__STATISTIC_LEXICON = {
+    'seller_statistic_view': {
+    'message_text': "Продавец: {seller_name}\nДата регистрации: {date_of_registration}\n\nСтатистика за {period}:\nКоличество объявлений: {adverts_count}\nКоличество откликов: {feedbacks_count}",
+        'buttons': {'select_seller_statistic_period:day': "День", 'select_seller_statistic_period:week': "Неделя",
+        'select_seller_statistic_period:month': "Месяц", 'select_seller_statistic_period:year': "Год",
+        'select_seller_statistic_period:all': "Общая",
+                    'admin_backward:check_seller_statistic_values': captions['backward'],
+                    **return_main_menu, 'width': (3, 2, 1, 1)}}
+
+}
+
+class AllTariffsOutput:
+    message_text = 'Список тарифов:'
+    buttons_callback_data = 'admin_select_tariff:'
+    width = 1
+    dynamic_buttons = 2
+    last_buttons = None
+    backward_command = {'add_tariff_by_admin': 'Добавить', **return_main_menu}
 
 class BanUser:
     class InputReason:
@@ -133,7 +203,7 @@ class ReviewSellerTariff:
 class UserList:
     buttons_callback_data = 'user_select_action:'
     search_by_name_button_caption = 'Поиск по имени'
-    search_by_name_callback_data_startswith = 'search_by_name'
+    search_by_name_callback_data_startswith = 'from_admin_search_by_name'
     backward_command = {'admin_backward:user_list_to_admin': captions['backward'], **return_main_menu}
     message_text = 'Список покупателей:'
     width = 1

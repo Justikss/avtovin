@@ -6,8 +6,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_a
     wipe_user_chat_history
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
     choose_user_category_by_admin_handler
-from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person import \
-    choose_specific_person_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_does_not_exists_handler import \
     admin_does_not_exists_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_user_output import \
@@ -26,16 +24,17 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
     user = True if current_state.startswith('BuyerReviewStates') else False
     seller = True if current_state.startswith('SellerReviewStates') else False
     user_status = 'seller_ban' if current_state.startswith('SellerReviewStates') else 'buyer_ban'
+    block_reason = memory_storage.get('reason')
 
     try:
         ban_query = await BannedRequester.set_ban(callback, user_id, reason=memory_storage.get('reason'),
                                                   user=user, seller=seller)
         if ban_query:
             user_mode = 'seller' if seller else 'buyer'
-            await log_admin_action(callback.from_user.username, f'ban_{user_mode}', ban_query)
+            await log_admin_action(callback.from_user.username, f'ban_{user_mode}', ban_query, block_reason)
             await callback.answer(ADMIN_LEXICON['user_block_success'])
             await wipe_user_chat_history(callback, state, user_id, user=user, seller=seller)
-            await send_notification(callback, user_status=user_status, chat_id=user_id, ban_reason=memory_storage.get('reason'))
+            await send_notification(callback, user_status=user_status, chat_id=user_id, ban_reason=block_reason)
             return await choose_user_category_by_admin_handler(callback, state)
 
     except AdminDoesNotExistsError:

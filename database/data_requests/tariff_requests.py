@@ -1,12 +1,17 @@
+import traceback
 from typing import Union, List
 
 from database.tables.tariff import Tariff, TariffsToSellers
-from utils.custom_exceptions.database_exceptions import TariffHasClientsException
+from utils.custom_exceptions.database_exceptions import TariffHasClientsException, TariffHasWireError
 from database.db_connect import database, manager
 
 
 
 class TarifRequester:
+    @staticmethod
+    async def get_tariff_by_name(tariff_name):
+        return await manager.get_or_none(Tariff, Tariff.name == tariff_name)
+
     @staticmethod
     async def retrieve_all_data() -> Union[bool, List[Tariff]]:
         '''Асинхронный метод для извлечения всех моделей тарифов'''
@@ -20,7 +25,8 @@ class TarifRequester:
         try:
             insert_query = Tariff.insert(**data)
             await manager.execute(insert_query)
-            return True
+            inserted_model = await TarifRequester.get_tariff_by_name(data.get('name'))
+            return inserted_model
         except Exception as ex:
             print(ex)
             return False
@@ -36,26 +42,24 @@ class TarifRequester:
             tariff = None
         return tariff
 
-    @staticmethod
-    async def get_by_name(tariff_name: str):
-        '''Асинхронный метод получения тарифа по имени'''
-        query = Tariff.select().where(Tariff.name == tariff_name)
-        select_response = await manager.execute(query)
-        return list(select_response) if select_response else False
 
     @staticmethod
-    async def delete_tariff(tariff_name: str) -> bool:
+    async def delete_tariff(tariff_id: int | str) -> bool:
         '''Асинхронный метод удаления тарифа'''
+        if isinstance(tariff_id, str):
+            tariff_id = int(tariff_id)
         try:
-            tariff_model = await database.get(Tariff, Tariff.name == tariff_name)
-            if tariff_model and not await manager.execute(TariffsToSellers.select().where(TariffsToSellers.tariff == tariff_model)):
+            sub_query = TariffsToSellers.select(TariffsToSellers.tariff)
+            tariff_model = await manager.get_or_none(Tariff.select().where((Tariff.id == tariff_id) & (Tariff.id.not_in(sub_query))))
+            ic(tariff_model)
+            if tariff_model:
                 delete_query = Tariff.delete().where(Tariff.id == tariff_model.id)
                 await manager.execute(delete_query)
                 return True
             else:
-                return False
+                raise TariffHasWireError()
         except Exception as ex:
-            print(ex)
+            traceback.print_exc()
             return False
 
 

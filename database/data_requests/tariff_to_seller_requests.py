@@ -6,7 +6,6 @@ import datetime
 from peewee import DoesNotExist, IntegrityError
 
 from database.data_requests.dying_tariff import DyingTariffRequester
-from database.data_requests.person_requests import PersonRequester
 from database.tables.seller import Seller
 from database.tables.tariff import Tariff, TariffsToSellers
 from utils.asyncio_tasks.invalid_tariffs_deleter import set_timer_on_active_tariff
@@ -51,11 +50,13 @@ class TariffToSellerBinder:
 
     @staticmethod
     async def tariff_is_actuality(seller_model, bot):
+        person_requester = importlib.import_module('database.data_requests.person_requests')
+
         if not isinstance(seller_model, int):
             seller = seller_model.telegram_id
         else:
             seller = seller_model
-            seller_model = await PersonRequester.get_user_for_id(seller, seller=True)
+            seller_model = await person_requester.PersonRequester.get_user_for_id(seller, seller=True)
 
         feedbacks = await TariffToSellerBinder.subtract_feedback_and_check_tariff(seller, bot, check_mode=True)
         ic(feedbacks)
@@ -141,11 +142,13 @@ class TariffToSellerBinder:
     async def __data_extraction_to_boot(data, seconds = None):
         '''Асинхронный вспомогательный метод для извлечения и обработки данных'''
         tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
+        person_requester = importlib.import_module('database.data_requests.person_requests')
+
         if isinstance(data, dict):
             seller_id = data.get('seller')
             tariff = data.get('tariff')
             if seller_id:
-                data['seller'] = await PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
+                data['seller'] = await person_requester.PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
                 data['seller'] = data['seller'][0] if data['seller'] else None
                 if tariff:
                     if tariff.isalpha():

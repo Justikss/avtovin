@@ -8,7 +8,8 @@ from aiogram.types import Message, chat
 import importlib
 
 from config_data.config import max_contact_info_len, block_user_reason_text_len
-from database.data_requests.person_requests import PersonRequester
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_ban.start_ban_process_input_reason import \
+    input_ban_reason_handler
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 
@@ -41,11 +42,10 @@ class ControlInputUserBlockReason(BaseFilter):
     async def send_incorrect_notification(self, message: Message, state: FSMContext, message_len):
         message_editor_module = importlib.import_module('handlers.message_editor')
 
-        lexicon_part = ADMIN_LEXICON['final_decision_ban_user']
-        lexicon_part['message_text'] = ADMIN_LEXICON['incorrect_input_block_reason'] + str(message_len)
+        # lexicon_part = ADMIN_LEXICON['final_decision_ban_user']
+        # lexicon_part['message_text'] = ADMIN_LEXICON['incorrect_input_block_reason'] + str(message_len)
 
-        await message_editor_module.travel_editor.edit_message(request=message, lexicon_key='',
-                                                               lexicon_part=lexicon_part, reply_message=message.message_id, delete_mode=True)
+        await input_ban_reason_handler(message, state, incorrect=message_len)
         await self.delete_last_incorrect_input(message, state)
 
     async def delete_last_admin_message(self, message: Message, state: FSMContext):

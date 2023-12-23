@@ -18,8 +18,8 @@ async def wipe_user_chat_history(request, state, user_id, seller=False, user=Fal
     user_state = await redis_module.redis_data.get_data(key=redis_key)
     ic(user_state, user, seller)
     if user_state:
-        await redis_module.redis_data.delete_key(key=redis_key)
         if user_state == 'buy' and user or user_state == 'sell' and seller:
+            await redis_module.redis_data.delete_key(key=redis_key)
             await MessageIsPhoto.chat_cleaner(self=MessageIsPhoto,
                                               trash_redis_keys=(
                                               ':last_seller_message', ':last_user_message', ':last_message'),

@@ -25,10 +25,11 @@ class MessageIsPhoto(BaseFilter):
                     last_message_id = int(last_message_id)
                 try:
                     await message.bot.delete_message(chat_id=chat_id, message_id=last_message_id)
-                    await redis_module.redis_data.delete_key(key=redis_key)
                 except:
-                    traceback.print_exc()
                     pass
+
+                await redis_module.redis_data.delete_key(key=redis_key)
+
 
 
     async def __call__(self, message: Message, state: FSMContext):

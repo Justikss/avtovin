@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from database.data_requests.banned_person_requests import BannedRequester
-from database.data_requests.person_requests import PersonRequester
 from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
 from utils.lexicon_utils.Lexicon import LEXICON
 
@@ -11,9 +10,10 @@ from utils.lexicon_utils.Lexicon import LEXICON
 async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext):
     message_editor_module = importlib.import_module('handlers.message_editor')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
     user_id = callback.from_user.id
-    seller_is_exists = await PersonRequester.get_user_for_id(user_id=user_id, seller=True)
+    seller_is_exists = await person_requester_module.PersonRequester.get_user_for_id(user_id=user_id, seller=True)
     user_ban = await BannedRequester.user_is_blocked(user_id, seller=True)
     if seller_is_exists:
         seller_is_exists = seller_is_exists[0]

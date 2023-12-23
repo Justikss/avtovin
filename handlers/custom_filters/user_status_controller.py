@@ -2,7 +2,6 @@ from aiogram.types import CallbackQuery, Message
 from typing import Union
 import importlib
 
-from database.data_requests.person_requests import PersonRequester
 from utils.lexicon_utils.Lexicon import LEXICON
 
 from aiogram.filters import BaseFilter
@@ -12,7 +11,7 @@ class StatusControl(BaseFilter):
         self.status = status
     async def __call__(self, request: Union[CallbackQuery, Message]):
         travel_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-        print('РАБОТААААЕМИ')
+        person_requester_module = importlib.import_module('database.data_requests.person_requests')
         user_id = request.from_user.id
 
         seller = False
@@ -27,7 +26,7 @@ class StatusControl(BaseFilter):
         else:
             return True
 
-        user_model = await PersonRequester.get_user_for_id(user_id=user_id, seller=seller, user=user)
+        user_model = await person_requester_module.PersonRequester.get_user_for_id(user_id=user_id, seller=seller, user=user)
         if not user_model:
             if isinstance(request, CallbackQuery):
                 await request.answer(LEXICON['user_havent_permision'])

@@ -5,28 +5,33 @@ import importlib
 from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.lexicon_utils.Lexicon import LexiconSelectedTariffPreview, LEXICON
+from utils.lexicon_utils.Lexicon import LexiconSelectedTariffPreview, LEXICON, ADMIN_LEXICON
 from utils.get_currency_sum_usd import convertator
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import ChooseTariff
 
 
-async def tariff_preview_card_constructor(tariff_id, by_admin=False) -> dict:
+async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_tariff=False) -> dict:
     '''Метод структурирует данные тарифа с кнопками в lexicon_part по которому выводится блок
     сообщения с теми же кнопками'''
     tariff_request_module = importlib.import_module('database.data_requests.tariff_requests')
+
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
+    ic(tariff_model.name)
     lexicon_class = copy(LexiconSelectedTariffPreview)
     print('TID ', tariff_id)
     price = f'''{await convertator('sum', tariff_model.price)}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
     tariff_view_card = f'''\
         {lexicon_class.header}\n\
 {lexicon_class.separator}\
-{lexicon_class.tariff_block.replace('T', tariff_model.name).replace('D', str(tariff_model.duration_time)).replace('R', str(tariff_model.feedback_amount)).replace('P', price)}
+{lexicon_class.tariff_block.format(tariff_name=tariff_model.name, days=tariff_model.duration_time, 
+                                   feedbacks=tariff_model.feedback_amount, price=price)}\
 {lexicon_class.separator}'''
 
     print(tariff_view_card)
     if by_admin:
         buttons = copy(ChooseTariff.tariff_review_buttons)
+    elif by_admin_tariff:
+        buttons = ADMIN_LEXICON['tariff_view_buttons']
     else:
         buttons = lexicon_class.buttons
     lexicon_part = {'message_text': tariff_view_card, 'buttons': buttons}

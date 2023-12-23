@@ -8,8 +8,8 @@ from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
 class AdvertFeedbackRequester:
     @staticmethod
-    async def get_or_create_by_parameters(state_id, engine_type_id, color_id, mileage_id, year_id, complectation_id, only_get=False):
-        ic(state_id, engine_type_id, color_id, mileage_id, year_id, complectation_id)
+    async def get_or_create_by_parameters(state_id, color_id, mileage_id, year_id, complectation_id, only_get=False):
+        ic(state_id, color_id, mileage_id, year_id, complectation_id)
         if only_get:
             manager_method = manager.get_or_none
         else:
@@ -19,6 +19,10 @@ class AdvertFeedbackRequester:
                                      complectation=complectation_id,
                                      state=state_id, color=color_id,
                                      mileage=mileage_id, year=year_id)
+
+        if not only_get:
+            query = query[0]
+
         return query
 
     @staticmethod

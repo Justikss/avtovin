@@ -8,9 +8,7 @@ import importlib
 from config_data.config import ADMIN_CHAT
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import CarConfigs
-from database.data_requests.person_requests import PersonRequester
 from database.data_requests.recomendations_request import RecommendationRequester
-from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
 
 # async def recommendation_notifications(callback: CallbackQuery, store_query):
@@ -44,8 +42,9 @@ async def create_notification_for_admins(callback):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     get_seller_header_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config')
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
-    seller_model = await PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
+    seller_model = await person_requester_module.PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if seller_model:
         seller_model = seller_model[0]
 
@@ -74,7 +73,9 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     media_group_delete_module = importlib.import_module('utils.chat_cleaner.media_group_messages')
-    if not await TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
+    tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
+
+    if not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         await callback.answer(lexicon_module.LEXICON['tariff_non_actuallity'], show_alert=True)

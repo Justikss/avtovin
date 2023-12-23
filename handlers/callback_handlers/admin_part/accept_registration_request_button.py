@@ -1,13 +1,15 @@
+import importlib
+
 from aiogram.types import CallbackQuery
 
 from handlers.state_handlers.seller_states_handler.seller_registration.await_confirm_from_admin import utils
-from database.data_requests.person_requests import PersonRequester
 from utils.lexicon_utils.Lexicon import LEXICON
 from utils.user_notification import send_notification
 
 
 async def accept_registraiton(callback: CallbackQuery):
     '''Метод обрабатывает кнопку принятия заявки на регистрацию продавца.'''
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
     seller_id = callback.data.split(':')[1]
     print('seller_confirmed', seller_id)
@@ -22,7 +24,7 @@ async def accept_registraiton(callback: CallbackQuery):
 
     print('notif: ', notification_id, 'usid: ', user_id)
 
-    change_query = await PersonRequester.change_authorized_state(telegram_id=user_id, boolean=True)
+    change_query = await person_requester_module.PersonRequester.change_authorized_state(telegram_id=user_id, boolean=True)
     print('change_query: ', change_query, ':', type(change_query))
     if change_query:
         await send_notification(callback=callback, user_status='seller', chat_id=user_chat_id)

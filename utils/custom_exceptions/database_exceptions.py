@@ -27,3 +27,6 @@ class UserNonExistsError(BaseException):
 
 class AdminDoesNotExistsError(BaseException):
     pass
+
+class TariffHasWireError(BaseException):
+    pass

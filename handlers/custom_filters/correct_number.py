@@ -8,11 +8,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 
 from database.data_requests.banned_person_requests import BannedRequester
-from database.data_requests.person_requests import PersonRequester
 
 
 class CheckInputNumber(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        person_requester_module = importlib.import_module('database.data_requests.person_requests')
         input_phone_number_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
         print('in_number_filter')
         redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -40,9 +40,9 @@ class CheckInputNumber(BaseFilter):
 
             ic(formatted_number)
 
-            number_is_exists = await PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
+            number_is_exists = await person_requester_module.PersonRequester.this_number_is_exists(formatted_number, user=buyer_use, seller=seller_use)
             banned_number = await BannedRequester.check_banned_number(formatted_number, user=buyer_use, seller=seller_use)
-
+            ic(banned_number)
             if number_is_exists or banned_number:
                 print('number_is_exists', number_is_exists)
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)

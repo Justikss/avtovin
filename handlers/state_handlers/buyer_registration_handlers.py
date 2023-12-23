@@ -8,7 +8,6 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message, chat
 from phonenumbers import NumberParseException
 from handlers.callback_handlers.buy_part.main_menu import main_menu
-from database.data_requests.person_requests import PersonRequester
 
 
 class BuyerRegistationStates(StatesGroup):
@@ -27,6 +26,8 @@ async def elements_is_alpha(string: list) -> bool:
 
 
 async def load_user_in_database(memory_dict, number, message: Message):
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
+
     full_name = memory_dict['username']
     full_name = full_name.split()
     struct_for_database = dict()
@@ -40,7 +41,7 @@ async def load_user_in_database(memory_dict, number, message: Message):
     struct_for_database['patronymic'] = patronymic_value
     struct_for_database['phone_number'] = number
     struct_for_database['username'] = message.from_user.username
-    await PersonRequester.store_data(struct_for_database, user=True)
+    await person_requester_module.PersonRequester.store_data(struct_for_database, user=True)
 
 
 async def registartion_view_corrector(request: Union[Message, CallbackQuery], state: FSMContext, delete_mode=False):
@@ -116,14 +117,14 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
 
     memory_storage = await state.get_data()
     message_id = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_message')
-
+    lexicon_part = lexicon_module.LEXICON['write_full_name']
+    lexicon_code = 'write_full_name'
     if incorrect:
-        lexicon_code = 'write_full_name' + incorrect
+        lexicon_part['message_text'] =  lexicon_module.LEXICON[f'write_full_name{incorrect}']
         await state.update_data(incorrect_answer=True)
         await registartion_view_corrector(request=request, state=state)
 
     else:
-        lexicon_code = 'write_full_name'
         await state.update_data(incorrect_answer=False)
         #try:
         try:
@@ -131,15 +132,15 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
         except:
             pass
 
-    lexicon_part = lexicon_module.LEXICON[lexicon_code]
 
     await state.update_data(last_lexicon_code=None)
     await state.update_data(last_state=None)
 
     await state.update_data(current_lexicon_code=lexicon_code)
     await state.update_data(current_state=await state.get_state())
-
+    ic(lexicon_part)
     message_text = lexicon_part['message_text']
+    ic(message_text)
     keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
 
 
@@ -213,13 +214,13 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
     await state.set_state(BuyerRegistationStates.finish_check_phone_number)
 
 
-async def finish_check_phone_number(message: Message, state: FSMContext):
+async def finish_check_phone_number(message: Message, state: FSMContext, input_number):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
     user_id = message.from_user.id
     redis_key = str(user_id) + ':language'
     country = await redis_module.redis_data.get_data(key=redis_key)
-    number = message.text
+    number = input_number
 
     print(country)
 

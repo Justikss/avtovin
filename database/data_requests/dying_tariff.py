@@ -2,7 +2,6 @@ import importlib
 from datetime import datetime
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from database.data_requests.person_requests import PersonRequester
 from database.db_connect import manager
 from database.tables.seller import Seller
 from database.tables.tariff import DyingTariffs, TariffsToSellers

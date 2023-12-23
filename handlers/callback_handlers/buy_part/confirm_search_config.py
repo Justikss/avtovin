@@ -7,10 +7,7 @@ from aiogram.types import CallbackQuery
 from icecream import ic
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from database.data_requests.dying_tariff import DyingTariffRequester
-from database.data_requests.person_requests import PersonRequester
 from database.data_requests.recomendations_request import RecommendationRequester
-from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     CheckFeedbacksHandler
@@ -121,6 +118,9 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
 async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     '''Обработка подтверждения(от пользователя) поисковых настроек на покупку автомобиля'''
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
+    dying_tariff_requester_module = importlib.import_module('database.data_requests.dying_tariff')
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
+    tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     # redis_data = importlib.import_module('utils.redis_for_language')
     car_dont_exists = False
@@ -143,11 +143,11 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     cached_data = None
     ic(car_model)
     if car_model:
-        seller_model = await PersonRequester.get_seller_by_advert(car_model)
+        seller_model = await person_requester_module.PersonRequester.get_seller_by_advert(car_model)
         ic(seller_model)
         if seller_model:
             try:
-                seller_have_feedbacks = await TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot, check_mode=True)
+                seller_have_feedbacks = await tariff_to_seller_binder_module.TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot, check_mode=True)
                 ic(seller_have_feedbacks)
             except SellerWithoutTariffException:
                 traceback.print_exc()
@@ -169,7 +169,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                     # data_for_seller = await output_for_seller_formater(callback, cached_data)
                     try:
                         pagination_data = await activate_offer_handler(callback, state, car_model=car_model, car_id=car_id, pagination_data=pagination_data)
-                        substract_status = await TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot)
+                        substract_status = await tariff_to_seller_binder_module.TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot)
                         ic(substract_status)
 
                         if substract_status == 'last_feedback':
@@ -192,7 +192,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
             ic(cached_data, is_recommendated_state, car_id, car_model, dying_tariff_status)
 
             if dying_tariff_status or seller_tariff_run_out:
-                await DyingTariffRequester.dying_tariff_handler(seller_model, callback.bot)
+                await dying_tariff_requester_module.DyingTariffRequester.dying_tariff_handler(seller_model, callback.bot)
                 # await AdvertRequester.delete_advert_by_id(seller_model)
 
             if seller_tariff_run_out:

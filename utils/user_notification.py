@@ -71,7 +71,7 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
         ic(lexicon_caption_key)
         lexicon_part = await get_ban_notification_lexicon_part(lexicon_caption_key, ban_reason)
 
-    ic(lexicon_part, redis_sub_key, lexicon_caption_key)
+        ic(lexicon_part, redis_sub_key, lexicon_caption_key)
 
     if not current_id:
         current_id = str(callback.from_user.id)

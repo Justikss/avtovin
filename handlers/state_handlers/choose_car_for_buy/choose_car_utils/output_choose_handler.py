@@ -31,7 +31,7 @@ async def output_choose(callback, state: FSMContext, lexicon_class, models_range
     await set_state_data(lexicon_class, state)
 
     lexicon_part = await create_lexicon_part_module.create_lexicon_part(lexicon_class, models_range, state=state, request=callback, need_last_buttons=need_last_buttons)
-
+    await state.update_data(message_text=lexicon_part['message_text'])
     ic(lexicon_class.last_buttons)
     ic(lexicon_part)
 

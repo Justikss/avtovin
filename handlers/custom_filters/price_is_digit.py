@@ -6,6 +6,7 @@ from aiogram.types import Message
 import importlib
 
 from config_data.config import max_price_len
+from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_price_to_load
@@ -65,9 +66,13 @@ class PriceIsDigit(BaseFilter):
             await redis_module.redis_data.set_data(key=redis_key_user_message, 
                                                     value=message.message_id)
             current_state = await state.get_state()
-            if str(current_state) == 'RewritePriceBySellerStates:await_input':
+
+            if str(current_state).startswith('TariffAdminBranchStates'):
+                await state.update_data(admin_incorrect_flag=True)
+                await process_tariff_cost(message, state, incorrect=True)
+
+            elif str(current_state) == 'RewritePriceBySellerStates:await_input':
                 await rewrite_price_by_seller_handler(message, state, incorrect=True)
+
             else:
-                print('go_to_price')
-                ic()
                 await input_price_to_load(request=message, state=state, incorrect=True)

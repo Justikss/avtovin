@@ -5,12 +5,38 @@ from peewee import IntegrityError, DoesNotExist
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.offers_requests import OffersRequester
+from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from database.tables.user import User, BannedUser
 from database.db_connect import manager
 from database.tables.seller import Seller, BannedSeller
 
 
 class PersonRequester:
+    @staticmethod
+    async def get_by_user_name(name, seller, user, dealership):
+        user_model = None
+        current_table = None
+        name = [name_part.capitalize() for name_part in name.split(' ')]
+
+        ic(name, seller, user, dealership)
+        if user:
+            current_table = User
+        elif seller and not dealership:
+            current_table = Seller
+        elif seller and dealership:
+            user_model = await manager.get_or_none(Seller, Seller.dealship_name == ' '.join(name))
+            current_table = None
+
+        ic(user_model, current_table)
+        if not user_model and current_table:
+            patronymic = name[2] if len(name) == 3 else None
+            ic(patronymic, len(name))
+            user_model = await manager.get_or_none(current_table, current_table.name == name[1],
+                                                   current_table.surname == name[0],
+                                                   current_table.patronymic == patronymic)
+
+        return user_model
+
     @staticmethod
     async def remove_user(telegram_id, seller=False, user=False):
         if not isinstance(telegram_id, int):
@@ -29,6 +55,7 @@ class PersonRequester:
                     await OffersRequester.delete_all_buyer_history(telegram_id)
                 elif seller:
                     await AdvertRequester.delete_advert_by_id(telegram_id)
+                    await TariffToSellerBinder.remove_bind(telegram_id)
             await manager.execute(table_model.delete().where(table_model.telegram_id == telegram_id))
             return user_model
         except DoesNotExist:

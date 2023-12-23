@@ -5,8 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from aiogram.exceptions import TelegramBadRequest
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person import \
-    choose_specific_person_by_admin_handler
+
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_user_output import \
     backward_from_user_profile_review
 from handlers.utils.message_answer_without_callback import send_message_answer

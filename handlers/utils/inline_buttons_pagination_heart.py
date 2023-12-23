@@ -16,7 +16,7 @@ from utils.lexicon_utils.Lexicon import LastButtonsInCarpooling
 class CachedRequestsView:
     '''Сердце класса - output_message_with_inline_pagination'''
     @staticmethod
-    async def output_message_with_inline_pagination(callback: CallbackQuery, buttons_data=None, operation=None, state: Optional[FSMContext] = None, pagesize=None):
+    async def output_message_with_inline_pagination(callback: CallbackQuery | Message, buttons_data=None, operation=None, state: Optional[FSMContext] = None, pagesize=None):
         '''Пока что адаптирован под покупателя(см. get_keyboard)
         Требует контент в виде key: value для кнопок'''
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -52,7 +52,8 @@ class CachedRequestsView:
             ic(ex)
             pass
 
-        await callback.answer()
+        if isinstance(callback, CallbackQuery):
+            await callback.answer()
 
     @staticmethod
     async def send_message_with_keyboard(callback, keyboard, pagination, redis_key, state: Optional[FSMContext] = None):
@@ -83,11 +84,15 @@ class CachedRequestsView:
                 message_text['message_text'] = f'''{message_text['message_text']}{lexicon_module.LEXICON['make_choose_brand']}'''
         elif user_state == 'sell':
             message_text = lexicon_module.LexiconSellerRequests.select_brand_message_text
-        if current_state:
-            if any(state_sub_string in current_state for state_sub_string in ['ChooseStates', 'LoadCommodityStates', 'SellerReviewStates', 'BuyerReviewStates']):
-                ic(memory_storage.get('message_text'))
+        elif user_state == 'admin':
+            if current_state:
                 message_text = {'message_text': memory_storage.get('message_text')}
                 sub_text = False
+        # if current_state:
+        #     if any(state_sub_string in current_state for state_sub_string in ['ChooseStates', 'LoadCommodityStates', 'SellerReviewStates', 'BuyerReviewStates']):
+        #         ic(memory_storage.get('message_text'))
+        #         message_text = {'message_text': memory_storage.get('message_text')}
+        #         sub_text = False
 
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                         lexicon_part=message_text,
@@ -132,7 +137,7 @@ class CachedRequestsView:
         page_count_button = page_count_button.replace('M', str(pagination.total_pages))
         pagination_interface_buttons = lexicon_module.LEXICON['output_inline_brands_pagination']
         pagination_interface_buttons['page_count'] = page_count_button
-        ic(pagination_interface_buttons, backward_command)
+        # ic(pagination_interface_buttons, backward_command)
 
 
         if isinstance(current_page, list):

@@ -1,7 +1,7 @@
+import importlib
 import traceback
 
 from database.data_requests.admin_requests import AdminManager
-from database.data_requests.person_requests import PersonRequester
 from database.db_connect import manager
 from database.tables.seller import Seller, BannedSeller
 from database.tables.user import User, BannedUser
@@ -32,12 +32,15 @@ class BannedRequester:
             banned_model = BannedUser
         else:
             return False
+        ic(seller, user)
         banned_model = await manager.get_or_none(banned_model, banned_model.phone_number == phone_number)
 
         return banned_model
 
     @staticmethod
     async def set_ban(request, telegram_id, reason, seller=False, user=False):
+        person_requester_module = importlib.import_module('database.data_requests.person_requests')
+
         try:
             await AdminManager.get_admin(request=request)
         except AdminDoesNotExistsError:
@@ -58,7 +61,7 @@ class BannedRequester:
             ic(current_table, telegram_id)
             user_model = await manager.get(current_table, current_table.telegram_id == telegram_id)
             insert_query = await manager.create(ban_table, telegram_id=telegram_id, phone_number=user_model.phone_number, reason=reason)
-            await PersonRequester.remove_user(telegram_id, seller=seller, user=user)
+            await person_requester_module.PersonRequester.remove_user(telegram_id, seller=seller, user=user)
             ic(insert_query, ban_table, user_model)
             return user_model
         except:

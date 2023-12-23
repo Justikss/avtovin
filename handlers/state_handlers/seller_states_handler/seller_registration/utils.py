@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from typing import Union
 
-from database.data_requests.person_requests import PersonRequester
 
 async def seller_are_registrated_notification(callback: CallbackQuery):
     '''Метод уведомляющий продавца о подтверждении его регистрации'''
@@ -52,6 +51,7 @@ async def update_non_confirm_seller_registrations(callback: CallbackQuery, messa
 
 async def load_seller_in_database(request: Union[CallbackQuery, Message], state: FSMContext, authorized_state: bool):
     '''Метод подготовки аргументов(данных продавца) к загрузке в базу данных'''
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
@@ -104,7 +104,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
 
         }
     print(formatted_load_pattern)
-    try_load = await PersonRequester.store_data(formatted_load_pattern, seller=True)
+    try_load = await person_requester_module.PersonRequester.store_data(formatted_load_pattern, seller=True)
     if not (isinstance(try_load, tuple) and len(try_load) == 2):
         return True
     else:

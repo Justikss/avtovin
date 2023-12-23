@@ -1,6 +1,9 @@
+from datetime import datetime
+
+from config_data.config import REGISTRATION_DATETIME_FORMAT
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
-from peewee import BigIntegerField, ForeignKeyField, BooleanField, TextField, CharField
+from peewee import BigIntegerField, ForeignKeyField, BooleanField, TextField, CharField, DateTimeField
 
 
 class CarState(BaseModel):
@@ -52,6 +55,6 @@ class CarAdvert(BaseModel):
     sleep_status = BooleanField(null=True)
 
     additional_info = TextField(null=True)
-
+    post_datetime = DateTimeField(default=datetime.now().strftime(REGISTRATION_DATETIME_FORMAT))
 
 

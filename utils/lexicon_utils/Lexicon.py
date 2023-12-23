@@ -3,8 +3,7 @@ from abc import ABC
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
     SUPPORT_NUMBER_2, max_price_len, max_contact_info_len
 from utils.safe_dict_class import SafeDict
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON
-
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, __STATISTIC_LEXICON
 
 __LEXICON = {
             'you_are_blocked_alert': 'Вы заблокированы в данной деятельности',
@@ -47,9 +46,8 @@ __LEXICON = {
             'hello_text': {'message_text': '<b>Привет, <i>X</i></b>!\nУ нас ты можешь купить или продать своё авто.\nВыбери один из пунктов ниже 👇🏼', 'start_sell': 'Продажа 👨🏻‍💼',
                            'start_buy': '👨🏻‍💻 Покупка', 'width': 2},
             'write_full_name': {'message_text': 'Укажите ФИО', 'backward:user_registration': '◂ Назад ▸', 'width': 1},
-            'write_full_name(novalid)': {
-                'message_text': f'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом\nДлиной до {max_contact_info_len} символов.',
-                'backward:user_registration': '◂ Назад ▸', 'width': 2},
+            'write_full_name(exists)': 'Это имя уже зарегестрировано\nожидается иное',
+            'write_full_name(novalid)': f'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом\nДлиной до {max_contact_info_len} символов.',
             'write_phone_number': {'message_text': 'Введите ваш номер телефона:',
                                    'backward:user_registration_number': '◂ Назад ▸', 'width': 1},
             'write_phone_number(novalid)': 'Некорректный ввод номера\nПроверьте правильность своего номера\nПринимаются только цифры, пробелы и знак + .',
@@ -113,8 +111,8 @@ __LEXICON = {
             'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 1},
 
             'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
-            'write_dealership_name(novalid)': {'message_text': f'Название автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
-            'write_dealership_name(exists)': {'message_text': 'Это название уже зарегестрировано\nожидается иное', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
+            'write_dealership_name(novalid)': f'Название автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр:',
+            'write_dealership_name(exists)': 'Это название уже зарегестрировано\nожидается иное',
 
             'write_seller_phone_number': {'message_text': 'Введите ваш номер телефона:',
                                    'backward:seller_registration_number': '◂ Назад ▸', 'width': 1},
@@ -180,6 +178,7 @@ __LEXICON = {
 
 
 ADMIN_LEXICON = SafeDict(__ADMIN_LEXICON)
+STATISTIC_LEXICON = SafeDict(__STATISTIC_LEXICON)
 LEXICON = SafeDict(__LEXICON)
 
 class LastButtonsInCarpooling(ABC):
@@ -340,7 +339,7 @@ class LexiconTariffSelection:
 class LexiconSelectedTariffPreview:
     header = '<b>Информация о тарифе:</b>'
 
-    tariff_block = '\n<blockquote>🪪 Название: <i>T</i>\n🕰 Срок действия: <i>D дней</i>\n🔸 Лимит откликов: <i>R</i>\n💰 Стоимость: <i>P</i></blockquote>'
+    tariff_block = '\n<blockquote>🪪 Название: <i>{tariff_name}</i>\n🕰 Срок действия: <i>{days} дней</i>\n🔸 Лимит откликов: <i>{feedbacks}</i>\n💰 Стоимость: <i>{price}</i></blockquote>'
 
     name = '\n<blockquote>🪪 <b>Название: <i>X</i></b></blockquote>'
     price = '\n<blockquote>💰 <b>Стоимость: <i>X</i></b></blockquote>'

@@ -55,7 +55,7 @@ class RecommendationParametersBinder:
             seller_id = advert.seller.telegram_id
 
         ic(complectation_id, state_id, engine_type_id, color_id, mileage_id, year_id)
-        parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(state_id, engine_type_id, color_id, mileage_id, year_id, complectation_id, only_get=True)
+        parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(state_id, color_id, mileage_id, year_id, complectation_id)
         query = (RecommendationsToBuyer
                  .select()
                  .join(AdvertParameters)

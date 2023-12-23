@@ -6,8 +6,11 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from config_data.config import DEFAULT_COMMANDS
-from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
-from database.data_requests.person_requests import PersonRequester
+from database.db_connect import manager
+from database.tables.car_configurations import CarAdvert
+
+
+# from database.data_requests.person_requests import PersonRequester
 
 async def create_tarifs():
     a = importlib.import_module('database.data_requests.tariff_requests')
@@ -32,21 +35,24 @@ async def create_tarifs():
 
 
 async def bot_help(message: Message):
-    a = importlib.import_module('database.data_requests.tariff_requests')
+    await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=45545, color=2, mileage=None, year=None)
 
-    person_exists = await PersonRequester.get_user_for_id(user_id=message.from_user.id, seller=True)
-    if not person_exists:
-        await message.answer('Зарегистрируйтесь продавцом')
+#     a = importlib.import_module('database.data_requests.tariff_requests')
+#     tariff_to_seller_binder = importlib.import_module('database.data_requests.tariff_to_seller_requests')
 
-    tariffs = a.TarifRequester.retrieve_all_data()
-    if not tariffs:
-        await create_tarifs()
-
-
-    data = {'seller': str(message.from_user.id),
-            'tariff': 'minimum'
-            }
-
-    await TariffToSellerBinder.set_bind(data=data, bot=message.bot)
-
-
+    # person_exists = await PersonRequester.get_user_for_id(user_id=message.from_user.id, seller=True)
+    # if not person_exists:
+    #     await message.answer('Зарегистрируйтесь продавцом')
+#
+#     tariffs = a.TarifRequester.retrieve_all_data()
+#     if not tariffs:
+#         await create_tarifs()
+#
+#
+#     data = {'seller': str(message.from_user.id),
+#             'tariff': 'minimum'
+#             }
+#
+#     await tariff_to_seller_binder.TariffToSellerBinder.set_bind(data=data, bot=message.bot)
+#
+#
