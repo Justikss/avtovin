@@ -3,7 +3,7 @@ from config_data.config import block_user_reason_text_len, max_contact_info_len
 return_main_menu = {'return_main_menu': 'В меню'}
 captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
-            'month': 'месяц', 'year': 'год'}
+            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов'}
 
 __ADMIN_LEXICON = {
     'admin_panel_button_caption': '🔑 Админ Панель',
@@ -20,6 +20,7 @@ __ADMIN_LEXICON = {
     'tariff_has_bindings': 'Данный тариф нельзя удалить, так как он активен у пользователей',
     'tariff_was_successfully_removed': 'Тариф успешно удалён!',
     'tariff_was_inactive': 'Данный тариф оказался неактивен!',
+    'successfully_edit_action': 'Успешно редактировано!',
     'incorrect_input_block_reason': f'''Ваша причина должна содержать от {block_user_reason_text_len['min']} до {block_user_reason_text_len['max']} символов, включительно!\nТекущая длина (без учёта пробелов):\n''',
 
     'start_admin_panel': {'message_text': 'Добро пожаловать в админ панель.\nВыберите ваше действие:',
@@ -122,6 +123,10 @@ __STATISTIC_LEXICON = {
                     **return_main_menu, 'width': (3, 2, 1, 1)}}
 
 }
+
+class TariffNonExistsPlug:
+    id = 'None'
+    name = 'Тарифов не найдено'
 
 class AllTariffsOutput:
     message_text = 'Список тарифов:'

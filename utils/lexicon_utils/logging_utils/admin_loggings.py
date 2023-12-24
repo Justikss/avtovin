@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 __LOGGING_LEXICON = {'reset_tariff_action': 'Обнулил тариф продавцу: ',
                      'set_seller_tariff_action': 'Установил тариф продавцу: ', 'ban_seller': 'Заблокировал продавца: ',
-                     'ban_buyer': 'Заблокировал покупателя: ', 'for_reason': '\nПо причине: '}
+                     'ban_buyer': 'Заблокировал покупателя: ', 'for_reason': '\nПо причине: ', "edit_tariff": 'Редактировал тариф: '}
 
 async def log_admin_action(admin_username, action, subject='', reason=False):
     ic(subject)

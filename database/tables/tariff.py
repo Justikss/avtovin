@@ -1,17 +1,18 @@
 import datetime
 
-from peewee import CharField, ForeignKeyField, DateTimeField, BigIntegerField
+from peewee import CharField, ForeignKeyField, DateTimeField, BigIntegerField, BooleanField
 
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
 
 
 class Tariff(BaseModel):
-    '''Таблица тафрифов'''
-    name = CharField(unique=True)
+    '''Таблица тарифов'''
+    name = CharField()
     price = BigIntegerField()
     duration_time = BigIntegerField() # days
     feedback_amount = BigIntegerField()
+    dying_status = BooleanField(null=True)
 
     class Meta:
         db_table = 'Тарифы'

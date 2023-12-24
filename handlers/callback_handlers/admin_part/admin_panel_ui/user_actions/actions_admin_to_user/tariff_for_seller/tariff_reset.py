@@ -26,14 +26,13 @@ async def tariff_reset_for_seller_from_admin_handler(callback: CallbackQuery, st
     await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
 async def confirm_action_reset_seller_tariff(callback: CallbackQuery, state: FSMContext):
-    tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
     choose_specific_person_by_admin_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
+    dying_tariff_module = importlib.import_module('database.data_requests.dying_tariff')
 
     memory_storage = await state.get_data()
     seller_id = memory_storage.get('current_seller_id')
 
-    reset_query = await tariff_to_seller_binder_module.TariffToSellerBinder.remove_bind(seller_id)
-
+    reset_query = await dying_tariff_module.DyingTariffRequester.set_status(seller=seller_id, bot=callback.bot)
 
     if reset_query:
         await callback.answer(ADMIN_LEXICON['tariff_was_reset'])

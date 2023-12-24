@@ -19,15 +19,16 @@ async def delete_tariff_model_by_admin(callback: CallbackQuery, state: FSMContex
     )
 
 async def confirm_delete_tariff_action(callback: CallbackQuery, state: FSMContext):
-    tariffs_requester_module = importlib.import_module('database.data_requests.tariff_requests')
+    tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 
     memory_storage = await state.get_data()
     tariff_id = memory_storage.get('current_tariff_view')
 
-    try:
-        delete_query = await tariffs_requester_module.TarifRequester.delete_tariff(tariff_id)
-    except TariffHasWireError:
-        return await callback.answer(ADMIN_LEXICON['tariff_has_bindings'], show_alert=True)
+    # try:
+    delete_query = await tariff_requests_module.TarifRequester.set_dying_tariff_status(tariff_id)
+    #
+    # except TariffHasWireError:
+    #     return await callback.answer(ADMIN_LEXICON['tariff_has_bindings'], show_alert=True)
 
     await state.update_data(current_tariff_view=None)
     if delete_query:

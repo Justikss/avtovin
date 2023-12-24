@@ -79,7 +79,7 @@ class CachedRequestsView:
             elif current_state.startswith('CheckRecommendationsStates'):
                 message_text = lexicon_module.LEXICON['recommended_offers_for_buyer_message_text']
             else:
-                message_text = None
+                message_text = {'message_text': memory_storage.get('message_text')}
             if message_text and sub_text:
                 message_text['message_text'] = f'''{message_text['message_text']}{lexicon_module.LEXICON['make_choose_brand']}'''
         elif user_state == 'sell':

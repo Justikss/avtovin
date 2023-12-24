@@ -16,6 +16,8 @@ async def output_specific_tariff_for_admin_handler(callback: CallbackQuery, stat
         memory_storage = await state.get_data()
         tariff_id = memory_storage.get('current_tariff_view')
 
+    if tariff_id == 'None':
+        return await callback.answer()
     tariff_lexicon_part = await tariff_preview_card_constructor(tariff_id=tariff_id, by_admin_tariff=True)
     await state.update_data(current_tariff_view=tariff_id)
 

@@ -26,12 +26,11 @@ class RecommendationParametersBinder:
             #         'year': year_id}]
             parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(
                 state_id=state_id,
-                engine_type_id=engine_type_id,
                 color_id=color_id,
                 mileage_id=mileage_id,
                 year_id=year_id,
                 complectation_id=complectation_id)
-            select_query = await manager.get_or_create(RecommendationsToBuyer, buyer=buyer_id, parameters=parameters[0])
+            select_query = await manager.get_or_create(RecommendationsToBuyer, buyer=buyer_id, parameters=parameters)
 
 
         except Exception as ex:

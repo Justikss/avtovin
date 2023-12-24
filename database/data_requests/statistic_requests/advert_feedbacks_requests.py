@@ -20,7 +20,10 @@ class AdvertFeedbackRequester:
                                      state=state_id, color=color_id,
                                      mileage=mileage_id, year=year_id)
 
-        if not only_get:
+        # if not only_get:
+        #     query = query[0]
+        #
+        if isinstance(query, tuple):
             query = query[0]
 
         return query

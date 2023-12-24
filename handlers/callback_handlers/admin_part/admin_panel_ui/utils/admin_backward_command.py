@@ -76,5 +76,5 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'input_tariff_name':
             await process_write_tariff_feedbacks_residual(callback, state)
 
-        case 'confirm_delete_tariff_action':
+        case 'confirm_delete_tariff_action' | 'edit_tariff':
             await output_specific_tariff_for_admin_handler(callback, state, from_backward=True)

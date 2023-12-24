@@ -29,6 +29,13 @@ class TariffToSellerBinder:
         return tariff_model
 
     @staticmethod
+    async def get_wires_by_tariff_id(tariff_id):
+        if not isinstance(tariff_id, int):
+            tariff_id = int(tariff_id)
+        tariff_model = await manager.get_or_none(TariffsToSellers.select(TariffsToSellers, Tariff).join(Tariff).where(Tariff.id == tariff_id))
+        return tariff_model
+
+    @staticmethod
     async def retrieve_all_data() -> Union[bool, List[TariffsToSellers]]:
         '''Асинхронный метод для извлечения всех связей тарифов с продавцами'''
         select_request = await manager.execute(TariffsToSellers.select(TariffsToSellers, Seller).join(Seller))
@@ -178,7 +185,10 @@ class TariffToSellerBinder:
 
     @staticmethod
     async def remove_bind(seller_id):
+        tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
+
         delete_query = await manager.execute(TariffsToSellers.delete().where(TariffsToSellers.seller == seller_id))
+        await tariff_requests_module.TarifRequester.try_delete_dying_tariff()
         return True if delete_query else False
 
     # @classmethod

@@ -179,6 +179,7 @@ __LEXICON = {
 
 ADMIN_LEXICON = SafeDict(__ADMIN_LEXICON)
 STATISTIC_LEXICON = SafeDict(__STATISTIC_LEXICON)
+
 LEXICON = SafeDict(__LEXICON)
 
 class LastButtonsInCarpooling(ABC):

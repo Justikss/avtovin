@@ -43,7 +43,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
-from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates
+from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
@@ -278,9 +278,10 @@ async def start_bot():
 
     '''admin'''
     dp.callback_query.register(admin_panel_ui.utils.admin_backward_command.admin_backward_command_handler,
-                               lambda callback: callback.data.startswith('admin_backward'))
+                               lambda callback: callback.data.startswith('admin_backward'), AdminStatusController())
 
-    dp.callback_query.register(admin_panel_ui.start_admin_panel_window.start_admin_menu, F.data == 'admin_panel_button')
+    dp.callback_query.register(admin_panel_ui.start_admin_panel_window.start_admin_menu, F.data == 'admin_panel_button',
+                               AdminStatusController())
 
     '''user actions'''
     dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_users_category.choose_user_category_by_admin_handler,
@@ -312,22 +313,31 @@ async def start_bot():
 
     '''admin_tariff'''
     dp.callback_query.register(tariff_actions.output_tariff_list.output_tariffs_for_admin,
-                               F.data == 'admin_button_tariffs')
+                               F.data == 'admin_button_tariffs', AdminStatusController())
 
     dp.callback_query.register(tariff_actions.input_tariff_data.process_tariff_cost,
                                F.data == 'add_tariff_by_admin',
                                StateFilter(TariffAdminBranchStates.tariffs_review))
 
     dp.callback_query.register(tariff_actions.output_specific_tariff.output_specific_tariff_for_admin_handler,
-                               lambda callback: callback.data.startswith('admin_select_tariff:'))
+                               lambda callback: callback.data.startswith('admin_select_tariff:'), AdminStatusController())
 
     dp.callback_query.register(tariff_actions.delete_tariff.delete_tariff_model_by_admin,
                                F.data == 'delete_tariff_by_admin')
     dp.callback_query.register(tariff_actions.delete_tariff.confirm_delete_tariff_action,
-                               F.data == 'confirm_delete_tariff_by_admin')
-    dp.callback_query.register(F.data == 'edit_tariff_by_admin')
-    'add_tariff'
+                               F.data == 'confirm_delete_tariff_by_admin', AdminStatusController())
 
+    dp.callback_query.register(tariff_actions.edit_tariff.edit_tariff_handler.edit_tariff_by_admin_handler,
+                               F.data == 'edit_tariff_by_admin')
+    dp.callback_query.register(tariff_actions.edit_tariff.edit_tariff_handler.field_choice_handler,
+                               F.data.in_(('edit_tariff_name', 'edit_tariff_duration_time',
+                                           'edit_tariff_feedbacks_residual', 'edit_tariff_cost')))
+
+    dp.callback_query.register(tariff_actions.edit_tariff.insert_edited_tariff_data.insert_tariff_data,
+                               F.data == 'confirm_tariff_edit',
+                               StateFilter(TariffEditState.waiting_for_field_choice), AdminStatusController())
+
+    'add_tariff'
     dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_cost,
                         StateFilter(TariffAdminBranchStates.write_tariff_cost), price_is_digit.PriceIsDigit())
 
@@ -338,7 +348,8 @@ async def start_bot():
                         StateFilter(TariffAdminBranchStates.write_tariff_duration_time), TimeDurationFilter())
 
     dp.message.register(tariff_actions.input_tariff_data.process_tariff_name,
-                        StateFilter(TariffAdminBranchStates.write_tariff_name), UniqueTariffNameFilter())
+                        StateFilter(TariffAdminBranchStates.write_tariff_name), UniqueTariffNameFilter(),
+                        AdminStatusController())
 
 
     '''admin_seller_tariff'''
@@ -363,7 +374,7 @@ async def start_bot():
     dp.message.register(user_ban.awaited_confirm_ban_process.ban_user_final_decision, or_f(StateFilter(SellerReviewStates.review_state), StateFilter(BuyerReviewStates.review_state)),
                         ControlInputUserBlockReason())
     dp.callback_query.register(user_ban.confirm_block_user_action.confirm_user_block_action,
-                               F.data == 'confirm_block_user_by_admin')
+                               F.data == 'confirm_block_user_by_admin', AdminStatusController())
 
     '''Состояния поиска машины'''
     '''hybrid'''

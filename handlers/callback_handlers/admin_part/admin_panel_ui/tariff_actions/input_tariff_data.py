@@ -4,6 +4,8 @@ import re
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.edit_tariff.edit_data_controller import \
+    edit_tariff_data_controller
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.incorrect_controller import \
     incorrect_controller, get_delete_mode
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.insert_new_tariff_data import \
@@ -41,6 +43,8 @@ async def process_write_tariff_cost(request: types.Message | types.CallbackQuery
             await state.update_data(tariff_cost=int(price))
         await state.set_state(TariffAdminBranchStates.write_tariff_feedbacks_residual)
 
+    if await edit_tariff_data_controller(request, state, incorrect):
+        return
     delete_mode = await get_delete_mode(state, incorrect)
     ic(delete_mode)
     ic()
@@ -61,6 +65,9 @@ async def process_write_tariff_feedbacks_residual(request: types.Message | types
     if isinstance(request, types.Message) and not incorrect:
         await state.update_data(tariff_feedbacks_residual=int(request.text))
 
+    if await edit_tariff_data_controller(request, state, incorrect):
+        return
+
     lexicon_key = 'input_tariff_time_duration'
 
     await state.set_state(TariffAdminBranchStates.write_tariff_duration_time)
@@ -77,7 +84,7 @@ async def process_write_tariff_time_duration(request: types.Message | types.Call
     async def convert_to_days(time_string):
         # Проверка соответствия входной строки формату
         if not re.match(r'^\d+:\d+:\d+$', time_string):
-            return "Некорректный формат ввода"
+            return False
 
         years, months, days = map(int, time_string.split(':'))
 
@@ -90,13 +97,17 @@ async def process_write_tariff_time_duration(request: types.Message | types.Call
 
     if not incorrect:
         if isinstance(request, types.Message):
-            await state.update_data(tariff_duration_time=await convert_to_days(request.text))
+            duration_time = await convert_to_days(request.text)
+            ic(duration_time)
+            await state.update_data(tariff_duration_time=duration_time)
 
-    if not memory_storage.get('specific_tariff_id'):
-        await state.set_state(TariffAdminBranchStates.write_tariff_name)
-        lexicon_key = 'input_tariff_name'
-    else:
-        return await insert_tariff_data(request, state)
+
+    if await edit_tariff_data_controller(request, state, incorrect):
+        return
+
+    await state.set_state(TariffAdminBranchStates.write_tariff_name)
+    lexicon_key = 'input_tariff_name'
+
 
     delete_mode = await get_delete_mode(state, incorrect)
     lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, lexicon_key)
@@ -111,5 +122,8 @@ async def process_tariff_name(request: types.Message | types.CallbackQuery, stat
     # Здесь мы просто сохраняем ввод названия тарифа и переходим к следующему состоянию
     if isinstance(request, types.Message):
         await state.update_data(tariff_name=request.text)
+
+    if await edit_tariff_data_controller(request, state):
+        return
 
     return await insert_tariff_data(request, state)

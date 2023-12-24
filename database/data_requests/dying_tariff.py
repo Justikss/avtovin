@@ -2,6 +2,7 @@ import importlib
 from datetime import datetime
 
 from database.data_requests.car_advert_requests import AdvertRequester
+from database.data_requests.tariff_requests import TarifRequester
 from database.db_connect import manager
 from database.tables.seller import Seller
 from database.tables.tariff import DyingTariffs, TariffsToSellers
@@ -24,6 +25,11 @@ class DyingTariffRequester:
         tariff_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
         ic(seller)
         ic(tariff_model)
+        if isinstance(seller, str):
+            seller = int(seller)
+        if isinstance(seller, Seller):
+            seller = seller.telegram_id
+
         if not seller:
             ic(tariff_model)
             seller = tariff_model.seller
@@ -36,7 +42,7 @@ class DyingTariffRequester:
         if not tariff_model and seller:
             ic(seller)
             ic(tariff_model)
-            tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_seller_id(seller.telegram_id)
+            tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_seller_id(seller)
 
 
 
@@ -83,6 +89,7 @@ class DyingTariffRequester:
             await manager.execute(DyingTariffs.delete().where(DyingTariffs.id == tariff_id))
             await active_tariffs_module.TariffToSellerBinder.remove_bind(dying_tariff.tariff_wire.seller)
             await AdvertRequester.delete_advert_by_id(seller_id=dying_tariff.tariff_wire.seller)
+            await TarifRequester.try_delete_dying_tariff()
 
     @staticmethod
     async def remove_old_tariff_to_update(seller):
@@ -91,6 +98,7 @@ class DyingTariffRequester:
         old_tariff = DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller)
 
         await manager.execute(DyingTariffs.delete().where(DyingTariffs.id.in_(old_tariff)))
+        await TarifRequester.try_delete_dying_tariff()
 
     @staticmethod
     async def tariff_was_dying(seller):
