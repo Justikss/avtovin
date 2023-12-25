@@ -9,8 +9,4 @@ from utils.custom_exceptions.database_exceptions import AdminDoesNotExistsError
 
 class AdminStatusController(BaseFilter):
     async def __call__(self, request: Message | CallbackQuery, state: FSMContext):
-
-        if await admin_exists_checker(callback=request):
-            return False
-        else:
-            return True
+        return await admin_exists_checker(callback=request)

@@ -10,7 +10,7 @@ from handlers.state_handlers.seller_states_handler.seller_profile_branch.selecte
 async def output_specific_tariff_for_admin_handler(callback: CallbackQuery, state: FSMContext, from_backward=False):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-    if not from_backward:
+    if not from_backward and (isinstance(callback, CallbackQuery) and callback.data[-1].isdigit()):
         tariff_id = callback.data.split(':')[-1]
     else:
         memory_storage = await state.get_data()

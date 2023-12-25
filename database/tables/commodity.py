@@ -15,7 +15,6 @@ class AdvertPhotos(BaseModel):
 class NewCarPhotoBase(BaseModel):
     car_complectation = ForeignKeyField(CarComplectation)
     car_color = ForeignKeyField(CarColor)
-    car_engine = ForeignKeyField(CarEngine)
     photo_id = CharField()
     photo_unique_id = CharField()
     admin_id = BigIntegerField()

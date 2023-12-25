@@ -82,7 +82,6 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
     if first_call:
         user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_engine_type=user_answer)
-        print(user_answer)
     else:
         user_answer = memory_storage['cars_engine_type']
 

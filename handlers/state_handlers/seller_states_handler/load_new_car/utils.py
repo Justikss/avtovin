@@ -19,7 +19,7 @@ async def rewrite_boot_state_stopper(request: Union[CallbackQuery, Message], sta
     rewrite_state_flag = memory_data.get('rewrite_state_flag')
     # car_states = await CarConfigs.get_all_states()
     if rewrite_state_flag == 2:
-        print("it's returnn")
+
         if return_output:
             await output_load_config_for_seller(request=request, state=state)
         return False
@@ -33,7 +33,7 @@ async def change_boot_car_state_controller(callback, state):
     
     memory_storage = await state.get_data()
     last_car_state = memory_storage.get('state_for_load')
-    print('cbd: ', callback.data)
+
     edit_mode = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
     if edit_mode\
         and int(last_car_state) != int(callback.data.split('_')[-1]):
@@ -41,7 +41,7 @@ async def change_boot_car_state_controller(callback, state):
         await state.update_data(state_for_load=int(callback.data.split('_')[-1]))
         await state.update_data(rewrite_state_flag=callback.data.split('_')[-1])
         if callback.data.endswith('1'):
-            print('set_photo_for_new_state_car 2')
+
             await set_photo_for_new_state_car(callback, state)
             await state.update_data(year_for_load=None)
             await state.update_data(mileage_for_load=None)
@@ -55,9 +55,8 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
 
     memory_storage = await state.get_data()
     there_data_update = await message_editor.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
-    print('can_editt ', there_data_update)
-    if isinstance(request, CallbackQuery):
-        print('totest: ', request.data.startswith('rewrite_boot_'))
+
+
     current_state = str(await state.get_state())
 
     ic()
@@ -80,12 +79,12 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             if memory_storage.get('state_for_load') == 1:
             #     if current_state == 'LoadCommodityStates:input_to_load_price' and request.data[-1].isdigit():
             #         return True
-            #         print(set_photo_for_new_state_car)
+            #
             #         await set_photo_for_new_state_car(request, state)
 
                 if current_state == 'LoadCommodityStates:input_to_load_price' and isinstance(request, CallbackQuery) and request.data[-1] == '1':
                     ic()
-                    print('input_photo_to_load')#
+
                     await state.set_state(LoadCommodityStates.input_to_load_photo)
                     await input_photo_module.input_photo_to_load(request, state, need_photo_flag=True)#
                     return True
@@ -95,7 +94,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                 if int(rewrite_state_flag) == 1:
                     ic()
                     await state.update_data(rewrite_state_flag=None)
-                    print(set_photo_for_new_state_car)
+
                     if await set_photo_for_new_state_car(request, state):
                         return True
 
@@ -115,7 +114,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                             pass
                         else:
                             ic()
-                            print('input_photo_to_load')#
+
                             await input_photo_module.input_photo_to_load(request, state)#
                             await state.update_data(rewrite_state_flag=None)
                             return True
@@ -135,7 +134,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
                     ic(selected_id, edit_mode, memory_storage.get('rewrite_brand_mode'))
                     if selected_id and ((not edit_mode) or (memory_storage.get('rewrite_brand_mode'))):
                         if current_state == 'LoadCommodityStates:input_to_load_price':
-                            print(set_photo_for_new_state_car)
+
                             await set_photo_for_new_state_car(request, state)
                             # return True
 
@@ -192,7 +191,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             pass
 
         if ((isinstance(request, CallbackQuery) and not request.data.startswith('rewrite_boot_')) or isinstance(request, Message)):
-            print("it's returnn")
+
             await output_load_config_for_seller(request=request, state=state)
             return True
 
@@ -226,7 +225,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
 
     if rewrite_mode:
         # all_captions = None
-        print('pre ', boot_car_lexicon_module.LexiconCommodityLoader.config_for_seller_button_callbacks)
+
         if cars_state == 'new':
             if str(memory_storage.get('color_for_load')) == '1':
                 additional_index = 9
@@ -294,7 +293,7 @@ async def set_photo_for_new_state_car(callback: CallbackQuery, state: FSMContext
         input_photo_module = importlib.import_module(
             'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
         ic()
-        print('input_photo_to_load')#
+
         await input_photo_module.input_photo_to_load(callback, state)#
         return True
     ic(new_photographies)

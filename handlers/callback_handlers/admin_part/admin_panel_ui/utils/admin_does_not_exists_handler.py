@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.types import CallbackQuery, Message
 
 from database.data_requests.admin_requests import AdminManager
@@ -8,11 +10,18 @@ from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 
 async def admin_exists_checker(callback: CallbackQuery):
+
     try:
         await AdminManager.get_admin(request=callback)
+        return True
     except AdminDoesNotExistsError:
-        return await admin_does_not_exists_handler(callback)
 
+        redis_data_module = importlib.import_module('utils.redis_for_language')
+        redis_key = f'{callback.from_user.id}:user_state'
+        await redis_data_module.redis_data.delete_key(redis_key)
+
+        await admin_does_not_exists_handler(callback)
+        return False
 async def admin_does_not_exists_handler(request: CallbackQuery | Message):
     lexicon_text = ADMIN_LEXICON['user_havent_admin_permission']
     if isinstance(request, CallbackQuery):

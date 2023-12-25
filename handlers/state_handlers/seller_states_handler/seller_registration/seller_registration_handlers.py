@@ -16,7 +16,7 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
     buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     delete_mode = False
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
-    print('seller_mode', seller_mode)
+
 
     if not await state.get_state():
         if seller_mode == 'dealership':
@@ -44,7 +44,7 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
             lexicon_code = 'write_full_seller_name' + incorrect
 
         message_reply_mode = True
-        print('reply_mode1')
+
         delete_last_message_mode = True
 
             
@@ -56,19 +56,19 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
             value=request.message_id)
 
     else:
-        print(seller_mode)
+
         if seller_mode == 'dealership':
             
             lexicon_code = 'write_dealership_name'
-            print('lexdeal', lexicon_code)
+
         elif seller_mode == 'person':
             lexicon_code = 'write_full_seller_name'
             
 
         message_reply_mode = False
         delete_last_message_mode = False
-    # print('req_type', type(request))
-    # print('reply_mod', message_reply_mode)
+
+
     if from_backward_Delete_mode:
         delete_mode = from_backward_Delete_mode
 
@@ -85,11 +85,11 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
     buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
 
-    print('user_name', user_name)
+
     if user_name:
         user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
         await state.update_data(seller_name=user_name)
-    print('user_name', user_name)
+
 
 
     travel_object = request
@@ -106,12 +106,12 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         return await check_reg_config_module.check_your_config(request=request, state=state)
     
     bot = message.chat.bot
-    print('inc1', incorrect)
+
     if incorrect:
         await state.update_data(incorrect_answer=True)
         lexicon_part['message_text'] = LEXICON[f'write_seller_phone_number{incorrect}']
         message_reply_mode = True
-        print('reply_mode1')
+
         delete_last_message_mode = False
         if edit_mode == 'true': 
             delete_mode = False
@@ -149,7 +149,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         delete_mode = False
 
 
-    print('reply_mome', message_reply_mode)
+
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key='', lexicon_part=lexicon_part,
                                                              reply_mode = message_reply_mode, delete_mode=True)
     
@@ -158,7 +158,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
 
 async def dealership_input_address(request: Union[CallbackQuery, Message], state: FSMContext, input_number=None, incorrect=None):
-    print('dealer', type(request))
+
     buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
@@ -206,9 +206,7 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
     # if seller_mode == 'seller':
     #     await check_reg_config_module.check_your_config(request=request, state=state)
 
-    print('this', await state.get_state())
-    if isinstance(request, CallbackQuery):
-        print('is', request.data)
+
 
     if not incorrect:
         try:

@@ -93,7 +93,6 @@ class BuyerCarsPagination:
             if page_data:
                 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
                 if lexicon_module.LEXICON['footer_for_output_active_offers']['viewed_status'] in page_data['message_text']:
-                    print('TRUBORD')
                     return True
 
         buttons_lexicon_part = lexicon_module.LEXICON.get('chosen_configuration')

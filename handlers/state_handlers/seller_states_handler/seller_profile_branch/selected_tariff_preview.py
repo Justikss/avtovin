@@ -18,7 +18,6 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
     ic(tariff_model.name)
     lexicon_class = copy(LexiconSelectedTariffPreview)
-    print('TID ', tariff_id)
     price = f'''{await convertator('sum', tariff_model.price)}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
     tariff_view_card = f'''\
         {lexicon_class.header}\n\
@@ -27,7 +26,6 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
                                    feedbacks=tariff_model.feedback_amount, price=price)}\
 {lexicon_class.separator}'''
 
-    print(tariff_view_card)
     if by_admin:
         buttons = copy(ChooseTariff.tariff_review_buttons)
     elif by_admin_tariff:
@@ -42,16 +40,12 @@ async def tariff_preview_handler(callback: CallbackQuery, state: FSMContext, bac
     '''Обработчик кнопки для вывода информации по выбранному тарифу'''
     message_editor_module = importlib.import_module('handlers.message_editor')
     memory_bag_dixer_module = importlib.import_module('utils.memory_bagfixer')
-    print('BW', backward_call)
     if not backward_call:
-        print('NBC')
         tariff_id = callback.data.split(':')[-1]
         await state.update_data(current_tariff_id=tariff_id)
     else:
-        print("YBC")
         memory_storage = await state.get_data()
         tariff_id = memory_storage.get('current_tariff_id')
-        print(tariff_id)
         if not tariff_id:
             await memory_bag_dixer_module.memory_was_lost(callback=callback, mode='seller')
 

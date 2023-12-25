@@ -20,10 +20,8 @@ async def send_invoice_offer(request: CallbackQuery, state: FSMContext):
         currency = 'UZS'
         title = LexiconCreateInvoice.title + tariff_model.name
         sub_description = LexiconCreateInvoice.description.split('-')
-        print('sub_description', sub_description)
         sub_description[1], sub_description[3] = \
                     str(tariff_model.feedback_amount), str(tariff_model.duration_time)
-        print('sub_description', sub_description)
 
         description = ''.join(sub_description)
 

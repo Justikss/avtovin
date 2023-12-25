@@ -91,7 +91,6 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
             output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.replace('T', seller_tariff_model.tariff.name).replace('D', str(days_to_end.days)).replace('R', str(seller_tariff_model.residual_feedback)))
             tariff_exists = True
-            print(output_string)
         ic(output_string)
     if not get_part:
         return output_string

@@ -23,22 +23,19 @@ class PhotoRequester:
         # insert_photo_query = AdvertPhotos.insert_many(photo_data)
         # await manager.execute(insert_photo_query)
         # ic(photo_data)
-        car_engine = int(photo_data[0]['car_engine'])
         car_complectation = int(photo_data[0]['car_complectation'])
         car_color = int(photo_data[0]['car_color'])
-        existing_photos = await manager.execute(NewCarPhotoBase.select().join(CarComplectation)
-                                                                        .switch(NewCarPhotoBase).join(CarEngine)
-                                                                        .switch(NewCarPhotoBase).join(CarColor)
-                                        .where(
-                                            (CarEngine.id == car_engine) & (CarComplectation.id == car_complectation) &
-                                            (CarColor.id == car_color)))
-
-        if existing_photos:
-            ic(car_complectation, car_engine, car_color)
-            raise BufferError('Фотографии на эту конфигурацию уже загружены.')
-        else:
-            insert_query = NewCarPhotoBase.insert_many(photo_data)
-            await manager.execute(insert_query)
+        # existing_photos = await manager.execute(NewCarPhotoBase.select().join(CarComplectation)
+        #                                                                 .switch(NewCarPhotoBase).join(CarColor)
+        #                                 .where(
+        #                                     (CarComplectation.id == car_complectation) &
+        #                                     (CarColor.id == car_color)))
+        #
+        # if existing_photos:
+        #     raise BufferError('Фотографии на эту конфигурацию уже загружены.')
+        # else:
+        insert_query = NewCarPhotoBase.insert_many(photo_data)
+        await manager.execute(insert_query)
 
         exists_photo_adverts = list(await manager.execute(CarAdvert.select(CarAdvert.id).join(AdvertPhotos)))
         ic(exists_photo_adverts)
@@ -47,8 +44,8 @@ class PhotoRequester:
 
         commodity_query = (CarAdvert
                            .select()
-                           .join(CarColor).switch(CarAdvert).join(CarComplectation).join(CarEngine)
-                           .where((CarComplectation.id == car_complectation) & (CarEngine.id == car_engine) & (CarColor.id == car_color) &
+                           .join(CarColor).switch(CarAdvert).join(CarComplectation)
+                           .where((CarComplectation.id == car_complectation) & (CarColor.id == car_color) &
                                   (CarAdvert.id.not_in(commodity_photos_subquery))))
         nice_cars = list(await manager.execute(commodity_query))
 
@@ -72,10 +69,8 @@ class PhotoRequester:
             return None
         ic(engine, complectation)
         query = (NewCarPhotoBase.select().join(CarComplectation)
-                                .switch(NewCarPhotoBase).join(CarEngine)
                                 .switch(NewCarPhotoBase).join(CarColor).where(
-                        (CarComplectation.id == int(complectation)) & (CarEngine.id == int(engine)) &
-                                                                       (CarColor.id == color)))
+                        (CarComplectation.id == int(complectation)) &  (CarColor.id == color)))
         select_response = list(await manager.execute(query))
         ic(select_response)
         if select_response:

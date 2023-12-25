@@ -17,7 +17,7 @@ async def seller_type_identifier(callback: CallbackQuery, state: FSMContext):
         seller_mode = 'dealership'
 
     await redis_module.redis_data.set_data(key=str(callback.from_user.id) + ':seller_registration_mode', value=seller_mode)
-    print('markk')
+
     return await input_seller_name(request=callback, state=state)
 
     await callback.answer()

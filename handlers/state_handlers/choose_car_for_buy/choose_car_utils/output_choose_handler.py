@@ -11,8 +11,10 @@ async def remove_last_inline_pagination_data(callback):
 async def set_state_data(lexicon_class, state: FSMContext):
     await state.update_data(message_text=lexicon_class.message_text)
     await state.update_data(width=lexicon_class.width)
-    await state.update_data(dynamic_buttons=lexicon_class.dynamic_buttons)
-    await state.update_data(last_buttons=lexicon_class.last_buttons)
+    if hasattr(lexicon_class, 'dynamic_buttons'):
+        await state.update_data(dynamic_buttons=lexicon_class.dynamic_buttons)
+    if hasattr(lexicon_class, 'last_buttons'):
+        await state.update_data(last_buttons=lexicon_class.last_buttons)
     if hasattr(lexicon_class, 'backward_command'):
         if lexicon_class.backward_command:
             await state.update_data(backward_command=lexicon_class.backward_command)
@@ -32,7 +34,7 @@ async def output_choose(callback, state: FSMContext, lexicon_class, models_range
 
     lexicon_part = await create_lexicon_part_module.create_lexicon_part(lexicon_class, models_range, state=state, request=callback, need_last_buttons=need_last_buttons)
     await state.update_data(message_text=lexicon_part['message_text'])
-    ic(lexicon_class.last_buttons)
+    # ic(lexicon_class.last_buttons)
     ic(lexicon_part)
 
     await inline_pagination_module.CachedRequestsView.output_message_with_inline_pagination(callback, buttons_data=lexicon_part['buttons'],

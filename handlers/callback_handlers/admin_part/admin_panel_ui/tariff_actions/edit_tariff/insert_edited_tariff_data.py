@@ -40,3 +40,13 @@ async def insert_tariff_data(callback: CallbackQuery, state: FSMContext):
     else:
         logging.critical(f'Администратор {callback.from_user.username} неудачно отредактировал тариф {tariff_model.name}')
 
+    await state.update_data(tariff_name=None)
+    await state.update_data(tariff_duration_time=None)
+    await state.update_data(tariff_feedbacks_residual=None)
+    await state.update_data(tariff_cost=None)
+    await state.update_data(edited_tariff_data=None)
+
+
+
+
+

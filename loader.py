@@ -24,6 +24,7 @@ from handlers.custom_filters.admin_filters.digit_input_filter import DigitFilter
 from handlers.custom_filters.admin_filters.tariff_duration_time_filter import TimeDurationFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
+from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
 from handlers.default_handlers.admin_part_default_handlers.save_seller_tariff import save_tariff_handler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.default_handlers.help import bot_help
@@ -196,13 +197,13 @@ async def start_bot():
     dp.callback_query.register(callback_handler_start_buy.start_buy,
                                F.data == 'start_buy')
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
-                               lambda callback: callback.data.startswith('backward'))
+                               lambda callback: callback.data.startswith('backward'), UserBlockStatusController())
     dp.callback_query.register(hybrid_handlers.search_auto_callback_handler,
-                               F.data == 'car_search')
+                               F.data == 'car_search', UserBlockStatusController())
     dp.callback_query.register(confirm_search_config.confirm_settings_handler,
-                               lambda callback: callback.data.startswith('confirm_buy_settings:'))
+                               lambda callback: callback.data.startswith('confirm_buy_settings:'), UserBlockStatusController())
 
-    dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')))
+    dp.callback_query.register(show_requests.buyer_get_requests__chose_brand, F.data.in_(('buyer_cached_offers', 'buyer_active_offers', 'buyers_recommended_offers', 'buyers_recommended_offers', 'return_to_choose_requests_brand')), UserBlockStatusController())
 
     '''Seller'''
     dp.callback_query.register(delete_notification_for_seller, lambda callback: callback.data.startswith('close_seller_notification:'))
@@ -226,10 +227,10 @@ async def start_bot():
                         F.data == 'seller_requests')
 
     dp.callback_query.register(commodity_requests.confirm_load_config_from_seller.confirm_load_config_from_seller,
-                              F.data == 'confirm_load_config_from_seller')
+                              F.data == 'confirm_load_config_from_seller', UserBlockStatusController())
 
     dp.callback_query.register(sell_part.checkout_seller_person_profile.output_seller_profile,
-                              F.data == 'seller_pofile')
+                              F.data == 'seller_pofile', UserBlockStatusController())
 
     sell_main_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
     dp.callback_query.register(sell_main_module.seller_main_menu,
@@ -254,7 +255,7 @@ async def start_bot():
     dp.callback_query.register(CheckFeedbacksHandler.my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))
 
     dp.callback_query.register(CheckFeedbacksHandler.check_feedbacks_handler, and_f(StateFilter(SellerFeedbacks.choose_feedbacks_state),
-                               F.data.in_(('new_feedbacks', 'viewed_feedbacks'))))
+                               F.data.in_(('new_feedbacks', 'viewed_feedbacks')), UserBlockStatusController()))
 
     dp.callback_query.register(DeleteFeedback.delete_feedback_handler, F.data == "i'm_sure_delete_feedback")
 
@@ -265,7 +266,8 @@ async def start_bot():
     dp.callback_query.register(seller_profile_branch.selected_tariff_preview.tariff_preview_handler,
                               and_f(StateFilter(ChoiceTariffForSellerStates.choose_tariff), lambda callback: callback.data.startswith('select_tariff:')))
     dp.callback_query.register(seller_profile_branch.choose_payment.choice_payments_handler,
-                              and_f(StateFilter(ChoiceTariffForSellerStates.preview_tariff), F.data == 'start_choose_payment_method'))
+                              and_f(StateFilter(ChoiceTariffForSellerStates.preview_tariff),
+                                    F.data == 'start_choose_payment_method', UserBlockStatusController()))
 
     dp.callback_query.register(seller_profile_branch.payments.payment_invoice_sender.send_invoice_offer,
                               and_f(StateFilter(ChoiceTariffForSellerStates.choose_payment_method),

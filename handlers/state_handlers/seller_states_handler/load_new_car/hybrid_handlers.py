@@ -21,7 +21,7 @@ async def get_load_car_state(state: FSMContext):
     memory_data = await state.get_data()
     cars_state = memory_data.get('state_for_load')
 
-    print('cstte: ', cars_state)
+
 
     if cars_state == 2:
         return 'second_hand'
@@ -223,7 +223,7 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
                         need_last_buttons={f'{lexicon_module.LexiconCommodityLoader.load_commodity_color.buttons_callback_data}{str(last_color_value.id)}': last_color_value.name})
     await callback.answer()
     cars_state = await get_load_car_state(state=state)
-    print('cstate: ', cars_state)
+
     if cars_state == 'new':
         await state.set_state(LoadCommodityStates.input_to_load_price)
         # await state.set_state(LoadCommodityStates.input_to_load_color)
@@ -247,7 +247,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     ic(lexicon_part)
     lexicon_part.message_text = copy(lexicon_module.LexiconCommodityLoader.input_price)
     ic(lexicon_part.message_text)
-    print('bpart ', lexicon_part)
+
 
     if not incorrect:
 
@@ -287,7 +287,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     lexicon_part = await lexicon_part.part()
     ic(lexicon_part)
 
-    print('replm: ', reply_mode)
+
     ic(await state.get_state())
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True, bot=bot)
 
@@ -344,7 +344,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
             logging.info(f'{request.from_user.id} ::: Цена не была найдена в input_photo_to_load handler')
 
         cars_state = await get_load_car_state_module.get_load_car_state(state=state)
-        print('cstate: ', cars_state)
+
         there_data_update = await message_editor.redis_data.get_data(
             key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
 

@@ -53,7 +53,7 @@ async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
         ic(advert)
         if not advert:
             return False
-    print('construct_string')
+
     ic(advert)
 
     if advert.mileage:
@@ -83,7 +83,7 @@ async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
 
     output_data = {'album': commodity_photo_album, 'message_text': output_string}
 
-    print('output_string', output_data)
+
     return output_data
 
 
@@ -107,7 +107,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
     seller_requests_pagination = await message_editor.redis_data.get_data(
         key=user_id + ':seller_requests_pagination', use_json=True)
 
-    print('seller_requests_pagination ', seller_requests_pagination)
+
     if seller_requests_pagination and seller_requests_pagination != 'null':
         seller_requests_pagination = Pagination(**seller_requests_pagination)
     else:
@@ -115,7 +115,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
                                                  page_size=Lexicon.pagination_pagesize)
 
         dicted_pagination_class = await seller_requests_pagination.to_dict()
-        print('dicted_pagination_class_to_dict ', dicted_pagination_class)
+
         await message_editor.redis_data.set_data(key=user_id + ':seller_requests_pagination',
                                                  value=dicted_pagination_class)
     ic()
@@ -211,7 +211,7 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
 
         await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':sellers_requests_car_brand_cache',
                                                 value=chosen_brand)
-    print(chosen_brand)
+
 
     chosen_commodities = await AdvertRequester.get_by_seller_id_and_brand(seller_id=request.from_user.id, brand=int(chosen_brand))
     ic(chosen_commodities)

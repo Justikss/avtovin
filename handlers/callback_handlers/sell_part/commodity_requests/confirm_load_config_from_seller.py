@@ -96,7 +96,6 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     boot_data = await data_formatter(request=callback, state=state, id_values=True)
     ic(boot_data)
-    print('load_photos??: ', boot_data.get('photos'))
     commodity_number = await CarConfigs.add_advert(callback.from_user.id, boot_data)
 
     notification_string = await create_notification_for_seller(request_number=commodity_number)

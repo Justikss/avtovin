@@ -22,7 +22,10 @@ async def backward_in_boot_car(callback: CallbackQuery, state: FSMContext):
         ic(cached_states)
         cached_states.pop()
         ic(cached_states)
-        state_to_switch = cached_states[-1]
+        if len(cached_states) == 0:
+            state_to_switch = 'LoadCommodityStates:input_to_load_state'
+        else:
+            state_to_switch = cached_states[-1]
         await state.update_data(boot_car_states_cache=cached_states)
 
         if state_to_switch == 'LoadCommodityStates:input_to_load_state':

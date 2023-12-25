@@ -42,7 +42,7 @@ class CachedRequestsView:
         if not operation:
             operation = callback.data.split(':')[-1]
 
-        keyboard = await CachedRequestsView.get_keyboard(callback, pagination, operation, state,)
+        keyboard = await CachedRequestsView.get_keyboard(callback, pagination, operation, state)
         # ic(await state.get_state())
         try:
             await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state)
@@ -126,7 +126,10 @@ class CachedRequestsView:
         if user_state == 'buy':
             backward_command = lexicon_module.LEXICON['backward_from_buyer_offers']
         elif user_state == 'sell':
-            backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
+            if not state:
+                backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
+            else:
+                backward_command = memory_storage.get('backward_command')
         elif user_state == 'admin':
             backward_command = memory_storage.get('backward_command')
 

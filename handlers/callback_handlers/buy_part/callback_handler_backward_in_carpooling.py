@@ -14,7 +14,6 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
 
     await media_group_delete_module.delete_media_groups(request=callback)
     ic(await state.get_state())
-    print('in backw')
     user_id = str(callback.from_user.id)
     redis_key = user_id + ':state_history_stack'
     states_stack = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
@@ -24,7 +23,6 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
         last_state = None
     else:
         last_state = states_stack[-1]
-    print('last state', last_state)
     await redis_module.redis_data.set_data(key=redis_key, value=states_stack)
     await state.set_state(last_state)
     if last_state is None:
@@ -36,7 +34,6 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
     elif last_state == 'HybridChooseStates:select_model':
         await hybrid_handlers.choose_model_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'HybridChooseStates:config_output':
-        print('may', last_state)
         memory_storage = await state.get_data()
         if memory_storage['cars_class'] == 'Б/У':
             await second_hand_car_handlers.choose_year_of_release_handler(callback=callback, state=state, first_call=False)
@@ -48,10 +45,8 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
     elif last_state == 'SecondHandChooseStates:select_mileage':
         await second_hand_car_handlers.choose_mileage_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'HybridChooseStates:select_color':
-        print('select_color')
         await hybrid_handlers.choose_color_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'HybridChooseStates:select_complectation':
-        print('select_complect')
         await hybrid_handlers.choose_complectation_handler(callback=callback, state=state, first_call=False)
 
     await callback.answer()

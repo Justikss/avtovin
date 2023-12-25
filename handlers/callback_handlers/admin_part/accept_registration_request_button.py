@@ -12,20 +12,20 @@ async def accept_registraiton(callback: CallbackQuery):
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
     seller_id = callback.data.split(':')[1]
-    print('seller_confirmed', seller_id)
+
     triple_data = await utils.update_non_confirm_seller_registrations(callback=callback, get_by_seller_id=seller_id)
-    print('triple data', triple_data)
+
     if triple_data:
         notification_id, user_id, user_chat_id = triple_data['notification_id'], triple_data['user_id'], triple_data['user_chat_id']
     else:
-        print(triple_data)
+
         await callback.answer(LEXICON['unexpected_behavior'])
         return
 
-    print('notif: ', notification_id, 'usid: ', user_id)
+
 
     change_query = await person_requester_module.PersonRequester.change_authorized_state(telegram_id=user_id, boolean=True)
-    print('change_query: ', change_query, ':', type(change_query))
+
     if change_query:
         await send_notification(callback=callback, user_status='seller', chat_id=user_chat_id)
         await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=notification_id)
@@ -36,4 +36,4 @@ async def accept_registraiton(callback: CallbackQuery):
         await callback.answer(LEXICON['unexpected_behavior']) 
 
 
-    # print('chid, ', chat_id, notification_id)
+    #

@@ -35,9 +35,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
     Работает с:
     [seller: output_boot_config]'''
     # if message.from_user.is_bot:
-    #     print('isbot')
+    #
     #     return
-    print('in', mediagroups)
+
     try:
         await message.delete()
     except:
@@ -58,11 +58,11 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             seller_boot_commodity_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
             state_name = await state.get_state()
             ic(state_name)
-            # print(state_name)
+            #
             if state_name:
                 if state_name == 'LoadCommodityStates:photo_verification':
                     if not 3 <= len(mediagroups[album_id]) <= 5:
-                        print('NONPHOTOTO')
+
                         photo_filter = MessageIsPhoto()
                         mediagroups.clear()
                         user_messages.clear()
@@ -114,7 +114,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                     #                                         'photo_id': part['id'],
                     #                                         'photo_unique_id': part['unique_id']})
 
-                    print('load_moment')
+
                     await state.clear()
                     await PhotoRequester.load_photo_in_base(data)
 

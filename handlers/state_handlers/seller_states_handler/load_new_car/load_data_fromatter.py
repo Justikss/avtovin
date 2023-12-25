@@ -53,7 +53,6 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     else:
         result_data = sub_data
 
-    print('load_photos??: ', memory_storage.get('load_photo'))
     ic(sub_data)
     ic(result_data)
     return result_data

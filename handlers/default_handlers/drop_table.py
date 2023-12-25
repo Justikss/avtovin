@@ -22,7 +22,7 @@ async def insert_phototo(dataa):
                            .select()
                            .join(CarColor).switch(CarAdvert).join(CarComplectation).join(CarEngine)
                            .where(
-            (CarComplectation.id == data['car_complectation']) & (CarEngine.id == data['car_engine']) & (CarColor.id == data['car_color'])
+            (CarComplectation.id == data['car_complectation']) & (CarColor.id == data['car_color'])
             ))
         nice_car = list(await manager.execute(commodity_query))[0]
 
@@ -47,7 +47,6 @@ async def load_type_photos(dota):
         for part in photos:
             data.append({'admin_id': 902230076,
                      'car_complectation': current_part[0],
-                     'car_engine': current_part[1],
                      'car_color': current_part[2],
                      'photo_id': part,
                      'photo_unique_id': f'{idd}_{uuid.uuid4()}'})
@@ -80,7 +79,7 @@ def read_photos_by_brand(directory):
 
 async def drop_table_handler(message: Message):
     # return
-    # await message.answer('Waiting..')
+    await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
     await mock_values()

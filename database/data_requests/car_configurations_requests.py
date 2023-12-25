@@ -69,7 +69,7 @@ class CarConfigs:
     async def get_color_by_complectaiton(complectation_id):
         if not isinstance(complectation_id, int):
             complectation_id = int(complectation_id)
-
+        ic(complectation_id)
         # query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.id == complectation_id)
         query = CarColor.select().join(NewCarPhotoBase).join(CarComplectation).where(CarComplectation.id == complectation_id).distinct()
         result = await manager.execute(query)
@@ -345,7 +345,7 @@ async def insert_advert_photos(new_car_photos):
         for brand_id, photos in new_car_photos.items():
             # Получаем все объявления для данного бренда
             matching_adverts = await manager.execute(
-                CarAdvert.select().join(CarColor).switch(CarAdvert).join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
+                CarAdvert.select(CarAdvert, CarComplectation, CarColor).join(CarColor).switch(CarAdvert).join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
             )
             ic(brand_id, len(matching_adverts))
             # Подготовка данных для массовой вставки
@@ -360,13 +360,11 @@ async def insert_advert_photos(new_car_photos):
                         photo_base.append({
                             'admin_id': 902230076,
                          'car_complectation': advert.complectation.id,
-                         'car_engine': advert.complectation.engine.id,
                          'car_color': advert.color.id,
                          'photo_id': photo_id,
                          'photo_unique_id': f'{brand_id}_{uuid.uuid4()}'
                         })
 
-        photo_base = list(set(photo_base))
         # Массовая вставка данных
         if advert_photo_data_list:
             await manager.execute(AdvertPhotos.insert_many(advert_photo_data_list))
@@ -380,6 +378,7 @@ async def insert_advert_photos(new_car_photos):
             ic(photo_base)
             pass
     except Exception as e:
+        traceback.print_exc()
         print(f"Ошибка при вставке данных: {e}")
 
 

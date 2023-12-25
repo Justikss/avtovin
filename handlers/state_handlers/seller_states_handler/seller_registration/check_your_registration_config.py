@@ -28,7 +28,6 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     if dealership_address:
         dealership_address = ' '.join([address_part.capitalize() for address_part in dealership_address.split(' ')])
         await state.update_data(dealership_address=dealership_address)
-        print('dealership_address', dealership_address)
 
     await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
@@ -44,7 +43,6 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
         lexicon_part['message_text'] = f'''{lexicon_part['message_text']}\n{LEXICON['incoming_address_caption']}{memory_storage['dealership_address']}'''
     # else:
     #     lexicon_part.pop('dealership_address')
-    print(lexicon_part)
 
     edit_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':can_edit_seller_registration_data')
 

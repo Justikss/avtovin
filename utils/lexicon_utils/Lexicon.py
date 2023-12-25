@@ -3,7 +3,7 @@ from abc import ABC
 from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
     SUPPORT_NUMBER_2, max_price_len, max_contact_info_len
 from utils.safe_dict_class import SafeDict
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, __STATISTIC_LEXICON
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, __STATISTIC_LEXICON, captions
 
 __LEXICON = {
             'you_are_blocked_alert': 'Вы заблокированы в данной деятельности',
@@ -332,10 +332,12 @@ class DateTimeFormat:
 class LexiconTariffSelection:
     not_found_message_text = 'Тарифов не найдено'
     message_text = 'Все доступные тарифы'
-    callback_type = 'select_tariff:'
-    backward_button_callback = 'backward:affordable_tariffs'
-    backward_button_caption = '◂ Назад ▸'
-    keyboard_width_value = 2
+    # callback_type = 'select_tariff:'
+    # backward_button_callback = 'backward:affordable_tariffs'
+    # backward_button_caption = '◂ Назад ▸'
+    width = 2
+    buttons_callback_data = 'select_tariff:'
+    backward_command = {'backward:affordable_tariffs': captions['backward']}
 
 class LexiconSelectedTariffPreview:
     header = '<b>Информация о тарифе:</b>'

@@ -69,7 +69,7 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
     last_user_answer = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_user_message')
 
     incorrect_flag = memory_data.get('incorrect_answer')
-    print(memory_data)
+
 
     if last_user_answer:
         if incorrect_flag:
@@ -84,7 +84,7 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
                 #                                         value=message.message_id)
             #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
 
-            print('current_add')
+
             #await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
 
             # await state.update_data(last_user_answer=message.message_id)
@@ -222,7 +222,7 @@ async def finish_check_phone_number(message: Message, state: FSMContext, input_n
     country = await redis_module.redis_data.get_data(key=redis_key)
     number = input_number
 
-    print(country)
+
 
     try:
 

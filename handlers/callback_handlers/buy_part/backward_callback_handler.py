@@ -35,6 +35,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
     if ':' in callback.data:
         mode = callback.data.split(':')
         mode = mode[1]
+        ic(mode)
         if mode.startswith('seller_registration'):
             incorrect_case = mode.split('(')
             if incorrect_case:
@@ -98,7 +99,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             await search_auto_callback_handler(callback=callback, state=state)
 
         elif mode == 'set_language':
-            await set_language(callback=callback, set_languange=False)
+            await set_language(request=callback, set_languange=False)
 
         elif mode.startswith('user_registration'):
 
@@ -139,6 +140,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                 await redis_storage.redis_data.set_data(key=str(user_id) + ':last_message', value = message_object.message_id)
 
         elif mode == 'affordable_tariffs':
+            ic()
             await state.clear()
             await checkout_seller_person_profile.output_seller_profile(callback=callback)
 

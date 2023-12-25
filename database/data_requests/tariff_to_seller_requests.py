@@ -32,7 +32,7 @@ class TariffToSellerBinder:
     async def get_wires_by_tariff_id(tariff_id):
         if not isinstance(tariff_id, int):
             tariff_id = int(tariff_id)
-        tariff_model = await manager.get_or_none(TariffsToSellers.select(TariffsToSellers, Tariff).join(Tariff).where(Tariff.id == tariff_id))
+        tariff_model = await manager.execute(TariffsToSellers.select(TariffsToSellers, Tariff).join(Tariff).where(Tariff.id == tariff_id))
         return tariff_model
 
     @staticmethod

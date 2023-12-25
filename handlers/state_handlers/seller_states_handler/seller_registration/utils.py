@@ -23,7 +23,6 @@ async def update_non_confirm_seller_registrations(callback: CallbackQuery, messa
 
     redis_key = 'active_non_confirm_seller_registrations'
     seller_registration_stack = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
-    print('seller_reg_stack', seller_registration_stack)
 
     if message_for_admins:
         value = str(callback.from_user.id) + ':' + str(callback.message.chat.id)
@@ -60,8 +59,6 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
     user_id = request.from_user.id
     phonenumber = memory_storage['seller_number']
     fullname = memory_storage['seller_name']
-    print('number:', phonenumber, '\nname: ', fullname)
-    print('seller_mode: ', seller_mode)
     if isinstance(request, CallbackQuery):
         message = request.message
     else:
@@ -103,7 +100,6 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
             'authorized': authorized_state,
 
         }
-    print(formatted_load_pattern)
     try_load = await person_requester_module.PersonRequester.store_data(formatted_load_pattern, seller=True)
     if not (isinstance(try_load, tuple) and len(try_load) == 2):
         return True

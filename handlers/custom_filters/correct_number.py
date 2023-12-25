@@ -14,7 +14,7 @@ class CheckInputNumber(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
         person_requester_module = importlib.import_module('database.data_requests.person_requests')
         input_phone_number_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
-        print('in_number_filter')
+
         redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         seller_registration_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers')
         edit_mode = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':can_edit_seller_registration_data')
@@ -44,7 +44,7 @@ class CheckInputNumber(BaseFilter):
             banned_number = await BannedRequester.check_banned_number(formatted_number, user=buyer_use, seller=seller_use)
             ic(banned_number)
             if number_is_exists or banned_number:
-                print('number_is_exists', number_is_exists)
+
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
                 if banned_number:
                     incorrect_flag = '(banned)'
@@ -67,10 +67,10 @@ class CheckInputNumber(BaseFilter):
             elif current_state.startswith('BuyerRegistationStates'):
                 await current_method(message=message, state=state, incorrect='(novalid)')
 
-            print('last_valid_number')
+
             return False
         
-        print('flew by', number_is_exists)
+
 
 
     @staticmethod
