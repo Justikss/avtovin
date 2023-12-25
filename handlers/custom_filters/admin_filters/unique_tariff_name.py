@@ -24,7 +24,7 @@ class UniqueTariffNameFilter(BaseFilter):
         if last_admin_answer:
             await delete_message(message, last_admin_answer)
 
-        if not match_name_tariff:
+        if not match_name_tariff and not any(symbol in message.text for symbol in "<>"):
             await delete_message(message, message.message_id)
             return True
         else:

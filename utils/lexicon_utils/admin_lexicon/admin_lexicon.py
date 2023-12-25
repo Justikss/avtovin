@@ -3,7 +3,7 @@ from config_data.config import block_user_reason_text_len, max_contact_info_len
 return_main_menu = {'return_main_menu': 'В меню'}
 captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
-            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов'}
+            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов', 'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".'}
 
 __ADMIN_LEXICON = {
     'admin_panel_button_caption': '🔑 Админ Панель',
@@ -21,7 +21,7 @@ __ADMIN_LEXICON = {
     'tariff_was_successfully_removed': 'Тариф успешно удалён!',
     'tariff_was_inactive': 'Данный тариф оказался неактивен!',
     'successfully_edit_action': 'Успешно редактировано!',
-    'incorrect_input_block_reason': f'''Ваша причина должна содержать от {block_user_reason_text_len['min']} до {block_user_reason_text_len['max']} символов, включительно!\nТекущая длина (без учёта пробелов):\n''',
+    'incorrect_input_block_reason': f'''Ваша причина должна содержать от {block_user_reason_text_len['min']} до {block_user_reason_text_len['max']} символов, включительно!\n{captions['dont_write_html_tags']}\nТекущая длина (без учёта пробелов):\n''',
 
     'start_admin_panel': {'message_text': 'Добро пожаловать в админ панель.\nВыберите ваше действие:',
                           'buttons': {'admin_button_users': 'Пользователи', 'admin_button_tariffs': 'Тарифы',
@@ -90,7 +90,7 @@ __ADMIN_LEXICON = {
 
     'input_tariff_name': {'message_text': 'Укажите название нового тарифа в произвольном формате:',
                           'buttons': {'admin_backward:input_tariff_name': captions['backward'], 'width': 1}},
-    'input_tariff_name(incorrect)': 'Данное название уже присутствует у другого тарифа\nВведите другое:',
+    'input_tariff_name(incorrect)': f'''Данное название уже присутствует у другого тарифа\n{captions['dont_write_html_tags']}Введите другое название:''',
 
 
     'tariff_view_buttons': {'edit_tariff_by_admin': 'Редактировать', 'delete_tariff_by_admin': 'Удалить',

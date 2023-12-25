@@ -76,12 +76,15 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
         ic()
         output_string = ''
 
+    dying_tariff_module = importlib.import_module('database.data_requests.dying_tariff')
+
     tariff_exists = False
 
     seller_tariff_model = await tariff_to_seller_binder_module.TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
+    dying_tariff = await dying_tariff_module.DyingTariffRequester.get_model_by_user_id(user_id)
     ic(seller_tariff_model)
 
-    if seller_tariff_model:
+    if seller_tariff_model and not dying_tariff:
         if isinstance(seller_tariff_model, list):
             seller_tariff_model = seller_tariff_model[0]
         if seller_tariff_model.end_date_time < datetime.now():

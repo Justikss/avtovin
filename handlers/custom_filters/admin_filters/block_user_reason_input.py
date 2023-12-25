@@ -1,5 +1,6 @@
 
 import importlib
+from typing import Dict, Any
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import BaseFilter
@@ -15,15 +16,17 @@ from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 class ControlInputUserBlockReason(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        escape_html_module = importlib.import_module('handlers.utils.escape_html_message')
 
-        message_len = len(message.text.replace(' ', ''))
+        message_text = await escape_html_module.escape_html(message)
+        message_len = len(message_text.replace(' ', ''))
         ic(message_len)
         if block_user_reason_text_len['min'] <= message_len \
-                <= block_user_reason_text_len['max']:
+                <= block_user_reason_text_len['max'] and not any(symbol in message.text for symbol in "<>"):
 
             await self.delete_last_admin_message(message, state)
 
-            return {'reason': message.text.strip()}
+            return {'reason': message_text.strip()}
         else:
             await state.update_data(incorrect_flag=True)
             await self.send_incorrect_notification(message, state, message_len)

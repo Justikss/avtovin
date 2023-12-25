@@ -11,6 +11,12 @@ from utils.seller_notifications.seller_lose_tariff import send_notification_abou
 
 
 class DyingTariffRequester:
+    @staticmethod
+    async def get_model_by_user_id(telegram_id):
+        if not isinstance(telegram_id, int):
+            telegram_id = int(telegram_id)
+        dying_tariff = await manager.execute(DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == telegram_id))
+        return dying_tariff
 
     @staticmethod
     async def dying_tariff_handler(seller, bot):
@@ -66,6 +72,7 @@ class DyingTariffRequester:
             if car_adverts:
                 await AdvertRequester.remove_user_view_to_advert(advert_id=car_adverts, seller_id=seller)
             await set_timer_on_dying_tariff(dying_tariff, bot)
+            return True
 
     @staticmethod
     async def check_end_time():

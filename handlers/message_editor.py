@@ -99,6 +99,7 @@ class TravelEditor:
                 new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
             elif not media_group:
                 print('NOreply_mode2')
+                ic(message_text)
                 new_message = await message_object.answer(text=message_text, reply_to_message_id=media_message_id, reply_markup=keyboard)
 
         else:

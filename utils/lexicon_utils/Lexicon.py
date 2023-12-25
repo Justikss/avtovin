@@ -4,6 +4,7 @@ from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq
     SUPPORT_NUMBER_2, max_price_len, max_contact_info_len
 from utils.safe_dict_class import SafeDict
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, __STATISTIC_LEXICON, captions
+from utils.lexicon_utils.admin_lexicon.advert_action_lexicon import __ADVERT_LEXICON
 
 __LEXICON = {
             'you_are_blocked_alert': 'Вы заблокированы в данной деятельности',
@@ -179,7 +180,7 @@ __LEXICON = {
 
 ADMIN_LEXICON = SafeDict(__ADMIN_LEXICON)
 STATISTIC_LEXICON = SafeDict(__STATISTIC_LEXICON)
-
+ADVERT_LEXICON = SafeDict(__ADVERT_LEXICON)
 LEXICON = SafeDict(__LEXICON)
 
 class LastButtonsInCarpooling(ABC):

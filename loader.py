@@ -104,8 +104,8 @@ async def start_bot():
 
     dp = Dispatcher(storage=storage)
 
-    admin_router = Router()
-    dp.include_router(admin_router)
+    # admin_router = Router()
+    # dp.include_router(admin_router)
 
 
     await create_tables()
@@ -285,9 +285,21 @@ async def start_bot():
     dp.callback_query.register(admin_panel_ui.start_admin_panel_window.start_admin_menu, F.data == 'admin_panel_button',
                                AdminStatusController())
 
+    dp.callback_query.register(
+        user_actions.choose_specific_user.choose_category.choose_users_category.choose_user_category_by_admin_handler,
+        F.data == 'admin_button_users', AdminStatusController())
+
+    dp.callback_query.register(tariff_actions.output_tariff_list.output_tariffs_for_admin,
+                               F.data == 'admin_button_tariffs', AdminStatusController())
+
+    dp.callback_query.register(admin_panel_ui.advertisement_actions.choose_advertisement_action.choose_advertisement_action,
+                               F.data == 'admin_button_advert')
+
+    '''mailing_action'''
+    dp.callback_query.register(F.data == 'mailing_action')
+
     '''user actions'''
-    dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_users_category.choose_user_category_by_admin_handler,
-                               F.data == 'admin_button_users', AdminStatusController())
+
     dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_seller_category.choose_seller_category_by_admin_handler,
                                F.data == 'seller_category_actions', AdminStatusController())
 
@@ -314,8 +326,7 @@ async def start_bot():
                                lambda callback: callback.data.startswith('select_seller_statistic_period'))
 
     '''admin_tariff'''
-    dp.callback_query.register(tariff_actions.output_tariff_list.output_tariffs_for_admin,
-                               F.data == 'admin_button_tariffs', AdminStatusController())
+
 
     dp.callback_query.register(tariff_actions.input_tariff_data.process_tariff_cost,
                                F.data == 'add_tariff_by_admin',
