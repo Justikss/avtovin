@@ -3,6 +3,8 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.choose_advertisement_action import \
+    choose_advertisement_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_time_duration, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -78,3 +80,6 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'confirm_delete_tariff_action' | 'edit_tariff':
             await output_specific_tariff_for_admin_handler(callback, state, from_backward=True)
+
+        case 'input_mailing_data':
+            await choose_advertisement_action(callback)

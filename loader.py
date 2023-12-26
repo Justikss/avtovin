@@ -1,7 +1,7 @@
 import asyncio
 import importlib
 
-from aiogram import Bot, Dispatcher, F, Router
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
@@ -11,16 +11,21 @@ from aiogram.fsm.context import FSMContext
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
 from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
+from handlers.callback_handlers.hybrid_part.utils.media_group_structurier_collector import handle_media
 from handlers.callback_handlers.sell_part.commodity_requests.backward_command_load_config import backward_in_boot_car
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.admin_filters.admin_status_controller import AdminStatusController
 from handlers.custom_filters.admin_filters.block_user_reason_input import ControlInputUserBlockReason
+from handlers.custom_filters.admin_filters.mailing_filters.datetime_input_filter import DateTimeFilter
 from handlers.custom_filters.admin_filters.digit_input_filter import DigitFilter
+from handlers.custom_filters.admin_filters.mailing_filters.input_media_filter import MediaFilter
+from handlers.custom_filters.admin_filters.mailing_filters.mailing_text_filter import MailingTextFilter
 from handlers.custom_filters.admin_filters.tariff_duration_time_filter import TimeDurationFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
@@ -44,6 +49,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
+from states.admin_part_states.mailing_setup_states import MailingStates
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
@@ -119,8 +125,13 @@ async def start_bot():
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
 
+    dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
+                        StateFilter(MailingStates.entering_date_time))
+
     dp.message.register(collect_and_send_mediagroup,
-                        F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"), F.photo[0].file_unique_id.as_('unique_id'))
+                        F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"),
+                        F.photo[0].file_unique_id.as_('unique_id'),
+                        StateFilter(LoadCommodityStates.photo_verification))
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
@@ -296,7 +307,22 @@ async def start_bot():
                                F.data == 'admin_button_advert')
 
     '''mailing_action'''
-    dp.callback_query.register(F.data == 'mailing_action')
+    dp.callback_query.register(mailing.input_mailing_data.input_text.enter_mailing_text,
+                               F.data == 'mailing_action')
+
+    dp.message.register(mailing.input_mailing_data.input_media.request_mailing_media,
+                        StateFilter(MailingStates.uploading_media),
+                        MailingTextFilter())
+
+    dp.message.register(mailing.input_mailing_data.input_date.request_mailing_date_time,
+                        StateFilter(MailingStates.entering_date_time), MediaFilter())
+
+    dp.message.register(mailing.input_mailing_data.input_recipients.request_mailing_recipients,
+                        StateFilter(MailingStates.choosing_recipients), DateTimeFilter())
+
+    dp.callback_query.register(mailing.review_inputted_data.request_review_mailing_data,
+                               StateFilter(MailingStates.confirmation),
+                               lambda callback: callback.data.startswith('enter_mailing_recipients'))
 
     '''user actions'''
 

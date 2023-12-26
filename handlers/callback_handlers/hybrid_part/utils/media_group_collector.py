@@ -68,53 +68,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                         user_messages.clear()
                         await photo_filter(message=message, state=state)
                         return
-                    # try:
-                    #     [await message.bot.delete_message(chat_id=message.chat.id, message_id=message_id) for message_id in user_messages]
-                    # except:
-                    #     pass
+
                     await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state, media_photos=mediagroups)
                     mediagroups.clear()
 
-                elif state_name.startswith('BootNewCarPhotosStates'):
-                    ic()
-                    # mediagroupss = [value for value in mediagroups.values()]
-                    # mediagroupss = set(mediagroupss)
-
-                    mediagroupss = []
-                    for e in mediagroups.values():
-                        if e not in mediagroupss:
-                            mediagroupss.append(e)
-                    if isinstance(mediagroupss[0], list):
-                        mediagroupss = mediagroupss[-1]
-
-                    executor = int(state_name.split('_')[-1])-1
-                    if executor:
-                        pre_data = [[1, 1, 2], [2, 2, 2], [3, 2, 2], [4, 2, 2], [5, 1, 2], [6, 1, 2], [7, 3, 2], [8, 3, 1]]
-                        current_part = pre_data[executor]
-                        data = [{'admin_id': message.from_user.id,
-                                 'car_complectation': current_part[0],
-                                'car_engine': current_part[1],
-                                 'car_color': current_part[2],
-                                 'photo_id': part['id'],
-                                 'photo_unique_id': part['unique_id']} for part in mediagroupss]
-                    # else:
-                    #     executor -= 3
-                    #     data = []
-                    #     complectations = await manager.execute(CarComplectation.select().join(CarModel).join(CarBrand).where(CarBrand.id == executor))
-                    #     engines = await manager.execute(CarEngine.select().join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == executor))
-                    #     car_color = await manager.execute(CarColor.select())
-                    #     for complect in complectations:
-                    #         for engine in engines:
-                    #             for color in car_color:
-                    #                 for part in mediagroupss:
-                    #                     data.append({'admin_id': message.from_user.id,
-                    #                                         'car_complectation': complect.id,
-                    #                                         'car_engine': engine.id,
-                    #                                         'car_color': color.id,
-                    #                                         'photo_id': part['id'],
-                    #                                         'photo_unique_id': part['unique_id']})
-
-
-                    await state.clear()
-                    await PhotoRequester.load_photo_in_base(data)
-
+            elif state_name == "MailingStates:uploading_media":
+                return mediagroups

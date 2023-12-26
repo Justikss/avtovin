@@ -1,1 +1,1 @@
-from . import media_group_collector
+from . import media_group_collector, media_group_structurier_collector

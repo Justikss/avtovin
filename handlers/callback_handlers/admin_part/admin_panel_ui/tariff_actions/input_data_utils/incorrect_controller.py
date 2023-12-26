@@ -1,17 +1,25 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+from utils.lexicon_utils.Lexicon import ADMIN_LEXICON, ADVERT_LEXICON
 
 
 async def incorrect_controller(message: Message, state: FSMContext, incorrect, lexicon_key):
     ic(lexicon_key)
-    lexicon_part = ADMIN_LEXICON[lexicon_key]
+    current_state = str(await state.get_state())
+    if current_state.startswith('MailingStates'):
+        current_lexicon = ADVERT_LEXICON
+    else:
+        current_lexicon = ADVERT_LEXICON
+
+    lexicon_part = current_lexicon[lexicon_key]
     if not incorrect:
         reply_mode = None
     else:
         reply_mode = message.message_id
-        lexicon_part['message_text'] = ADMIN_LEXICON[f'{lexicon_key}(incorrect)']
+        if not lexicon_key == 'enter_mailing_media':
+            lexicon_key = f'{lexicon_key}(incorrect)'
+            lexicon_part['message_text'] = current_lexicon[lexicon_key]
     return lexicon_part, reply_mode
 
 async def get_delete_mode(state: FSMContext, incorrect):
