@@ -3,7 +3,9 @@ from config_data.config import block_user_reason_text_len, max_contact_info_len
 return_main_menu = {'return_main_menu': 'В меню'}
 captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
-            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов', 'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".'}
+            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов',
+            'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".',
+            'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов'}
 
 __ADMIN_LEXICON = {
     'admin_panel_button_caption': '🔑 Админ Панель',

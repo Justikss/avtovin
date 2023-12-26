@@ -22,4 +22,4 @@ async def request_mailing_date_time(message: types.Message, state: FSMContext, m
     await state.set_state(MailingStates.choosing_recipients)
     lexicon_part, reply_to_message = await incorrect_controller(message, state, incorrect, 'request_mailing_date_time')
     await message_editor_module.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part,
-                                                           reply_message=reply_to_message)
+                                                           reply_message=reply_to_message, delete_mode=True)

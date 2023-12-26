@@ -24,5 +24,5 @@ class DateTimeFilter(BaseFilter):
             return {'mailing_datetime': str(mailing_datetime)}
         except (ValueError, TypeError):
             await incorrect(state, message.message_id)
-            await delete_message(message, message.message_id)
+            # await delete_message(message, message.message_id)
             await request_mailing_date_time(message, state, incorrect=True)  # Возвращаем False, если формат некорректен

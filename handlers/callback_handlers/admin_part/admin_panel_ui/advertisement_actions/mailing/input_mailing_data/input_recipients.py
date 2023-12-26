@@ -19,4 +19,5 @@ async def request_mailing_recipients(message: types.Message, state: FSMContext, 
     lexicon_part = ADVERT_LEXICON['enter_mailing_recipients']
     await state.set_state(MailingStates.confirmation)
 
-    await message_editor_module.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part)
+    await message_editor_module.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part,
+                                                           delete_mode=True)

@@ -13,13 +13,23 @@ import importlib
 # Импорт модуля редактирования сообщений через importlib
 message_editor_module = importlib.import_module('handlers.message_editor')
 
-async def request_mailing_media(message: types.Message, state: FSMContext, modified_text=None, incorrect=False):
-
+async def insert_state_data(request, state, modified_text):
+    mailing_text = 1
     if modified_text:
+        mailing_text = modified_text
+    elif isinstance(request, types.CallbackQuery) and request.data == 'empty_mailing_text':
+        mailing_text = ''
+
+    if mailing_text != 1:
         await state.update_data(mailing_text=modified_text)
 
-    await state.set_state(MailingStates.entering_date_time)
-    lexicon_part, reply_to_message = await incorrect_controller(message, state, incorrect, 'enter_mailing_media')
 
-    await message_editor_module.travel_editor.edit_message(request=message, lexicon_key='', lexicon_part=lexicon_part,
-                                                           reply_message=reply_to_message)
+async def request_mailing_media(request: types.Message | types.CallbackQuery,
+                                state: FSMContext, modified_text=None, incorrect=False):
+
+    await insert_state_data(request, state, modified_text)
+    await state.set_state(MailingStates.entering_date_time)
+
+    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, 'enter_mailing_media')
+    await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
+                                                           reply_message=reply_to_message, delete_mode=True)

@@ -18,7 +18,7 @@ async def handle_media(message: types.Message, state: FSMContext):
     album_id = message.media_group_id
     media_info = {
         'media_type': message.content_type,
-        'file_id': get_file_id(message),
+        'id': get_file_id(message),
         'unique_id': get_unique_id(message),
         'album_id': album_id
     }

@@ -313,6 +313,8 @@ async def start_bot():
     dp.message.register(mailing.input_mailing_data.input_media.request_mailing_media,
                         StateFilter(MailingStates.uploading_media),
                         MailingTextFilter())
+    dp.callback_query.register(mailing.input_mailing_data.input_media.request_mailing_media,
+                               F.data == 'empty_mailing_text')
 
     dp.message.register(mailing.input_mailing_data.input_date.request_mailing_date_time,
                         StateFilter(MailingStates.entering_date_time), MediaFilter())
