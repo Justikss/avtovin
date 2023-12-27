@@ -6,3 +6,4 @@ class MailingStates(StatesGroup):
     uploading_media = State()  # Загрузка медиа для рассылки
     entering_date_time = State()  # Ввод даты и времени рассылки
     confirmation = State()  # Подтверждение деталей рассылки
+    edit_inputted_data = State()

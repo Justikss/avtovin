@@ -13,6 +13,29 @@ from database.tables.seller import Seller, BannedSeller
 
 class PersonRequester:
     @staticmethod
+    async def retrieve_all_ids(user=False, seller=False):
+        tables = None
+        user_ids = None
+        current_table = None
+        if seller:
+            current_table = Seller
+        elif user:
+            current_table = User
+        else:
+            tables = [User, Seller]
+
+        if tables:
+            user_ids = []
+            for table in tables:
+                user_ids.append(await manager.execute(table.select(table.telegram_id)))
+        elif current_table:
+            user_ids = await manager.execute(current_table.select(current_table.telegram_id))
+
+        if user_ids:
+            user_ids = [user.telegram_id for user in user_ids]
+        return user_ids
+
+    @staticmethod
     async def get_by_user_name(name, seller, user, dealership):
         user_model = None
         current_table = None

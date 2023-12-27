@@ -1,1 +1,1 @@
-from . import input_recipients, input_date, input_text, input_media
+from . import input_recipients, input_date, input_text, input_media, edit_mailing_data

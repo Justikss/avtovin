@@ -1,1 +1,1 @@
-from . import input_mailing_data, review_inputted_data, edit_mailing_data
+from . import input_mailing_data, review_inputted_data, confirm_mailing_data

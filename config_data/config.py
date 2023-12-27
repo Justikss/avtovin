@@ -31,12 +31,13 @@ DEFAULT_COMMANDS = (
 )
 
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
-MAILING_DATETIME_FORMAT = '%d.%m.%Y %H:%M'
+MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'
 
 REGISTRATION_DATETIME_FORMAT = '%d-%m-%Y'
 
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600
+message_answer_awaited = 1
 
 max_price_len = 20
 max_contact_info_len = 100

@@ -314,10 +314,14 @@ async def start_bot():
                         StateFilter(MailingStates.uploading_media),
                         MailingTextFilter())
     dp.callback_query.register(mailing.input_mailing_data.input_media.request_mailing_media,
-                               F.data == 'empty_mailing_text')
+                               or_f((F.data == 'empty_mailing_text'),
+                                    (and_f(F.data == 'add_other_media',
+                                          StateFilter(MailingStates.entering_date_time)))))
 
     dp.message.register(mailing.input_mailing_data.input_date.request_mailing_date_time,
                         StateFilter(MailingStates.entering_date_time), MediaFilter())
+    dp.callback_query.register(mailing.input_mailing_data.input_date.request_mailing_date_time,
+                               F.data == 'mailing_without_media', StateFilter(MailingStates.entering_date_time))
 
     dp.message.register(mailing.input_mailing_data.input_recipients.request_mailing_recipients,
                         StateFilter(MailingStates.choosing_recipients), DateTimeFilter())
@@ -326,6 +330,14 @@ async def start_bot():
                                StateFilter(MailingStates.confirmation),
                                lambda callback: callback.data.startswith('enter_mailing_recipients'))
 
+
+    dp.callback_query.register(mailing.input_mailing_data.edit_mailing_data.edit_mailing_data.edit_mailing_data_handler,
+        F.data == 'edit_mailing_data')
+    dp.callback_query.register(mailing.input_mailing_data.edit_mailing_data.edit_data_handler.edit_field_handler,
+                               lambda callback: callback.data.startswith('edit_mailing_'),
+                               StateFilter(MailingStates.edit_inputted_data))
+
+    dp.callback_query.register(mailing.confirm_mailing_data.confirm_boot_mailing_handler, F.data == 'confirm_mailing_action')
     '''user actions'''
 
     dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_seller_category.choose_seller_category_by_admin_handler,

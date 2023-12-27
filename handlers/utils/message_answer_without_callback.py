@@ -4,6 +4,8 @@ import importlib
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message, CallbackQuery
 
+from config_data.config import message_answer_awaited
+
 
 async def send_message_answer(request: Message| CallbackQuery, text, sleep_time):
     match request:
@@ -17,7 +19,7 @@ async def send_message_answer(request: Message| CallbackQuery, text, sleep_time)
                 pass
 
             alert_message = await request.answer(text)
-            await asyncio.sleep(sleep_time)
+            await asyncio.sleep(message_answer_awaited)
 
             try:
                 await request.chat.delete_message(alert_message.message_id)

@@ -14,7 +14,7 @@ async def handle_media(message: types.Message, state: FSMContext):
         await message.delete()
     except:
         pass
-
+    ic()
     album_id = message.media_group_id
     media_info = {
         'media_type': message.content_type,
@@ -32,11 +32,13 @@ async def handle_media(message: types.Message, state: FSMContext):
 
         if message.message_id == last_media_message_id[album_id]:
             if album_id in mediagroups:
+                ic(mediagroups)
                 await request_mailing_date_time(message, state, mediagroups[album_id])
                 del mediagroups[album_id]
                 del last_media_message_id[album_id]
     else:
         # Обработка единичного медиа
+        ic([media_info])
         await request_mailing_date_time(message, state, [media_info])
 
 # await request_mailing_date_time(message, state, mediagroups[album_id])
@@ -48,7 +50,10 @@ def get_file_id(message):
         return message.photo[-1].file_id
     elif message.video:
         return message.video.file_id
-    # Добавьте условия для других типов медиа
+    elif message.audio:
+        return message.audio.file_id
+    elif message.document:
+        return message.document.file_id
     return None
 
 def get_unique_id(message):
@@ -57,5 +62,8 @@ def get_unique_id(message):
         return message.photo[-1].file_unique_id
     elif message.video:
         return message.video.file_unique_id
-    # Добавьте условия для других типов медиа
+    elif message.audio:
+        return message.audio.file_unique_id
+    elif message.document:
+        return message.document.file_unique_id
     return None

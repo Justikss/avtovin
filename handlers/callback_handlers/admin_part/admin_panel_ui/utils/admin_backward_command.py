@@ -5,6 +5,8 @@ from aiogram.types import CallbackQuery
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.choose_advertisement_action import \
     choose_advertisement_action
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.review_inputted_data import \
+    request_review_mailing_data
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_time_duration, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -32,6 +34,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     backward_mode = callback.data.split(':')[-1]
 
     current_state = str(await state.get_state())
+    memory_storage = await state.get_data()
 
     match backward_mode:
 
@@ -82,4 +85,10 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             await output_specific_tariff_for_admin_handler(callback, state, from_backward=True)
 
         case 'input_mailing_data':
-            await choose_advertisement_action(callback)
+
+            match memory_storage.get('can_edit_mailing_flag'):
+
+                case None:
+                    await choose_advertisement_action(callback)
+                case _:
+                    await request_review_mailing_data(callback, state)

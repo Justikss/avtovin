@@ -1,11 +1,12 @@
 import importlib
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from database.tables.tariff import Tariff
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
     output_tariffs_for_admin
+from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.tariffs_branch_states import TariffEditState
 from utils.get_currency_sum_usd import get_valutes
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
@@ -53,7 +54,7 @@ async def tariff_edit_lexicon_part_constructor(tariff_model: Tariff, state: FSMC
     lexicon_part['buttons'] = nice_buttons
     return lexicon_part
 
-async def edit_tariff_by_admin_handler(callback: CallbackQuery, state: FSMContext):
+async def edit_tariff_by_admin_handler(request: CallbackQuery | Message, state: FSMContext):
     tariffs_requester_module = importlib.import_module('database.data_requests.tariff_requests')
     message_editor_module = importlib.import_module('handlers.message_editor')
 
@@ -63,12 +64,12 @@ async def edit_tariff_by_admin_handler(callback: CallbackQuery, state: FSMContex
     tariff_model = await tariffs_requester_module.TarifRequester.get_by_id(tariff_id)
     if tariff_model:
         lexicon_part = await tariff_edit_lexicon_part_constructor(tariff_model, state)
-        await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='',
+        await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='',
                                                                lexicon_part=lexicon_part, delete_mode=delete_mode)
         await state.set_state(TariffEditState.waiting_for_field_choice)
     else:
-        await callback.answer(ADMIN_LEXICON['tariff_was_inactive'])
-        await output_tariffs_for_admin(callback, state)
+        await send_message_answer(request, ADMIN_LEXICON['tariff_was_inactive'], 1)
+        await output_tariffs_for_admin(request, state)
 
 
 async def field_choice_handler(callback: CallbackQuery, state: FSMContext):
