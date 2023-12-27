@@ -1,1 +1,1 @@
-from . import return_main_menu, utils, faq
+from . import return_main_menu, utils, faq, close_mailing_messages

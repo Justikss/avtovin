@@ -5,7 +5,9 @@ from typing import List
 
 from aiogram import Bot
 
+from config_data.config import MAILING_DATETIME_FORMAT, MODIFIED_MAILING_DATETIME_FORMAT
 from database.data_requests.mailing_requests import retrieve_mailings_that_has_not_been_sent, update_mailing_status
+from utils.mailing_heart.send_mailing_to_user import send_mailing
 
 
 class MailingService:
@@ -21,7 +23,7 @@ class MailingService:
             get_users = True
         elif recipients_type == 'sellers':
             get_sellers = True
-        elif recipients_type == 'all':
+        elif recipients_type == 'all_users':
             pass
         else:
             raise ValueError("Неверный тип получателей")
@@ -42,7 +44,7 @@ class MailingService:
         recipients = await self.get_recipients(mailing.recipients_type)
         for recipient_id in recipients:
             try:
-                await bot.send_message(recipient_id, mailing.text)
+                await send_mailing(bot, mailing.media, mailing.text, recipient_id)
             except Exception:
                 # Обработка исключений
                 pass
@@ -50,6 +52,6 @@ class MailingService:
         await update_mailing_status(mailing)
 
     async def schedule_single_mailing(self, bot: Bot, mailing):
-        delay = (mailing.scheduled_time - datetime.now()).total_seconds()
+        delay = (datetime.strptime(str(mailing.scheduled_time)[:-3], MODIFIED_MAILING_DATETIME_FORMAT) - datetime.now()).total_seconds()
         if delay > 0:
             asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))

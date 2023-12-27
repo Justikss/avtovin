@@ -20,6 +20,12 @@ class DateTimeFilter(BaseFilter):
 
         try:
             mailing_datetime = datetime.datetime.strptime(message.text, MAILING_DATETIME_FORMAT)
+
+            if mailing_datetime < datetime.datetime.now():
+                await incorrect(state, message.message_id)
+                await request_mailing_date_time(message, state, incorrect='(time)')
+                return
+
             await delete_message(message, message.message_id)
             return {'mailing_datetime': str(mailing_datetime)}
         except (ValueError, TypeError):

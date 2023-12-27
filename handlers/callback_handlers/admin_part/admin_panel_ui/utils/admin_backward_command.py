@@ -85,10 +85,9 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             await output_specific_tariff_for_admin_handler(callback, state, from_backward=True)
 
         case 'input_mailing_data':
+            edit_mailing_flag = memory_storage.get('can_edit_mailing_flag')
 
-            match memory_storage.get('can_edit_mailing_flag'):
-
-                case None:
-                    await choose_advertisement_action(callback)
-                case _:
-                    await request_review_mailing_data(callback, state)
+            if not edit_mailing_flag or current_state in ('MailingStates:edit_inputted_data', 'MailingStates:confirmation'):
+                await choose_advertisement_action(callback, state)
+            else:
+                await request_review_mailing_data(callback, state)

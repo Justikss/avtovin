@@ -16,6 +16,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_a
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
 from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
+from handlers.callback_handlers.hybrid_part.close_mailing_messages import close_mailing_messages
 from handlers.callback_handlers.hybrid_part.utils.media_group_structurier_collector import handle_media
 from handlers.callback_handlers.sell_part.commodity_requests.backward_command_load_config import backward_in_boot_car
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
@@ -337,7 +338,11 @@ async def start_bot():
                                lambda callback: callback.data.startswith('edit_mailing_'),
                                StateFilter(MailingStates.edit_inputted_data))
 
-    dp.callback_query.register(mailing.confirm_mailing_data.confirm_boot_mailing_handler, F.data == 'confirm_mailing_action')
+    dp.callback_query.register(mailing.confirm_mailing_data.confirm_boot_mailing_handler,
+                               F.data == 'confirm_mailing_action', StateFilter)
+
+    dp.callback_query.register(close_mailing_messages,
+                               lambda callback: callback.data.startswith('close_mailing_message:'))
     '''user actions'''
 
     dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_seller_category.choose_seller_category_by_admin_handler,

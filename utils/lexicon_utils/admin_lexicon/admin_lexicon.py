@@ -19,6 +19,7 @@ __ADMIN_LEXICON = {
     'user_block_success': 'Пользователь заблокирован!',
     'information_was_updated': 'Информация обновлена!',
     'success_input_tariff_data': 'Успешно!\nТариф {tariff_name} - успешно добавлен!',
+    'unsuccessfully_add_tariff': 'Не получилось добавить тариф.',
     'tariff_has_bindings': 'Данный тариф нельзя удалить, так как он активен у пользователей',
     'tariff_was_successfully_removed': 'Тариф успешно удалён!',
     'tariff_was_inactive': 'Данный тариф оказался неактивен!',

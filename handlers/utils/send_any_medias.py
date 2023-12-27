@@ -7,7 +7,12 @@ import asyncio
 redis_data_module = importlib.import_module('handlers.callback_handlers.buy_part.language_callback_handler')
 
 
-async def send_media(request: types.Message | types.CallbackQuery, media_info_list: list, chat_id: int = None, caption=None):
+async def send_media(request: types.Message | types.CallbackQuery | Bot, media_info_list: list, chat_id: int = None, caption=None):
+    if chat_id:
+        other_chat_flag = True
+    else:
+        other_chat_flag = False
+
     chat_id, bot = await take_aiogram_objects(request, chat_id)
 
     ic(caption)
@@ -15,26 +20,23 @@ async def send_media(request: types.Message | types.CallbackQuery, media_info_li
 
     if len(media_info_list) > 1:
         # Отправка медиа-группы
-        await process_media_group(request, media_info_list, chat_id, caption, bot)
-        # last_media_object = get_media_object(media_info_list[-1], caption)
-        # media_objects = []
-        # for media_info in media_info_list[:-1]:
-        #     media_objects.append(get_media_object(media_info))
-        # media_objects.append(last_media_object)
-        #
-        # media_message = await bot.send_media_group(chat_id=chat_id, media=media_objects)
+        media_messages = await process_media_group(request, media_info_list, chat_id, caption, bot, other_chat_flag)
+        if other_chat_flag:
+            return media_messages
     else:
         # Отправка единичного медиа
         media_info = media_info_list[0]
         media_info['caption'] = caption
         media_message = await send_single_media(bot, chat_id, media_info)
+        if not other_chat_flag:
+            redis_value = media_message.message_id
+            await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
+        else:
+            return [media_message.message_id]
 
-        redis_value = media_message.message_id
-        await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
 
 
-
-async def process_media_group(request, media_info_list, chat_id, caption, bot):
+async def process_media_group(request, media_info_list, chat_id, caption, bot, other_chat_flag):
     # Сортировка медиа по типу
     photo_video_group = []
     other_media = []
@@ -61,21 +63,25 @@ async def process_media_group(request, media_info_list, chat_id, caption, bot):
     for media_info in other_media:
         media_message = await send_single_media(bot, chat_id, media_info)
         redis_value.append(media_message.message_id)
-
-    # Добавление в Redis
-    await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
-
+    if not other_chat_flag:
+        # Добавление в Redis
+        await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
+    else:
+        return redis_value
 
 async def take_aiogram_objects(request: types.Message | types.CallbackQuery, chat_id):
+    bot = None
     match request:
         case types.CallbackQuery():
             message = request.message
         case types.Message():
             message = request
+        case Bot():
+            bot = request
     if not chat_id:
         chat_id = message.chat.id
-
-    bot = request.bot
+    if not bot:
+        bot = request.bot
 
     return chat_id, bot
 

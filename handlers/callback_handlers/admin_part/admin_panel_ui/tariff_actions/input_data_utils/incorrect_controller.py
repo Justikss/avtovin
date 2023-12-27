@@ -12,7 +12,8 @@ async def incorrect_controller(request: Message | CallbackQuery, state: FSMConte
     lexicon_part = current_lexicon[lexicon_key]
     if lexicon_key == 'enter_mailing_media' and \
             memory_storage.get('can_edit_mailing_flag') and \
-            (isinstance(request, CallbackQuery) and not request.data == 'add_other_media'):
+            (isinstance(request, CallbackQuery) and not request.data == 'add_other_media') and \
+            memory_storage.get('mailing_media'):
 
         lexicon_part['buttons'] = ADVERT_LEXICON['edit_mailing_media_buttons']
 
@@ -23,9 +24,13 @@ async def incorrect_controller(request: Message | CallbackQuery, state: FSMConte
             reply_mode = request.message_id
         else:
             reply_mode = None
-        if not lexicon_key == 'enter_mailing_media':
-            lexicon_key = f'{lexicon_key}(incorrect)'
-            lexicon_part['message_text'] = current_lexicon[lexicon_key]
+        if incorrect is True:
+            if not lexicon_key == 'enter_mailing_media':
+                lexicon_key = f'{lexicon_key}(incorrect)'
+        else:
+            lexicon_key = f'{lexicon_key}{incorrect}'
+
+        lexicon_part['message_text'] = current_lexicon[lexicon_key]
 
     return lexicon_part, reply_mode
 

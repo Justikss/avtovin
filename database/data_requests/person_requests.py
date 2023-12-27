@@ -27,9 +27,10 @@ class PersonRequester:
         if tables:
             user_ids = []
             for table in tables:
-                user_ids.append(await manager.execute(table.select(table.telegram_id)))
+                users_pack = list(await manager.execute(table.select(table.telegram_id)))
+                user_ids.extend(users_pack)
         elif current_table:
-            user_ids = await manager.execute(current_table.select(current_table.telegram_id))
+            user_ids = list(await manager.execute(current_table.select(current_table.telegram_id)))
 
         if user_ids:
             user_ids = [user.telegram_id for user in user_ids]

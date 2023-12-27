@@ -1,4 +1,5 @@
 import importlib
+import logging
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -7,6 +8,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_
     output_tariffs_for_admin
 from utils.custom_exceptions.database_exceptions import TariffHasWireError
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
 
 async def delete_tariff_model_by_admin(callback: CallbackQuery, state: FSMContext):
@@ -33,7 +35,10 @@ async def confirm_delete_tariff_action(callback: CallbackQuery, state: FSMContex
     await state.update_data(current_tariff_view=None)
     if delete_query:
         alert_text = ADMIN_LEXICON['tariff_was_successfully_removed']
+        await log_admin_action(callback.from_user.username, 'delete_tariff', f'tariff:{tariff_id}')
     else:
+        logging.warning(f'Администратор {callback.from_user.username} неудачно удалил тариф ID: {tariff_id}')
+
         alert_text = ADMIN_LEXICON['tariff_was_inactive']
 
     await callback.answer(alert_text)

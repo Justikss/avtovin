@@ -7,16 +7,23 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 __LOGGING_LEXICON = {'reset_tariff_action': 'Обнулил тариф продавцу: ',
                      'set_seller_tariff_action': 'Установил тариф продавцу: ', 'ban_seller': 'Заблокировал продавца: ',
-                     'ban_buyer': 'Заблокировал покупателя: ', 'for_reason': '\nПо причине: ', "edit_tariff": 'Редактировал тариф: '}
+                     'ban_buyer': 'Заблокировал покупателя: ', 'for_reason': '\nПо причине: ',
+                     "edit_tariff": 'Редактировал тариф: ', 'delete_tariff': 'Удалил тариф: ', 'add_tariff': 'Добавил тариф: ',
+                     'add_mailing': 'Установил сообщение в рассылку с текстом:', 'in_time': ' В '}
 
 async def log_admin_action(admin_username, action, subject='', reason=False):
     ic(subject)
     name = await get_user_name(subject)
     if reason:
-        reason = f'''{__LOGGING_LEXICON['for_reason']} {reason}'''
+        if action == 'add_mailing':
+            reason = f'''{__LOGGING_LEXICON['in_time']}{reason}'''
+        elif action != 'ban_buyer':
+            reason = f'''{__LOGGING_LEXICON['for_reason']} {reason}'''
+
+
     else:
         reason = ''
-    logging.info(f"Администратор {admin_username}: {__LOGGING_LEXICON[action]} {name}{reason}")
+    logging.info(f"Администратор @{admin_username}: {__LOGGING_LEXICON[action]} {name}{reason}")
 
 
 # log_admin_action(admin_username=, action=)

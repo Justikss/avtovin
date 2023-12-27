@@ -45,6 +45,6 @@ async def get_user_name(subject):
         if tariff_model:
             name = tariff_model.name
     else:
-        return False
+        return subject
 
     return name
