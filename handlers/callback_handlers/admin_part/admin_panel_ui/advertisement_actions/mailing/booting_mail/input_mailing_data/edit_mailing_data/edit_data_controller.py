@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.review_inputted_data import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.review_inputted_data import \
     request_review_mailing_data
 
 

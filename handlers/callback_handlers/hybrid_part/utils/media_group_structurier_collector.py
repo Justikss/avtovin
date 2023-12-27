@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from collections import defaultdict
 import asyncio
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.input_mailing_data.input_date import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.input_date import \
     request_mailing_date_time
 
 mediagroups = defaultdict(list)

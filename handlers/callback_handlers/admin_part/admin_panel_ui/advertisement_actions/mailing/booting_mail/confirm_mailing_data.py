@@ -6,10 +6,10 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import MODIFIED_MAILING_DATETIME_FORMAT
 from database.data_requests.mailing_requests import create_mailing
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.choose_advertisement_action import \
-    choose_advertisement_action
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.input_mailing_data.input_date import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.input_date import \
     request_mailing_date_time
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.choose_mailing_action import \
+    request_choose_mailing_action
 from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 from utils.mailing_heart.mailing_service import MailingService
@@ -35,7 +35,7 @@ async def confirm_boot_mailing_handler(callback: CallbackQuery, state: FSMContex
         await MailingService.schedule_single_mailing(self=mailing_service, bot=callback.bot, mailing=new_mailing)
         await callback.answer(ADVERT_LEXICON['successfully_boot_mail_message'])
         await state.clear()
-        await choose_advertisement_action(callback, state)
+        await request_choose_mailing_action(callback, state)
         await log_admin_action(callback.from_user.username, 'add_mailing', mailing_text, mailing_datetime)
     else:
         logging.warning(f'Администратор {callback.from_user.username} неудачно установил рассылку:\n{mailing_text}\n{media_group}\n{mailing_datetime}\n{mailing_recipients}')

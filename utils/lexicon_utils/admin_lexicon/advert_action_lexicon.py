@@ -1,10 +1,19 @@
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions, pagination_interface
 
 __ADVERT_LEXICON = {
+    'this_mailing_type_do_not_exists': 'Выбранный тип рассылки оказался пуст.',
     'unsuccessfull_boot_mail_message': 'Неуспешная попытка загрузки',
     'successfully_boot_mail_message': 'Вы успешно загрузили рассылку!',
     'edit_mailing_data_alert': 'Вы можете изменить введённые данные по нажатию кнопку соответствующего пункта.\n',
-    'choose_advert_action': {'message_text': 'Выберите действие: ', 'buttons': {'mailing_action': 'Рассылка', **return_main_menu, 'width': 1}},
+    'choose_advert_action': {'message_text': 'Выберите действие: ',
+                             'buttons': {'mailing_action': 'Рассылка', **return_main_menu, 'width': 1}},
+    'choose_mailing_action': {'message_text': 'Рассылка:\nВыберите действие:',
+                              'buttons': {
+                                  'mailing_storage': 'Загруженные рассылки',
+                                  'create_new_mailing': 'Новая рассылка',
+                                  'admin_backward:choose_mailing_action': captions['backward'],
+                              'width': 1
+                              }},
     'enter_mailing_text': {
             'message_text': 'Введите текст рассылки: ',
             'buttons': {
@@ -46,5 +55,21 @@ __ADVERT_LEXICON = {
         'width': 1
     }},
 
-    'sent_mailing': {'message_text': '—'*5, 'buttons': {'close_mailing_message:': 'Скрыть', 'width': 1}}
+    'sent_mailing': {'message_text': '—'*5, 'buttons': {'close_mailing_message:': 'Скрыть', 'width': 1}},
+
+    'choose_type_of_mailing_storage': {'message_text': 'Выберите тип имеющихся рассылок: ',
+                                       'buttons': {
+                                           'select_mailings_viewed_status:0': 'Ожидаемые',
+                                           'select_mailings_viewed_status:1': 'Показываемые',
+                                           'admin_backward:choose_review_mailing_type': captions['backward'],
+                                           **return_main_menu,
+                                           'width': 2
+                                       }},
+
+
+    'send_mailing_review': {'message_text': 'Рассылка для {mailing_recipients}:\n{mailing_text}\nВремя отправки: {mailing_date} в {mailing_time}',
+                            'buttons': {**pagination_interface,
+        'delete_current_mailing': 'Удалить', 'admin_backward:review_mailings': captions['backward'], 'width': 3
+    }}
+
 }

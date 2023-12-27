@@ -1,13 +1,11 @@
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-import datetime
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.input_mailing_data.input_media import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.input_media import \
     request_mailing_media
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
     incorrect
-from handlers.callback_handlers.hybrid_part.utils.media_group_collector import collect_and_send_mediagroup
 from handlers.utils.delete_message import delete_message
 
 

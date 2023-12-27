@@ -13,6 +13,7 @@ from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
+from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
 from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
@@ -50,7 +51,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
-from states.admin_part_states.mailing_setup_states import MailingStates
+from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
@@ -183,6 +184,9 @@ async def start_bot():
     '''Пагинация клавиатуры'''
     dp.callback_query.register(CachedRequestsView.inline_buttons_pagination_vector_handler, F.data.in_(('inline_buttons_pagination:-', 'inline_buttons_pagination:+')))
 
+    dp.callback_query.register(AdminPaginationOutput.admin_pagination_vector,
+                               lambda callback: callback.data.startswith('admin_pagination'))
+
     '''Пагинация неподтверждённых заявок'''
     dp.callback_query.register(output_buyer_offers,
                                or_f(StateFilter(CheckNonConfirmRequestsStates.await_input_brand),
@@ -308,38 +312,56 @@ async def start_bot():
                                F.data == 'admin_button_advert')
 
     '''mailing_action'''
-    dp.callback_query.register(mailing.input_mailing_data.input_text.enter_mailing_text,
+    dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,
                                F.data == 'mailing_action')
 
-    dp.message.register(mailing.input_mailing_data.input_media.request_mailing_media,
-                        StateFilter(MailingStates.uploading_media),
-                        MailingTextFilter())
-    dp.callback_query.register(mailing.input_mailing_data.input_media.request_mailing_media,
-                               or_f((F.data == 'empty_mailing_text'),
+    dp.callback_query.register(mailing.mailing_storage.choose_specific_type.request_choose_mailing_type,
+                               F.data == 'mailing_storage')
+    dp.callback_query.register(mailing.mailing_storage.output_specific_mailing.output_mailings,
+                               lambda callback: callback.data.startswith('select_mailings_viewed_status:'))
+
+    dp.callback_query.register(
+        mailing.booting_mail.input_mailing_data.input_text.enter_mailing_text,
+        F.data == 'create_new_mailing')
+
+    dp.message.register(
+        mailing.booting_mail.input_mailing_data.input_media.request_mailing_media,
+        StateFilter(MailingStates.uploading_media),
+        MailingTextFilter())
+    dp.callback_query.register(
+        mailing.booting_mail.input_mailing_data.input_media.request_mailing_media,
+        or_f((F.data == 'empty_mailing_text'),
                                     (and_f(F.data == 'add_other_media',
                                           StateFilter(MailingStates.entering_date_time)))))
 
-    dp.message.register(mailing.input_mailing_data.input_date.request_mailing_date_time,
-                        StateFilter(MailingStates.entering_date_time), MediaFilter())
-    dp.callback_query.register(mailing.input_mailing_data.input_date.request_mailing_date_time,
-                               F.data == 'mailing_without_media', StateFilter(MailingStates.entering_date_time))
+    dp.message.register(
+        mailing.booting_mail.input_mailing_data.input_date.request_mailing_date_time,
+        StateFilter(MailingStates.entering_date_time), MediaFilter())
+    dp.callback_query.register(
+        mailing.booting_mail.input_mailing_data.input_date.request_mailing_date_time,
+        F.data == 'mailing_without_media', StateFilter(MailingStates.entering_date_time))
 
-    dp.message.register(mailing.input_mailing_data.input_recipients.request_mailing_recipients,
-                        StateFilter(MailingStates.choosing_recipients), DateTimeFilter())
+    dp.message.register(
+        mailing.booting_mail.input_mailing_data.input_recipients.request_mailing_recipients,
+        StateFilter(MailingStates.choosing_recipients), DateTimeFilter())
 
-    dp.callback_query.register(mailing.review_inputted_data.request_review_mailing_data,
-                               StateFilter(MailingStates.confirmation),
-                               lambda callback: callback.data.startswith('enter_mailing_recipients'))
+    dp.callback_query.register(
+        mailing.booting_mail.review_inputted_data.request_review_mailing_data,
+        StateFilter(MailingStates.confirmation),
+        lambda callback: callback.data.startswith('enter_mailing_recipients'))
 
 
-    dp.callback_query.register(mailing.input_mailing_data.edit_mailing_data.edit_mailing_data.edit_mailing_data_handler,
+    dp.callback_query.register(
+        mailing.booting_mail.input_mailing_data.edit_mailing_data.edit_mailing_data.edit_mailing_data_handler,
         F.data == 'edit_mailing_data')
-    dp.callback_query.register(mailing.input_mailing_data.edit_mailing_data.edit_data_handler.edit_field_handler,
-                               lambda callback: callback.data.startswith('edit_mailing_'),
-                               StateFilter(MailingStates.edit_inputted_data))
+    dp.callback_query.register(
+        mailing.booting_mail.input_mailing_data.edit_mailing_data.edit_data_handler.edit_field_handler,
+        lambda callback: callback.data.startswith('edit_mailing_'),
+        StateFilter(MailingStates.edit_inputted_data))
 
-    dp.callback_query.register(mailing.confirm_mailing_data.confirm_boot_mailing_handler,
-                               F.data == 'confirm_mailing_action', StateFilter)
+    dp.callback_query.register(
+        mailing.booting_mail.confirm_mailing_data.confirm_boot_mailing_handler,
+        F.data == 'confirm_mailing_action', StateFilter)
 
     dp.callback_query.register(close_mailing_messages,
                                lambda callback: callback.data.startswith('close_mailing_message:'))

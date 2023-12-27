@@ -5,10 +5,14 @@ from aiogram.types import CallbackQuery
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.choose_advertisement_action import \
     choose_advertisement_action
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.review_inputted_data import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.review_inputted_data import \
     request_review_mailing_data
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.choose_mailing_action import \
+    request_choose_mailing_action
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
+    request_choose_mailing_type
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
-    process_write_tariff_feedbacks_residual, process_write_tariff_time_duration, process_write_tariff_cost
+    process_write_tariff_feedbacks_residual, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
     output_specific_tariff_for_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
@@ -88,6 +92,15 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             edit_mailing_flag = memory_storage.get('can_edit_mailing_flag')
 
             if not edit_mailing_flag or current_state in ('MailingStates:edit_inputted_data', 'MailingStates:confirmation'):
-                await choose_advertisement_action(callback, state)
+                await request_choose_mailing_action(callback, state)
             else:
                 await request_review_mailing_data(callback, state)
+
+        case 'choose_mailing_action':
+            await choose_advertisement_action(callback, state)
+
+        case 'choose_review_mailing_type':
+            await request_choose_mailing_action(callback, state)
+
+        case 'review_mailings':
+            await request_choose_mailing_type(callback, state)

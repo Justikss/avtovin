@@ -4,7 +4,7 @@ from aiogram.types import Message
 import datetime
 
 from config_data.config import MAILING_DATETIME_FORMAT
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.input_mailing_data.input_date import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.input_date import \
     request_mailing_date_time
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
     incorrect

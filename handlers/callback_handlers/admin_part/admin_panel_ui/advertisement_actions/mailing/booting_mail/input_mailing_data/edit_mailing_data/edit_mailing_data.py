@@ -2,12 +2,11 @@ import importlib
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 
-
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.review_inputted_data import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.review_inputted_data import \
     request_review_mailing_data
-from states.admin_part_states.mailing_setup_states import MailingStates
+from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 
 message_editor_module = importlib.import_module('handlers.message_editor')

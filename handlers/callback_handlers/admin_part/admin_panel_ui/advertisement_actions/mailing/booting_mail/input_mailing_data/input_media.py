@@ -1,11 +1,11 @@
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.input_mailing_data.edit_mailing_data.edit_data_controller import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.edit_mailing_data.edit_data_controller import \
     edit_mailing_data_controller
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.incorrect_controller import \
     incorrect_controller
-from states.admin_part_states.mailing_setup_states import MailingStates
+from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 import importlib
 
 # Импорт модуля редактирования сообщений через importlib
