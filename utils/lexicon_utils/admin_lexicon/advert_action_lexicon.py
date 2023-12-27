@@ -1,6 +1,7 @@
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions, pagination_interface
 
 __ADVERT_LEXICON = {
+    'successfully_delete_mailing': 'Выбранная рассылка успешно очищена!',
     'this_mailing_type_do_not_exists': 'Выбранный тип рассылки оказался пуст.',
     'unsuccessfull_boot_mail_message': 'Неуспешная попытка загрузки',
     'successfully_boot_mail_message': 'Вы успешно загрузили рассылку!',

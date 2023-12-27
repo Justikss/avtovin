@@ -47,10 +47,11 @@ async def view_action(telegram_ids_to_messages, mailing, user=None, seller=None)
             return await manager.execute(ViewedMailing.insert_many(*insertable_data))
 
 
-async def delete_viewed_mailing_action(mailing):
+async def delete_mailing_action(mailing):
     # mailing = list(await manager.execute(Mailing.select(Mailing, ViewedMailing).join(ViewedMailing).where(
     #     (Mailing.is_sent == True) & (Mailing == mailing) & (ViewedMailing.mailing_id == mailing.id)
     # )))
+    data_to_delete = None
     if not (isinstance(mailing, int) or isinstance(mailing, Mailing)):
         mailing = int(mailing)
 
@@ -61,7 +62,7 @@ async def delete_viewed_mailing_action(mailing):
              .join(Seller, JOIN.LEFT_OUTER, on=(ViewedMailing.seller == Seller.telegram_id))
              .switch(ViewedMailing)
              .join(Mailing)
-             .where(((ViewedMailing.buyer.is_null(False)) | (ViewedMailing.seller.is_null(False))) & (Mailing.is_sent == True) & (Mailing.id == mailing) & (ViewedMailing.mailing_id == mailing)))
+             .where(((ViewedMailing.buyer.is_null(False)) | (ViewedMailing.seller.is_null(False))) & (Mailing.id == mailing) & (ViewedMailing.mailing_id == mailing)))
 
     viewed_mailings = list(await manager.execute(viewed_mailings_query))
     if viewed_mailings:
@@ -77,5 +78,7 @@ async def delete_viewed_mailing_action(mailing):
         if data_to_delete:
             await manager.execute(ViewedMailing.delete().where(ViewedMailing.mailing_id == mailing))
 
-            await manager.execute(Mailing.delete().where(Mailing.id == mailing.id))
+    await manager.execute(Mailing.delete().where(Mailing.id == mailing.id))
+
+    if data_to_delete:
         return data_to_delete

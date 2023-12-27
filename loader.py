@@ -319,6 +319,8 @@ async def start_bot():
                                F.data == 'mailing_storage')
     dp.callback_query.register(mailing.mailing_storage.output_specific_mailing.output_mailings,
                                lambda callback: callback.data.startswith('select_mailings_viewed_status:'))
+    dp.callback_query.register(mailing.mailing_storage.utils.delete_mailing.delete_current_mailing_handler,
+                               F.data == 'delete_current_mailing')
 
     dp.callback_query.register(
         mailing.booting_mail.input_mailing_data.input_text.enter_mailing_text,
