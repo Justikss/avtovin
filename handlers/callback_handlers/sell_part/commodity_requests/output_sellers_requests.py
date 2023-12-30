@@ -184,7 +184,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
 
     keyboard_part = await message_editor.redis_data.get_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination', use_json=True)
 
-    if keyboard_part['buttons'].get('withdrawn') or keyboard_part['buttons'].get('rewrite_price_by_seller'):
+    if keyboard_part['buttons'].get('withdrawn') or keyboard_part['buttons'].get('rewrite_price_by_seller') and output_part:
         ic(output_part)
         await set_car_id_in_redis(request, output_part)
 

@@ -3,6 +3,8 @@ from typing import Union
 
 from aiogram.types import Message, CallbackQuery
 
+from handlers.utils.delete_message import delete_message
+
 
 async def delete_media_groups(request: Union[CallbackQuery, Message]):
     redis_data_module = importlib.import_module('utils.redis_for_language')
@@ -38,6 +40,7 @@ async def delete_media_groups(request: Union[CallbackQuery, Message]):
             try:
                 await request.bot.delete_message(chat_id=message.chat.id,
                                                  message_id=message_id)
+                ic()
                 await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
             except Exception as ex:
                 print(ex)
@@ -46,10 +49,7 @@ async def delete_media_groups(request: Union[CallbackQuery, Message]):
         else:
 
             for message_id in exist_media_group_message:
-                try:
-                    await request.bot.delete_message(chat_id=message.chat.id,
-                                                       message_id=message_id)
-                    await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
-                except Exception as ex:
-                    print(ex)
-                    pass
+                await delete_message(request, chat_id=message.chat.id,
+                                         message_id=message_id)
+
+            await redis_data_module.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')

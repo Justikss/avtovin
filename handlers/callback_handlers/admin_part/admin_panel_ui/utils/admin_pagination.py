@@ -16,6 +16,37 @@ message_editor = importlib.import_module('handlers.message_editor')  # Лени�
 media_group_delete_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
 
 class AdminPaginationOutput(Pagination):
+    @staticmethod
+    async def get_class_object(request: CallbackQuery | Message):
+        user_id = request.from_user.id
+
+        admin_pagination = await redis_module.redis_data.get_data(
+            key=f'{user_id}:admin_pagination', use_json=True)
+
+        if admin_pagination and admin_pagination != 'null':
+            admin_pagination_object = AdminPaginationOutput(**admin_pagination)
+
+
+            return admin_pagination_object
+
+    @staticmethod
+    async def delete_current_page(request: CallbackQuery | Message, state: FSMContext):
+        user_id = request.from_user.id
+
+        admin_pagination_object = await AdminPaginationOutput.get_class_object(request)
+        admin_pagination_object.data.pop(admin_pagination_object.current_page-1)
+        if admin_pagination_object.total_pages == 1:
+            return False
+        admin_pagination_object.total_pages -= 1
+
+        dictated_pagination_data = await admin_pagination_object.to_dict()
+        await redis_module.redis_data.set_data(key=f'{user_id}:admin_pagination',
+                                               value=dictated_pagination_data)
+
+        await admin_pagination_object.output_page(request, state, None)
+
+        return True
+
     async def get_output_data(self, request: CallbackQuery | Message, state: FSMContext, output_data):
         current_state = str(await state.get_state())
         output_structured_data = []
@@ -44,21 +75,15 @@ class AdminPaginationOutput(Pagination):
     async def output_page(request: CallbackQuery | Message, state: FSMContext, operation):
         user_id = request.from_user.id
         current_state = str(await state.get_state())
-
-        admin_pagination = await redis_module.redis_data.get_data(
-            key=f'{user_id}:admin_pagination', use_json=True)
-
-        if admin_pagination and admin_pagination != 'null':
-            admin_pagination_object = AdminPaginationOutput(**admin_pagination)
-
+        admin_pagination_object = await AdminPaginationOutput.get_class_object(request)
+        if admin_pagination_object:
             page_data = await admin_pagination_object.get_page(operation)
+            data_to_output = await admin_pagination_object.get_output_data(request, state, page_data)
 
             dictated_pagination_data = await admin_pagination_object.to_dict()
 
             await redis_module.redis_data.set_data(key=f'{user_id}:admin_pagination',
                                                    value=dictated_pagination_data)
-
-            data_to_output = await admin_pagination_object.get_output_data(request, state, page_data)
 
             if data_to_output:
                 await media_group_delete_module.delete_media_groups(request=request)
@@ -70,7 +95,6 @@ class AdminPaginationOutput(Pagination):
                     lexicon_part = ADVERT_LEXICON['send_mailing_review']
                     lexicon_part['message_text'] = lexicon_part['message_text'].format(
                         mailing_recipients=captions[output_data['recipients_type']],
-                        mailing_text=output_data['text'],
                         mailing_date=str(output_data['scheduled_time']).split()[0],
                         mailing_time=str(output_data['scheduled_time']).split()[-1]
                     )
@@ -78,14 +102,21 @@ class AdminPaginationOutput(Pagination):
                     start=admin_pagination_object.current_page,
                     end=admin_pagination_object.total_pages
                     )
-                    await send_media(request, media_info_list=output_data['media'])
+                    mailing_messages = await send_media(request, media_info_list=output_data['media'], caption=output_data['text'])
+                    if mailing_messages:
+                        reply_mode = mailing_messages[0]
+                    else:
+                        reply_mode = None
 
                     await message_editor.travel_editor.edit_message(request=request, lexicon_key='',
                                                                     lexicon_part=lexicon_part, save_media_group=True,
-                                                                    dynamic_buttons=2, delete_mode=True)
+                                                                    dynamic_buttons=2, delete_mode=True,
+                                                                    reply_message=reply_mode)
 
 
     @staticmethod
     async def admin_pagination_vector(callback: CallbackQuery, state: FSMContext):
         operation = callback.data.split(':')[-1]
+        ic(operation)
         await AdminPaginationOutput.output_page(callback, state, operation)
+

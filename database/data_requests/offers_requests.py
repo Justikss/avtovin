@@ -85,7 +85,7 @@ class OffersRequester:
         elif car_id:
             query = query.where(ActiveOffers.car_id == int(car_id))
         try:
-            buyer_offers = list(await manager.execute(query))
+            buyer_offers = list(await manager.execute(query.order_by(ActiveOffers.id)))
         except:
             buyer_offers = None
         ic(buyer_offers)
@@ -103,8 +103,7 @@ class OffersRequester:
     async def get_by_seller_id(seller_id_value, viewed_value):
         '''Асинхронный метод получения предложений по ID продавца'''
         active_offers = list(await manager.execute(ActiveOffers.select(ActiveOffers, Seller, User).join(Seller).switch(ActiveOffers).join(User).where(
-            (ActiveOffers.viewed == viewed_value) & (Seller.telegram_id == seller_id_value)
-        )))
+            (ActiveOffers.viewed == viewed_value) & (Seller.telegram_id == seller_id_value)).order_by(ActiveOffers.id)))
         ic(active_offers)
         return active_offers
 
@@ -157,7 +156,7 @@ class CachedOrderRequests:
     @staticmethod
     async def get_offer_brands(buyer_id):
         '''Асинхронный метод получения кэшированных брендов'''
-        query = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id)
+        query = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id).order_by(CacheBuyerOffers.id)
         select_query = list(await manager.execute(query))
         if select_query:
             ic(select_query)
@@ -179,6 +178,8 @@ class CachedOrderRequests:
         if buyer_id:
             query = CacheBuyerOffers.select(CacheBuyerOffers, CarAdvert).join(CarAdvert).switch(CacheBuyerOffers).join(User).where(
                 User.telegram_id == buyer_id)
+
+
             ic(brand, buyer_id, car_id)
             if car_id:
                 query = query.where(CarAdvert.id == car_id)

@@ -18,7 +18,6 @@ async def request_mailing_recipients(request: types.Message | types.CallbackQuer
         return
 
     lexicon_part = ADVERT_LEXICON['enter_mailing_recipients']
-    await state.set_state(MailingStates.confirmation)
-
+    await state.set_state(MailingStates.enter_recipients)
     await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                            delete_mode=True)

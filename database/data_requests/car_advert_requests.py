@@ -358,7 +358,7 @@ class AdvertRequester:
 
     @staticmethod
     async def get_advert_by_seller(seller_id):
-        return list(await manager.execute(CarAdvert.select().where(CarAdvert.seller == seller_id)))
+        return list(await manager.execute(CarAdvert.select().where(CarAdvert.seller == seller_id).order_by(CarAdvert.id)))
 
     @staticmethod
     async def get_by_seller_id_and_brand(seller_id, brand):
@@ -371,7 +371,7 @@ class AdvertRequester:
                                       .switch(CarAdvert)
                                       .join(Seller)
 
-                                      .where((Seller.telegram_id == seller_id) & (CarBrand.id == brand))
+                                      .where((Seller.telegram_id == seller_id) & (CarBrand.id == brand)).order_by(CarAdvert.id)
         ))
         if query:
             return list(query)

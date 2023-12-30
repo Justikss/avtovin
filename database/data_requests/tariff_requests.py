@@ -46,7 +46,7 @@ class TarifRequester:
     @staticmethod
     async def retrieve_all_data() -> Union[bool, List[Tariff]]:
         '''Асинхронный метод для извлечения всех моделей тарифов'''
-        query = Tariff.select().where((Tariff.dying_status == False) | (Tariff.dying_status.is_null(True)))
+        query = Tariff.select().where((Tariff.dying_status == False) | (Tariff.dying_status.is_null(True))).order_by(Tariff.id)
         select_request = await manager.execute(query)
         return list(select_request) if select_request else False
 

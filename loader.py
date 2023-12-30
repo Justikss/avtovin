@@ -61,6 +61,7 @@ from states.requests_by_seller import SellerRequestsState
 from states.seller_feedbacks_states import SellerFeedbacks
 from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
 from utils.get_currency_sum_usd import fetch_currency_rate
+from utils.mailing_heart.mailing_service import mailing_service
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 from utils.middleware.messages_dupe_defender import ThrottlingMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
@@ -115,7 +116,7 @@ async def start_bot():
     # admin_router = Router()
     # dp.include_router(admin_router)
 
-
+    await mailing_service.schedule_mailing(bot)
     await create_tables()
     # await mock_values()
     #
@@ -349,7 +350,7 @@ async def start_bot():
 
     dp.callback_query.register(
         mailing.booting_mail.review_inputted_data.request_review_mailing_data,
-        StateFilter(MailingStates.confirmation),
+        StateFilter(MailingStates.enter_recipients),
         lambda callback: callback.data.startswith('enter_mailing_recipients'))
 
 

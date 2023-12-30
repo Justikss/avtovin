@@ -15,8 +15,9 @@ class PersonRequester:
     @staticmethod
     async def retrieve_all_ids(user=False, seller=False):
         tables = None
-        user_ids = None
+        query = None
         current_table = None
+
         if seller:
             current_table = Seller
         elif user:
@@ -25,15 +26,18 @@ class PersonRequester:
             tables = [User, Seller]
 
         if tables:
-            user_ids = []
+            queries = []
             for table in tables:
-                users_pack = list(await manager.execute(table.select(table.telegram_id)))
-                user_ids.extend(users_pack)
-        elif current_table:
-            user_ids = list(await manager.execute(current_table.select(current_table.telegram_id)))
+                queries.append(table.select(table.telegram_id))
+            query = queries[0] | queries[1]
 
+        elif current_table:
+            query = current_table.select(current_table.telegram_id)
+
+        user_ids = list(await manager.execute(query))
         if user_ids:
             user_ids = [user.telegram_id for user in user_ids]
+
         return user_ids
 
     @staticmethod

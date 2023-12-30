@@ -126,10 +126,14 @@ class CachedRequestsView:
         if user_state == 'buy':
             backward_command = lexicon_module.LEXICON['backward_from_buyer_offers']
         elif user_state == 'sell':
-            if not state:
-                backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
-            else:
+            if memory_storage:
                 backward_command = memory_storage.get('backward_command')
+            else:
+                backward_command = None
+            if not backward_command:
+                backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
+
+
         elif user_state == 'admin':
             backward_command = memory_storage.get('backward_command')
 

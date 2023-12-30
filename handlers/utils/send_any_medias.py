@@ -17,22 +17,23 @@ async def send_media(request: types.Message | types.CallbackQuery | Bot, media_i
 
     ic(caption)
     ic(media_info_list)
-
+    if not media_info_list:
+        return
     if len(media_info_list) > 1:
         # Отправка медиа-группы
         media_messages = await process_media_group(request, media_info_list, chat_id, caption, bot, other_chat_flag)
-        if other_chat_flag:
-            return media_messages
+        return media_messages
     else:
         # Отправка единичного медиа
         media_info = media_info_list[0]
         media_info['caption'] = caption
         media_message = await send_single_media(bot, chat_id, media_info)
+        redis_value = [media_message.message_id]
         if not other_chat_flag:
-            redis_value = media_message.message_id
             await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
         else:
-            return [media_message.message_id]
+            pass
+        return redis_value
 
 
 

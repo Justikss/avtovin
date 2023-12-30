@@ -18,5 +18,6 @@ class Mailing(BaseModel):
 class ViewedMailing(BaseModel):
     message_ids = ArrayField()
     mailing = ForeignKeyField(Mailing, backref='viewed_mailings')
-    buyer = ForeignKeyField(User, field=User.telegram_id, backref='viewed_mailings', null=True)
-    seller = ForeignKeyField(Seller, field=Seller.telegram_id, backref='viewed_mailings', null=True)
+    user_id = BigIntegerField()
+    buyer = BooleanField()
+    seller = BooleanField()

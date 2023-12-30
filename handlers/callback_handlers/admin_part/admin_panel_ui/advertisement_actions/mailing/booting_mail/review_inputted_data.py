@@ -14,22 +14,29 @@ from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 message_editor_module = importlib.import_module('handlers.message_editor')
 
 async def send_mailing_review(callback, state, lexicon_part, media_group):
-
+    memory_storage = await state.get_data()
+    ic(memory_storage)
     if media_group:
-        second_lexicon_part = copy(lexicon_part)
-        lexicon_part['message_text'] = '\n'.join(lexicon_part['message_text'].split('\n')[:-1])
-
-        await send_media(callback, media_group, caption=lexicon_part.get('message_text'))
-
-        lexicon_part = second_lexicon_part
-        lexicon_part['message_text'] = ''.join(second_lexicon_part['message_text'].split('\n')[-1])
+        # second_lexicon_part = copy(lexicon_part)
+        # lexicon_part['message_text'] = '\n'.join(lexicon_part['message_text'].split('\n')[:-1])
+        # ic(media_group)
+        mailing_messages = await send_media(callback, media_group, caption=memory_storage.get('mailing_text'))
+        #
+        # lexicon_part = second_lexicon_part
+        # lexicon_part['message_text'] = ''.join(second_lexicon_part['message_text'].split('\n')[-1])
         save_media_group = True
     else:
+        mailing_messages = None
         save_media_group = False
 
+    if not mailing_messages:
+        reply_mode = None
+    else:
+        reply_mode = mailing_messages[0]
     await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='',
                                                            lexicon_part=lexicon_part,
-                                                           save_media_group=save_media_group, delete_mode=True)
+                                                           save_media_group=save_media_group, delete_mode=True,
+                                                           reply_message=reply_mode)
 
     # await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part,
     #                                                        need_media_caption=media_group,
@@ -44,7 +51,6 @@ async def construct_review_lexicon_part(callback, state):
     lexicon_part = ADVERT_LEXICON['review_inputted_data']
     lexicon_part['message_text'] = lexicon_part['message_text'].format(
         mailing_recipients=captions[memory_storage['mailing_recipients']],
-        mailing_text=f'''{memory_storage['mailing_text']}\n''' if memory_storage['mailing_text'] else '',
         mailing_date=memory_storage['mailing_datetime'].split()[0],
         mailing_time=memory_storage['mailing_datetime'].split()[-1]
     )

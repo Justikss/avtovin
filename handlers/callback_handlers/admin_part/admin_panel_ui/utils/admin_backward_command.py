@@ -90,7 +90,8 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'input_mailing_data':
             edit_mailing_flag = memory_storage.get('can_edit_mailing_flag')
-
+            ic(edit_mailing_flag)
+            ic(current_state)
             if not edit_mailing_flag or current_state in ('MailingStates:edit_inputted_data', 'MailingStates:confirmation'):
                 await request_choose_mailing_action(callback, state)
             else:

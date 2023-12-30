@@ -19,7 +19,8 @@ class MediaFilter(BaseFilter):
         if message.text:
             await incorrect(state, message.message_id)
             # await delete_message(message, message.message_id)
-            await request_mailing_media(message, state, incorrect=True)  # Возвращаем False, если формат некорректен
+            await request_mailing_media(message, state, incorrect=True)
+            return False # Возвращаем False, если формат некорректен
         else:
             await delete_message(message, message.message_id)
             return True

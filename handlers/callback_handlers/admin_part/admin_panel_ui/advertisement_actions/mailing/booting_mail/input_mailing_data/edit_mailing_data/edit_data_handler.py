@@ -20,5 +20,5 @@ async def edit_field_handler(callback: CallbackQuery, state: FSMContext):
         case 'edit_mailing_date':
             await request_mailing_date_time(callback, state)
         case 'edit_mailing_recipients':
-            input_recipients_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.input_mailing_data.input_recipients')
+            input_recipients_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.input_recipients')
             await input_recipients_module.request_mailing_recipients(callback, state)

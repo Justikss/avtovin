@@ -45,7 +45,7 @@ class BuyerCarsPagination:
                     await request.bot.delete_message(chat_id=request.message.chat.id, message_id=message_id)
                 except:
                     pass
-
+            ic()
             await message_editor.redis_data.delete_key(key=str(request.from_user.id) + ':last_media_group')
 
     async def send_page(self, request: Union[Message, CallbackQuery], state: FSMContext, operation: str = None):

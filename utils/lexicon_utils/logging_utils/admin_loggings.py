@@ -19,7 +19,7 @@ async def log_admin_action(admin_username, action, subject='', reason=False):
         if action == 'add_mailing':
             reason = f'''{__LOGGING_LEXICON['in_time']}{reason}'''
         elif action == 'delete_mailing':
-            reason = f'''{__LOGGING_LEXICON['published_in_time']}{reason}'''
+            reason = f'''{ __LOGGING_LEXICON['published_in_time']} {reason}'''
         elif action != 'ban_buyer':
             reason = f'''{__LOGGING_LEXICON['for_reason']} {reason}'''
 

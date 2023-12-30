@@ -1,6 +1,7 @@
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions, pagination_interface
 
 __ADVERT_LEXICON = {
+    'unsuccessfully_delete_mailing': 'Неудачная попытка удалить рассылку',
     'successfully_delete_mailing': 'Выбранная рассылка успешно очищена!',
     'this_mailing_type_do_not_exists': 'Выбранный тип рассылки оказался пуст.',
     'unsuccessfull_boot_mail_message': 'Неуспешная попытка загрузки',
@@ -8,7 +9,7 @@ __ADVERT_LEXICON = {
     'edit_mailing_data_alert': 'Вы можете изменить введённые данные по нажатию кнопку соответствующего пункта.\n',
     'choose_advert_action': {'message_text': 'Выберите действие: ',
                              'buttons': {'mailing_action': 'Рассылка', **return_main_menu, 'width': 1}},
-    'choose_mailing_action': {'message_text': 'Рассылка:\nВыберите действие:',
+    'choose_mailing_action': {'message_text': 'Рассылка\nВыберите действие:',
                               'buttons': {
                                   'mailing_storage': 'Загруженные рассылки',
                                   'create_new_mailing': 'Новая рассылка',
@@ -41,7 +42,7 @@ __ADVERT_LEXICON = {
                                               'enter_mailing_recipients:all_users': 'Всем',
                                               'admin_backward:input_mailing_data': captions['cancel'],
                                               'width': 1}},
-    'review_inputted_data': {'message_text': 'Рассылка для {mailing_recipients}:\n{mailing_text}\nВремя отправки: {mailing_date} в {mailing_time}\n<b>Так же вы можете добавить иные медиа-файлы при соответсвующем редактировании "Медиа"</b>',
+    'review_inputted_data': {'message_text': 'Рассылка для {mailing_recipients}\nВремя отправки: {mailing_date} в {mailing_time}\n<b>Так же вы можете добавить иные медиа-файлы при соответсвующем редактировании "Медиа"</b>',
                              'buttons': {'confirm_mailing_action': captions['confirm'],
                                          'edit_mailing_data': 'Изменить',
                                          'admin_backward:input_mailing_data': captions['cancel'],
@@ -56,7 +57,7 @@ __ADVERT_LEXICON = {
         'width': 1
     }},
 
-    'sent_mailing': {'message_text': '—'*5, 'buttons': {'close_mailing_message:': 'Скрыть', 'width': 1}},
+    'sent_mailing': {'message_text': '—'*5},
 
     'choose_type_of_mailing_storage': {'message_text': 'Выберите тип имеющихся рассылок: ',
                                        'buttons': {
@@ -68,7 +69,7 @@ __ADVERT_LEXICON = {
                                        }},
 
 
-    'send_mailing_review': {'message_text': 'Рассылка для {mailing_recipients}:\n{mailing_text}\nВремя отправки: {mailing_date} в {mailing_time}',
+    'send_mailing_review': {'message_text': 'Рассылка для {mailing_recipients}\nВремя отправки: {mailing_date} в {mailing_time}',
                             'buttons': {**pagination_interface,
         'delete_current_mailing': 'Удалить', 'admin_backward:review_mailings': captions['backward'], 'width': 3
     }}
