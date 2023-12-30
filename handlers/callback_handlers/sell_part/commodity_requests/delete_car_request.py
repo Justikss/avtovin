@@ -26,9 +26,11 @@ class DeleteCarRequest:
 
         pagination_data = await message_editor.redis_data.get_data(
             key=f'{str(callback.from_user.id)}:seller_requests_pagination', use_json=True)
+        ic(pagination_data)
 
-        # pagination_data['data'].pop(pagination_data['current_page'] - 1)
-        # ic(pagination_data)
+        pagination_data['data'].pop(pagination_data['current_page'] - 1)
+        pagination_data['current_page'] -= 1
+        ic(pagination_data)
 
         pagination = Pagination(**pagination_data)
         ic(len(pagination.data))

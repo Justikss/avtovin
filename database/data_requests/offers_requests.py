@@ -156,7 +156,7 @@ class CachedOrderRequests:
     @staticmethod
     async def get_offer_brands(buyer_id):
         '''Асинхронный метод получения кэшированных брендов'''
-        query = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id).order_by(CacheBuyerOffers.id)
+        query = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id)
         select_query = list(await manager.execute(query))
         if select_query:
             ic(select_query)
@@ -222,5 +222,5 @@ class CachedOrderRequests:
         if requests_to_remove:
             delete_query = CacheBuyerOffers.delete().where(
                 CacheBuyerOffers.id.in_([request.id for request in requests_to_remove]))
-            await manager.execute(delete_query)
+            await manager.execute(delete_query.order_by(CacheBuyerOffers.id))
         return [request for request in select_query if request not in requests_to_remove]

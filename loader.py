@@ -10,7 +10,7 @@ from aiogram.fsm.context import FSMContext
 
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
-from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions
+from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions, catalog
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
@@ -311,6 +311,32 @@ async def start_bot():
 
     dp.callback_query.register(admin_panel_ui.advertisement_actions.choose_advertisement_action.choose_advertisement_action,
                                F.data == 'admin_button_advert')
+
+    '''catalog_action'''
+    dp.callback_query.register(catalog.choose_catalog_action.choose_catalog_action_admin_handler,
+                               F.data == 'admin_button_catalog')
+
+    dp.callback_query.register(catalog.car_catalog_review.catalog_review_choose_action.choose_review_catalog_type_admin_handler,
+                               F.data == 'admin_catalog__car_catalog_review')
+    dp.callback_query.register(
+        catalog.car_catalog_review.output_choose.output_choose_brand_to_catalog_review.choose_review_catalog_brand_admin_handler,
+   lambda callback: callback.data.startswith('car_catalog_review__'))
+    dp.callback_query.register(
+        catalog.car_catalog_review.output_choose.output_specific_advert.output_review_adverts_catalog_admin_handler,
+    lambda callback: callback.data.startswith('admin_catalog_review_brand:'))
+
+    dp.callback_query.register(
+        catalog.car_catalog_review.catalog__specific_advert_actions.choose_specific_action.choose_specific_advert_action_admin_handler,
+        F.data == 'admin_review_catalog_delete_advert')
+    dp.callback_query.register(
+        catalog.car_catalog_review.catalog__specific_advert_actions.catalog_review__input_action_reason.input_reason_to_close_advert_admin_handler,
+        lambda callback: callback.data.startswith('catalog_action__')
+    )
+    dp.message.register(
+        catalog.car_catalog_review.catalog__specific_advert_actions.process_confirmation_current_action.confirmation_reason_to_close_advert_admin_handler,
+        ControlInputUserBlockReason()
+    )
+
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

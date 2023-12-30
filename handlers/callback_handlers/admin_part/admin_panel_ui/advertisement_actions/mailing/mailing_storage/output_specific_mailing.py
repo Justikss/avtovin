@@ -25,6 +25,6 @@ async def output_mailings(callback: CallbackQuery, state: FSMContext):
 
         await AdminPaginationOutput.set_pagination_data(callback, state, mailing_ids)
         ic()
-        await AdminPaginationOutput.output_page(callback, state, '+')
+
     else:
         await callback.answer(ADVERT_LEXICON['this_mailing_type_do_not_exists'])

@@ -3,6 +3,7 @@ import uuid
 
 from aiogram.types import Message
 
+from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import mock_values, get_car, get_seller_account
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.data_requests.utils.drop_tables import drop_tables_except_one
@@ -11,6 +12,7 @@ import os
 
 from database.tables.car_configurations import CarAdvert, CarColor, CarComplectation, CarEngine
 from database.tables.commodity import AdvertPhotos
+from database.tables.statistic_tables.advert_to_admin_view_status import AdvertsToAdminViewStatus
 
 
 async def insert_phototo(dataa):
@@ -77,8 +79,15 @@ def read_photos_by_brand(directory):
     ic(brand_photos)
     return brand_photos
 
+async def set_viewed_status():
+    adverts = list(await manager.execute(CarAdvert.select(CarAdvert.id)))
+    insetred_data = [{'advert': advert.id} for advert in adverts]
+    await manager.execute(AdvertsToAdminViewStatus.insert_many(insetred_data))
+
 async def drop_table_handler(message: Message):
     # return
+
+
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
@@ -91,6 +100,6 @@ async def drop_table_handler(message: Message):
 
     type_photos = read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)
-
+    await set_viewed_status()
 
     await message.answer('SUCCESS')

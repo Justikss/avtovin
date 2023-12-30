@@ -2,6 +2,8 @@ from peewee import fn
 
 from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.recomendations_request import RecommendationRequester
+from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
+    advert_to_admin_view_related_requester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.db_connect import database, manager
 
@@ -427,6 +429,7 @@ class AdvertRequester:
         # await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
         await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
         await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
+        await advert_to_admin_view_related_requester.delete_relation(adverts)
         result.append(await manager.execute(CarAdvert.delete().where((CarAdvert.id.in_(car_advert_subquery)) & (CarAdvert.seller == seller_id))))
         if result:
             return result

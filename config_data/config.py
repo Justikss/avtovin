@@ -56,6 +56,7 @@ car_configurations_in_keyboard_page = 4
 
 user_pagesize_by_admin = 6
 tariffs_pagesize = 6
+admin_brand_pagination_pagesize = 6
 faq_seller = '''
 \n<b>Продажа:</b>
 \nПосле регистрации продавца и подтверждения её от администрации - <b>требуется оформить тариф,

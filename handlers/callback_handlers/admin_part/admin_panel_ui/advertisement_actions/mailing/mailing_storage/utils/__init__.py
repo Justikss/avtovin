@@ -1,1 +1,1 @@
-from . import delete_mailing
+from . import delete_mailing, send_mailing_review

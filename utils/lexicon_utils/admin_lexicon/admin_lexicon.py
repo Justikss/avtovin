@@ -5,7 +5,10 @@ captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'ca
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
             'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов',
             'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".',
-            'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов'}
+            'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
+            'by_dealership': 'автосалона',
+            'by_seller': 'частного лица'
+            }
 
 __ADMIN_LEXICON = {
     'admin_panel_button_caption': '🔑 Админ Панель',
@@ -96,11 +99,11 @@ __ADMIN_LEXICON = {
     'input_tariff_name(incorrect)': f'''Данное название уже присутствует у другого тарифа\n{captions['dont_write_html_tags']}Введите другое название:''',
 
 
-    'tariff_view_buttons': {'edit_tariff_by_admin': 'Редактировать', 'delete_tariff_by_admin': 'Удалить',
+    'tariff_view_buttons': {'edit_tariff_by_admin': 'Редактировать', 'delete_tariff_by_admin': captions['delete'],
                             'admin_backward:check_tariff_info': captions['backward'], 'width': 2},
 
     'tariff_delete_confirm_action': {'message_text': 'Подтвердите действие удаления тарифа:',
-                                     'buttons': {'confirm_delete_tariff_by_admin': 'Удалить',
+                                     'buttons': {'confirm_delete_tariff_by_admin': captions['delete'],
                                                  'admin_backward:confirm_delete_tariff_action': 'Отменить', 'width': 1}},
 
     'start_tariff_edit_action': {'message_text': 'Выберите поле для редактирования:',

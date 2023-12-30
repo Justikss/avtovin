@@ -11,6 +11,14 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
     request_choose_mailing_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog_review_choose_action import \
+    choose_review_catalog_type_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.output_choose_brand_to_catalog_review import \
+    choose_review_catalog_brand_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.output_specific_advert import \
+    output_review_adverts_catalog_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog_action import \
+    choose_catalog_action_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -29,6 +37,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
     output_buyer_profile
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.output_specific_seller import \
     output_specific_seller_profile_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
 
 
@@ -105,3 +114,15 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'review_mailings':
             await request_choose_mailing_type(callback, state)
+
+        case 'choose_catalog_review_advert_type':
+            await choose_catalog_action_admin_handler(callback, state)
+
+        case 'catalog_review_choose_brand':
+            await choose_review_catalog_type_admin_handler(callback, state)
+
+        case 'review_specific_advert_catalog':
+            await choose_review_catalog_brand_admin_handler(callback, state)
+
+        case 'catalog__choose_specific_advert_action':
+            await AdminPaginationOutput.output_page(callback, state, None)

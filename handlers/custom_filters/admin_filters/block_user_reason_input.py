@@ -8,10 +8,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 import importlib
 
-from config_data.config import max_contact_info_len, block_user_reason_text_len
+from config_data.config import block_user_reason_text_len
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog__specific_advert_actions.catalog_review__input_action_reason import \
+    input_reason_to_close_advert_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_ban.start_ban_process_input_reason import \
     input_ban_reason_handler
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+
 
 
 class ControlInputUserBlockReason(BaseFilter):
@@ -43,12 +45,12 @@ class ControlInputUserBlockReason(BaseFilter):
         await state.update_data(last_admin_answer=message.message_id)
 
     async def send_incorrect_notification(self, message: Message, state: FSMContext, message_len):
-        message_editor_module = importlib.import_module('handlers.message_editor')
 
-        # lexicon_part = ADMIN_LEXICON['final_decision_ban_user']
-        # lexicon_part['message_text'] = ADMIN_LEXICON['incorrect_input_block_reason'] + str(message_len)
-
-        await input_ban_reason_handler(message, state, incorrect=message_len)
+        current_state = str(await state.get_state())
+        if current_state.startswith('AdminCarCatalogReviewStates'):
+            await input_reason_to_close_advert_admin_handler(message, state, incorrect=message_len)
+        else:
+            await input_ban_reason_handler(message, state, incorrect=message_len)
         await self.delete_last_incorrect_input(message, state)
 
     async def delete_last_admin_message(self, message: Message, state: FSMContext):

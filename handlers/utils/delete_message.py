@@ -5,7 +5,6 @@ from aiogram.types import CallbackQuery, Message
 
 
 async def delete_message(request: CallbackQuery | Message, message_id, chat_id=None):
-    ic(message_id, chat_id, request)
     if isinstance(message_id, list):
         for message_id_element in message_id:
             ic()
@@ -17,10 +16,9 @@ async def delete_message(request: CallbackQuery | Message, message_id, chat_id=N
             message = request.message
         case Message():
             message = request
-    ic(message)
+
     if not chat_id:
         chat_id = message.chat.id
-    ic(chat_id)
     try:
         delete_query = await request.bot.delete_message(chat_id=chat_id, message_id=message_id)
         ic(delete_query)

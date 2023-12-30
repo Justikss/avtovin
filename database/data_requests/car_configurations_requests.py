@@ -6,6 +6,8 @@ from collections import defaultdict
 from peewee import JOIN
 
 from database.data_requests.new_car_photo_requests import PhotoRequester
+from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
+    advert_to_admin_view_related_requester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.db_connect import database, manager
 from database.tables.admin import Admin
@@ -174,7 +176,8 @@ class CarConfigs:
 
                 ic(object_for_iteration)
                 structured_data = [{'car_id': listing.id, 'photo_id': photo_part['id'], 'photo_unique_id': photo_part['unique_id']} for photo_part in object_for_iteration]
-                photo_insert = await manager.execute(AdvertPhotos.insert_many(structured_data))
+                await manager.execute(AdvertPhotos.insert_many(structured_data))
+                await advert_to_admin_view_related_requester.create_relation(listing.id)
             return listing
 
 
