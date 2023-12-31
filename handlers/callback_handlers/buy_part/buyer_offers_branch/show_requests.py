@@ -11,7 +11,6 @@ from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler impo
 # from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
     BuyerCarsPagination
-from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
 
@@ -54,10 +53,13 @@ async def buyer_get_requests__chose_brand(callback: CallbackQuery, state: FSMCon
             await buyer_offers_callback_handler(callback, state, delete_mode=True)
         return
     else:
+        inline_buttons_pagination_heart_module = importlib.import_module('handlers.utils.inline_buttons_pagination_heart')
         ic(type(current_brands))
         # await callback.message.edit_text(text=)
         await state.set_state(current_state)
-        await CachedRequestsView.output_message_with_inline_pagination(callback, buttons_data=current_brands, state=state, pagesize=8)
+        await inline_buttons_pagination_heart_module.CachedRequestsView.output_message_with_inline_pagination(
+            callback, buttons_data=current_brands, state=state, pagesize=8
+        )
 
 
 async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):

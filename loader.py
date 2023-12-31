@@ -51,6 +51,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
+from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
@@ -334,9 +335,12 @@ async def start_bot():
     )
     dp.message.register(
         catalog.car_catalog_review.catalog__specific_advert_actions.process_confirmation_current_action.confirmation_reason_to_close_advert_admin_handler,
-        ControlInputUserBlockReason()
+        ControlInputUserBlockReason(), StateFilter(AdminCarCatalogReviewStates.await_input_reason_action)
     )
-
+    dp.callback_query.register(
+        catalog.car_catalog_review.catalog__specific_advert_actions.confirm_current_action.confirm_specific_advert_action_admin_handler,
+        lambda callback: callback.data.startswith('catalog_review__confirm_')
+    )
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

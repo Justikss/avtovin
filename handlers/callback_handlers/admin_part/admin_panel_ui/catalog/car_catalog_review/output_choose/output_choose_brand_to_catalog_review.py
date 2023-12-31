@@ -47,4 +47,5 @@ async def choose_review_catalog_brand_admin_handler(callback: CallbackQuery, sta
     await output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,
                         models_range=brand_models, page_size=admin_brand_pagination_pagesize)
 
-    await callback.answer()
+    if isinstance(callback, CallbackQuery):
+        await callback.answer()

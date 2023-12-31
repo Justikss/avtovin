@@ -17,7 +17,7 @@ class MessageIsPhoto(BaseFilter):
         else:
             chat_id = user_id
         for redis_key in trash_redis_keys:
-            redis_key = user_id + redis_key
+            redis_key = f'{user_id}{redis_key}'
             last_message_id = await redis_module.redis_data.get_data(key=redis_key)
             ic(last_message_id, redis_key)
             if last_message_id:

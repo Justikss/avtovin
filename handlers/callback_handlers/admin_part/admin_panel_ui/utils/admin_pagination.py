@@ -102,6 +102,8 @@ class AdminPaginationOutput(Pagination):
                 elif current_state.startswith('AdminCarCatalogReviewStates'):
                     ic()
                     await send_advert_review(request, state, admin_pagination_object, data_to_output, message_editor)
+            else:
+                return False
 
 
     @staticmethod

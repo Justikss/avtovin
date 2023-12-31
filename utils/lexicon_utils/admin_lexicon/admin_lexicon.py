@@ -7,7 +7,7 @@ captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'ca
             'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".',
             'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
             'by_dealership': 'автосалона',
-            'by_seller': 'частного лица'
+            'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: '
             }
 
 __ADMIN_LEXICON = {
@@ -70,7 +70,7 @@ __ADMIN_LEXICON = {
 
     'user_ban_notification': {
         'message_text': 'ВНИМАНИЕ!\nВаше отношения к {activity} в нашем боте заблокировано навсегда по причине: {reason}',
-    'buttons': {'close_ban_notification': 'Скрыть', 'width': 1}},
+    'buttons': {'close_ban_notification': captions['close'], 'width': 1}},
 
     'input_name_to_search_process': {'message_text': 'Введите имя желаемого пользователя:',
                                      'buttons': {'admin_backward:input_name_to_search': captions['backward'],

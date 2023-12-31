@@ -8,6 +8,7 @@ from config_data.config import REGISTRATION_DATETIME_FORMAT
 from database.data_requests.admin_requests import AdminManager
 from database.db_connect import manager
 from database.tables.user import User
+from handlers.utils.message_answer_without_callback import send_message_answer
 from keyboards.inline.kb_creator import InlineCreator
 from utils.redis_for_language import redis_data
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
@@ -62,6 +63,7 @@ async def bot_start(message: Message, state: FSMContext):
     await travel_editor.travel_editor.edit_message(lexicon_key='choose_language', request=message, delete_mode=True)
     await redis_data.delete_key(key=str(message.from_user.id) + ':can_edit_seller_registration_data')
 
+    # await send_message_answer(message, 'asdasd')
     # lexicon_part = LEXICON['choose_language']
     # message_text = lexicon_part['message_text']
     # keyboard = await InlineCreator.create_markup(lexicon_part)

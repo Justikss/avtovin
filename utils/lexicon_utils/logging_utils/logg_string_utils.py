@@ -25,7 +25,7 @@ async def get_user_name(subject):
             seller_model = await person_request_module.PersonRequester.get_user_for_id(subject.split(':')[-1], seller=True)
         if seller_model:
             seller_model = await one_element_in_object(seller_model)
-            name = await get_seller_name(seller_model)
+            name = await get_seller_name(seller_model, for_admin=True)
 
     elif (isinstance(subject, str) and subject.startswith('buyer')) or isinstance(subject, User):
         ic()

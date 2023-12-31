@@ -16,7 +16,7 @@ from utils.lexicon_utils.logging_utils.logg_string_utils import get_user_name
 async def send_advert_review(request, state, admin_pagination_object, data_to_output, message_editor):
     ic(data_to_output)
     output_data = data_to_output[0]
-    seller_data = await get_seller_name(output_data.seller)
+    seller_data = await get_seller_name(output_data.seller, for_admin=True)
     if seller_data:
         if isinstance(seller_data, tuple):
             seller_data = seller_data[0]
@@ -36,11 +36,11 @@ async def send_advert_review(request, state, admin_pagination_object, data_to_ou
         photo_album = await AdvertRequester.get_photo_album_by_advert_id(output_data)
         ic(photo_album)
         await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
-                                                        media_group=photo_album)
+                                                        media_group=photo_album, dynamic_buttons=3)
 
-        await message_editor.travel_editor.edit_message(request=request, lexicon_key='',
-                                                        save_media_group=True,
-                                                        lexicon_part=lexicon_part, dynamic_buttons=2)
+        # await message_editor.travel_editor.edit_message(request=request, lexicon_key='',
+        #                                                 save_media_group=True,
+        #                                                 lexicon_part=lexicon_part, dynamic_buttons=3)
         '''ниже специфические действия'''
         await state.update_data(current_catalog_advert_id=output_data.id)
 

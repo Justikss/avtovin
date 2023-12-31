@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
 from database.data_requests.car_advert_requests import AdvertRequester
 from keyboards.inline.kb_creator import InlineCreator
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+from utils.lexicon_utils.Lexicon import ADMIN_LEXICON, CATALOG_LEXICON
 from utils.lexicon_utils.admin_lexicon.admin_lexicon_utils import get_ban_notification_lexicon_part
 
 
@@ -30,20 +30,23 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
         redis_sub_key = ':seller_lose_self_tariff'
     elif user_status in ('sales', 'purchases'):
         redis_sub_key = f':{user_status}_notification'
+    elif user_status == 'close_advert':
+        redis_sub_key = 'close_advert_notification'
     if redis_sub_key:
         notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
         if notification_message_id:
             try:
                 await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=notification_message_id)
-                await redis_module.redis_data.delete_key(key=str(callback.from_user.id) + redis_sub_key)
             except:
                 pass
+
+        await redis_module.redis_data.delete_key(key=str(callback.from_user.id) + redis_sub_key)
 
         if not non_callback_answer_mode:
             await callback.answer()
 
 
-async def send_notification(callback: CallbackQuery | None, user_status: str, chat_id=None, bot: Bot = None, ban_reason=None):
+async def send_notification(callback: CallbackQuery | None, user_status: str, chat_id=None, bot: Bot = None, ban_reason=None, advert_block_data=None):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     lexicon_part = None
@@ -53,9 +56,9 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
         redis_sub_key = ':seller_registration_notification'
         lexicon_key = 'confirm_seller_profile_notification'
         current_id = chat_id
-    elif user_status == 'buyer':
-        redis_sub_key = ':buyer_offer_notification'
-        lexicon_key = 'buyer_offer_notification'
+    # elif user_status == 'buyer':
+    #     redis_sub_key = ':buyer_offer_notification'
+    #     lexicon_key = 'buyer_offer_notification'
     elif user_status in ('seller_without_tariff', 'seller_lose_self_tariff'):
         lexicon_key = f'{user_status}_notification'
         redis_sub_key = f':{lexicon_key}'
@@ -71,7 +74,14 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
         ic(lexicon_caption_key)
         lexicon_part = await get_ban_notification_lexicon_part(lexicon_caption_key, ban_reason)
 
-        ic(lexicon_part, redis_sub_key, lexicon_caption_key)
+    elif user_status == 'close_advert':
+        lexicon_part = CATALOG_LEXICON['close_advert_seller_notification']
+        lexicon_part['message_text'] = lexicon_part['message_text'].format(**advert_block_data)
+        redis_sub_key = f'close_advert_notification'
+        current_id = chat_id
+
+        ic(lexicon_part, redis_sub_key, current_id, advert_block_data)
+
 
     if not current_id:
         current_id = str(callback.from_user.id)
@@ -79,7 +89,7 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
     if not chat_id:
         chat_id = await redis_module.redis_data.get_data(key=current_id + ':chat_id')
 
-    notification_message_id = await redis_module.redis_data.get_data(key=current_id + redis_sub_key)
+    notification_message_id = await redis_module.redis_data.get_data(key=f'{current_id}{redis_sub_key}')
     if notification_message_id:
         #return
         pass

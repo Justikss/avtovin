@@ -11,6 +11,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
     request_choose_mailing_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog__specific_advert_actions.catalog_review__input_action_reason import \
+    input_reason_to_close_advert_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog__specific_advert_actions.choose_specific_action import \
+    choose_specific_advert_action_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog_review_choose_action import \
     choose_review_catalog_type_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.output_choose_brand_to_catalog_review import \
@@ -39,6 +43,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
     output_specific_seller_profile_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
+from handlers.utils.message_answer_without_callback import send_message_answer
+from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 
 
 async def admin_backward_command_handler(callback: CallbackQuery, state: FSMContext):
@@ -124,5 +130,13 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'review_specific_advert_catalog':
             await choose_review_catalog_brand_admin_handler(callback, state)
 
-        case 'catalog__choose_specific_advert_action':
-            await AdminPaginationOutput.output_page(callback, state, None)
+        case 'catalog__choose_specific_advert_action' | 'to_catalog_review_adverts':
+            if await AdminPaginationOutput.output_page(callback, state, None) is False:
+                await send_message_answer(callback, catalog_captions['inactive_advert_or_seller'])
+                await choose_review_catalog_brand_admin_handler(callback, state)
+
+        case 'catalog_review_close_action_confirmation':
+            await input_reason_to_close_advert_admin_handler(callback, state, False)
+
+        case 'input_reason_to_close_advert':
+            await choose_specific_advert_action_admin_handler(callback, state)

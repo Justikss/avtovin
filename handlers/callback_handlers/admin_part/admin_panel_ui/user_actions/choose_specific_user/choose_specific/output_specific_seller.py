@@ -34,7 +34,7 @@ async def output_specific_seller_profile_handler(request: CallbackQuery | Messag
     else:
         await state.update_data(current_seller_id=seller_id)
 
-    seller_data = await seller_profile_card_constructor(user_id=seller_id, get_part='top')
+    seller_data = await seller_profile_card_constructor(user_id=seller_id, get_part='top', for_admin=True)
 
     if seller_data:
         profile_card, seller_entity = seller_data

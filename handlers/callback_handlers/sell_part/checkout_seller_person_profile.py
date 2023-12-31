@@ -5,8 +5,10 @@ from aiogram.types import CallbackQuery
 import importlib
 from typing import Tuple, Union
 
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 
-async def get_seller_name(seller_model, get_only_fullname=False) -> Union[Tuple[str, str], str]:
+
+async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False) -> Union[Tuple[str, str], str]:
     '''Метод сопоставляющий имя/название продавца/автосалона'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
@@ -25,7 +27,10 @@ async def get_seller_name(seller_model, get_only_fullname=False) -> Union[Tuple[
             patronymic = ''
 
         fullname = f'{seller_model.surname} {seller_model.name} {patronymic}'
-        name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{lexicon_module.LexiconSellerProfile.seller_name_prefix.replace('X', fullname)}'''
+        if for_admin:
+            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{captions['surname_name_patronymic']}{fullname}'''
+        else:
+            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{lexicon_module.LexiconSellerProfile.seller_name_prefix.replace('X', fullname)}'''
         if get_only_fullname:
             return fullname
         else:
@@ -39,7 +44,7 @@ async def get_seller_entity(seller_model):
 
     return  seller_entity
 
-async def seller_profile_card_constructor(callback: CallbackQuery = None, user_id=None, get_part=None) -> tuple | bool:
+async def seller_profile_card_constructor(callback: CallbackQuery = None, user_id=None, get_part=None, for_admin=False) -> tuple | bool:
     '''Метод конструирования выводимой карточки профиля'''
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
     tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
@@ -61,7 +66,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
 
     seller_entity = await get_seller_entity(seller_model)
 
-    seller_data = await get_seller_name(seller_model)
+    seller_data = await get_seller_name(seller_model, for_admin=for_admin)
     ic(seller_data)
     if len(seller_data) == 2:
         seller_data = f'{seller_data[0]}\n{seller_data[1]}'

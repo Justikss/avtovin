@@ -6,12 +6,15 @@ from aiogram.types import Message
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import mock_values, get_car, get_seller_account
 from database.data_requests.new_car_photo_requests import PhotoRequester
+from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
+    advert_to_admin_view_related_requester
 from database.data_requests.utils.drop_tables import drop_tables_except_one
 from database.db_connect import create_tables, manager
 import os
 
 from database.tables.car_configurations import CarAdvert, CarColor, CarComplectation, CarEngine
 from database.tables.commodity import AdvertPhotos
+from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_to_admin_view_status import AdvertsToAdminViewStatus
 
 
@@ -85,6 +88,12 @@ async def set_viewed_status():
     await manager.execute(AdvertsToAdminViewStatus.insert_many(insetred_data))
 
 async def drop_table_handler(message: Message):
+    # adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+    # if isinstance(adv, CarAdvert):
+    #     adv = adv.id
+    # await advert_to_admin_view_related_requester.create_relation(adv)
+    # await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
+    #
     # return
 
 

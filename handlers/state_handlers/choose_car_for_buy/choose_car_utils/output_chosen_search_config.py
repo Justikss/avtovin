@@ -27,7 +27,7 @@ async def get_seller_header(seller=None, car=None, state=None):
     if seller.dealship_name:
         seller_header = message_text.get('from_dealership').replace('X', seller.dealship_name).replace('Y', seller.dealship_address)
     else:
-        seller_header = message_text.get('from_seller').replace('X', ' '.join([seller.name, seller.surname, seller.patronymic if seller.patronymic else '']))
+        seller_header = message_text.get('from_seller').replace('X', ' '.join([seller.surname, seller.name, seller.patronymic if seller.patronymic else '']))
 
     seller_header = f'{seller_header}{seller_number}'
     return seller_header

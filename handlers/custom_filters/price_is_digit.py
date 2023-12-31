@@ -10,6 +10,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_t
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_price_to_load
+from handlers.utils.delete_message import delete_message
 from utils.get_currency_sum_usd import convertator
 
 
@@ -31,14 +32,11 @@ class PriceIsDigit(BaseFilter):
         if message_text.isdigit() and len(str(message_text)) < max_price_len:
             ic(message.text.isdigit())
             car_price = int(message_text)
-            await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+            await delete_message(message, chat_id=message.chat.id, message_id=message.message_id)
             last_seller_message = await redis_module.redis_data.get_data(key=redis_key_user_message)
             if last_seller_message:
-                try:
-                    await message.bot.delete_message(chat_id=message.chat.id, message_id=last_seller_message)
-                    await redis_module.redis_data.delete_key(key=redis_key_user_message)
-                except:
-                    pass
+                await delete_message(message, chat_id=message.chat.id, message_id=last_seller_message)
+                await redis_module.redis_data.delete_key(key=redis_key_user_message)
             ic()
             head_valute = 'sum' if not dollar_cost else 'usd'
             ic(head_valute)
@@ -49,19 +47,12 @@ class PriceIsDigit(BaseFilter):
             last_bot_message = await redis_module.redis_data.get_data(key=redis_key_bot_message)
 
             if last_seller_message:
-                try:
-                    await message.bot.delete_message(chat_id=message.chat.id, message_id=last_seller_message)
+                    await delete_message(message, chat_id=message.chat.id, message_id=last_seller_message)
                     await redis_module.redis_data.delete_key(key=redis_key_user_message)
-                    
-                except:
-                    pass
+
             if last_bot_message:
-                try:
-                    await message.bot.delete_message(chat_id=message.chat.id, message_id=last_bot_message)
-                    await redis_module.redis_data.delete_key(key=redis_key_bot_message)
-                    
-                except:
-                    pass
+                await delete_message(message, chat_id=message.chat.id, message_id=last_bot_message)
+                await redis_module.redis_data.delete_key(key=redis_key_bot_message)
 
             await redis_module.redis_data.set_data(key=redis_key_user_message, 
                                                     value=message.message_id)

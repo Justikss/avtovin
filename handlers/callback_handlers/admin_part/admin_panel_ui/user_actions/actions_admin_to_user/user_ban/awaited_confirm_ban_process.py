@@ -25,7 +25,6 @@ async def ban_user_final_decision(message: Message, state: FSMContext, reason: s
     if lexicon_class:
         if lexicon_class.user_entity:
             ic(lexicon_class.user_entity, reason)
-            await state.update_data(reason=reason)
             lexicon_part = ADMIN_LEXICON['final_decision_ban_user']
             lexicon_part['message_text'] = lexicon_part['message_text'].format(
                 user_entity=lexicon_class.user_entity,

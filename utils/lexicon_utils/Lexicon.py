@@ -130,7 +130,7 @@ __LEXICON = {
             'confirm_registration_from_seller': {'message_text': 'Регистрация завершена\nДождитесь уведобления об одобрении от администрации.', 'start_sell': 'Меню продавца 👨🏻‍💼', 'width': 1},
             'try_again_seller_registration': {'message_text': 'Ошибка.\nдля подробностей перепройдите процесс регистрации.', 'return_to_start_seller_registration': 'Перепройти регистрацию', 'width': 1},
 
-            'confirm_seller_profile_notification': {'message_text': '✅ Успешно, профиль продавца подтверждён!', 'buttons': {'seller_main_menu': 'В меню продавца 👨🏻‍💼', 'close_seller_notification_by_redis:seller': 'Скрыть', 'width': 1}},
+            'confirm_seller_profile_notification': {'message_text': '✅ Успешно, профиль продавца подтверждён!', 'buttons': {'seller_main_menu': 'В меню продавца 👨🏻‍💼', 'close_seller_notification_by_redis:seller': captions['close'], 'width': 1}},
 
             'seller_main_menu': {'message_text': 'Меню продавца 👨🏻‍💼\nВыберите ваше действие:', 'seller_pofile': 'Профиль 📱', 'seller_requests': '📋 Заявки', 'support': 'Поддержка 🌐', 'faq': '💬 Инструкции', 'backward:set_language': '◂ Назад ▸', 'width': 2},
 

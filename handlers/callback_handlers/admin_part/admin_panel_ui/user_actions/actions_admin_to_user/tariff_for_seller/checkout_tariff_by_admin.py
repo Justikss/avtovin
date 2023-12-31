@@ -17,7 +17,7 @@ async def construct_review_tariff_by_admin(callback: CallbackQuery, state: FSMCo
     seller_id = memory_storage.get('current_seller_id')
     ic(seller_id)
     tariff_card, tariff_exists = await seller_profile_card_constructor(user_id=seller_id,
-                                                                        get_part='bottom')
+                                                                        get_part='bottom', for_admin=True)
     seller_model = await person_requester_module.PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
 
     if seller_model:
