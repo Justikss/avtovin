@@ -99,7 +99,7 @@ class AdminPaginationOutput(Pagination):
                 if current_state.startswith('MailingReviewStates'):
                     await send_mailing_review(request, admin_pagination_object, data_to_output, message_editor)
 
-                elif current_state.startswith('AdminCarCatalogReviewStates'):
+                elif current_state.startswith(('AdminCarCatalogReviewStates', 'AdminCarCatalogSearchByIdStates')):
                     ic()
                     await send_advert_review(request, state, admin_pagination_object, data_to_output, message_editor)
             else:

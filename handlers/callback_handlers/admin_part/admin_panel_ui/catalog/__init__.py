@@ -1,1 +1,1 @@
-from . import choose_catalog_action, car_catalog_review
+from . import choose_catalog_action, car_catalog_review, search_advert_by_id

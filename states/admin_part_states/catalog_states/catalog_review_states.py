@@ -6,3 +6,7 @@ class AdminCarCatalogReviewStates(StatesGroup):
     check_viewed_adverts = State()
     await_input_reason_action = State()
     action_confirmation = State()
+
+class AdminCarCatalogSearchByIdStates(StatesGroup):
+    await_input_for_admin = State()
+    review_searched_advert = State()

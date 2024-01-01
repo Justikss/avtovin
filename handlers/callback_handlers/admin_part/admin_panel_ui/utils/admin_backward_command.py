@@ -23,6 +23,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_re
     output_review_adverts_catalog_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog_action import \
     choose_catalog_action_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.search_advert_by_id.input_advert_id_for_search import \
+    input_advert_id_for_search_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -124,16 +126,20 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'choose_catalog_review_advert_type':
             await choose_catalog_action_admin_handler(callback, state)
 
-        case 'catalog_review_choose_brand':
+        case 'catalog_review_choose_brand' | 'await_input_id_to_search_advert':
             await choose_review_catalog_type_admin_handler(callback, state)
 
         case 'review_specific_advert_catalog':
-            await choose_review_catalog_brand_admin_handler(callback, state)
+            if current_state.startswith('AdminCarCatalogReviewStates'):
+                await choose_review_catalog_brand_admin_handler(callback, state)
+            elif current_state.startswith('AdminCarCatalogSearchByIdStates'):
+                await input_advert_id_for_search_admin_handler(callback, state)
 
         case 'catalog__choose_specific_advert_action' | 'to_catalog_review_adverts':
             if await AdminPaginationOutput.output_page(callback, state, None) is False:
                 await send_message_answer(callback, catalog_captions['inactive_advert_or_seller'])
-                await choose_review_catalog_brand_admin_handler(callback, state)
+                if await choose_review_catalog_brand_admin_handler(callback, state) is False:
+                    await choose_review_catalog_type_admin_handler(callback, state)
 
         case 'catalog_review_close_action_confirmation':
             await input_reason_to_close_advert_admin_handler(callback, state, False)

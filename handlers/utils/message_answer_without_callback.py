@@ -26,7 +26,6 @@ async def send_message_answer(request: Message| CallbackQuery, text, sleep_time=
 
             for time_point in range(3, 0, -1):
                 await alert_message.edit_text(text=f'{text}{time_point}...')
-                ic(datetime.now)
                 await asyncio.sleep(message_answer_awaited / 3)
 
             try:

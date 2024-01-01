@@ -27,21 +27,22 @@ async def construct_user_list_pagination_data(callback: CallbackQuery, state: FS
         user_mode = memory_storage.get('admin_review_user_mode')
 
     ic(user_mode)
-    if any(seller_entity in user_mode for seller_entity in ['legal', 'natural']):
-        lexicon_class = SellerList(user_mode)
-        ic(user_mode)
-        users = await person_requester_module.PersonRequester.retrieve_all_data(seller=True, entity=user_mode)
-        current_state = SellerReviewStates.review_state
-    elif 'buyer' in user_mode:
-        lexicon_class = UserList(user_mode)
-        users = await person_requester_module.PersonRequester.retrieve_all_data(user=True)
-        current_state = BuyerReviewStates.review_state
-    else:
-        current_state = None
+    if user_mode:
+        if any(seller_entity in user_mode for seller_entity in ['legal', 'natural']):
+            lexicon_class = SellerList(user_mode)
+            ic(user_mode)
+            users = await person_requester_module.PersonRequester.retrieve_all_data(seller=True, entity=user_mode)
+            current_state = SellerReviewStates.review_state
+        elif 'buyer' in user_mode:
+            lexicon_class = UserList(user_mode)
+            users = await person_requester_module.PersonRequester.retrieve_all_data(user=True)
+            current_state = BuyerReviewStates.review_state
+        else:
+            current_state = None
 
-    if current_state:
-        await state.set_state(current_state)
-    return lexicon_class, users
+        if current_state:
+            await state.set_state(current_state)
+        return lexicon_class, users
 
 
 async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Message, state: FSMContext, delete_redis_pagination_key=True, first_call=True):

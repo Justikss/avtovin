@@ -7,6 +7,14 @@ catalog_captions = {'catalog_review__make_block': 'блокировку', 'to_bl
                     }
 
 __CATALOG_LEXICON = {
+    'search_advert_by_id_await_input': {'message_text': 'Введите ID искомого объявления: ',
+                                        'buttons': {
+                                            'admin_backward:await_input_id_to_search_advert': captions['backward'],
+                                            **return_main_menu,
+                                            'width': 1
+    }},
+    'search_advert_by_id_await_input(digit)': 'Ожидается ввод целочисленного значения для поиска объявления по ID:',
+    'search_advert_by_id_await_input(not_exists)': 'Введённый ID объявления не существует.\nМожете ввести другой:',
     'start_catalog_menu': {'message_text': 'Каталог\nВыберите действие:', 'buttons': {
         'admin_catalog__add_new_car_parameters': 'Добавить авто',
         'admin_catalog__car_catalog_review': 'Каталог авто',
@@ -16,7 +24,7 @@ __CATALOG_LEXICON = {
     'car_catalog_review_choose_category': {'message_text': 'Выберите тип просматриваемых объявлений:', 'buttons': {
         'car_catalog_review__new': 'Новые',
         'car_catalog_review__viewed': 'Просмотренные',
-        'search_by_?': 'Поиск по ?',
+        'search_by_id': 'Поиск по ID',
         'admin_backward:choose_catalog_review_advert_type': captions['backward'],
         'width': 2
     }},

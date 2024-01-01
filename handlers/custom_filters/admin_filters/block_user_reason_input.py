@@ -19,7 +19,8 @@ from handlers.utils.delete_message import delete_message
 class ControlInputUserBlockReason(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
         escape_html_module = importlib.import_module('handlers.utils.escape_html_message')
-
+        ic(str(await state.get_state()))
+        ic(ControlInputUserBlockReason)
         # message_text = await escape_html_module.escape_html(message)
         message_text = message.text
         message_len = len(message_text.replace(' ', ''))

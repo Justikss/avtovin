@@ -12,6 +12,6 @@ async def choose_review_catalog_type_admin_handler(callback: CallbackQuery, stat
         await state.clear()
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part=CATALOG_LEXICON['car_catalog_review_choose_category'],
-                                                    dynamic_buttons=2)
+                                                    dynamic_buttons=2, delete_mode=True)
     if isinstance(callback, CallbackQuery):
         await callback.answer()

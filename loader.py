@@ -28,6 +28,7 @@ from handlers.custom_filters.admin_filters.mailing_filters.datetime_input_filter
 from handlers.custom_filters.admin_filters.digit_input_filter import DigitFilter
 from handlers.custom_filters.admin_filters.mailing_filters.input_media_filter import MediaFilter
 from handlers.custom_filters.admin_filters.mailing_filters.mailing_text_filter import MailingTextFilter
+from handlers.custom_filters.admin_filters.search_advert_by_id_filter import InputAdvertIdFilter
 from handlers.custom_filters.admin_filters.tariff_duration_time_filter import TimeDurationFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
@@ -51,7 +52,8 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
-from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates
+from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates, \
+    AdminCarCatalogSearchByIdStates
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
@@ -267,7 +269,8 @@ async def start_bot():
                                F.data.in_(('seller_requests_pagination_left', 'seller_requests_pagination_right')))
 
     dp.callback_query.register(rewrite_price_by_seller_handler, F.data == 'rewrite_price_by_seller')
-    dp.message.register(get_input_to_rewrite_price_by_seller_handler, StateFilter(RewritePriceBySellerStates.await_input), price_is_digit.PriceIsDigit())
+    dp.message.register(get_input_to_rewrite_price_by_seller_handler, StateFilter(RewritePriceBySellerStates.await_input),
+                        price_is_digit.PriceIsDigit())
     '''seller"s feedbacks'''
 
     dp.callback_query.register(CheckFeedbacksHandler.my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))
@@ -313,9 +316,15 @@ async def start_bot():
     dp.callback_query.register(admin_panel_ui.advertisement_actions.choose_advertisement_action.choose_advertisement_action,
                                F.data == 'admin_button_advert')
 
-    '''catalog_action'''
     dp.callback_query.register(catalog.choose_catalog_action.choose_catalog_action_admin_handler,
                                F.data == 'admin_button_catalog')
+
+    '''catalog_action'''
+
+    dp.callback_query.register(catalog.search_advert_by_id.input_advert_id_for_search.input_advert_id_for_search_admin_handler,
+                               F.data == 'search_by_id')
+    dp.message.register(catalog.search_advert_by_id.inputted_advert_id_to_search_handler.inputted_advert_id_for_search_admin_handler,
+                        StateFilter(AdminCarCatalogSearchByIdStates.await_input_for_admin), InputAdvertIdFilter())
 
     dp.callback_query.register(catalog.car_catalog_review.catalog_review_choose_action.choose_review_catalog_type_admin_handler,
                                F.data == 'admin_catalog__car_catalog_review')
@@ -333,14 +342,16 @@ async def start_bot():
         catalog.car_catalog_review.catalog__specific_advert_actions.catalog_review__input_action_reason.input_reason_to_close_advert_admin_handler,
         lambda callback: callback.data.startswith('catalog_action__')
     )
+    ic()
     dp.message.register(
         catalog.car_catalog_review.catalog__specific_advert_actions.process_confirmation_current_action.confirmation_reason_to_close_advert_admin_handler,
-        ControlInputUserBlockReason(), StateFilter(AdminCarCatalogReviewStates.await_input_reason_action)
+        StateFilter(AdminCarCatalogReviewStates.await_input_reason_action),
+        ControlInputUserBlockReason()
     )
     dp.callback_query.register(
         catalog.car_catalog_review.catalog__specific_advert_actions.confirm_current_action.confirm_specific_advert_action_admin_handler,
-        lambda callback: callback.data.startswith('catalog_review__confirm_')
-    )
+        lambda callback: callback.data.startswith('catalog_review__confirm_'),
+        AdminStatusController())
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,
@@ -349,9 +360,10 @@ async def start_bot():
     dp.callback_query.register(mailing.mailing_storage.choose_specific_type.request_choose_mailing_type,
                                F.data == 'mailing_storage')
     dp.callback_query.register(mailing.mailing_storage.output_specific_mailing.output_mailings,
-                               lambda callback: callback.data.startswith('select_mailings_viewed_status:'))
+                               lambda callback: callback.data.startswith('select_mailings_viewed_status:'),
+                               AdminStatusController())
     dp.callback_query.register(mailing.mailing_storage.utils.delete_mailing.delete_current_mailing_handler,
-                               F.data == 'delete_current_mailing')
+                               F.data == 'delete_current_mailing', AdminStatusController())
 
     dp.callback_query.register(
         mailing.booting_mail.input_mailing_data.input_text.enter_mailing_text,
@@ -394,10 +406,8 @@ async def start_bot():
 
     dp.callback_query.register(
         mailing.booting_mail.confirm_mailing_data.confirm_boot_mailing_handler,
-        F.data == 'confirm_mailing_action', StateFilter)
+        F.data == 'confirm_mailing_action', AdminStatusController())
 
-    dp.callback_query.register(close_mailing_messages,
-                               lambda callback: callback.data.startswith('close_mailing_message:'))
     '''user actions'''
 
     dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_seller_category.choose_seller_category_by_admin_handler,
@@ -483,11 +493,14 @@ async def start_bot():
     dp.callback_query.register(tariff_for_seller.tariff_reset.confirm_action_reset_seller_tariff,
                                F.data == 'confirm_reset_seller_tariff_action', AdminStatusController())
     '''ban'''
+    ic()
     dp.callback_query.register(user_ban.start_ban_process_input_reason.input_ban_reason_handler, F.data == 'user_block_action_by_admin')
-    dp.message.register(user_ban.awaited_confirm_ban_process.ban_user_final_decision, or_f(StateFilter(SellerReviewStates.review_state), StateFilter(BuyerReviewStates.review_state)),
+    dp.message.register(user_ban.awaited_confirm_ban_process.ban_user_final_decision,
+                        or_f(StateFilter(SellerReviewStates.review_state), StateFilter(BuyerReviewStates.review_state)),
                         ControlInputUserBlockReason())
     dp.callback_query.register(user_ban.confirm_block_user_action.confirm_user_block_action,
                                F.data == 'confirm_block_user_by_admin', AdminStatusController())
+    ic()
 
     '''Состояния поиска машины'''
     '''hybrid'''

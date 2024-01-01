@@ -11,7 +11,8 @@ async def choose_catalog_action_admin_handler(callback: CallbackQuery, state: FS
     if await state.get_state():
         await state.clear()
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=CATALOG_LEXICON['start_catalog_menu'])
+                                                    lexicon_part=CATALOG_LEXICON['start_catalog_menu'],
+                                                    delete_mode=True)
 
     if isinstance(callback, CallbackQuery):
         await callback.answer()

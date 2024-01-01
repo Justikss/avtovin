@@ -43,6 +43,8 @@ async def choose_review_catalog_brand_admin_handler(callback: CallbackQuery, sta
     viewed_status = await try_set_correct_state(callback, state)
     ic(viewed_status)
     brand_models = await advert_to_admin_view_related_requester.retrieve_by_view_status(status=viewed_status, get_brands=True)
+    if not brand_models:
+        return False
     ic(brand_models)
     await output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,
                         models_range=brand_models, page_size=admin_brand_pagination_pagesize)
