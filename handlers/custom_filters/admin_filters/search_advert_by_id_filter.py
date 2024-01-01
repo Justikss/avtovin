@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.search_advert_by_id.input_advert_id_for_search import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search import \
     input_advert_id_for_search_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
     incorrect

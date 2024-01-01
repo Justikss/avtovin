@@ -17,7 +17,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
 from handlers.callback_handlers.buy_part.buyer_offers_branch.show_requests import output_buyer_offers
-from handlers.callback_handlers.hybrid_part.close_mailing_messages import close_mailing_messages
 from handlers.callback_handlers.hybrid_part.utils.media_group_structurier_collector import handle_media
 from handlers.callback_handlers.sell_part.commodity_requests.backward_command_load_config import backward_in_boot_car
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
@@ -321,10 +320,12 @@ async def start_bot():
 
     '''catalog_action'''
 
-    dp.callback_query.register(catalog.search_advert_by_id.input_advert_id_for_search.input_advert_id_for_search_admin_handler,
-                               F.data == 'search_by_id')
-    dp.message.register(catalog.search_advert_by_id.inputted_advert_id_to_search_handler.inputted_advert_id_for_search_admin_handler,
-                        StateFilter(AdminCarCatalogSearchByIdStates.await_input_for_admin), InputAdvertIdFilter())
+    dp.callback_query.register(
+        catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search.input_advert_id_for_search_admin_handler,
+        F.data == 'search_by_id')
+    dp.message.register(
+        catalog.car_catalog_review.search_advert_by_id.inputted_advert_id_to_search_handler.inputted_advert_id_for_search_admin_handler,
+        StateFilter(AdminCarCatalogSearchByIdStates.await_input_for_admin), InputAdvertIdFilter())
 
     dp.callback_query.register(catalog.car_catalog_review.catalog_review_choose_action.choose_review_catalog_type_admin_handler,
                                F.data == 'admin_catalog__car_catalog_review')
@@ -352,6 +353,20 @@ async def start_bot():
         catalog.car_catalog_review.catalog__specific_advert_actions.confirm_current_action.confirm_specific_advert_action_admin_handler,
         lambda callback: callback.data.startswith('catalog_review__confirm_'),
         AdminStatusController())
+
+    '''advert_parameters'''
+    dp.callback_query.register(await catalog.advert_parameters.advert_parameters__choose_state.get_handler(),
+                               F.data == 'admin_catalog__add_new_car_parameters')
+
+    dp.callback_query.register(
+        await catalog.advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type.get_handler(),
+       lambda callback: callback.data.startswith("advert_parameters_choose_state:")
+    )
+
+    dp.callback_query.register(
+        await catalog.advert_parameters.advert_parameters__second_hand_state_handlers.output_specific_second_hand_parameters.get_handler(),
+        lambda callback: callback.data.startswith('advert_second_hand_parameters_type_')
+    )
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

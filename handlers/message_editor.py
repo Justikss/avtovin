@@ -77,6 +77,8 @@ class TravelEditor:
         else:
             keyboard = my_keyboard
 
+        ic(keyboard)
+
         '''Идут методы работы с сообщениями'''
 
         message_text = lexicon_part['message_text']

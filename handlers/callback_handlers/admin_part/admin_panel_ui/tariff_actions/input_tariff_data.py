@@ -12,6 +12,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_d
     insert_tariff_data
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates
 from utils.get_currency_sum_usd import convertator
+from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 
 async def process_tariff_cost(request: types.Message | types.CallbackQuery, state: FSMContext, incorrect=False):
@@ -24,7 +25,7 @@ async def process_tariff_cost(request: types.Message | types.CallbackQuery, stat
     await state.set_state(TariffAdminBranchStates.write_tariff_cost)
 
     delete_mode = await get_delete_mode(state, incorrect)
-    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, 'input_tariff_cost')
+    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, 'input_tariff_cost', ADMIN_LEXICON)
     ic()
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                     delete_mode=delete_mode, reply_message=reply_to_message)
@@ -48,7 +49,7 @@ async def process_write_tariff_cost(request: types.Message | types.CallbackQuery
     delete_mode = await get_delete_mode(state, incorrect)
     ic(delete_mode)
     ic()
-    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, 'input_tariff_feedbacks')
+    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, 'input_tariff_feedbacks', ADMIN_LEXICON)
     ic(reply_to_message)
     await message_editor.travel_editor.edit_message(
         request=request, lexicon_key='', lexicon_part=lexicon_part,
@@ -73,7 +74,7 @@ async def process_write_tariff_feedbacks_residual(request: types.Message | types
     await state.set_state(TariffAdminBranchStates.write_tariff_duration_time)
 
     delete_mode = await get_delete_mode(state, incorrect)
-    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, lexicon_key)
+    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, lexicon_key, ADMIN_LEXICON)
     await message_editor.travel_editor.edit_message(
         request=request, lexicon_key='', lexicon_part=lexicon_part,
         delete_mode=delete_mode if delete_mode else bool(reply_to_message) is True,
@@ -110,7 +111,7 @@ async def process_write_tariff_time_duration(request: types.Message | types.Call
 
 
     delete_mode = await get_delete_mode(state, incorrect)
-    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, lexicon_key)
+    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, lexicon_key, ADMIN_LEXICON)
     await message_editor.travel_editor.edit_message(
         request=request, lexicon_key='', lexicon_part=lexicon_part,
         delete_mode=delete_mode if delete_mode else bool(reply_to_message) is True,

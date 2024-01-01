@@ -4,10 +4,9 @@ from aiogram.types import Message, CallbackQuery
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON, ADVERT_LEXICON
 
 
-async def incorrect_controller(request: Message | CallbackQuery, state: FSMContext, incorrect, lexicon_key):
+async def incorrect_controller(request: Message | CallbackQuery, state: FSMContext, incorrect, lexicon_key, current_lexicon):
     ic(lexicon_key)
     memory_storage = await state.get_data()
-    current_lexicon = ADVERT_LEXICON
 
     lexicon_part = current_lexicon[lexicon_key]
     if lexicon_key == 'enter_mailing_media' and \

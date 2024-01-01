@@ -19,11 +19,9 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_re
     choose_review_catalog_type_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.output_choose_brand_to_catalog_review import \
     choose_review_catalog_brand_admin_handler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.output_specific_advert import \
-    output_review_adverts_catalog_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog_action import \
     choose_catalog_action_admin_handler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.search_advert_by_id.input_advert_id_for_search import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search import \
     input_advert_id_for_search_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_cost
@@ -47,6 +45,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
 from handlers.utils.message_answer_without_callback import send_message_answer
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog import advert_parameters
 
 
 async def admin_backward_command_handler(callback: CallbackQuery, state: FSMContext):
@@ -54,6 +53,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     choose_specific_person_by_admin_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
     backward_mode = callback.data.split(':')[-1]
 
+    handler_class = None
     current_state = str(await state.get_state())
     memory_storage = await state.get_data()
 
@@ -123,7 +123,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'review_mailings':
             await request_choose_mailing_type(callback, state)
 
-        case 'choose_catalog_review_advert_type':
+        case 'choose_catalog_review_advert_type' | 'advert_parameters_choose_state':
             await choose_catalog_action_admin_handler(callback, state)
 
         case 'catalog_review_choose_brand' | 'await_input_id_to_search_advert':
@@ -146,3 +146,12 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'input_reason_to_close_advert':
             await choose_specific_advert_action_admin_handler(callback, state)
+
+        case 'choose_second_hand_advert_parameters_type':
+            handler_class = await advert_parameters.advert_parameters__choose_state.get_handler()
+
+        case 'choose_specific_second_hand_value':
+            handler_class = await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type.get_handler()
+
+    if handler_class:
+        await handler_class(callback, state)

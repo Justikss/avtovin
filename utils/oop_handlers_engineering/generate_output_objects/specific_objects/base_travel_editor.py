@@ -1,18 +1,20 @@
 import importlib
 
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from utils.oop_handlers_engineering.base_objects.generate_output_objects.specific_objects.base_inline_pagination import OutputObject
+from utils.oop_handlers_engineering.generate_output_objects.specific_objects.base_inline_pagination import OutputObject
 
 message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
 
 class TravelMessageEditorInit(OutputObject):
-    def __init__(self, lexicon_key, request: Message | CallbackQuery, delete_mode, send_chat, my_keyboard, need_media_caption, save_media_group,
-                 reply_message, button_texts, callback_sign, reply_mode, lexicon_part, bot, media_group, seller_boot,
-                 dynamic_buttons):
+    def __init__(self, delete_mode=None, send_chat=None, my_keyboard=None,
+                 need_media_caption=None, save_media_group=None,
+                 reply_message=None, button_texts=None, callback_sign=None, reply_mode=None, lexicon_part=None,
+                 bot=None, media_group=None, seller_boot=None,
+                 dynamic_buttons=None, lexicon_key=''):
         self.lexicon_key = lexicon_key
-        self.request = request
         self.delete_mode = delete_mode
         self.send_chat = send_chat
         self.my_keyboard = my_keyboard
@@ -28,5 +30,5 @@ class TravelMessageEditorInit(OutputObject):
         self.seller_boot = seller_boot
         self.dynamic_buttons = dynamic_buttons
 
-    async def process(self):
-        await message_editor.travel_editor.edit_message(**self.__dict__)
+    async def process(self, request: Message | CallbackQuery, state: FSMContext = None):
+        await message_editor.travel_editor.edit_message(request=request, **self.__dict__)

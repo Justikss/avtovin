@@ -71,6 +71,7 @@ class CachedRequestsView:
             memory_storage = None
         ic(current_state)
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
+
         if user_state == 'buy' and current_state:
             if current_state.startswith('CheckNonConfirmRequestsStates'):
                 message_text = lexicon_module.LEXICON['cached_requests_for_buyer_message_text']
@@ -85,14 +86,10 @@ class CachedRequestsView:
         elif user_state == 'sell':
             message_text = lexicon_module.LexiconSellerRequests.select_brand_message_text
         elif user_state == 'admin':
-            if current_state:
+            # if current_state:
+            if memory_storage:
                 message_text = {'message_text': memory_storage.get('message_text')}
-                sub_text = False
-        # if current_state:
-        #     if any(state_sub_string in current_state for state_sub_string in ['ChooseStates', 'LoadCommodityStates', 'SellerReviewStates', 'BuyerReviewStates']):
-        #         ic(memory_storage.get('message_text'))
-        #         message_text = {'message_text': memory_storage.get('message_text')}
-        #         sub_text = False
+            sub_text = False
 
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                         lexicon_part=message_text,
