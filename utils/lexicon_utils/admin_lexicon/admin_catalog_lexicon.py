@@ -16,7 +16,7 @@ __CATALOG_LEXICON = {
     'search_advert_by_id_await_input(digit)': 'Ожидается ввод целочисленного значения для поиска объявления по ID:',
     'search_advert_by_id_await_input(not_exists)': 'Введённый ID объявления не существует.\nМожете ввести другой:',
     'start_catalog_menu': {'message_text': 'Каталог\nВыберите действие:', 'buttons': {
-        'admin_catalog__add_new_car_parameters': 'Параметры авто',
+        'admin_catalog__advert_parameters': 'Параметры авто',
         'admin_catalog__car_catalog_review': 'Каталог авто',
         **return_main_menu,
         'width': 1
@@ -57,7 +57,6 @@ __CATALOG_LEXICON = {
                                          'close_seller_notification_by_redis:close_advert': captions['close'],
                                          'width': 1}
 }
-
 
 
 class AdminReviewCatalogChooseCarBrand:

@@ -3,11 +3,26 @@ from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions, return_mai
 
 __ADVERT_PARAMETERS_LEXICON = {
     'choose_second_hand_parameter_type': {'message_text': 'Параметры Б/У автомобилей:', 'buttons': {
-        'advert_second_hand_parameters_type_mileage': 'Пробег', 'advert_second_hand_parameters_type_year': 'Год',
+        'second_hand_choice_advert_parameters_type_mileage': 'Пробег', 'second_hand_choice_advert_parameters_type_year': 'Год',
         'admin_backward:choose_second_hand_advert_parameters_type': captions['backward'],
         **return_main_menu,
         'width': 2
-    }}
+    }},
+
+    'start_add_new_advert_parameter_value': {'message_text': 'Добавление\nВведите новое значение для {parameter_name}',
+                                             'buttons': {
+                                                 'admin_backward:await_input_new_parameter_value': captions['backward'],
+                                                 'width': 1
+                                             }},
+
+    'confirmation_add_new_advert_parameter_value': {
+        'message_text': 'Желаете добавить:\n{parameter_name}: {new_parameter_value} ?',
+        'buttons': {
+            'confirm_action_add_new_parameter_value': captions['confirm'],
+            'admin_backward:confirmation_add_new_parameter_value_rewrite': 'Ввести заново',
+            'admin_backward:confirmation_add_new_parameter_value_cancel': captions['cancel'],
+            'width': 1
+        }}
 }
 
 class AdvertParametersChooseState:
@@ -20,11 +35,11 @@ class AdvertParametersChooseState:
 class AdvertSecondHandParametersChooseSpecificValue:
     message_text_mileage = 'Пробег:'
     message_text_year = 'Год выпуска:'
-    buttons_callback_data = 'second_hand_advert_parameters_specific_value:'
+    buttons_callback_data = 'advert_parameters_specific_value:'
     dynamic_buttons = 3
     width = 2
-    backward_command = {'add_new_second_hand_parameter': captions['add'],
-                        'admin_backward:choose_specific_second_hand_value': captions['backward'],
+    backward_command = {'add_new_advert_parameter': captions['add'],
+                        'admin_backward:choose_specific_advert_parameter_value': captions['backward'],
                         **return_main_menu}
 
     def __init__(self, parameter_name: str):

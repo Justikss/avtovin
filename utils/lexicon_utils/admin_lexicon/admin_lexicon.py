@@ -7,7 +7,8 @@ captions = {'backward': 'Назад', 'was_selected': 'Вы выбрали', 'ca
             'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".',
             'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
             'by_dealership': 'автосалона',
-            'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: ', 'add': 'Добавить'
+            'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: ', 'add': 'Добавить',
+            'successfully': 'Успешно'
             }
 
 __ADMIN_LEXICON = {

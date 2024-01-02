@@ -9,9 +9,9 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
     BaseCallbackQueryHandler, InlinePaginationInit
 
 
-class OutputSpecificSecondHandAdvertParameters(BaseCallbackQueryHandler):
+class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        if isinstance(request, CallbackQuery) and 'advert_second_hand_parameters_type_' in request.data:
+        if isinstance(request, CallbackQuery) and '_choice_advert_parameters_type_' in request.data:
             parameter_name = request.data.split('_')[-1]
             ic(parameter_name)
             await state.update_data(last_second_hand_parameter=parameter_name)
@@ -26,10 +26,4 @@ class OutputSpecificSecondHandAdvertParameters(BaseCallbackQueryHandler):
                 page_size=car_configurations_in_keyboard_page
             )]
 
-
-async def get_handler():
-    ''':parameter_name: 'year' | 'mileage' '''
-    choose_car_state_admin_handler = OutputSpecificSecondHandAdvertParameters()
-
-    return choose_car_state_admin_handler.callback_handler
 

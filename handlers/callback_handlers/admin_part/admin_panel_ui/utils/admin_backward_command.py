@@ -148,10 +148,9 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             await choose_specific_advert_action_admin_handler(callback, state)
 
         case 'choose_second_hand_advert_parameters_type':
-            handler_class = await advert_parameters.advert_parameters__choose_state.get_handler()
+            await advert_parameters.advert_parameters__choose_state\
+                .AdvertParametersChooseCarState().callback_handler(callback, state)
 
-        case 'choose_specific_second_hand_value':
-            handler_class = await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type.get_handler()
-
-    if handler_class:
-        await handler_class(callback, state)
+        case 'choose_specific_advert_parameter_value':
+            await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type\
+                .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)

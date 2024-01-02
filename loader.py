@@ -355,17 +355,20 @@ async def start_bot():
         AdminStatusController())
 
     '''advert_parameters'''
-    dp.callback_query.register(await catalog.advert_parameters.advert_parameters__choose_state.get_handler(),
-                               F.data == 'admin_catalog__add_new_car_parameters')
+    dp.callback_query.register(catalog.advert_parameters.advert_parameters__choose_state\
+                               .AdvertParametersChooseCarState().callback_handler,
+                               F.data == 'admin_catalog__advert_parameters')
 
     dp.callback_query.register(
-        await catalog.advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type.get_handler(),
+        catalog.advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type\
+        .ChooseSecondHandAdvertParametersType().callback_handler,
        lambda callback: callback.data.startswith("advert_parameters_choose_state:")
     )
 
     dp.callback_query.register(
-        await catalog.advert_parameters.advert_parameters__second_hand_state_handlers.output_specific_second_hand_parameters.get_handler(),
-        lambda callback: callback.data.startswith('advert_second_hand_parameters_type_')
+        catalog.advert_parameters.parameters_ouptut.output_specific_parameters \
+            .OutputSpecificAdvertParameters().callback_handler,
+        lambda callback: '_choice_advert_parameters_type_' in callback.data
     )
 
     '''mailing_action'''
