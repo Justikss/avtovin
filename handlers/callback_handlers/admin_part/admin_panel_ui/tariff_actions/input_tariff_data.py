@@ -119,10 +119,10 @@ async def process_write_tariff_time_duration(request: types.Message | types.Call
     )
 
 #Фильтр уникальности
-async def process_tariff_name(request: types.Message | types.CallbackQuery, state: FSMContext):
+async def process_tariff_name(request: types.Message | types.CallbackQuery, state: FSMContext, message_text=None):
     # Здесь мы просто сохраняем ввод названия тарифа и переходим к следующему состоянию
-    if isinstance(request, types.Message):
-        await state.update_data(tariff_name=request.text)
+    if isinstance(request, types.Message) and message_text:
+        await state.update_data(tariff_name=message_text)
 
     if await edit_tariff_data_controller(request, state):
         return

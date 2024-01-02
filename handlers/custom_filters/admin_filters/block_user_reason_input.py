@@ -26,11 +26,13 @@ class ControlInputUserBlockReason(BaseFilter):
         message_len = len(message_text.replace(' ', ''))
         ic(message_len)
         if block_user_reason_text_len['min'] <= message_len \
-                <= block_user_reason_text_len['max'] and not any(symbol in message.text for symbol in "<>"):
+                <= block_user_reason_text_len['max']:
 
             await self.delete_last_admin_message(message, state)
-            await state.update_data(reason=message_text.strip())
-            return {'reason': message_text.strip()}
+            # await state.update_data(reason=message_text.strip())
+            reason = message.text.replace('<', '&lt;').replace('>', '&gt;')
+            await state.update_data(reason=reason)
+            return {'reason': reason}
         else:
             await state.update_data(incorrect_flag=True)
             await self.send_incorrect_notification(message, state, message_len)

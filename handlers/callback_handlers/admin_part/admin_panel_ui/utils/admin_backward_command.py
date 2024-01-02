@@ -154,3 +154,11 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'choose_specific_advert_parameter_value':
             await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type\
                 .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)
+
+        case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel':
+            await advert_parameters.parameters_ouptut.output_specific_parameters\
+                .OutputSpecificAdvertParameters().callback_handler(callback, state)
+
+        case 'confirmation_add_new_parameter_value_rewrite':
+            await advert_parameters.utils.add_new_value_advert_parameter.add_new_value_advert_parameter\
+                .AddNewValueAdvertParameter().callback_handler(callback, state)

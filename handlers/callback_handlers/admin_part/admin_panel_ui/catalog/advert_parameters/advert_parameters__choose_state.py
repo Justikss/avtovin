@@ -6,7 +6,8 @@ from database.data_requests.car_configurations_requests import CarConfigs
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import AdvertParametersChooseState
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
-    BaseCallbackQueryHandler, InlinePaginationInit
+    BaseCallbackQueryHandler
+from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler import InlinePaginationInit
 
 
 class AdvertParametersChooseCarState(BaseCallbackQueryHandler):

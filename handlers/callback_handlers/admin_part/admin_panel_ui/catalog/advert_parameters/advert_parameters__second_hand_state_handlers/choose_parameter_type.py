@@ -2,9 +2,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
-from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
-    BaseCallbackQueryHandler, TravelMessageEditorInit
-
+from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler import TravelMessageEditorInit
+from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler\
+    import BaseCallbackQueryHandler
 
 class ChooseSecondHandAdvertParametersType(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):

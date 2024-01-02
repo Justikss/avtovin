@@ -24,9 +24,9 @@ class UniqueTariffNameFilter(BaseFilter):
         if last_admin_answer:
             await delete_message(message, last_admin_answer)
 
-        if not match_name_tariff and not any(symbol in message.text for symbol in "<>"):
+        if not match_name_tariff:
             await delete_message(message, message.message_id)
-            return True
+            return {'message_text': message.text.replace('<', '&lt;').replace('>', '&gt;')}
         else:
             await incorrect(state, message.message_id)
             return await process_write_tariff_time_duration(message, state, incorrect=True)

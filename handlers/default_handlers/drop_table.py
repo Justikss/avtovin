@@ -88,13 +88,13 @@ async def set_viewed_status():
     await manager.execute(AdvertsToAdminViewStatus.insert_many(insetred_data))
 
 async def drop_table_handler(message: Message):
-    # adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    # if isinstance(adv, CarAdvert):
-    #     adv = adv.id
-    # await advert_to_admin_view_related_requester.create_relation(adv)
-    # await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
-    #
-    # return
+    await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
+    adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+    if isinstance(adv, CarAdvert):
+        adv = adv.id
+    await advert_to_admin_view_related_requester.create_relation(adv)
+
+    return
 
 
     await message.answer('Waiting..')

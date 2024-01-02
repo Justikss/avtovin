@@ -1,5 +1,9 @@
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions, return_main_menu
 
+advert_parameters_captions = {
+    'year': 'год', 'mileage': 'пробег', 'color': 'цвет', 'complectation': 'комплектация', 'model': 'модель',
+    'brand': 'бренд'
+}
 
 __ADVERT_PARAMETERS_LEXICON = {
     'choose_second_hand_parameter_type': {'message_text': 'Параметры Б/У автомобилей:', 'buttons': {
@@ -9,11 +13,13 @@ __ADVERT_PARAMETERS_LEXICON = {
         'width': 2
     }},
 
-    'start_add_new_advert_parameter_value': {'message_text': 'Добавление\nВведите новое значение для {parameter_name}',
+    'start_add_new_advert_parameter_value': {'message_text': 'Добавление параметра\nВведите новое значение для параметра: {parameter_name}',
                                              'buttons': {
                                                  'admin_backward:await_input_new_parameter_value': captions['backward'],
                                                  'width': 1
                                              }},
+    'start_add_new_advert_parameter_value(exists)': 'Добавление параметра\nУказанное значение уже присутсвует в конфигурации: {parameter_name}, введите уникальное значение:',
+    # 'start_add_new_advert_parameter_value': '',
 
     'confirmation_add_new_advert_parameter_value': {
         'message_text': 'Желаете добавить:\n{parameter_name}: {new_parameter_value} ?',

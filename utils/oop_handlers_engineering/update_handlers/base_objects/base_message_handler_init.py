@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List
 
 from aiogram.filters import BaseFilter
@@ -10,28 +11,45 @@ from utils.oop_handlers_engineering.generate_output_objects.specific_objects.bas
     InlinePaginationInit
 from utils.oop_handlers_engineering.generate_output_objects.specific_objects.base_travel_editor import \
     TravelMessageEditorInit
+from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler import BaseHandler
 
 
-class BaseMessageHandler:
+class BaseMessageHandler(BaseHandler, ABC):
     def __init__(self,
                  output_methods: List[AdminPaginationInit | InlinePaginationInit | TravelMessageEditorInit] = None,
                  filters=None):
-        self.output_methods = output_methods
+        self.filters: List[BaseFilter] = self.unpack_filters(filters)
+        super().__init__(output_methods)
 
-        self.filters: List[BaseFilter] = filters
+    def unpack_filters(self, filters):
+        if not isinstance(filters, list):
+            if filters is None:
+                filters = []
+            else:
+                filters = [filters]
 
-    async def message_handler(self, request: Message | CallbackQuery, state: FSMContext, incorrect=False):
+        filters = [filter_object() for filter_object in filters]
+        return filters
+
+    async def message_handler(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         if self.filters is None:
             self.filters = []
-        if all([await filter(request) for filter in self.filters]):
-            await self.process_message(request, state, incorrect)
+        elif not isinstance(self.filters, list):
+            self.filters = [self.filters]
+        ic(self.filters)
 
-    async def process_message(self, request: Message | CallbackQuery, state: FSMContext, incorrect=False):
+        if isinstance(request, Message):
+            self.message_text = request.text.replace('<', '&lt;').replace('>', '&gt;')
+
+        if all([await filter_object(request, state) for filter_object in self.filters]):
+            await self.process_message(request, state, **kwargs)
+
+        await self.output_panel(request, state)
+
+
+
+    async def process_message(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         pass
 
-    async def process_output(self, message: Message, state: FSMContext, incorrect):
-        # Определить в подклассах
-        if self.output_methods:
-            for output_class in self.output_methods:
-                await output_class.process()
+
 

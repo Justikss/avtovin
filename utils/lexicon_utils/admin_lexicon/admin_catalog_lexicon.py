@@ -3,7 +3,8 @@ from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, ca
 catalog_captions = {'catalog_review__make_block': 'блокировку', 'to_block': 'блокировки', 'to_delete': 'удаления',
                     'catalog_review__make_delete': 'удаление объявления', 'advert': 'Объявление: №{advert_id}\n',
                     'inactive_advert_or_seller': 'Объявление или продавец неактивен',
-                    'advert_successfully_closed': 'Автомобиль успешно снят с продажи!'
+                    'advert_successfully_closed': 'Автомобиль успешно снят с продажи!',
+
                     }
 
 __CATALOG_LEXICON = {

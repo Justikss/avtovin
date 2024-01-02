@@ -3,7 +3,7 @@ import random
 import traceback
 from collections import defaultdict
 
-from peewee import JOIN
+from peewee import JOIN, IntegrityError, fn
 
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
@@ -26,17 +26,41 @@ class CarConfigs:
         return brand
 
     @staticmethod
-    async def get_by_name(name, mode):
-        query = None
+    async def get_or_insert(mode, action: str, name=None):
+        ic(name, mode)
         if mode == 'color':
-            query = CarColor.select().where(CarColor.name == name)
+            current_table = CarColor
+        elif mode == 'mileage':
+            current_table = CarMileage
+        elif mode == 'year':
+            current_table = CarYear
+        elif mode == 'brand':
+            current_table = CarBrand
+        elif mode == 'model':
+            current_table = CarModel
+        elif mode == 'complectation':
+            current_table = CarComplectation
+        else:
+            return
 
-        if query:
+        if action == 'get_by_name':
+            result = await manager.get_or_none(current_table, current_table.name == name)
+        elif action == 'get_*':
+            query = current_table.select()
+            if current_table in (CarYear, CarMileage):
+                query = query.order_by(
+                    fn.NULLIF(fn.REGEXP_REPLACE(current_table.name, '[^0-9].*$', ''), '').cast('integer'),
+                    current_table.name)
+            result = list(query)
+        elif action == 'insert':
             try:
-                result = await manager.get(CarColor, CarColor.name == name)
-                return result
-            except:
-                pass
+                result = await manager.create(current_table, name=name)
+            except IntegrityError:
+                return '(exists)'
+        # ic([mod.name for mod in await manager.execute(current_table.select())])
+        ic(result)
+        return result
+
 
     @staticmethod
     async def get_colors_by_name(color_name):

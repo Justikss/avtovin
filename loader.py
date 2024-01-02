@@ -23,6 +23,8 @@ from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_se
     rewrite_price_by_seller_handler, get_input_to_rewrite_price_by_seller_handler
 from handlers.custom_filters.admin_filters.admin_status_controller import AdminStatusController
 from handlers.custom_filters.admin_filters.block_user_reason_input import ControlInputUserBlockReason
+from handlers.custom_filters.admin_filters.catalog_filters.input_value_advert_parameter_filter import \
+    AdvertParameterValueFilter
 from handlers.custom_filters.admin_filters.mailing_filters.datetime_input_filter import DateTimeFilter
 from handlers.custom_filters.admin_filters.digit_input_filter import DigitFilter
 from handlers.custom_filters.admin_filters.mailing_filters.input_media_filter import MediaFilter
@@ -51,6 +53,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
 from handlers.utils.plugs.page_counter_plug import page_conter_plug
+from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates, \
     AdminCarCatalogSearchByIdStates
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
@@ -368,8 +371,27 @@ async def start_bot():
     dp.callback_query.register(
         catalog.advert_parameters.parameters_ouptut.output_specific_parameters \
             .OutputSpecificAdvertParameters().callback_handler,
-        lambda callback: '_choice_advert_parameters_type_' in callback.data
+        lambda callback: '_choice_advert_parameters_type_' in callback.data,
+        StateFilter(AdminAdvertParametersStates.review_process)
     )
+
+    dp.callback_query.register(
+        catalog.advert_parameters.utils.add_new_value_advert_parameter.add_new_value_advert_parameter\
+        .AddNewValueAdvertParameter().callback_handler,
+        F.data == 'add_new_advert_parameter',
+        StateFilter(AdminAdvertParametersStates.review_process)
+    )
+    dp.message.register(
+        catalog.advert_parameters.utils.add_new_value_advert_parameter.input_confirmation\
+        .AddNewValueOfAdvertParameterConfirmationMessageHandler(filters=AdvertParameterValueFilter).message_handler,
+        StateFilter(AdminAdvertParametersStates.start_add_value_process)
+    )
+    dp.callback_query.register(
+        catalog.advert_parameters.utils.add_new_value_advert_parameter.confirm_add_new_value_of_advert_parameter.ConfirmAddNewValueOfAdvertParameter().callback_handler,
+        F.data == 'confirm_action_add_new_parameter_value',
+        StateFilter(AdminAdvertParametersStates.confirmation_add_value_process)
+    )
+
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

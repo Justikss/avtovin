@@ -72,11 +72,10 @@ class InlineCreator:
         kbuilder = InlineKeyboardBuilder()
         buttons = list()
 
-
         if 'buttons' in input_data.keys():
-
             input_data = input_data['buttons']
-
+            clean_without_html_data = await InlineCreator.cleaning_html_in_captions(input_data)
+            input_data = clean_without_html_data if clean_without_html_data else input_data
 
         width = input_data['width']
 
@@ -142,3 +141,15 @@ class InlineCreator:
         keyboard = keyboard.as_markup()
 
         return keyboard
+
+    @staticmethod
+    async def cleaning_html_in_captions(buttons):
+        good_lexicon_part_buttons = {}
+        for key, value in buttons.items():
+            if not isinstance(value, int) and any(symbol in value for symbol in ('&lt;', '&gt;')):
+                value = value.replace('&lt;', '<').replace('&gt;', '>')
+            ic(key, value)
+            good_lexicon_part_buttons[key] = value
+        ic(good_lexicon_part_buttons)
+        if good_lexicon_part_buttons:
+            return good_lexicon_part_buttons
