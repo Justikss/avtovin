@@ -12,10 +12,18 @@ from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions, catalog
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
+    NewCarStateParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_deletion.confirm_action_of_deletion import \
     ConfirmDeleteExistsAdvertParameter
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_deletion.start_action_of_deletion import \
     ActionOfDeletionExistsAdvertParameter
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.confirm_rewrite_exists_advert_param import \
+    ConfirmRewriteExistsAdvertParameterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.confirmation_rewrite_exists_advert_param import \
+    ConfirmationRewriteExistsAdvertParameterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.start_rewrite_exsits_advert_parameter import \
+    RewriteExistsAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
@@ -371,7 +379,7 @@ async def start_bot():
     dp.callback_query.register(
         catalog.advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type\
         .ChooseSecondHandAdvertParametersType().callback_handler,
-       lambda callback: callback.data.startswith("advert_parameters_choose_state:")
+       F.data == "advert_parameters_choose_state:2"
     )
 
     dp.callback_query.register(
@@ -390,7 +398,7 @@ async def start_bot():
     dp.message.register(
         catalog.advert_parameters.utils.add_new_value_advert_parameter.input_confirmation\
         .AddNewValueOfAdvertParameterConfirmationMessageHandler(
-            filters=AdvertParameterValueFilter).message_handler,
+            filters=AdvertParameterValueFilter()).message_handler,
         StateFilter(AdminAdvertParametersStates.start_add_value_process)
     )
     dp.callback_query.register(
@@ -402,17 +410,31 @@ async def start_bot():
         ChooseActionOnAdvertParameterHandler().callback_handler,
         lambda callback: callback.data.startswith('advert_parameters_specific_value:')
     )
+
     dp.callback_query.register(
         ActionOfDeletionExistsAdvertParameter().callback_handler,
         F.data == 'delete_current_advert_parameter',
         StateFilter(AdminAdvertParametersStates.review_process)
     )
-
     dp.callback_query.register(
         ConfirmDeleteExistsAdvertParameter().callback_handler,
         F.data == 'confirm_delete_advert_parameter',
         StateFilter(AdminAdvertParametersStates.start_delete_action)
     )
+
+    dp.callback_query.register(RewriteExistsAdvertParameterHandler().callback_handler,
+                               F.data == 'rewrite_current_advert_parameter',
+                               or_f(StateFilter(AdminAdvertParametersStates.review_process),
+                                    StateFilter(AdminAdvertParametersStates.confirmation_rewrite_exists_parameter)))
+    dp.message.register(ConfirmationRewriteExistsAdvertParameterHandler(
+                            filters=AdvertParameterValueFilter()).message_handler,
+                        StateFilter(AdminAdvertParametersStates.start_rewrite_exists_parameter))
+    dp.callback_query.register(ConfirmRewriteExistsAdvertParameterHandler().callback_handler,
+                               StateFilter(AdminAdvertParametersStates.confirmation_rewrite_exists_parameter),
+                               F.data == 'confirm_rewrite_existing_advert_parameter')
+    '''new_car_catalog'''
+    dp.callback_query.register(NewCarStateParameters().callback_handler,
+                               F.data == 'advert_parameters_choose_state:1')
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

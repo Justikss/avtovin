@@ -26,7 +26,7 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_year_of_realise()
-    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.get_or_insert_or_delete('year', 'get_*'),
+    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.custom_action('year', 'get_*'),
                         car_configurations_in_keyboard_page, need_last_buttons=False)
 
     # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
@@ -50,7 +50,7 @@ async def input_mileage_to_load(callback: CallbackQuery, state: FSMContext):
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_mileage()
-    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.get_or_insert_or_delete('mileage', 'get_*'),
+    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.custom_action('mileage', 'get_*'),
                         car_configurations_in_keyboard_page, need_last_buttons=False)
     # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
     #                                          buttons_captions=await CarConfigs.get_characteristic(mileage=True))

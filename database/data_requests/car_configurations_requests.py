@@ -34,7 +34,10 @@ class CarConfigs:
         return brand
 
     @staticmethod
-    async def get_or_insert_or_delete(mode, action: str, name=None, model_id=None):
+    async def custom_action(mode, action: str, name=None, model_id=None):
+        if model_id and not isinstance(model_id, int):
+            model_id = int(model_id)
+
         ic(name, mode, action, model_id)
         if mode == 'color':
             current_table = CarColor
@@ -48,11 +51,13 @@ class CarConfigs:
             current_table = CarModel
         elif mode == 'complectation':
             current_table = CarComplectation
+        # elif mode == 'state':
+        #     current_table = CarState
         else:
             return
 
         match action:
-            case 'get_by_name':
+            case 'get_by_name' if name:
                 result = await manager.get_or_none(current_table, current_table.name == name)
 
             case 'get_*':
@@ -61,19 +66,17 @@ class CarConfigs:
                     query = await CarConfigs.sorted_integer_configs(query, current_table)
                 result = list(query)
 
-            case 'insert':
+            case 'insert' if name:
                 try:
                     result = await manager.create(current_table, name=name)
                 except IntegrityError:
                     return '(exists)'
 
             case 'delete' if model_id:
-                if not isinstance(model_id, int):
-                    model_id = int(model_id)
-                ic()
                 await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
                 result = await manager.execute(current_table.delete().where(current_table.id == model_id))
-        # ic([mod.name for mod in await manager.execute(current_table.select())])
+            case 'update' if name and model_id:
+                result = await manager.execute(current_table.update(name=name).where(current_table.id == model_id))
         ic(result)
         return result
 

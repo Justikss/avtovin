@@ -23,8 +23,8 @@ class BaseHandler(ABC):
         self.redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
 
-    async def send_alert_answer(self, request: Message| CallbackQuery, text: str):
-        await send_message_answer(request, text)
+    async def send_alert_answer(self, request: Message| CallbackQuery, text: str, show_alert=False):
+        await send_message_answer(request, text, show_alert=show_alert)
 
     async def set_state(self, state: FSMContext, needed_state: State):
         if await state.get_state() != needed_state:
@@ -39,4 +39,6 @@ class BaseHandler(ABC):
                     callable_object = output_class
                 await callable_object(request, state)
 
-
+    async def insert_into_message_text(self, lexicon_part: dict, kwargs_to_insert: dict) -> dict:
+        lexicon_part['message_text'] = lexicon_part['message_text'].format(**kwargs_to_insert)
+        return lexicon_part

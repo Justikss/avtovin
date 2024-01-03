@@ -30,3 +30,6 @@ class AdminDoesNotExistsError(BaseException):
 
 class TariffHasWireError(BaseException):
     pass
+
+class FilterWithoutInput(BaseException):
+    pass

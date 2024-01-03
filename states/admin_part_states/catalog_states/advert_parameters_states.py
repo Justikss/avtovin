@@ -6,3 +6,13 @@ class AdminAdvertParametersStates(StatesGroup):
     start_add_value_process = State()
     confirmation_add_value_process = State()
     start_delete_action = State()
+    start_rewrite_exists_parameter = State()
+    confirmation_rewrite_exists_parameter = State()
+
+    class NewStateStates(StatesGroup):
+        chosen_state = State()
+        chosen_engine = State()
+        chosen_brand = State()
+        chosen_model = State()
+        chosen_complectation = State()
+        chosen_color = State()

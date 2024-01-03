@@ -33,7 +33,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
 
         else:
             try:
-                delete_query = await CarConfigs.get_or_insert_or_delete(
+                delete_query = await CarConfigs.custom_action(
                     action='delete',
                     model_id=int(parameter_value_id),
                     mode=parameter_type_name

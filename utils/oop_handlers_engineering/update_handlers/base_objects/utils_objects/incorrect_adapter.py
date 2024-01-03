@@ -25,4 +25,5 @@ class IncorrectAdapter:
                 incorrect_message_text = lexicon_object[f"{lexicon_key}{incorrect}"]
 
             lexicon_part['message_text'] = incorrect_message_text
+        ic(lexicon_part)
         return lexicon_part

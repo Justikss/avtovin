@@ -92,7 +92,14 @@ class TravelEditor:
                 new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
             elif not media_group:
                 print('NOreply_mode2')
-                new_message = await message_object.answer(text=message_text, reply_to_message_id=media_message_id, reply_markup=keyboard)
+                try:
+                    new_message = await message_object.answer(text=message_text, reply_to_message_id=media_message_id, reply_markup=keyboard)
+                except TelegramBadRequest:
+                    await TravelEditor.edit_message(lexicon_key=lexicon_key, lexicon_part=lexicon_part, request=request, delete_mode=delete_mode,
+                                                    my_keyboard=keyboard, need_media_caption=need_media_caption,
+                                                    save_media_group=save_media_group,
+                                                    delete_media_group_mode=delete_media_group_mode,
+                                                    media_group=media_group, dynamic_buttons=dynamic_buttons)
 
         else:
             if media_group:

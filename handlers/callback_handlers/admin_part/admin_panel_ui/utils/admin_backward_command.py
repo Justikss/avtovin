@@ -162,7 +162,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type\
                 .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)
 
-        case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel':
+        case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel' | 'choose_action_on_specific_adv_parameter':
             match backward_mode:
                 case 'confirmation_add_new_parameter_value_cancel':
                     if memory_storage.get('admin_incorrect_flag'):
@@ -174,8 +174,8 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             await advert_parameters.utils.add_new_value_advert_parameter.add_new_value_advert_parameter\
                 .AddNewValueAdvertParameter().callback_handler(callback, state)
 
-        case 'confirmation_delete_advert_param':
+        case 'confirmation_delete_advert_param' | 'rewrite_exists_advert_param' | 'start_rewrite_exists_parameter_value':
             await ChooseActionOnAdvertParameterHandler().callback_handler(callback, state)
 
-        case 'choose_action_on_specific_adv_parameter':
-            await OutputSpecificAdvertParameters().callback_handler(callback, state)
+
+

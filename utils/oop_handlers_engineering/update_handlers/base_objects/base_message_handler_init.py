@@ -28,7 +28,6 @@ class BaseMessageHandler(BaseHandler, ABC):
             else:
                 filters = [filters]
 
-        filters = [filter_object() for filter_object in filters]
         return filters
 
     async def message_handler(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
@@ -38,14 +37,14 @@ class BaseMessageHandler(BaseHandler, ABC):
             self.filters = [self.filters]
         ic(self.filters)
 
-        if isinstance(request, Message):
-            self.message_text = request.text.replace('<', '&lt;').replace('>', '&gt;')
-
         if all([ic(await filter_object(request, state)) for filter_object in self.filters]):
             ic()
             await self.process_message(request, state, **kwargs)
 
-        await self.output_panel(request, state)
+            if isinstance(request, Message):
+                self.message_text = request.text.replace('<', '&lt;').replace('>', '&gt;')
+
+            await self.output_panel(request, state)
 
 
 

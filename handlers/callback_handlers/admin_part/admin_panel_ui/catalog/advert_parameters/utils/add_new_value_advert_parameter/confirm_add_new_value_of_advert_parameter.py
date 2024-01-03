@@ -16,7 +16,7 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
         #     OutputSpecificAdvertParameters().callback_handler
         # ]
         memory_storage = await state.get_data()
-        insert_query = await CarConfigs.get_or_insert_or_delete(mode=memory_storage.get('admin_chosen_advert_parameter'),
+        insert_query = await CarConfigs.custom_action(mode=memory_storage.get('admin_chosen_advert_parameter'),
                                        name=memory_storage.get('current_value'),
                                        action='insert')
         if insert_query == '(exists)':

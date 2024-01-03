@@ -9,7 +9,7 @@ from aiogram.types import Message, CallbackQuery
 from config_data.config import message_answer_awaited
 
 
-async def send_message_answer(request: Message | CallbackQuery, text: str, sleep_time=None):
+async def send_message_answer(request: Message | CallbackQuery, text: str, sleep_time=None, show_alert=False):
     match request:
         case Message():
             redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -33,4 +33,4 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
             except TelegramBadRequest:
                 pass
         case CallbackQuery():
-            await request.answer(text)
+            await request.answer(text, show_alert=show_alert)
