@@ -29,13 +29,13 @@ class AdvertParameterValueFilter(BaseFilterObject):
         last_advert_parameter = memory_storage.get('admin_chosen_advert_parameter')
         ic(last_advert_parameter)
 
-        if last_advert_parameter in ('mileage', 'year', 'color', 'brand'):
+        if last_advert_parameter in ('mileage', 'year'):
             existing_value = await CarConfigs.custom_action(last_advert_parameter, 'get_by_name', name=inputted_value)
             ic(existing_value)
             if existing_value:
                 incorrect_flag = '(exists)'
         else:
-            pass #допилить
+            pass #допилить под new car state branches
         ic(incorrect_flag)
         return await super().__call__(request, state, incorrect_flag=incorrect_flag,
                                       message_input_request_handler=message_input_request_handler)
