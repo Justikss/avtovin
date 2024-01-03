@@ -12,10 +12,12 @@ class AdvertParameterValueFilter(BaseFilterObject):
                        incorrect_flag=None,
                        message_input_request_handler=AddNewValueAdvertParameter().callback_handler) -> bool:
         memory_storage = await state.get_data()
+        ic(str(await state.get_state()))
         last_advert_parameter = memory_storage.get('admin_chosen_advert_parameter')
         ic(last_advert_parameter)
+        ic(message.text)
         if last_advert_parameter in ('mileage', 'year', 'color', 'brand'):
-            existing_value = await CarConfigs.get_or_insert(last_advert_parameter, 'get_by_name', name=message.text)
+            existing_value = await CarConfigs.get_or_insert_or_delete(last_advert_parameter, 'get_by_name', name=message.text)
             ic(existing_value)
             if existing_value:
                 incorrect_flag = '(exists)'

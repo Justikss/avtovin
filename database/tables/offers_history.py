@@ -52,13 +52,13 @@ class RecommendationsToBuyer(BaseModel):
 
 class SellerFeedbacksHistory(BaseModel):
     seller_id = ForeignKeyField(Seller, backref='feedbacks_history')
-    advert_parameters = ForeignKeyField(AdvertParameters, backref='feedbacks_history')
+    advert_parameters = ForeignKeyField(AdvertParameters, backref='feedbacks_history', null=True)
     feedback_time = DateField(default=datetime.now().strftime(REGISTRATION_DATETIME_FORMAT))
 
 class RecommendedOffers(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')
     advert = ForeignKeyField(CarAdvert, field=CarAdvert.id)
-    parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
+    # parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
 
     class Meta:
         db_table = 'Рекомендации'

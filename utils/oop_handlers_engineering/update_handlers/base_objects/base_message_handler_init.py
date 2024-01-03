@@ -41,7 +41,8 @@ class BaseMessageHandler(BaseHandler, ABC):
         if isinstance(request, Message):
             self.message_text = request.text.replace('<', '&lt;').replace('>', '&gt;')
 
-        if all([await filter_object(request, state) for filter_object in self.filters]):
+        if all([ic(await filter_object(request, state)) for filter_object in self.filters]):
+            ic()
             await self.process_message(request, state, **kwargs)
 
         await self.output_panel(request, state)

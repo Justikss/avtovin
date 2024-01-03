@@ -28,11 +28,13 @@ class BaseFilterObject(BaseFilter, ABC):
             await delete_message(message, last_admin_answer)
 
         if incorrect_flag:
+            ic()
             await incorrect(state, message.message_id)
             await message_input_request_handler(message, state, incorrect=incorrect_flag)
             return False
         else:
             await delete_message(message, message.message_id)
+            ic()
             return True
 
 

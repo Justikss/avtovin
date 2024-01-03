@@ -6,7 +6,6 @@ from aiogram.types import CallbackQuery
 from config_data.config import admin_brand_pagination_pagesize
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
-from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates
 from utils.lexicon_utils.Lexicon import CATALOG_LEXICON
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import AdminReviewCatalogChooseCarBrand
@@ -40,13 +39,16 @@ async def try_set_correct_state(callback: CallbackQuery, state: FSMContext):
     return view_status
 
 async def choose_review_catalog_brand_admin_handler(callback: CallbackQuery, state: FSMContext):
+    output_choose_module = importlib.import_module(
+        'handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
+
     viewed_status = await try_set_correct_state(callback, state)
     ic(viewed_status)
     brand_models = await advert_to_admin_view_related_requester.retrieve_by_view_status(status=viewed_status, get_brands=True)
     if not brand_models:
         return False
     ic(brand_models)
-    await output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,
+    await output_choose_module.output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,
                         models_range=brand_models, page_size=admin_brand_pagination_pagesize)
 
     if isinstance(callback, CallbackQuery):

@@ -2,6 +2,7 @@ import traceback
 
 from peewee import JOIN
 
+from database.data_requests.advert_parameters_requests import AdvertParameterManager
 from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarState, CarEngine, CarColor, CarMileage, \
@@ -67,7 +68,27 @@ class RecommendationParametersBinder:
         select_query = list(await manager.execute(query))
         return select_query
 
-
+    @staticmethod
+    async def remove_wire_by_parameter(parameter_table, parameter_id):
+        parameter_recommendations_to_buyer_wire = await AdvertParameterManager.get_wire_to_config(
+            parameter_table, RecommendationsToBuyer
+        )
+        print(parameter_recommendations_to_buyer_wire)
+        ic(parameter_recommendations_to_buyer_wire)
+        ic(await manager.execute(RecommendationsToBuyer.delete().where(
+            RecommendationsToBuyer.id.in_(
+                parameter_recommendations_to_buyer_wire.where(parameter_table.id == parameter_id)
+            ))
+        ))
+        ic()
+        advert_parameters_wire = await AdvertParameterManager.get_wire_to_config(parameter_table, AdvertParameters)
+        print(advert_parameters_wire)
+        ic(await manager.execute(
+            AdvertParameters.delete().where(AdvertParameters.id.in_(
+                advert_parameters_wire.where(parameter_table.id == parameter_id)
+            )
+            )
+        ))
 
 class RecommendationRequester:
     @staticmethod
@@ -86,7 +107,7 @@ class RecommendationRequester:
     @staticmethod
     async def retrieve_by_buyer_id(buyer_id, get_brands=False, by_brand=None):
         ic(buyer_id)
-        query = RecommendedOffers.select(RecommendedOffers, CarAdvert, AdvertParameters, RecommendationsToBuyer).join(CarAdvert).switch(RecommendedOffers).join(User).switch(RecommendedOffers).join(RecommendationsToBuyer).join(AdvertParameters).where(User.telegram_id == int(buyer_id))
+        query = RecommendedOffers.select(RecommendedOffers, CarAdvert, RecommendationsToBuyer).join(CarAdvert).switch(RecommendedOffers).join(User).switch(RecommendedOffers).join(RecommendationsToBuyer).where(User.telegram_id == int(buyer_id))
         result = await manager.execute(query)
         if get_brands and result:
             ic()

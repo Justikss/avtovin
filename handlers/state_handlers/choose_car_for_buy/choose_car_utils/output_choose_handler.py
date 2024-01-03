@@ -2,6 +2,7 @@ import importlib
 
 from aiogram.fsm.context import FSMContext
 
+from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from utils.lexicon_utils.Lexicon import LEXICON
 
 async def remove_last_inline_pagination_data(callback):
@@ -24,7 +25,8 @@ async def output_choose(callback, state: FSMContext, lexicon_class, models_range
     inline_pagination_module = importlib.import_module('handlers.utils.inline_buttons_pagination_heart')
     if not models_range:
         await callback.answer(LEXICON['search_parameter_invalid'])
-        return True
+        await return_main_menu_callback_handler(callback, state)
+        return
 
     await remove_last_inline_pagination_data(callback)
 

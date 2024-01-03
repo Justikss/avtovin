@@ -81,6 +81,7 @@ class CachedRequestsView:
                 message_text = lexicon_module.LEXICON['recommended_offers_for_buyer_message_text']
             else:
                 message_text = {'message_text': memory_storage.get('message_text')}
+                sub_text = False
             if message_text and sub_text:
                 message_text['message_text'] = f'''{message_text['message_text']}{lexicon_module.LEXICON['make_choose_brand']}'''
         elif user_state == 'sell':
@@ -89,8 +90,8 @@ class CachedRequestsView:
             # if current_state:
             if memory_storage:
                 message_text = {'message_text': memory_storage.get('message_text')}
-            sub_text = False
 
+        ic(message_text)
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                         lexicon_part=message_text,
                                                         delete_mode=True, my_keyboard=keyboard)

@@ -6,7 +6,6 @@ from aiogram.types import CallbackQuery
 
 from config_data.config import tariffs_pagesize
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
-from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from handlers.state_handlers.seller_states_handler.seller_profile_branch.selected_tariff_preview import \
     tariff_preview_card_constructor
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import ChooseTariff
@@ -27,13 +26,14 @@ async def choose_tariff_for_seller_by_admin_handler(callback: CallbackQuery, sta
         lexicon_class.message_text = lexicon_class.message_text.format(name=seller_name)
         return lexicon_class
 
-
+    output_choose_module = importlib.import_module(
+        'handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
     tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 
     tariffs = await tariff_requests_module.TarifRequester.retrieve_all_data()
 
     lexicon_class = await generate_choose_tariff_by_admin_lexicon_class(callback, state)
-    await output_choose(callback, state, lexicon_class, tariffs, tariffs_pagesize)
+    await output_choose_module.output_choose(callback, state, lexicon_class, tariffs, tariffs_pagesize)
 
 
 async def checkout_tariff_for_seller_by_admin_handler(callback: CallbackQuery, state: FSMContext):

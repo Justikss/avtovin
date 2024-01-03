@@ -27,7 +27,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         self.output_methods = [
             InlinePaginationInit(
                 lexicon_class=AdvertSecondHandParametersChooseSpecificValue(parameter_name),
-                models_range=await CarConfigs.get_or_insert(mode=parameter_name, action='get_*'),
+                models_range=await CarConfigs.get_or_insert_or_delete(mode=parameter_name, action='get_*'),
                 page_size=car_configurations_in_keyboard_page
             )]
 

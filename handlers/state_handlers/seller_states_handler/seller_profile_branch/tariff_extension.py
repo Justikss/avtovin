@@ -3,11 +3,12 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from config_data.config import tariffs_pagesize
-from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from utils.lexicon_utils.Lexicon import LexiconTariffSelection
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
 from utils.user_notification import try_delete_notification
 
+
+output_choose_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
 
 async def output_affordable_tariffs(callback, state):
     '''Метод структурирует своеобразный 'Мок' lexicon_part'a по которому выводится блок сообщения с кнопками'''
@@ -20,7 +21,7 @@ async def output_affordable_tariffs(callback, state):
     lexicon_class = LexiconTariffSelection
 
     await state.set_state(ChoiceTariffForSellerStates.choose_tariff)
-    await output_choose(callback, state, lexicon_class, affordable_tariffs, tariffs_pagesize)
+    await output_choose_module.output_choose(callback, state, lexicon_class, affordable_tariffs, tariffs_pagesize)
 
     return affordable_tariffs
 

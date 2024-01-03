@@ -1,0 +1,1 @@
+from . import start_action_of_deletion

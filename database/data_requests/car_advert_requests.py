@@ -148,22 +148,25 @@ class AdvertRequester:
     #
 
     @staticmethod
-    async def get_advert_by(state_id, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
-                            color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None):
+    async def get_advert_by(state_id=None, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
+                            color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None, without_actual_filter=None):
         ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id)
         int_flag = None
         result_adverts = None
 
-        query = CarAdvert.select().where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+        if not without_actual_filter:
+            query = CarAdvert.select().where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+        else:
+            query = CarAdvert.select()
 
         if seller_id:
             ic()
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
             query = query.switch(CarAdvert)
 
-
-        state_id = int(state_id)
-        query = query.join(CarState).where(CarState.id == state_id)
+        if state_id:
+            state_id = int(state_id)
+            query = query.join(CarState).where(CarState.id == state_id)
 
         sub_query = query.select().switch(CarAdvert).join(CarComplectation).join(CarEngine)
         query = sub_query.select(CarEngine.id)
@@ -221,6 +224,8 @@ class AdvertRequester:
 
 
         query = query.distinct()
+        if without_actual_filter:
+            return list(await manager.execute(query))
 
         if (int_flag and not seller_id) and state_id == 2:
             if int_flag == CarMileage:
@@ -241,9 +246,7 @@ class AdvertRequester:
                     fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer'),
                     int_flag.name))
             result_adverts = list(await manager.execute(query))
-        elif not int_flag:
-            pass
-        ic(last_table)
+
 
         if not result_adverts:
             if not seller_id and last_table:

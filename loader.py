@@ -12,6 +12,12 @@ from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions, catalog
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_deletion.confirm_action_of_deletion import \
+    ConfirmDeleteExistsAdvertParameter
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_deletion.start_action_of_deletion import \
+    ActionOfDeletionExistsAdvertParameter
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
+    ChooseActionOnAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
@@ -383,15 +389,30 @@ async def start_bot():
     )
     dp.message.register(
         catalog.advert_parameters.utils.add_new_value_advert_parameter.input_confirmation\
-        .AddNewValueOfAdvertParameterConfirmationMessageHandler(filters=AdvertParameterValueFilter).message_handler,
+        .AddNewValueOfAdvertParameterConfirmationMessageHandler(
+            filters=AdvertParameterValueFilter).message_handler,
         StateFilter(AdminAdvertParametersStates.start_add_value_process)
     )
     dp.callback_query.register(
         catalog.advert_parameters.utils.add_new_value_advert_parameter.confirm_add_new_value_of_advert_parameter.ConfirmAddNewValueOfAdvertParameter().callback_handler,
         F.data == 'confirm_action_add_new_parameter_value',
         StateFilter(AdminAdvertParametersStates.confirmation_add_value_process)
+    ),
+    dp.callback_query.register(
+        ChooseActionOnAdvertParameterHandler().callback_handler,
+        lambda callback: callback.data.startswith('advert_parameters_specific_value:')
+    )
+    dp.callback_query.register(
+        ActionOfDeletionExistsAdvertParameter().callback_handler,
+        F.data == 'delete_current_advert_parameter',
+        StateFilter(AdminAdvertParametersStates.review_process)
     )
 
+    dp.callback_query.register(
+        ConfirmDeleteExistsAdvertParameter().callback_handler,
+        F.data == 'confirm_delete_advert_parameter',
+        StateFilter(AdminAdvertParametersStates.start_delete_action)
+    )
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

@@ -6,6 +6,7 @@ advert_parameters_captions = {
 }
 
 __ADVERT_PARAMETERS_LEXICON = {
+    'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',
     'choose_second_hand_parameter_type': {'message_text': 'Параметры Б/У автомобилей:', 'buttons': {
         'second_hand_choice_advert_parameters_type_mileage': 'Пробег', 'second_hand_choice_advert_parameters_type_year': 'Год',
         'admin_backward:choose_second_hand_advert_parameters_type': captions['backward'],
@@ -28,7 +29,22 @@ __ADVERT_PARAMETERS_LEXICON = {
             'admin_backward:confirmation_add_new_parameter_value_rewrite': 'Ввести заново',
             'admin_backward:confirmation_add_new_parameter_value_cancel': captions['cancel'],
             'width': 1
-        }}
+        }},
+
+    'choose_action_on_specific_parameter_value': {'message_text': '{parameter_name}: {parameter_value}', 'buttons': {
+        'delete_current_advert_parameter': captions['delete'], 'rewrite_current_advert_parameter': 'Изменить',
+        'admin_backward:choose_action_on_specific_adv_parameter': captions['backward'],
+        **return_main_menu,
+        'width': 2
+    }},
+    'confirmation_to_delete_exists_parameter': {
+        'message_text': 'Подтвердите удаление параметра:\n{parameter_type}: {parameter_value}', 'buttons': {
+            'confirm_delete_advert_parameter': captions['confirm'],
+            'admin_backward:confirmation_delete_advert_param': captions['backward'],
+            **return_main_menu,
+            'width': 1
+        }
+    }
 }
 
 class AdvertParametersChooseState:

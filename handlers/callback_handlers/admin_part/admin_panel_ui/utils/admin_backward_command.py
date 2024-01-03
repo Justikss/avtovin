@@ -11,6 +11,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
     request_choose_mailing_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
+    OutputSpecificAdvertParameters
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
+    ChooseActionOnAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog__specific_advert_actions.catalog_review__input_action_reason import \
     input_reason_to_close_advert_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog__specific_advert_actions.choose_specific_action import \
@@ -23,6 +27,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog
     choose_catalog_action_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search import \
     input_advert_id_for_search_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
+    get_incorrect_flag
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -43,6 +49,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
     output_specific_seller_profile_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
+from handlers.utils.delete_message import delete_message
 from handlers.utils.message_answer_without_callback import send_message_answer
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog import advert_parameters
@@ -156,9 +163,19 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
                 .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)
 
         case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel':
+            match backward_mode:
+                case 'confirmation_add_new_parameter_value_cancel':
+                    if memory_storage.get('admin_incorrect_flag'):
+                        await delete_message(callback, memory_storage.get('last_admin_answer'))
             await advert_parameters.parameters_ouptut.output_specific_parameters\
                 .OutputSpecificAdvertParameters().callback_handler(callback, state)
 
         case 'confirmation_add_new_parameter_value_rewrite':
             await advert_parameters.utils.add_new_value_advert_parameter.add_new_value_advert_parameter\
                 .AddNewValueAdvertParameter().callback_handler(callback, state)
+
+        case 'confirmation_delete_advert_param':
+            await ChooseActionOnAdvertParameterHandler().callback_handler(callback, state)
+
+        case 'choose_action_on_specific_adv_parameter':
+            await OutputSpecificAdvertParameters().callback_handler(callback, state)

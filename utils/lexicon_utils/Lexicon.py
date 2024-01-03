@@ -35,7 +35,7 @@ __LEXICON = {
             'car_was_withdrawn_from_sale': 'Автомобиль был снят с продажи',
             'car_search_parameters_incactive': 'Данные параметры поиска больше неактивны. Пожалуйста обновите их.',
             'seller_dont_exists': 'Продавец больше неактивен',
-            'search_parameter_invalid': 'Данный параметр не активен',
+            'search_parameter_invalid': 'Данный параметр не актуален',
             'order_was_created': 'Вы откликнулись! Теперь в объявлении указан контакт продавца,\nТак же пополнен список ваших предложений!',
             'too_late': 'Вы опоздали',
             'success_notification': 'Принято',

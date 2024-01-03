@@ -6,6 +6,7 @@ from collections import defaultdict
 from peewee import JOIN, IntegrityError, fn
 
 from database.data_requests.new_car_photo_requests import PhotoRequester
+from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
@@ -21,13 +22,20 @@ from database.tables.user import User
 
 class CarConfigs:
     @staticmethod
+    async def sorted_integer_configs(query, current_table):
+        query = query.order_by(
+            fn.NULLIF(fn.REGEXP_REPLACE(current_table.name, '[^0-9].*$', ''), '').cast('integer'),
+            current_table.name)
+        return query
+
+    @staticmethod
     async def add_brand(brand_name):
         brand, created = await database.get_or_create(CarBrand, name=brand_name)
         return brand
 
     @staticmethod
-    async def get_or_insert(mode, action: str, name=None):
-        ic(name, mode)
+    async def get_or_insert_or_delete(mode, action: str, name=None, model_id=None):
+        ic(name, mode, action, model_id)
         if mode == 'color':
             current_table = CarColor
         elif mode == 'mileage':
@@ -43,20 +51,28 @@ class CarConfigs:
         else:
             return
 
-        if action == 'get_by_name':
-            result = await manager.get_or_none(current_table, current_table.name == name)
-        elif action == 'get_*':
-            query = current_table.select()
-            if current_table in (CarYear, CarMileage):
-                query = query.order_by(
-                    fn.NULLIF(fn.REGEXP_REPLACE(current_table.name, '[^0-9].*$', ''), '').cast('integer'),
-                    current_table.name)
-            result = list(query)
-        elif action == 'insert':
-            try:
-                result = await manager.create(current_table, name=name)
-            except IntegrityError:
-                return '(exists)'
+        match action:
+            case 'get_by_name':
+                result = await manager.get_or_none(current_table, current_table.name == name)
+
+            case 'get_*':
+                query = current_table.select()
+                if current_table in (CarYear, CarMileage):
+                    query = await CarConfigs.sorted_integer_configs(query, current_table)
+                result = list(query)
+
+            case 'insert':
+                try:
+                    result = await manager.create(current_table, name=name)
+                except IntegrityError:
+                    return '(exists)'
+
+            case 'delete' if model_id:
+                if not isinstance(model_id, int):
+                    model_id = int(model_id)
+                ic()
+                await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
+                result = await manager.execute(current_table.delete().where(current_table.id == model_id))
         # ic([mod.name for mod in await manager.execute(current_table.select())])
         ic(result)
         return result
@@ -71,7 +87,7 @@ class CarConfigs:
     async def get_by_id(table, model_id):
         if table == 'state':
             table = CarState   
-        elif table == 'engine_type':
+        elif table in ('engine_type', 'engine'):
             table = CarEngine
         elif table == 'brand':
             table = CarBrand
@@ -79,7 +95,7 @@ class CarConfigs:
             table = CarModel
         elif table == 'complectation':
             table = CarComplectation
-        elif table == 'year_of_release':
+        elif table in ('year_of_release', 'year'):
             table = CarYear
         elif table == 'mileage':
             table = CarMileage
@@ -105,19 +121,19 @@ class CarConfigs:
             return result
 
 
-    @staticmethod
-    async def get_characteristic(year=False, color=False, mileage=False):
-        if year:
-            current_table = CarYear
-        elif color:
-            current_table = CarColor
-        elif mileage:
-            current_table = CarMileage
-        else:
-            current_table = None
-
-        if current_table:
-            return await manager.execute(current_table.select())
+    # @staticmethod
+    # async def get_characteristic(year=False, color=False, mileage=False):
+    #     if year:
+    #         current_table = CarYear
+    #     elif color:
+    #         current_table = CarColor
+    #     elif mileage:
+    #         current_table = CarMileage
+    #     else:
+    #         current_table = None
+    #
+    #     if current_table:
+    #         return await manager.execute(current_table.select())
 
 
     @staticmethod
