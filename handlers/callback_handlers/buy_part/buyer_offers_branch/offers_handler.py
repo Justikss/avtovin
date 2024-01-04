@@ -18,9 +18,12 @@ async def insert_numbers_in_buttons(callback: CallbackQuery):
     recommendated_offers = await RecommendationRequester.retrieve_by_buyer_id(buyer_id=user_id)
     ic(non_confirm_offers)
     lexicon_part = LEXICON['buyer_requests']
-    lexicon_part['buttons']['buyer_active_offers'] = lexicon_part['buttons']['buyer_active_offers'].replace('X', str(len(confirm_offers)) if confirm_offers else '0')
-    lexicon_part['buttons']['buyer_cached_offers'] = lexicon_part['buttons']['buyer_cached_offers'].replace('X', str(len(non_confirm_offers)) if non_confirm_offers else '0')
-    lexicon_part['buttons']['buyers_recommended_offers'] = lexicon_part['buttons']['buyers_recommended_offers'].replace('X', str(len(recommendated_offers)) if recommendated_offers else '0')
+    lexicon_part['buttons']['buyer_active_offers'] = lexicon_part['buttons']['buyer_active_offers'].format(
+        confirmed=str(len(confirm_offers)) if confirm_offers else '0')
+    lexicon_part['buttons']['buyer_cached_offers'] = lexicon_part['buttons']['buyer_cached_offers'].format(
+        non_confirmed=str(len(non_confirm_offers)) if non_confirm_offers else '0')
+    lexicon_part['buttons']['buyers_recommended_offers'] = lexicon_part['buttons']['buyers_recommended_offers'].format(
+        new=str(len(recommendated_offers)) if recommendated_offers else '0')
     ic(lexicon_part)
     return lexicon_part
 async def buyer_offers_callback_handler(callback: CallbackQuery, state: FSMContext, delete_mode=False):

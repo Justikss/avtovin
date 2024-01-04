@@ -45,5 +45,5 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
 
             await self.send_alert_answer(request,
                                          captions['successfully'])
-
-        return await OutputSpecificAdvertParameters().callback_handler(request, state)
+        ic()
+        return await OutputSpecificAdvertParameters().callback_handler(request, state)#

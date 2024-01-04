@@ -56,21 +56,19 @@ class PhotoRequester:
             await manager.execute(insert_photo_query)
 
     @staticmethod
-    async def try_get_photo(state: FSMContext, color=None) -> Optional[list]:
+    async def try_get_photo(state: FSMContext, for_admin=False) -> Optional[list]:
         '''Асинхронная попытка подобрать фотографии для новой заявки на Новый автомобиль'''
         memory_storage = await state.get_data()
         ic(memory_storage)
+        if for_admin:
+            memory_storage = memory_storage.get('selected_parameters')
+        complectation = memory_storage['complectation_for_load' if not for_admin else 'complectation']
+        color = memory_storage['color_for_load' if not for_admin else 'color']
 
-
-        complectation = memory_storage['complectation_for_load']
-        engine = memory_storage['engine_for_load']
-        color = color if color else memory_storage.get('color_for_load')
-        if color is None:
-            return None
-        ic(engine, complectation)
+        ic(complectation)
         query = (NewCarPhotoBase.select().join(CarComplectation)
                                 .switch(NewCarPhotoBase).join(CarColor).where(
-                        (CarComplectation.id == int(complectation)) &  (CarColor.id == color)))
+                        (CarComplectation.id == int(complectation)) & (CarColor.id == color)))
         select_response = list(await manager.execute(query))
         ic(select_response)
         if select_response:

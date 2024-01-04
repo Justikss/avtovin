@@ -52,3 +52,11 @@ class AdvertParameterValueFilter(BaseFilterObject):
                 return
 
         return message_input_request_handler
+
+    #
+    # async def check_on_exists_new_state_param_names(self, current_advert_parameter):
+    #
+    #
+    #     match current_advert_parameter:
+    #
+    #         pass

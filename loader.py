@@ -434,7 +434,8 @@ async def start_bot():
                                F.data == 'confirm_rewrite_existing_advert_parameter')
     '''new_car_catalog'''
     dp.callback_query.register(NewCarStateParameters().callback_handler,
-                               F.data == 'advert_parameters_choose_state:1')
+                               or_f(F.data == 'advert_parameters_choose_state:1',
+                                    lambda callback: callback.data.startswith('new_state_parameters:')))
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,

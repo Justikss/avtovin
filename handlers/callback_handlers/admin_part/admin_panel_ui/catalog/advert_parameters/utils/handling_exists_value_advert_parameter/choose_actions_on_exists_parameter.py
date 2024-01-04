@@ -24,7 +24,8 @@ class ChooseActionOnAdvertParameterHandler(BaseCallbackQueryHandler):
                 await state.update_data(current_advert_parameter={'id': current_parameter_value_id, 'value': current_parameter_value})
             else:
                 await request.answer(LEXICON['search_parameter_invalid'])
-                await OutputSpecificAdvertParameters().callback_handler(request, state)
+                ic()
+                await OutputSpecificAdvertParameters().callback_handler(request, state)#
                 return
         else:
             memory_storage = await state.get_data()

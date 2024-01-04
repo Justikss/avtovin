@@ -21,7 +21,9 @@ async def unpack_lexicon_to_start_using(callback, string_user_id):
             admin_lexicon_part[callback_value] = button_caption
         if admin_lexicon_part:
             lexicon_part = admin_lexicon_part
-    message_text = lexicon_part['message_text'].replace('X', callback.from_user.username)
+    user_name = callback.from_user.username
+    user_name = '' if not user_name else user_name
+    message_text = lexicon_part['message_text'].format(user_name=user_name)
     ic(lexicon_part)
     keyboard = await InlineCreator.create_markup(lexicon_part)
 

@@ -11,6 +11,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
     request_choose_mailing_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
+    AdvertParametersChooseCarState
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
+    NewCarStateParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
     OutputSpecificAdvertParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
@@ -63,6 +67,8 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     handler_class = None
     current_state = str(await state.get_state())
     memory_storage = await state.get_data()
+
+    ic(backward_mode)
 
     match backward_mode:
 
@@ -154,21 +160,22 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'input_reason_to_close_advert':
             await choose_specific_advert_action_admin_handler(callback, state)
 
-        case 'choose_second_hand_advert_parameters_type':
+        case 'choose_second_hand_advert_parameters_type' | 'go_to_choose_params_state':
             await advert_parameters.advert_parameters__choose_state\
                 .AdvertParametersChooseCarState().callback_handler(callback, state)
 
-        case 'choose_specific_advert_parameter_value':
-            await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type\
-                .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)
+
+        case 'choose_specific_advert_parameter_value' | 'review_params_branch':
+            await backward_in_advert_parameters_interface(current_state, callback, state)
 
         case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel' | 'choose_action_on_specific_adv_parameter':
             match backward_mode:
                 case 'confirmation_add_new_parameter_value_cancel':
                     if memory_storage.get('admin_incorrect_flag'):
                         await delete_message(callback, memory_storage.get('last_admin_answer'))
+            ic()
             await advert_parameters.parameters_ouptut.output_specific_parameters\
-                .OutputSpecificAdvertParameters().callback_handler(callback, state)
+                .OutputSpecificAdvertParameters().callback_handler(callback, state)#
 
         case 'confirmation_add_new_parameter_value_rewrite':
             await advert_parameters.utils.add_new_value_advert_parameter.add_new_value_advert_parameter\
@@ -177,5 +184,45 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'confirmation_delete_advert_param' | 'rewrite_exists_advert_param' | 'start_rewrite_exists_parameter_value':
             await ChooseActionOnAdvertParameterHandler().callback_handler(callback, state)
 
+async def backward_in_advert_parameters_interface(current_state, callback, state):
+    current_parameters_to_output = None
+    next_parameters_to_output = None
 
+    ic(current_state)
+    match current_state:
+        case 'AdminAdvertParametersStates.NewStateStates:chosen_state':
+            await AdvertParametersChooseCarState().callback_handler(callback, state)
+        case 'AdminAdvertParametersStates.NewStateStates:chosen_engine':
+            current_parameters_to_output = 'engine'
+            next_parameters_to_output = 'state'
+        case 'AdminAdvertParametersStates.NewStateStates:chosen_brand':
+            current_parameters_to_output = 'brand'
+            next_parameters_to_output = 'engine'
+        case 'AdminAdvertParametersStates.NewStateStates:chosen_model':
+            current_parameters_to_output = 'model'
+            next_parameters_to_output = 'brand'
+        case 'AdminAdvertParametersStates.NewStateStates:chosen_complectation':
+            current_parameters_to_output = 'complectation'
+            next_parameters_to_output = 'model'
+        case 'AdminAdvertParametersStates.NewStateStates:chosen_color' | \
+             'AdminAdvertParametersStates.NewStateStates:parameters_branch_review':
+            current_parameters_to_output = 'color'
+            next_parameters_to_output = 'complectation'
+        # case '':
+        #     current_parameters_to_output = 'color'
+        #     next_parameters_to_output = 'complectation'
+        case _:
+            await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type \
+                .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)
 
+    if next_parameters_to_output:
+        memory_storage = await state.get_data()
+
+        selected_parameters = memory_storage.get('selected_parameters')
+        selected_parameters.pop(current_parameters_to_output)
+        await state.update_data(selected_parameters=selected_parameters)
+
+        await NewCarStateParameters().set_state_by_param(state, next_parameters_to_output)
+        await state.update_data(next_params_output=current_parameters_to_output)
+        ic()
+        await OutputSpecificAdvertParameters().callback_handler(callback, state)#

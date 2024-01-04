@@ -16,3 +16,4 @@ class AdminAdvertParametersStates(StatesGroup):
         chosen_model = State()
         chosen_complectation = State()
         chosen_color = State()
+        parameters_branch_review = State()

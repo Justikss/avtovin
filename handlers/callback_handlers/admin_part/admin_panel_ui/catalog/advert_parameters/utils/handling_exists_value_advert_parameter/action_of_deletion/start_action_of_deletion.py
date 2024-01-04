@@ -28,7 +28,8 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
             ic(current_state)
             match current_state:
                 case 'AdminAdvertParametersStates.start_delete_action':
-                    await OutputSpecificAdvertParameters().callback_handler(request, state)
+                    ic()
+                    await OutputSpecificAdvertParameters().callback_handler(request, state)#
                 case _:
                     pass
             return

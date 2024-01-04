@@ -25,5 +25,6 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
         else:
             ic()
             await self.send_alert_answer(request, captions['successfully'])
-            await OutputSpecificAdvertParameters().callback_handler(request, state)
+            ic()
+            await OutputSpecificAdvertParameters().callback_handler(request, state)#
 

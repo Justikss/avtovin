@@ -27,14 +27,17 @@ class BaseHandler(ABC):
         await send_message_answer(request, text, show_alert=show_alert)
 
     async def set_state(self, state: FSMContext, needed_state: State):
+        ic(await state.get_state())
         if await state.get_state() != needed_state:
             await state.set_state(needed_state)
 
-    async def output_panel(self, request: CallbackQuery | Message, state: FSMContext):
+    async def _output_panel(self, request: CallbackQuery | Message, state: FSMContext):
         if self.output_methods:
             for output_class in self.output_methods:
                 if not isinstance(output_class, Callable):
                     callable_object = output_class.process
+                # elif isinstance(output_class, BaseHandler):
+                #     return await output_class(request, state, **kwargs)
                 else:
                     callable_object = output_class
                 await callable_object(request, state)

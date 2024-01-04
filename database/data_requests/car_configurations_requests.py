@@ -81,10 +81,10 @@ class CarConfigs:
         return result
 
 
-    @staticmethod
-    async def get_colors_by_name(color_name):
-        color_models = list(await manager.execute(CarColor.select().where(CarColor.name == color_name)))
-        return color_models
+    # @staticmethod
+    # async def get_colors_by_name(color_name):
+    #     color_models = list(await manager.execute(CarColor.select().where(CarColor.name == color_name)))
+    #     return color_models
 
     @staticmethod
     async def get_by_id(table, model_id):
@@ -111,7 +111,7 @@ class CarConfigs:
             return await manager.get(table.select().where(table.id == model_id))
 
     @staticmethod
-    async def get_color_by_complectaiton(complectation_id):
+    async def get_color_by_complectaiton(complectation_id, without_other=False):
         if not isinstance(complectation_id, int):
             complectation_id = int(complectation_id)
         ic(complectation_id)
@@ -120,7 +120,8 @@ class CarConfigs:
         result = await manager.execute(query)
         if result:
             result = await set_other_color_on_last_position(result)
-
+            if without_other:
+                result.pop()
             return result
 
 

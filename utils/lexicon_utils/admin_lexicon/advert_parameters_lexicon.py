@@ -2,7 +2,7 @@ from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions, return_mai
 
 advert_parameters_captions = {
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
-    'brand': 'Бренд', 'state': 'Состояние'
+    'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель'
 }
 
 __ADVERT_PARAMETERS_LEXICON = {
@@ -63,7 +63,14 @@ __ADVERT_PARAMETERS_LEXICON = {
                     'rewrite_current_advert_parameter': 'Ввести заново',
                     'admin_backward:rewrite_exists_advert_param': captions['backward'],
                     'width': 1}
-    }
+    },
+    'review_params_branch': {'message_text': '',
+                             'buttons': {'update_media_group': 'Обновить фотографии',
+                             'delete_params_branch': captions['delete'],
+                             'admin_backward:review_params_branch': captions['backward'],
+                             'admin_backward:go_to_choose_params_state': 'В начало выборки',
+                             **return_main_menu,
+                             'width': 1}}
 }
 
 class AdvertParametersChooseState:
@@ -73,7 +80,7 @@ class AdvertParametersChooseState:
     width = 2
     backward_command = {'admin_backward:advert_parameters_choose_state': captions['backward'], **return_main_menu}
 
-class AdvertSecondHandParametersChooseSpecificValue:
+class AdvertParametersChooseSpecificValue:
     message_text_mileage = f'''{advert_parameters_captions['mileage']}:'''
     message_text_year = 'Год выпуска:'
     message_text_engine = f'''{advert_parameters_captions['engine']}:'''
@@ -87,7 +94,8 @@ class AdvertSecondHandParametersChooseSpecificValue:
     width = 2
     second_hand_buttons_interface = {'add_new_advert_parameter': captions['add']}
     new_buttons_interface = {'delete_current_advert_parameter': captions['delete'],
-                          'rewrite_current_advert_parameter': 'Изменить'}
+                            'rewrite_current_advert_parameter': 'Изменить',
+                            **second_hand_buttons_interface}
     backward_command = {'admin_backward:choose_specific_advert_parameter_value': captions['backward'],
                         **return_main_menu}
 
@@ -106,4 +114,9 @@ class AdvertSecondHandParametersChooseSpecificValue:
 
         self.dynamic_buttons = self.dynamic_buttons
         self.width = self.width
-        self.backward_command = self.buttons_interface.update(self.backward_command)
+
+        ic(self.backward_command, self.buttons_interface)
+
+        self.backward_command = {**self.buttons_interface, **self.backward_command}
+
+        ic(self.backward_command, self.buttons_interface)
