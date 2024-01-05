@@ -1,10 +1,10 @@
-import traceback
-
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 import importlib
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_media_group_to_advert.input_media import \
+    InputCarPhotosToSetParametersBranchHandler
 
 
 class MessageIsPhoto(BaseFilter):
@@ -51,4 +51,10 @@ class MessageIsPhoto(BaseFilter):
                                                 value=message.message_id)
         ic()
         print('input_photo_to_load')#
-        await photo_to_load_module.input_photo_to_load(request=message, state=state, incorrect=True)#
+        current_state = str(await state.get_state())
+        match current_state:
+            case 'LoadCommodityStates:photo_verification':
+                await photo_to_load_module.input_photo_to_load(request=message, state=state, incorrect=True)  #
+
+            case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
+                await InputCarPhotosToSetParametersBranchHandler().callback_handler(message, state, incorrect=True)

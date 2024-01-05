@@ -70,6 +70,8 @@ class RecommendationParametersBinder:
 
     @staticmethod
     async def remove_wire_by_parameter(parameter_table, parameter_id):
+        if not isinstance(parameter_id, list):
+            parameter_id = [parameter_id]
         parameter_recommendations_to_buyer_wire = await AdvertParameterManager.get_wire_to_config(
             parameter_table, RecommendationsToBuyer
         )
@@ -77,7 +79,7 @@ class RecommendationParametersBinder:
         ic(parameter_recommendations_to_buyer_wire)
         ic(await manager.execute(RecommendationsToBuyer.delete().where(
             RecommendationsToBuyer.id.in_(
-                parameter_recommendations_to_buyer_wire.where(parameter_table.id == parameter_id)
+                parameter_recommendations_to_buyer_wire.where(parameter_table.id.in_(parameter_id))
             ))
         ))
         ic()
@@ -85,7 +87,7 @@ class RecommendationParametersBinder:
         print(advert_parameters_wire)
         ic(await manager.execute(
             AdvertParameters.delete().where(AdvertParameters.id.in_(
-                advert_parameters_wire.where(parameter_table.id == parameter_id)
+                advert_parameters_wire.where(parameter_table.id.in_(parameter_id))
             )
             )
         ))

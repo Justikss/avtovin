@@ -1,3 +1,6 @@
+import logging
+import traceback
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
@@ -12,8 +15,10 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler im
 
 class AdvertParametersChooseCarState(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        await self.set_state(AdminAdvertParametersStates.review_process)
-
+        await self.set_state(state, AdminAdvertParametersStates.review_process)
+        logging.debug("Стек вызовов: %s", traceback.format_stack())
+        await state.update_data(next_params_output=None)
+        await state.update_data(selected_parameters=None)
         self.output_methods = [
             InlinePaginationInit(
                 lexicon_class=AdvertParametersChooseState,

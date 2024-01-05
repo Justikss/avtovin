@@ -11,7 +11,13 @@ __LOGGING_LEXICON = {'reset_tariff_action': 'Обнулил тариф прод�
                      "edit_tariff": 'Редактировал тариф: ', 'delete_tariff': 'Удалил тариф: ', 'add_tariff': 'Добавил тариф: ',
                      'add_mailing': 'Установил сообщение в рассылку с текстом:', 'in_time': ' В ',
                      'delete_mailing': 'Удалил рассылку с текстом: ', 'published_in_time': 'дата публикации: ',
-                     'close_advert': 'Удалил объявление продавца: '}
+                     'close_advert': 'Удалил объявление продавца: ',
+
+                     'added_param': 'Добавил параметр автомобилей: ',
+                     'deleted_param': 'Удалил последний параметр автомобилей по ветке: ',
+                     'rewrote_param': 'Редактировал последний параметр автомобилей по ветке: ',
+                     'add_param_branch': 'Добавил ветку параметров: ',
+                     'rebooted_param_branch_photo': 'Обновил фотографии ветки параметров автомобиля: '}
 
 async def log_admin_action(admin_username, action, subject='', reason=False):
     ic(subject)
@@ -21,10 +27,10 @@ async def log_admin_action(admin_username, action, subject='', reason=False):
             reason = f'''{__LOGGING_LEXICON['in_time']}{reason}'''
         elif action == 'delete_mailing':
             reason = f'''{ __LOGGING_LEXICON['published_in_time']} {reason}'''
+        elif action in ('deleted_param'):
+            reason = reason
         elif action != 'ban_buyer':
             reason = f'''{__LOGGING_LEXICON['for_reason']} {reason}'''
-
-
 
     else:
         reason = ''

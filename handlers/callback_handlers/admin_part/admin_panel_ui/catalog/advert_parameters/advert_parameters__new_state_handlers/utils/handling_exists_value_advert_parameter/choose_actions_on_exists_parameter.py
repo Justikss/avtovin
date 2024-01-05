@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
@@ -8,10 +10,7 @@ from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_PARAMETERS_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.\
-    output_specific_parameters import OutputSpecificAdvertParameters
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.add_new_value_advert_parameter\
-    .input_confirmation import TravelMessageEditorInit
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_confirmation import TravelMessageEditorInit
 
 class ChooseActionOnAdvertParameterHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
@@ -26,9 +25,12 @@ class ChooseActionOnAdvertParameterHandler(BaseCallbackQueryHandler):
                 current_parameter_value = current_parameter_value.name
                 await state.update_data(current_advert_parameter={'id': current_parameter_value_id, 'value': current_parameter_value})
             else:
+                output_specific_parameters_module = importlib.import_module(
+                    'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+
                 await request.answer(LEXICON['search_parameter_invalid'])
                 ic()
-                await OutputSpecificAdvertParameters().callback_handler(request, state)#
+                await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#
                 return
         else:
             memory_storage = await state.get_data()
@@ -42,7 +44,7 @@ class ChooseActionOnAdvertParameterHandler(BaseCallbackQueryHandler):
         )
         self.output_methods = [
             TravelMessageEditorInit(
-                delete_mode=self.incorrect_manager.get_incorrect_flag(state),
+                delete_mode=await self.incorrect_manager.get_incorrect_flag(state),
                 lexicon_part=lexicon_part,
                 dynamic_buttons=2
             )

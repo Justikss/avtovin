@@ -14,7 +14,7 @@ class CarEngine(BaseModel):
 
 class CarColor(BaseModel):
     name = CharField(unique=True)
-    base_status = BooleanField(null=True)
+    # base_status = BooleanField(null=True)
 
 class CarMileage(BaseModel):
     name = CharField(unique=True)

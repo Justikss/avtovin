@@ -1,7 +1,7 @@
 import importlib
 
 from database.db_connect import manager
-from database.tables.car_configurations import CarAdvert
+from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel
 from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
@@ -47,3 +47,20 @@ class AdvertFeedbackRequester:
 
         parameters = await AdvertFeedbackRequester.extract_parameters(advert)
         await manager.execute(SellerFeedbacksHistory.insert(seller_id=seller_id, advert_parameters=parameters[0]))
+
+
+    @staticmethod
+    async def update_parameters_to_null_by_specific_parameter(table_name, model_id):
+        base_query = SellerFeedbacksHistory.select(SellerFeedbacksHistory.id).join(AdvertParameters)\
+                                                                             .join(CarComplectation).join(CarModel)
+        if table_name == 'color':
+            base_query = base_query.where(AdvertParameters.color.in_(model_id))
+        if table_name == 'complectation':
+            base_query = base_query.where(CarComplectation.id.in_(model_id))
+        if model_id:
+            base_query = base_query.where(CarModel.id.in_(model_id))
+        if table_name == 'brand':
+            base_query = base_query.where(CarModel.brand.in_(model_id))
+
+        await manager.execute(SellerFeedbacksHistory().update(advert_parameters=None)\
+                                                      .where(SellerFeedbacksHistory.id.in_(base_query)))

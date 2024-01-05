@@ -16,4 +16,6 @@ class AdminAdvertParametersStates(StatesGroup):
         chosen_model = State()
         chosen_complectation = State()
         chosen_color = State()
+        await_input_new_car_photos = State()
+        confirmation_new_params_branch_to_load = State()
         parameters_branch_review = State()

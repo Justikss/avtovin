@@ -34,8 +34,11 @@ class CarConfigs:
         return brand
 
     @staticmethod
-    async def custom_action(mode, action: str, name=None, model_id=None):
-        if model_id and not isinstance(model_id, int):
+    async def custom_action(mode, action: str, name=None, model_id=None,
+                            first_subject=None, second_subject=None):
+        if isinstance(model_id, (list, set)):
+            model_id = [int(id_element) for id_element in model_id]
+        elif model_id and not isinstance(model_id, int):
             model_id = int(model_id)
 
         ic(name, mode, action, model_id)
@@ -56,6 +59,11 @@ class CarConfigs:
         else:
             return
 
+        if not isinstance(model_id, int):
+            default_condition = current_table.id.in_(model_id)
+        else:
+            default_condition = current_table.id == model_id
+        ic(model_id)
         match action:
             case 'get_by_name' if name:
                 result = await manager.get_or_none(current_table, current_table.name == name)
@@ -67,19 +75,24 @@ class CarConfigs:
                 result = list(query)
 
             case 'insert' if name:
+                insert_kwargs = {'name': name}
                 try:
-                    result = await manager.create(current_table, name=name)
+                    if first_subject and not second_subject:
+                      insert_kwargs['brand'] = first_subject
+                    elif all(subject for subject in (first_subject ,second_subject)):
+                        insert_kwargs['model'] = first_subject
+                        insert_kwargs['engine'] = second_subject
+                    result = await manager.create(current_table, **insert_kwargs)
                 except IntegrityError:
                     return '(exists)'
 
             case 'delete' if model_id:
-                if mode in ('mileage', 'year'):
-                    await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
-                    result = await manager.execute(current_table.delete().where(current_table.id == model_id))
-                else:
-                    pass
+                # if mode:
+                await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
+                result = await manager.execute(current_table.delete().where(default_condition))
+
             case 'update' if name and model_id:
-                result = await manager.execute(current_table.update(name=name).where(current_table.id == model_id))
+                result = await manager.execute(current_table.update(name=name).where(default_condition))
         ic(result)
         return result
 
@@ -117,7 +130,7 @@ class CarConfigs:
             table = None
         ic(table, model_id)
         if model_id and table:
-            return await manager.get(table.select().where(table.id == model_id))
+            return await manager.get_or_none(table, table.id == model_id)
 
     @staticmethod
     async def get_color_by_complectaiton(complectation_id, without_other=False):
@@ -126,9 +139,11 @@ class CarConfigs:
         ic(complectation_id)
         # query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.id == complectation_id)
         query = CarColor.select().join(NewCarPhotoBase).join(CarComplectation).where(CarComplectation.id == complectation_id).distinct()
-        result = await manager.execute(query)
+        result = list(await manager.execute(query))
+        ic(result)
+        ic()
         if result:
-            result = await set_other_color_on_last_position(result)
+            result = await set_other_color_on_last_position(result, without_other=without_other)
             ic(result)
             # if without_other:
             #     ic(result)
@@ -181,9 +196,12 @@ class CarConfigs:
         return model
 
     @staticmethod
-    async def get_models_by_brand_and_engine(brand_id, engine_id):
+    async def get_models_by_brand_and_engine(brand_id, engine_id=None):
         ic(brand_id, engine_id)
-        return list(await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
+        if engine_id:
+            return list(await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
+        else:
+            return list(await manager.execute(CarModel.select().join(CarComplectation).where(CarModel.brand_id == brand_id)))
 
 
     @staticmethod
@@ -193,9 +211,11 @@ class CarConfigs:
         return complectation
 
     @staticmethod
-    async def get_complectations_by_model_and_engine(model_id, engine_id):
-        return list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).join(CarEngine).where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
-
+    async def get_complectations_by_model_and_engine(model_id, engine_id=None):
+        if engine_id:
+            return list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).join(CarEngine).where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
+        else:
+            return list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).where((CarModel.id == model_id))))
     # Функции для работы с User
     @staticmethod
     async def add_user(username, role):
@@ -254,7 +274,7 @@ async def insert_many(table, names):
                 name = name.split(head_symbol)
                 name = head_symbol.join([f"{int(nam):,}".replace(",", ".") for nam in name])
         elif table == CarColor:
-            await manager.create(table, name=name, base_status=True)
+            await manager.create(table, name=name)
             continue
 
         await manager.create(table, name=name)
@@ -485,43 +505,44 @@ async def add_photo(car_photos_info, car_info_list):
     except Exception as e:
         ic(e)  # Выводим исключение, если оно возникло
 
-async def get_car(photos=None):
+async def get_car(photos=None, cars=False):
     global insert_carars
     # await get_seller_account()
-    await manager.create(CarAdvert, seller=902230076, complectation=1, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=2, state=1, dollar_price=45545, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=3, state=1, sum_price=5556645, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=4, state=1, dollar_price=75632, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=5, state=1, sum_price=2312423, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=6, state=1, sum_price=2322222, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, dollar_price=1234223, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year= None)
-    await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, dollar_price=53458799, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None )
-    car_id = 0
-    for index in range(9, 132):
-        for state_index in range(1, 3):
-            for color_index in range(1, 10):
-                if state_index == 1:
-                    mileage, year = None, None
-                    car_id += 1
-                    # await CarConfigs.add_advert(902230076, )
-                    insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
-                                         'dollar_price': random.randint(500000, 3800000),
-                                         'color': color_index, 'mileage': mileage,
-                                         'year': year})
+    if cars:
+        await manager.create(CarAdvert, seller=902230076, complectation=1, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+        await manager.create(CarAdvert, seller=902230076, complectation=2, state=1, dollar_price=45545, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+        await manager.create(CarAdvert, seller=902230076, complectation=3, state=1, sum_price=5556645, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+        await manager.create(CarAdvert, seller=902230076, complectation=4, state=1, dollar_price=75632, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+        await manager.create(CarAdvert, seller=902230076, complectation=5, state=1, sum_price=2312423, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+        await manager.create(CarAdvert, seller=902230076, complectation=6, state=1, sum_price=2322222, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+        await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, dollar_price=1234223, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year= None)
+        await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, dollar_price=53458799, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None )
+        car_id = 0
+        for index in range(9, 132):
+            for state_index in range(1, 3):
+                for color_index in range(1, 10):
+                    if state_index == 1:
+                        mileage, year = None, None
+                        car_id += 1
+                        # await CarConfigs.add_advert(902230076, )
+                        insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
+                                             'dollar_price': random.randint(500000, 3800000),
+                                             'color': color_index, 'mileage': mileage,
+                                             'year': year})
 
-                elif state_index == 2:
-                    for mileage in range(1, 13):
-                        for year in range(1, 8):
-                            car_id += 1
-                            # insert_photos.append({"car_id": car_id, 'photo_id': 1, 'photo_unique_id': 1})
-                            insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
-                                                  'dollar_price': random.randint(500000, 3800000),
-                                                  'color': color_index,
-                                                  'mileage': mileage,
-                                                  'year': year})
+                    elif state_index == 2:
+                        for mileage in range(1, 13):
+                            for year in range(1, 8):
+                                car_id += 1
+                                # insert_photos.append({"car_id": car_id, 'photo_id': 1, 'photo_unique_id': 1})
+                                insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
+                                                      'dollar_price': random.randint(500000, 3800000),
+                                                      'color': color_index,
+                                                      'mileage': mileage,
+                                                      'year': year})
 
 
-    await manager.execute(CarAdvert.insert_many(insert_carars))
+        await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     if photos:
         await insert_advert_photos(photos)

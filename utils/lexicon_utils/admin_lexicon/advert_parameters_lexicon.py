@@ -2,7 +2,7 @@ from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions, return_mai
 
 advert_parameters_captions = {
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
-    'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'param': 'параметра', 'params': 'параметров'
+    'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'from_param_branch': ' из ветки параметров:\n{param_branch}\n'
 }
 
 __ADVERT_PARAMETERS_LEXICON = {
@@ -42,7 +42,7 @@ __ADVERT_PARAMETERS_LEXICON = {
             'width': 2
     }},
     'confirmation_to_delete_exists_parameter': {
-        'message_text': 'Подтвердите удаление {param_or_params}:\n{parameter_type_to_parameter_value}', 'buttons': {
+        'message_text': 'Подтвердите удаление{from_param_branch}\nПараметра:\n{parameter_type_to_parameter_value}', 'buttons': {
             'confirm_delete_advert_parameter': captions['confirm'],
             'admin_backward:confirmation_delete_advert_param': captions['backward'],
             **return_main_menu,
@@ -65,9 +65,23 @@ __ADVERT_PARAMETERS_LEXICON = {
                     'admin_backward:rewrite_exists_advert_param': captions['backward'],
                     'width': 1}
     },
+    'input_photos_to_load_param_branch': {'message_text': 'Пришлите от 3-5 фотографий автомобиля\nсогласно введённым характеристикам:',
+                                          'buttons': {
+                                              'admin_backward:await_input_new_parameter_value': captions['backward'],
+                                              'width': 1
+                                          }},
+    'load_new_params_branch_confirmation': {
+        'message_text': 'Ожидание подтверждения загрузки новой ветки параметров для авто:', 'buttons': {
+                                        'confirm_load_new_params_branch': captions['confirm'],
+                                        'update_params_branch_media_group': 'Обновить фотографии',
+                                         'admin_backward:review_params_branch_to_load': captions['backward'],
+                                         'admin_backward:go_to_choose_params_state': 'В начало выборки',
+                                         **return_main_menu,
+                                         'width': 1
+        }},
     'review_params_branch': {'message_text': '',
                              'buttons': {'rewrite_current_advert_parameter': 'Редактировать',
-                                         'update_media_group': 'Обновить фотографии',
+                                         'update_params_branch_media_group': 'Обновить фотографии',
                                          'delete_current_advert_parameter': captions['delete'],
                                          'admin_backward:review_params_branch': captions['backward'],
                                          'admin_backward:go_to_choose_params_state': 'В начало выборки',
@@ -108,7 +122,10 @@ class AdvertParametersChooseSpecificValue:
 
             ic(self.message_text)
         if header:
-            self.buttons_interface = self.new_buttons_interface
+            if parameter_name == 'brand':
+                self.buttons_interface = self.second_hand_buttons_interface
+            else:
+                self.buttons_interface = self.new_buttons_interface
             self.buttons_callback_data = self.buttons_callback_data_new
         else:
             self.buttons_interface = self.second_hand_buttons_interface
@@ -117,8 +134,7 @@ class AdvertParametersChooseSpecificValue:
         self.dynamic_buttons = self.dynamic_buttons
         self.width = self.width
 
-        ic(self.backward_command, self.buttons_interface)
+        if parameter_name not in ('state', 'engine'):
+            self.backward_command = {**self.buttons_interface, **self.backward_command}
 
-        self.backward_command = {**self.buttons_interface, **self.backward_command}
 
-        ic(self.backward_command, self.buttons_interface)

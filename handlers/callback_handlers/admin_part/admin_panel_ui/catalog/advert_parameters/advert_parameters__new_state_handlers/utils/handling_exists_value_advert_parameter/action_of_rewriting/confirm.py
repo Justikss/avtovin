@@ -1,10 +1,11 @@
+import asyncio
 import importlib
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from database.data_requests.car_configurations_requests import CarConfigs
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
@@ -29,5 +30,8 @@ class ConfirmRewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
                                            )
             current_parameter['value'] = current_new_parameter_value
             await state.update_data(current_advert_parameter=current_parameter)
-            await self.send_alert_answer(request, captions['successfully'], show_alert=True)
+            await self.send_alert_answer(request, captions['successfully'])
             await ChooseActionOnAdvertParameterHandler().callback_handler(request, state)
+            asyncio.create_task(self.logging_action(request, 'rewrote_param', {
+                current_parameter_name: {current_parameter['value']: current_new_parameter_value}
+            }))

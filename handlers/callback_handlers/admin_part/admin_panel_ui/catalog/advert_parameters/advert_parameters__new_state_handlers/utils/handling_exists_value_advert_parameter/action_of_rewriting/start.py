@@ -6,8 +6,7 @@ from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils\
-    .handling_exists_value_advert_parameter.action_of_deletion.start_action_of_deletion import TravelMessageEditorInit
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.start_deletion import TravelMessageEditorInit
 
 
 class RewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
@@ -17,7 +16,8 @@ class RewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
         self.output_methods = [
             TravelMessageEditorInit(
                 lexicon_part=await self.insert_in_message_text(state, **kwargs),
-                delete_mode=incorrect_flag,
+                delete_mode=incorrect_flag or str(await state.get_state()) ==\
+                            'AdminAdvertParametersStates.NewStateStates:parameters_branch_review',
                 reply_message=await self.incorrect_manager.get_last_incorrect_message_id(state) if incorrect_flag else None
             )
         ]

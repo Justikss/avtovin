@@ -4,12 +4,10 @@ from aiogram.types import Message, CallbackQuery
 from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
-    OutputSpecificAdvertParameters
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.add_new_value_advert_parameter\
-    .add_new_value_advert_parameter import AddNewValueAdvertParameter
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.start_rewrite_exsits_advert_parameter import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import AddNewValueAdvertParameter
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_rewriting.start import \
     RewriteExistsAdvertParameterHandler
+
 from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from utils.custom_exceptions.database_exceptions import FilterWithoutInput
@@ -32,7 +30,10 @@ class AdvertParameterValueFilter(BaseFilterObject):
             inputted_value = memory_storage.get('current_new_parameter_value')
         else:
             raise FilterWithoutInput()
-        last_advert_parameter = memory_storage.get('admin_chosen_advert_parameter')
+        if memory_storage.get('params_type_flag') == 'new':
+            last_advert_parameter = memory_storage.get('next_params_output')
+        else:
+            last_advert_parameter = memory_storage.get('admin_chosen_advert_parameter')
         ic(last_advert_parameter)
 
         if last_advert_parameter in ('mileage', 'year'):
@@ -63,10 +64,19 @@ class AdvertParameterValueFilter(BaseFilterObject):
         return message_input_request_handler
 
     async def seek_matched_new_state_param_names(self, request, state: FSMContext, last_advert_parameter, parameter_value):
-        current_params = await OutputSpecificAdvertParameters().get_need_new_car_state_params(request,
-                                                                                              state, last_advert_parameter)
-        if current_params:
-            current_names = [param.name for param in current_params]
-            if parameter_value in current_names:
-                return True
+        # output_specific_parameters_module = importlib.import_module(
+        #     'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+
+        # await state.update_data()
+
+        # current_params = await output_specific_parameters_module\
+        #     .OutputSpecificAdvertParameters().get_need_new_car_state_params(request, state, last_advert_parameter)
+        exists_param = await CarConfigs.custom_action(mode=last_advert_parameter, action='get_by_name',
+                                                      name=parameter_value)
+        if exists_param:
+            return True
+        # if current_params:
+        #     current_names = [param.name for param in current_params]
+        #     if parameter_value in current_names:
+        #         return True
 

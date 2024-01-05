@@ -151,11 +151,11 @@ class CachedRequestsView:
         if current_page:
             ic(len(current_page))
             width_value = width_value if len(current_page) >= 2 else 1
-            ic([len(caption) for caption in current_page])
-            max_text_width = max([len(caption) for callback_data, caption in current_page.items()])
-            ic(max_text_width)
-            if max_text_width > 14:
-                width_value = 1
+            # ic([len(caption) for caption in current_page])
+            # max_text_width = max([len(caption) for callback_data, caption in current_page.items()])
+            # ic(max_text_width)
+            # if max_text_width > 14:
+            #     width_value = 1
         width = ({width_value: len(current_page)}, 3, 1, 1)
 
         if current_state:

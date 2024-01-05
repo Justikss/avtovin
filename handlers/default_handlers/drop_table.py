@@ -29,10 +29,12 @@ async def insert_phototo(dataa):
                            .where(
             (CarComplectation.id == data['car_complectation']) & (CarColor.id == data['car_color'])
             ))
-        nice_car = list(await manager.execute(commodity_query))[0]
+        nice_car = list(await manager.execute(commodity_query))
+        if nice_car:
+            nice_car = nice_car[0]
 
 
-        insert_data.append({'car_id': nice_car.id, 'photo_id': data['photo_id'], 'photo_unique_id': data['photo_unique_id']})
+            insert_data.append({'car_id': nice_car.id, 'photo_id': data['photo_id'], 'photo_unique_id': data['photo_unique_id']})
         # ic(insert_data)
     if insert_data:
         ic(insert_data)
@@ -85,16 +87,17 @@ def read_photos_by_brand(directory):
 async def set_viewed_status():
     adverts = list(await manager.execute(CarAdvert.select(CarAdvert.id)))
     insetred_data = [{'advert': advert.id} for advert in adverts]
-    await manager.execute(AdvertsToAdminViewStatus.insert_many(insetred_data))
+    if insetred_data:
+        await manager.execute(AdvertsToAdminViewStatus.insert_many(insetred_data))
 
 async def drop_table_handler(message: Message):
-    await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
-    adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    if isinstance(adv, CarAdvert):
-        adv = adv.id
-    await advert_to_admin_view_related_requester.create_relation(adv)
-
-    return
+    # await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
+    # adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
+    # if isinstance(adv, CarAdvert):
+    #     adv = adv.id
+    # await advert_to_admin_view_related_requester.create_relation(adv)
+    #
+    # return
 
 
     await message.answer('Waiting..')

@@ -14,17 +14,23 @@ from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, t
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
     NewCarStateParameters
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_deletion.confirm_action_of_deletion import \
+
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_branch_confirm.confirm_add_new_branch_handler import \
+    ConfirmLoadNewParamsBranchHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_media_group_to_advert.input_media import \
+    InputCarPhotosToSetParametersBranchHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.confirm_deletion import \
     ConfirmDeleteExistsAdvertParameter
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_deletion.start_action_of_deletion import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.start_deletion import \
     ActionOfDeletionExistsAdvertParameter
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.confirm_rewrite_exists_advert_param import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_rewriting.confirm import \
     ConfirmRewriteExistsAdvertParameterHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.confirmation_rewrite_exists_advert_param import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_rewriting.confirmation import \
     ConfirmationRewriteExistsAdvertParameterHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.action_of_rewriting.start_rewrite_exsits_advert_parameter import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_rewriting.start import \
     RewriteExistsAdvertParameterHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
+
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
@@ -137,9 +143,7 @@ async def start_bot():
 
     await mailing_service.schedule_mailing(bot)
     await create_tables()
-    # await mock_values()
-    #
-    # await get_car()
+
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
     asyncio.create_task(GetDealershipAddress.process_queue())
@@ -151,9 +155,10 @@ async def start_bot():
                         StateFilter(MailingStates.entering_date_time))
 
     dp.message.register(collect_and_send_mediagroup,
-                        F.photo, F.photo[0].file_id.as_("photo_id"), F.media_group_id.as_("album_id"),
+                        F.photo, F.photo[0].file_id.as_("photo_id"),
                         F.photo[0].file_unique_id.as_('unique_id'),
-                        StateFilter(LoadCommodityStates.photo_verification))
+                        or_f(StateFilter(LoadCommodityStates.photo_verification),
+                             StateFilter(AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos)))
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
@@ -390,21 +395,25 @@ async def start_bot():
     )
 
     dp.callback_query.register(
-        catalog.advert_parameters.utils.add_new_value_advert_parameter.add_new_value_advert_parameter\
-        .AddNewValueAdvertParameter().callback_handler,
-        F.data == 'add_new_advert_parameter',
-        StateFilter(AdminAdvertParametersStates.review_process)
+        admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils\
+            .add_new_value_advert_parameter.add_new_value_advert_parameter \
+            .AddNewValueAdvertParameter().callback_handler,
+        F.data == 'add_new_advert_parameter'
     )
     dp.message.register(
-        catalog.advert_parameters.utils.add_new_value_advert_parameter.input_confirmation\
-        .AddNewValueOfAdvertParameterConfirmationMessageHandler(
+        admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils\
+            .add_new_value_advert_parameter.input_confirmation \
+            .AddNewValueOfAdvertParameterConfirmationMessageHandler(
             filters=AdvertParameterValueFilter()).message_handler,
         StateFilter(AdminAdvertParametersStates.start_add_value_process)
     )
     dp.callback_query.register(
-        catalog.advert_parameters.utils.add_new_value_advert_parameter.confirm_add_new_value_of_advert_parameter.ConfirmAddNewValueOfAdvertParameter().callback_handler,
+        admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils\
+            .add_new_value_advert_parameter.confirm_add_new_value_of_advert_parameter \
+            .ConfirmAddNewValueOfAdvertParameter().callback_handler,
         F.data == 'confirm_action_add_new_parameter_value',
-        StateFilter(AdminAdvertParametersStates.confirmation_add_value_process)
+        StateFilter(AdminAdvertParametersStates.confirmation_add_value_process),
+        AdminStatusController()
     ),
     dp.callback_query.register(
         ChooseActionOnAdvertParameterHandler().callback_handler,
@@ -418,7 +427,8 @@ async def start_bot():
     dp.callback_query.register(
         ConfirmDeleteExistsAdvertParameter().callback_handler,
         F.data == 'confirm_delete_advert_parameter',
-        StateFilter(AdminAdvertParametersStates.start_delete_action)
+        StateFilter(AdminAdvertParametersStates.start_delete_action),
+        AdminStatusController()
     )
 
     dp.callback_query.register(RewriteExistsAdvertParameterHandler().callback_handler,
@@ -428,11 +438,19 @@ async def start_bot():
                         StateFilter(AdminAdvertParametersStates.start_rewrite_exists_parameter))
     dp.callback_query.register(ConfirmRewriteExistsAdvertParameterHandler().callback_handler,
                                StateFilter(AdminAdvertParametersStates.confirmation_rewrite_exists_parameter),
-                               F.data == 'confirm_rewrite_existing_advert_parameter')
+                               F.data == 'confirm_rewrite_existing_advert_parameter',
+                               AdminStatusController())
     '''new_car_catalog'''
     dp.callback_query.register(NewCarStateParameters().callback_handler,
                                or_f(F.data == 'advert_parameters_choose_state:1',
                                     lambda callback: callback.data.startswith('new_state_parameters:')))
+
+    dp.callback_query.register(InputCarPhotosToSetParametersBranchHandler().callback_handler,
+                               F.data == 'update_params_branch_media_group')
+
+    dp.callback_query.register(ConfirmLoadNewParamsBranchHandler().callback_handler,
+                               F.data == 'confirm_load_new_params_branch',
+                               AdminStatusController())
 
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,
@@ -444,7 +462,8 @@ async def start_bot():
                                lambda callback: callback.data.startswith('select_mailings_viewed_status:'),
                                AdminStatusController())
     dp.callback_query.register(mailing.mailing_storage.utils.delete_mailing.delete_current_mailing_handler,
-                               F.data == 'delete_current_mailing', AdminStatusController())
+                               F.data == 'delete_current_mailing',
+                               AdminStatusController())
 
     dp.callback_query.register(
         mailing.booting_mail.input_mailing_data.input_text.enter_mailing_text,

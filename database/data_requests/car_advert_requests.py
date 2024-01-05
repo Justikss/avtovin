@@ -224,42 +224,46 @@ class AdvertRequester:
 
 
         query = query.distinct()
+        print(query)
         if without_actual_filter:
-            return list(await manager.execute(query))
-
-        if (int_flag and not seller_id) and state_id == 2:
-            if int_flag == CarMileage:
-                sub_query_ids = sub_query.select(CarAdvert.mileage_id).distinct()
-                query = (CarMileage
-                .select(CarMileage.id, CarMileage.name)
-                .join(sub_query_ids, on=(CarMileage.id == sub_query_ids.c.mileage_id))
-                .order_by(
-                    fn.NULLIF(fn.REGEXP_REPLACE(CarMileage.name, '[^0-9].*$', ''), '').cast('integer'),
-                    CarMileage.name))
-            elif int_flag == CarYear:
-                sub_query_ids = sub_query.select(CarAdvert.year_id).distinct()
-
-                query = (int_flag
-                .select(int_flag.id, int_flag.name)
-                .join(sub_query_ids, on=(int_flag.id == sub_query_ids.c.year_id))
-                .order_by(
-                    fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer'),
-                    int_flag.name))
             result_adverts = list(await manager.execute(query))
+        else:
+            if (int_flag and not seller_id) and state_id == 2:
+                if int_flag == CarMileage:
+                    sub_query_ids = sub_query.select(CarAdvert.mileage_id).distinct()
+                    query = (CarMileage
+                    .select(CarMileage.id, CarMileage.name)
+                    .join(sub_query_ids, on=(CarMileage.id == sub_query_ids.c.mileage_id))
+                    .order_by(
+                        fn.NULLIF(fn.REGEXP_REPLACE(CarMileage.name, '[^0-9].*$', ''), '').cast('integer'),
+                        CarMileage.name))
+                elif int_flag == CarYear:
+                    sub_query_ids = sub_query.select(CarAdvert.year_id).distinct()
 
-
-        if not result_adverts:
-            if not seller_id and last_table:
-                query = last_table.select().where(last_table.id.in_(query))
-
-            if (seller_id or int_flag):
+                    query = (int_flag
+                    .select(int_flag.id, int_flag.name)
+                    .join(sub_query_ids, on=(int_flag.id == sub_query_ids.c.year_id))
+                    .order_by(
+                        fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer'),
+                        int_flag.name))
                 result_adverts = list(await manager.execute(query))
 
-        if not result_adverts:
-            result_adverts = list(await manager.execute(query))
 
-        if seller_id and not last_table:
-            result_adverts = await AdvertRequester.load_related_data_for_advert(result_adverts)
+            if not result_adverts:
+                if not seller_id and last_table:
+                    query = last_table.select().where(last_table.id.in_(query))
+
+                if (seller_id or int_flag):
+                    result_adverts = list(await manager.execute(query))
+
+            if not result_adverts:
+                result_adverts = list(await manager.execute(query))
+
+            if seller_id and not last_table:
+                result_adverts = await AdvertRequester.load_related_data_for_advert(result_adverts)
+
+        if result_adverts:
+            result_adverts = [advert for advert in result_adverts if advert.id is not None]
 
         ic(result_adverts)
 
@@ -331,6 +335,15 @@ class AdvertRequester:
     #         return result
     #     else:
     #         return False
+
+    @staticmethod
+    async def get_active_adverts_by_complectation_and_color(complectation, color):
+        # Получение активных объявлений
+        return list(await manager.execute(CarAdvert.select().where(
+            (CarAdvert.state == 1) &
+            (CarAdvert.complectation == complectation) &
+            (CarAdvert.color == color)
+        )))
 
     @staticmethod
     async def get_unique_engine_types(current_query):

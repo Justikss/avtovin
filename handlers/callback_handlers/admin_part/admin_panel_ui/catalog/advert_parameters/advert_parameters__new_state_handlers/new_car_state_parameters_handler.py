@@ -15,24 +15,31 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
         #в мемори стораж:
         # selected_parameters # инфо выбранного
         # current_new_car_parameter # текущий выборный параметр
-        await state.update_data(params_type_flag='new')
-
-
-        start_output_all_branch = await self.selected_param_identity(request, state)
-        ic(start_output_all_branch)
-
-        await super().process_callback(request, state, **kwargs)
-        ic(self.output_methods)
-        ic()
-        if start_output_all_branch:
-            self.output_methods = []
-            display_view_class = await ParamsBranchReviewHandler().process_callback(request, state)
+        media_photos = kwargs.get('media_photos')
+        ic(media_photos)
+        if media_photos:
+            await self.handle_boot_photos(request, state, media_photos)
         else:
-            ic()
-            display_view_class = await OutputSpecificAdvertParameters().callback_handler(request, state,
-                                                                                         output_view_moode=True)#
+            await state.update_data(params_type_flag='new')
 
-        self.output_methods = [display_view_class]
+
+            start_output_all_branch = await self.selected_param_identity(request, state)
+            ic(start_output_all_branch)
+
+            await super().process_callback(request, state, **kwargs)
+            ic(self.output_methods)
+            ic()
+            if start_output_all_branch:
+                self.output_methods = []
+                display_view_class = await ParamsBranchReviewHandler().process_callback(request, state)
+                ic(str(await state.get_state()))
+                await state.update_data(last_params_state=str(await state.get_state()))
+            else:
+                ic()
+                display_view_class = await OutputSpecificAdvertParameters().callback_handler(request, state,
+                                                                                             output_view_moode=True)#
+
+            self.output_methods = [display_view_class]
 
         await super().process_callback(request, state, **kwargs)
 
@@ -58,6 +65,15 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
 
                 # last_chosen = list(selected_parameters.keys())[-1]
                 last_chosen = memory_storage.get('next_params_output')
+                # if await OutputSpecificAdvertParameters().check_state_on_add_new_branch_status(state):
+                #     try:
+                #         # Получаем индекс последнего выбранного элемента и пытаемся взять следующий элемент
+                #         last_chosen = next(iter(parameter_names[parameter_names.index(last_chosen) + 1:]), None)
+                #         ic()
+                #         ic(last_chosen)
+                #     except ValueError:
+                #         # Если last_chosen не найден в списке, обрабатываем ошибку
+                #         last_chosen = None
                 ic(last_chosen)
                 if last_chosen:
                     for index, parameter_name in enumerate(parameter_names):
@@ -78,10 +94,11 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
                     await state.update_data(current_advert_parameter={'value': parameter_name.name, 'id': selected_id})
             else:
                 output_moment_flag = True
-            ic(chosen_param)
-            await self.set_state_by_param(state, chosen_param)
+            ic(next_params_output, chosen_param)
+            await self.set_state_by_param(state, next_params_output)
             ic(selected_parameters)
-
+            if not next_params_output:
+                next_params_output = 'review'
             await state.update_data(next_params_output=next_params_output)
             await state.update_data(selected_parameters=selected_parameters)
             if output_moment_flag:
@@ -92,17 +109,26 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
         state_to_set = None
         match parameter:
             case 'state':
-                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_state
+                state_to_set = AdminAdvertParametersStates.review_process
             case 'engine':
-                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_engine
+                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_state
             case 'brand':
-                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_brand
+                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_engine
             case 'model':
-                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_model
+                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_brand
             case 'complectation':
-                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_complectation
+                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_model
             case 'color':
-                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_color
+                state_to_set = AdminAdvertParametersStates.NewStateStates.chosen_complectation
 
         if state_to_set:
             await self.set_state(state, state_to_set)
+
+
+    async def handle_boot_photos(self, request: CallbackQuery | Message, state: FSMContext, media_photos):
+        menu_method = await ParamsBranchReviewHandler().process_callback(request, state, media_photos=media_photos)
+        ic(menu_method)
+        self.output_methods = [
+            menu_method
+        ]
+        ic(self.output_methods)
