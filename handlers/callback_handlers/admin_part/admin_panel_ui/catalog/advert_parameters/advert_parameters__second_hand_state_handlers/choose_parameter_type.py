@@ -8,6 +8,7 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 
 class ChooseSecondHandAdvertParametersType(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        await state.update_data(params_type_flag='second_hand')
         self.output_methods = [
             TravelMessageEditorInit(
                 lexicon_part=ADVERT_PARAMETERS_LEXICON['choose_second_hand_parameter_type'],

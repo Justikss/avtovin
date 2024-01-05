@@ -22,6 +22,7 @@ class ConfirmationRewriteExistsAdvertParameterHandler(BaseMessageHandler):
             )
         ]
         ic(self.output_methods)
+        ic()
         await state.set_state(AdminAdvertParametersStates.confirmation_rewrite_exists_parameter)
         # await super().process_message(request, state, **kwargs)
 

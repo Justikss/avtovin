@@ -15,19 +15,26 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
         #в мемори стораж:
         # selected_parameters # инфо выбранного
         # current_new_car_parameter # текущий выборный параметр
+        await state.update_data(params_type_flag='new')
+
 
         start_output_all_branch = await self.selected_param_identity(request, state)
         ic(start_output_all_branch)
 
         await super().process_callback(request, state, **kwargs)
-
+        ic(self.output_methods)
+        ic()
         if start_output_all_branch:
             self.output_methods = []
-            return await ParamsBranchReviewHandler().process_callback(request, state)
+            display_view_class = await ParamsBranchReviewHandler().process_callback(request, state)
         else:
             ic()
-            return await OutputSpecificAdvertParameters().callback_handler(request, state)#
+            display_view_class = await OutputSpecificAdvertParameters().callback_handler(request, state,
+                                                                                         output_view_moode=True)#
 
+        self.output_methods = [display_view_class]
+
+        await super().process_callback(request, state, **kwargs)
 
     async def selected_param_identity(self, request: Message | CallbackQuery, state: FSMContext):
         output_moment_flag = False
@@ -64,11 +71,17 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
                             else:
                                 output_moment_flag = True
                             break
+                    parameter_name = await CarConfigs.get_by_id(chosen_param, selected_id)
+                    if not parameter_name:
+                        return False
+                    await state.update_data(admin_chosen_advert_parameter=last_chosen)
+                    await state.update_data(current_advert_parameter={'value': parameter_name.name, 'id': selected_id})
             else:
                 output_moment_flag = True
             ic(chosen_param)
             await self.set_state_by_param(state, chosen_param)
             ic(selected_parameters)
+
             await state.update_data(next_params_output=next_params_output)
             await state.update_data(selected_parameters=selected_parameters)
             if output_moment_flag:

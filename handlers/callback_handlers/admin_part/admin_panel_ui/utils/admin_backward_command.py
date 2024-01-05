@@ -182,6 +182,11 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
                 .AddNewValueAdvertParameter().callback_handler(callback, state)
 
         case 'confirmation_delete_advert_param' | 'rewrite_exists_advert_param' | 'start_rewrite_exists_parameter_value':
+            # if backward_mode == 'start_rewrite_exists_parameter_value':
+            #     match memory_storage.get('params_type_flag'):
+            #         case 'new':
+            #             return await OutputSpecificAdvertParameters().callback_handler(callback, state)
+            #
             await ChooseActionOnAdvertParameterHandler().callback_handler(callback, state)
 
 async def backward_in_advert_parameters_interface(current_state, callback, state):
@@ -211,7 +216,7 @@ async def backward_in_advert_parameters_interface(current_state, callback, state
         # case '':
         #     current_parameters_to_output = 'color'
         #     next_parameters_to_output = 'complectation'
-        case _:
+        case _:#
             await advert_parameters.advert_parameters__second_hand_state_handlers.choose_parameter_type \
                 .ChooseSecondHandAdvertParametersType().callback_handler(callback, state)
 

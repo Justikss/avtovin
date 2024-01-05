@@ -21,14 +21,19 @@ class ParamsBranchReviewHandler(BaseCallbackQueryHandler):
         message_text = await OutputSpecificAdvertParameters().construct_message_text_header_for_new_state_choose(state)
         ic(media_group, message_text)
         lexicon_part = ADVERT_PARAMETERS_LEXICON['review_params_branch']
-        lexicon_part['message_text'] = message_text
-        ic(lexicon_part)
-        self.output_methods = [
-            TravelMessageEditorInit(lexicon_part=lexicon_part,
-                                    media_group=media_group
-                                    )
-        ]
+        lexicon_part['message_text'] = ADVERT_PARAMETERS_LEXICON['selected_new_car_params_pattern'].format(
+                        params_data=message_text
+        )
 
-        ic(self.output_methods)
+        ic(lexicon_part)
+        # self.output_methods = [
+        #     TravelMessageEditorInit(lexicon_part=lexicon_part,
+        #                             media_group=media_group,
+        #                             )
+        # ]
+        return TravelMessageEditorInit(lexicon_part=lexicon_part,
+                                    media_group=media_group)
+        # ic()
+        # ic(self.output_methods)
 
         await super().process_callback(request, state, **kwargs)

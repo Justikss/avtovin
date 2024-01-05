@@ -14,7 +14,7 @@ async def get_period_string(period):
     match period:
         case str() as period if period in ('day', 'week', 'month', 'year'):
             period = period
-        case _:
+        case _:#
             period = 'any'
 
     result = copy(captions[period])

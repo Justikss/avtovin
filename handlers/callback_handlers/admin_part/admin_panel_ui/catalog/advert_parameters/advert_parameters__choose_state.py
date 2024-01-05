@@ -12,8 +12,7 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler im
 
 class AdvertParametersChooseCarState(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        if not await state.get_state() == AdminAdvertParametersStates.review_process:
-            await state.set_state(AdminAdvertParametersStates.review_process)
+        await self.set_state(AdminAdvertParametersStates.review_process)
 
         self.output_methods = [
             InlinePaginationInit(

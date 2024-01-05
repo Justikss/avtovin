@@ -73,13 +73,22 @@ class CarConfigs:
                     return '(exists)'
 
             case 'delete' if model_id:
-                await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
-                result = await manager.execute(current_table.delete().where(current_table.id == model_id))
+                if mode in ('mileage', 'year'):
+                    await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
+                    result = await manager.execute(current_table.delete().where(current_table.id == model_id))
+                else:
+                    pass
             case 'update' if name and model_id:
                 result = await manager.execute(current_table.update(name=name).where(current_table.id == model_id))
         ic(result)
         return result
 
+    # @staticmethod
+    # async def delete_new_car_state_params(mode, model_id, binded_params: dict):
+    #     if mode == 'brand':
+
+
+        #удалить и с фото базы
 
     # @staticmethod
     # async def get_colors_by_name(color_name):
@@ -120,8 +129,11 @@ class CarConfigs:
         result = await manager.execute(query)
         if result:
             result = await set_other_color_on_last_position(result)
-            if without_other:
-                result.pop()
+            ic(result)
+            # if without_other:
+            #     ic(result)
+            #     result.pop()
+            #     ic(result)
             return result
 
 

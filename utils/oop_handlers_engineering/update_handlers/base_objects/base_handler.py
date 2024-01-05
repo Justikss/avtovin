@@ -34,13 +34,13 @@ class BaseHandler(ABC):
     async def _output_panel(self, request: CallbackQuery | Message, state: FSMContext):
         if self.output_methods:
             for output_class in self.output_methods:
-                if not isinstance(output_class, Callable):
-                    callable_object = output_class.process
-                # elif isinstance(output_class, BaseHandler):
-                #     return await output_class(request, state, **kwargs)
-                else:
-                    callable_object = output_class
-                await callable_object(request, state)
+                if output_class:
+                    if not isinstance(output_class, Callable):
+                        callable_object = output_class.process
+                    else:
+                        callable_object = output_class
+
+                    await callable_object(request, state)
 
     async def insert_into_message_text(self, lexicon_part: dict, kwargs_to_insert: dict) -> dict:
         lexicon_part['message_text'] = lexicon_part['message_text'].format(**kwargs_to_insert)

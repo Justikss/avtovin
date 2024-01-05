@@ -8,8 +8,10 @@ from config_data.config import REGISTRATION_DATETIME_FORMAT
 from database.data_requests.admin_requests import AdminManager
 from database.db_connect import manager
 from database.tables.user import User
+from handlers.utils.delete_message import delete_message
 from handlers.utils.message_answer_without_callback import send_message_answer
 from keyboards.inline.kb_creator import InlineCreator
+from utils.oop_handlers_engineering.update_handlers.base_objects.utils_objects.incorrect_adapter import IncorrectAdapter
 from utils.redis_for_language import redis_data
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 from handlers.callback_handlers.sell_part.seller_main_menu import delete_media_groups
@@ -32,6 +34,7 @@ async def bot_start(message: Message, state: FSMContext):
     #     await AdminManager.get_admin(message, message.from_user.id)
     # except:
     #     await AdminManager.set_admin(message.from_user.id)
+    await delete_message(message, await IncorrectAdapter().get_last_incorrect_message_id(state))
     await MessageIsPhoto.chat_cleaner(self=MessageIsPhoto,
                                     trash_redis_keys=(':last_seller_message', ':last_user_message', ':last_message'), message=message)
 #     if message.from_user.id == 6306554751:

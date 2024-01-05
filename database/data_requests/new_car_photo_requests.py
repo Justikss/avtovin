@@ -77,3 +77,22 @@ class PhotoRequester:
             return result
         else:
             return None
+
+    @staticmethod
+    async def find_photos_by_complectation(complectation_id):
+        query = NewCarPhotoBase.select().where(NewCarPhotoBase.car_complectation == complectation_id)
+        return await manager.execute(query)
+
+    @staticmethod
+    async def find_photos_by_model(model_id):
+        query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.car_model == model_id)
+        return await manager.execute(query)
+
+    @staticmethod
+    async def find_photos_by_brand(brand_id):
+        query = (NewCarPhotoBase
+                 .select()
+                 .join(CarComplectation)
+                 .join(CarModel)
+                 .where(CarModel.car_brand == brand_id))
+        return await manager.execute(query)

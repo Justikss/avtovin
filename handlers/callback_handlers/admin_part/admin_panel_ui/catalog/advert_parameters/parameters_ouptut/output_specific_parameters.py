@@ -1,8 +1,15 @@
+import logging
+import traceback
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from config_data.config import car_configurations_in_keyboard_page
 from database.data_requests.car_configurations_requests import CarConfigs
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
+    AdvertParametersChooseCarState
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.seek_current_state_after_delete_or_edit_actions import \
+    seek_current_new_type_state
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import \
@@ -16,11 +23,13 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         ic(request.data)
         ic()
+        memory_storage = await state.get_data()
+        # logging.debug("Стек вызовов: %s", traceback.format_stack())
         message_text_header = ''
         parameters = None
 
-        if ic(await state.get_state()) == AdminAdvertParametersStates.NewStateStates.parameters_branch_review:
-            return
+        # if ic(await state.get_state()) == AdminAdvertParametersStates.NewStateStates.parameters_branch_review:
+        #     return
 
         if isinstance(request, CallbackQuery) and \
                 ('_choice_advert_parameters_type_' or (request.data.startswith(('admin_backward', 'new'))\
@@ -35,14 +44,13 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
                     message_text_header = ADVERT_PARAMETERS_LEXICON['selected_new_car_params_pattern'].format(
                         params_data=structured_selected_data)
-                    parameters = await self.get_need_new_car_state_params(state, parameter_name)
+                    parameters = await self.get_need_new_car_state_params(request, state, parameter_name)
                 else:
                     raise Exception('Selected data is empty')
             else:
                 parameter_name = request.data.split('_')[-1]
                 await state.update_data(admin_chosen_advert_parameter=parameter_name)
         else:
-            memory_storage = await state.get_data()
             message_text_header = memory_storage.get('message_text_header')
             parameter_name = memory_storage.get('admin_chosen_advert_parameter')
 
@@ -51,15 +59,18 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         ic(message_text_header)
         if not parameters:
             parameters = await CarConfigs.custom_action(mode=parameter_name, action='get_*')
-        self.output_methods = [
-            InlinePaginationInit(
+
+        display_view_class = InlinePaginationInit(
                 lexicon_class=AdvertParametersChooseSpecificValue(parameter_name, message_text_header),
                 models_range=parameters,
                 page_size=car_configurations_in_keyboard_page
-            )]
+            )
 
-        if not ic(str(await state.get_state())).startswith('AdminAdvertParametersStates.NewStateStates'):
-            await self.set_state(state, AdminAdvertParametersStates.review_process)
+        if kwargs.get('output_view_mode'):
+            return display_view_class
+        self.output_methods = [display_view_class]
+
+        await self.states_control(request, state)
 
 
     async def construct_message_text_header_for_new_state_choose(self, state: FSMContext):
@@ -84,8 +95,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         selected_parameters_string = selected_parameters_string.lstrip('\n')
         return selected_parameters_string
 
-    @staticmethod
-    async def get_need_new_car_state_params(state: FSMContext, current_parameter):
+
+    async def get_need_new_car_state_params(self, request, state: FSMContext, current_parameter):
         memory_storage = await state.get_data()
         selected_data = memory_storage.get('selected_parameters')
 
@@ -104,8 +115,10 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
             case 'color':
                 parameters = await CarConfigs.get_color_by_complectaiton(
                     selected_data.get('complectation'), without_other=True)
-            case _:
-                return
+            case _:#
+                await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                return await AdvertParametersChooseCarState().callback_handler(request, state)
+
 
         return parameters
 
@@ -126,3 +139,13 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
             #     selected_parameters_string += f'''\n{advert_parameters_captions['color']}: {color_object.name}'''
             #
             #
+    async def states_control(self, request: CallbackQuery | Message, state: FSMContext):
+        memory_storage = await state.get_data()
+
+        match memory_storage.get('params_type_flag'):
+            case 'new':
+                if str(await state.get_state()) == 'AdminAdvertParametersStates:review_process':
+                    await seek_current_new_type_state(request, state)
+                await state.update_data(last_params_state=str(await state.get_state()))
+            case 'second_hand':
+                await self.set_state(state, AdminAdvertParametersStates.review_process)

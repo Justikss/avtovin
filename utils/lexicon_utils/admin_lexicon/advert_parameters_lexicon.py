@@ -2,10 +2,11 @@ from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions, return_mai
 
 advert_parameters_captions = {
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
-    'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель'
+    'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'param': 'параметра', 'params': 'параметров'
 }
 
 __ADVERT_PARAMETERS_LEXICON = {
+    'memory_was_forgotten': 'Сброс к началу',
     'selected_new_car_params_pattern': '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n{params_data}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n',
     'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',
 
@@ -35,13 +36,13 @@ __ADVERT_PARAMETERS_LEXICON = {
 
     'choose_action_on_specific_parameter_value': {
         'message_text': 'Выбранный параметр:\n{parameter_name}: {parameter_value}', 'buttons': {
-            'delete_current_advert_parameter': captions['delete'], 'rewrite_current_advert_parameter': 'Изменить',
+            'delete_current_advert_parameter': captions['delete'], 'rewrite_current_advert_parameter': 'Редактировать',
             'admin_backward:choose_action_on_specific_adv_parameter': captions['backward'],
             **return_main_menu,
             'width': 2
     }},
     'confirmation_to_delete_exists_parameter': {
-        'message_text': 'Подтвердите удаление параметра:\n{parameter_type}: {parameter_value}', 'buttons': {
+        'message_text': 'Подтвердите удаление {param_or_params}:\n{parameter_type_to_parameter_value}', 'buttons': {
             'confirm_delete_advert_parameter': captions['confirm'],
             'admin_backward:confirmation_delete_advert_param': captions['backward'],
             **return_main_menu,
@@ -65,12 +66,13 @@ __ADVERT_PARAMETERS_LEXICON = {
                     'width': 1}
     },
     'review_params_branch': {'message_text': '',
-                             'buttons': {'update_media_group': 'Обновить фотографии',
-                             'delete_params_branch': captions['delete'],
-                             'admin_backward:review_params_branch': captions['backward'],
-                             'admin_backward:go_to_choose_params_state': 'В начало выборки',
-                             **return_main_menu,
-                             'width': 1}}
+                             'buttons': {'rewrite_current_advert_parameter': 'Редактировать',
+                                         'update_media_group': 'Обновить фотографии',
+                                         'delete_current_advert_parameter': captions['delete'],
+                                         'admin_backward:review_params_branch': captions['backward'],
+                                         'admin_backward:go_to_choose_params_state': 'В начало выборки',
+                                         **return_main_menu,
+                                         'width': 1}}
 }
 
 class AdvertParametersChooseState:
@@ -94,7 +96,7 @@ class AdvertParametersChooseSpecificValue:
     width = 2
     second_hand_buttons_interface = {'add_new_advert_parameter': captions['add']}
     new_buttons_interface = {'delete_current_advert_parameter': captions['delete'],
-                            'rewrite_current_advert_parameter': 'Изменить',
+                            'rewrite_current_advert_parameter': 'Редактировать',
                             **second_hand_buttons_interface}
     backward_command = {'admin_backward:choose_specific_advert_parameter_value': captions['backward'],
                         **return_main_menu}

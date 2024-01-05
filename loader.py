@@ -413,8 +413,7 @@ async def start_bot():
 
     dp.callback_query.register(
         ActionOfDeletionExistsAdvertParameter().callback_handler,
-        F.data == 'delete_current_advert_parameter',
-        StateFilter(AdminAdvertParametersStates.review_process)
+        F.data == 'delete_current_advert_parameter'
     )
     dp.callback_query.register(
         ConfirmDeleteExistsAdvertParameter().callback_handler,
@@ -423,9 +422,7 @@ async def start_bot():
     )
 
     dp.callback_query.register(RewriteExistsAdvertParameterHandler().callback_handler,
-                               F.data == 'rewrite_current_advert_parameter',
-                               or_f(StateFilter(AdminAdvertParametersStates.review_process),
-                                    StateFilter(AdminAdvertParametersStates.confirmation_rewrite_exists_parameter)))
+                               F.data == 'rewrite_current_advert_parameter')
     dp.message.register(ConfirmationRewriteExistsAdvertParameterHandler(
                             filters=AdvertParameterValueFilter()).message_handler,
                         StateFilter(AdminAdvertParametersStates.start_rewrite_exists_parameter))

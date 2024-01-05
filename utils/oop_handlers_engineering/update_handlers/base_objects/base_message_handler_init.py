@@ -44,7 +44,7 @@ class BaseMessageHandler(BaseHandler, ABC):
             if isinstance(request, Message):
                 self.message_text = request.text.replace('<', '&lt;').replace('>', '&gt;')
 
-            await self.output_panel(request, state)
+            await self._output_panel(request, state)
 
 
 

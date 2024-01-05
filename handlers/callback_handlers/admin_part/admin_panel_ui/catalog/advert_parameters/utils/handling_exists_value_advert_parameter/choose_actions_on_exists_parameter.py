@@ -2,6 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from database.data_requests.car_configurations_requests import CarConfigs
+from handlers.utils.delete_message import delete_message
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_PARAMETERS_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
@@ -14,6 +15,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
 
 class ChooseActionOnAdvertParameterHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        await delete_message(request, await self.incorrect_manager.get_last_incorrect_message_id(state))
+
         if isinstance(request, CallbackQuery) and request.data[-1].isdigit():
             current_parameter_value_id = request.data.split(':')[-1]
             memory_storage = await state.get_data()

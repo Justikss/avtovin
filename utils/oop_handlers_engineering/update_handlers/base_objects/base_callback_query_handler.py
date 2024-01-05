@@ -10,8 +10,11 @@ class BaseCallbackQueryHandler(BaseHandler, ABC):
         # Обработка callback
         await self.process_callback(request, state, **kwargs)
 
+        ic()
+        ic(self.output_methods)
         # Генерация меню
         await self._output_panel(request, state)
+
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         # Определить в подклассах
         if isinstance(request, CallbackQuery):

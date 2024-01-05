@@ -12,6 +12,7 @@ from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 async def start_admin_menu(callback: CallbackQuery, state: FSMContext):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
+
     if await state.get_state():
         await state.clear()
 
