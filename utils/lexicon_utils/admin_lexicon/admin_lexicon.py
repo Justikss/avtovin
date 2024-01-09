@@ -120,16 +120,7 @@ __ADMIN_LEXICON = {
 }
 pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{end}]', 'admin_pagination:+': '→'}
 
-__STATISTIC_LEXICON = {
-    'seller_statistic_view': {
-    'message_text': "Продавец: {seller_name}\nДата регистрации: {date_of_registration}\n\nСтатистика за {period}:\nКоличество объявлений: {adverts_count}\nКоличество откликов: {feedbacks_count}",
-        'buttons': {'select_seller_statistic_period:day': "День", 'select_seller_statistic_period:week': "Неделя",
-        'select_seller_statistic_period:month': "Месяц", 'select_seller_statistic_period:year': "Год",
-        'select_seller_statistic_period:all': "Общая",
-                    'admin_backward:check_seller_statistic_values': captions['backward'],
-                    **return_main_menu, 'width': (3, 2, 1, 1)}}
 
-}
 
 class TariffNonExistsPlug:
     id = 'None'

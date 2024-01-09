@@ -1,10 +1,11 @@
+import asyncio
 import traceback
 import uuid
 
 from aiogram.types import Message
 
 from database.data_requests.car_advert_requests import AdvertRequester
-from database.data_requests.car_configurations_requests import mock_values, get_car, get_seller_account
+from database.data_requests.car_configurations_requests import mock_values, get_car, get_seller_account, mock_feedbacks
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
@@ -58,7 +59,10 @@ async def load_type_photos(dota):
                      'photo_id': part,
                      'photo_unique_id': f'{idd}_{uuid.uuid4()}'})
 
-    await insert_phototo(data)
+    try:
+        await insert_phototo(data)
+    except:
+        pass
     ic(data)
     try:
         await PhotoRequester.load_photo_in_base(data)
@@ -98,18 +102,20 @@ async def drop_table_handler(message: Message):
     # await advert_to_admin_view_related_requester.create_relation(adv)
     #
     # return
-
+    inserted_cars = await get_car(photos=None, cars=0)
+    await mock_feedbacks(sellers=None, raw_cars=inserted_cars)
+    return
 
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
     await mock_values()
-    await get_seller_account()
+    sellers = await get_seller_account()
 
     photos = None
     photos = read_photos_by_brand('utils/carss')
-    await get_car(photos)
-
+    inserted_cars = await get_car(photos, cars=0)
+    asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     type_photos = read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)
     await set_viewed_status()

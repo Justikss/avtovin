@@ -12,7 +12,7 @@ async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False
     '''Метод сопоставляющий имя/название продавца/автосалона'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-
+    ic(seller_model.dealship_name, seller_model.dealship_address)
     if seller_model.dealship_name:
         name = f'''{lexicon_module.LexiconSellerProfile.dealership_prefix}\n{lexicon_module.LexiconSellerProfile.dealership_name_prefix.replace('X', seller_model.dealship_name)}'''
         address = f'''{lexicon_module.LexiconSellerProfile.dealership_address_prefix.replace('X', seller_model.dealship_address)}'''

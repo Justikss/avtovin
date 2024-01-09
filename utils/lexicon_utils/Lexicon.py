@@ -4,8 +4,9 @@ from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq
     SUPPORT_NUMBER_2, max_price_len, max_contact_info_len
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import __CATALOG_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import __ADVERT_PARAMETERS_LEXICON
+from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import __STATISTIC_LEXICON
 from utils.safe_dict_class import SafeDict
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, __STATISTIC_LEXICON, captions
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, captions
 from utils.lexicon_utils.admin_lexicon.advert_action_lexicon import __ADVERT_LEXICON
 
 __LEXICON = {
@@ -184,6 +185,7 @@ ADMIN_LEXICON = SafeDict(__ADMIN_LEXICON)
 CATALOG_LEXICON = SafeDict(__CATALOG_LEXICON)
 ADVERT_PARAMETERS_LEXICON = SafeDict(__ADVERT_PARAMETERS_LEXICON)
 STATISTIC_LEXICON = SafeDict(__STATISTIC_LEXICON)
+
 ADVERT_LEXICON = SafeDict(__ADVERT_LEXICON)
 LEXICON = SafeDict(__LEXICON)
 

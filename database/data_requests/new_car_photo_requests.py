@@ -79,7 +79,7 @@ class PhotoRequester:
         # insert_photo_query = AdvertPhotos.insert_many(photo_data)
         # await manager.execute(insert_photo_query)
         # ic(photo_data)
-
+        ic(photo_data)
         car_complectation = int(photo_data[0]['car_complectation'])
         car_color = int(photo_data[0]['car_color'])
         # existing_photos = await manager.execute(NewCarPhotoBase.select().join(CarComplectation)

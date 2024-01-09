@@ -11,10 +11,18 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
     request_choose_mailing_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.choose_statistic_type import \
+    ChooseStatisticTypeHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.calculate_method import \
+    CalculateDemandMethodHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_method import \
+    StatisticsOutputMethodHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
     NewCarStateParameters
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import \
+    AddNewValueAdvertParameter
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
     OutputSpecificAdvertParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
@@ -69,6 +77,14 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     ic(backward_mode)
     ic(memory_storage.get('params_type_flag') == 'new')
     match backward_mode:
+        case 'top_ten_display':
+            await CalculateDemandMethodHandler().callback_handler(callback, state)
+
+        case 'method_of_calculate':
+            await StatisticsOutputMethodHandler().callback_handler(callback, state)
+
+        case 'check_bot_statistic_values' | 'to_statistic_panel' | 'statistics_output_method':
+            await ChooseStatisticTypeHandler().callback_handler(callback, state)
 
         case 'seller_list_to_admin':
             await choose_seller_category_by_admin_handler(callback, state)
@@ -181,23 +197,13 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
                 .OutputSpecificAdvertParameters().callback_handler(callback, state)#
 
         case 'confirmation_add_new_parameter_value_rewrite':
-            await handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter \
-                .AddNewValueAdvertParameter().callback_handler(callback, state)
+            await AddNewValueAdvertParameter().callback_handler(callback, state)
 
         case 'confirmation_delete_advert_param' | 'rewrite_exists_advert_param' | 'start_rewrite_exists_parameter_value':
-            ic()
             if memory_storage.get('params_type_flag') == 'new':
-                ic(memory_storage.get('params_type_flag'))
-            # if memory_storage.get('params_type_flag') == 'new':
-            #     ic()
                 await advert_parameters.parameters_ouptut.output_specific_parameters \
                     .OutputSpecificAdvertParameters().callback_handler(callback, state)  #
             else:
-            # # if backward_mode == 'start_rewrite_exists_parameter_value':
-            #     match memory_storage.get('params_type_flag'):
-            #         case 'new':
-            #             return await OutputSpecificAdvertParameters().callback_handler(callback, state)
-            #
                 await ChooseActionOnAdvertParameterHandler().callback_handler(callback, state)
 
 async def backward_in_advert_parameters_interface(current_state, callback, state):

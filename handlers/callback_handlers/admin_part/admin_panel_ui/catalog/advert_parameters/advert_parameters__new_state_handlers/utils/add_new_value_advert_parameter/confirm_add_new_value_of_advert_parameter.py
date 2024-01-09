@@ -20,7 +20,7 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
             case 'new':
                 selected_param_name = memory_storage.get('next_params_output')
                 selected_parameters = memory_storage.get('selected_parameters')
-                param_kwarg = {selected_param_name: memory_storage.get('current_value')}
+                param_kwarg = None
                 selected_parameters[selected_param_name] = {'added': memory_storage.get('current_value')}
                 await self.try_set_add_new_params_branch_status(state, selected_param_name)
                 await state.update_data(selected_parameters=selected_parameters)
@@ -40,7 +40,8 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
             ic(insert_query)
             ic()
             await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#
-            asyncio.create_task(self.logging_action(request, 'added_param', param_kwarg))
+            if param_kwarg:
+                asyncio.create_task(self.logging_action(request, 'added_param', param_kwarg))
 
 
     async def set_next_param_to_choose(self, request: Message | CallbackQuery, state: FSMContext, memory_storage: dict):

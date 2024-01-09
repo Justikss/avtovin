@@ -28,6 +28,8 @@ class BaseHandler(ABC):
         ic(await state.get_state())
         if await state.get_state() != needed_state:
             await state.set_state(needed_state)
+        else:
+            return 'exists'
         ic(await state.get_state())
 
 
@@ -48,3 +50,14 @@ class BaseHandler(ABC):
 
     async def logging_action(self, request, action, subject='', reason=False):
         await log_admin_action(request.from_user.username, action, subject=subject, reason=reason)
+
+    async def clean_state(self, state: FSMContext):
+        if await state.get_state():
+            await state.clear()
+
+    async def message_object(self, request: CallbackQuery | Message):
+        if isinstance(request, CallbackQuery):
+            message_object = request.message
+        else:
+            message_object = request
+        return message_object

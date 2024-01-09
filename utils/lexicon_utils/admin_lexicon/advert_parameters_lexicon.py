@@ -22,6 +22,12 @@ __ADVERT_PARAMETERS_LEXICON = {
                                                  'admin_backward:await_input_new_parameter_value': captions['backward'],
                                                  'width': 1
                                              }},
+    'start_add_new_advert_parameter_value_new_state_buttons': {
+        'admin_backward:await_input_new_parameter_value': captions['backward'],
+        'admin_backward:go_to_choose_params_state': 'В начало выборки',
+        'width': 1},
+
+
     'start_add_new_advert_parameter_value(exists)': 'Добавление параметра\nУказанное значение уже присутсвует в конфигурации: {parameter_name}, введите уникальное значение:',
     # 'start_add_new_advert_parameter_value': '',
 

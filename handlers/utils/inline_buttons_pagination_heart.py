@@ -104,6 +104,7 @@ class CachedRequestsView:
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+        backward_command = None
         dynamic_buttons = 1
         width_value = 2
 
@@ -163,15 +164,16 @@ class CachedRequestsView:
                 # ic(list(current_page.items())[-2:])
                 backward_command = LastButtonsInCarpooling.last_buttons
                 dynamic_buttons = memory_storage.get('dynamic_buttons')
-            if 'LoadCommodityStates' in current_state:
-                print('LoadCommodityStatesasdsda')
-                # seller_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
-                dynamic_buttons = memory_storage.get('dynamic_buttons')
-                backward_command = memory_storage.get('last_buttons')
-                ic(backward_command)
-                # if 'input_to_load_color' in current_state:
-                #     ic(len(current_page))
-                #     width = ({width_value: len(current_page)}, 3, 1, 1)
+
+        if not backward_command:
+            # seller_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+            backward_command = memory_storage.get('last_buttons')
+        if memory_storage.get('dynamic_buttons') and dynamic_buttons == 1:
+            dynamic_buttons = memory_storage.get('dynamic_buttons')
+            ic(backward_command)
+            # if 'input_to_load_color' in current_state:
+            #     ic(len(current_page))
+            #     width = ({width_value: len(current_page)}, 3, 1, 1)
 
         ic(width)
         ic(current_page, pagination_interface_buttons, backward_command)

@@ -1,7 +1,9 @@
 import asyncio
 import random
 import traceback
+from asyncio import Queue
 from collections import defaultdict
+from datetime import timedelta, datetime
 
 from peewee import JOIN, IntegrityError, fn
 
@@ -16,7 +18,9 @@ from database.tables.admin import Admin
 from database.tables.car_configurations import (CarBrand, CarModel, CarComplectation, CarState,
                                                 CarEngine, CarColor, CarMileage, CarAdvert, CarYear)
 from database.tables.commodity import AdvertPhotos, NewCarPhotoBase
+from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
+from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
 
 
@@ -401,10 +405,65 @@ async def mock_values():
     # await database.create(CarMileage)
     # await database.create(CarYear)
     pass
-async def get_seller_account():
+async def get_seller_account(mock_feedbacks=False):
     await manager.create(User, telegram_id=902230076, username='Justion', name='Boris', surname='Борисов', phone_number='+79371567898')
     await manager.create(Admin, telegram_id=902230076)
-    await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
+    justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
+    mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
+    mockselle2 = await manager.create(Seller, telegram_id=912330076, dealship_name='Мокнутый Частюк', entity='natural', dealship_address=None, authorized=True, phone_number='+79323557898')
+
+
+    return [justion, mockseller, mockselle2]
+
+async def mock_feedbacks(sellers, raw_cars):
+    ic(sellers)
+    if not sellers:
+        sellers = list(await manager.execute(Seller.select()))
+    if not list(await manager.execute(AdvertParameters.select().limit(1))):
+        good_cars = []
+        for car in raw_cars:
+            good_cars.append({
+                'complectation': car['complectation'],
+                'state': car['state'],
+                'color': car['color'],
+                'mileage': car['mileage'],
+                'year': car['year']
+            })
+
+        async with manager.atomic():
+            # Вставка данных в AdvertParameters
+            await manager.execute(AdvertParameters.insert_many(good_cars))
+
+    async def worker(queue, manager):
+        while True:
+            batch = await queue.get()
+            if batch is None:
+                break
+            await manager.execute(SellerFeedbacksHistory.insert_many(batch))
+            queue.task_done()
+
+    # Получение всех id для AdvertParameters
+    advert_params_ids = [ap.id for ap in await manager.execute(AdvertParameters.select())]
+    # Генерация данных для SellerFeedbacksHistory для каждого продавца
+    queue = Queue(maxsize=10)
+    workers = [asyncio.create_task(worker(queue, manager)) for _ in range(5)]  # Создание 5 рабочих
+
+    # Добавление задач в очередь
+    batch_size = 1000
+    for seller in sellers:
+        for ap_id in advert_params_ids:
+            batch = [{'seller_id': seller, 'advert_parameters': ap_id, 'feedback_time': datetime.now() - timedelta(days=random.randint(0, 365))} for _ in range(random.randint(30, 60))]
+            await queue.put(batch)
+
+    # Завершение работы рабочих
+    for _ in workers:
+        await queue.put(None)
+    for worker in workers:
+        await worker
+        #
+        #     # Вставка данных в SellerFeedbacksHistory
+        # await manager.execute(SellerFeedbacksHistory.insert_many(feedbacks_history_data))
+
 
 insert_data = []
 insert_carars = []
@@ -415,7 +474,7 @@ async def get_car_adverts_by_brand_and_color(brand_id, color):
         (CarAdvert.color == color) & (CarBrand.id == brand_id)
     ))
 
-async def insert_advert_photos(new_car_photos):
+async def insert_advert_photos(new_car_photos, params):
     await manager.connect()
     try:
         advert_photo_data_list = []
@@ -423,8 +482,12 @@ async def insert_advert_photos(new_car_photos):
 
         for brand_id, photos in new_car_photos.items():
             # Получаем все объявления для данного бренда
+            if params:
+                current_table = AdvertParameters
+            else:
+                current_table = CarAdvert
             matching_adverts = await manager.execute(
-                CarAdvert.select(CarAdvert, CarComplectation, CarColor).join(CarColor).switch(CarAdvert).join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
+                current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table).join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
             )
             ic(brand_id, len(matching_adverts))
             # Подготовка данных для массовой вставки
@@ -517,35 +580,37 @@ async def get_car(photos=None, cars=False):
         await manager.create(CarAdvert, seller=902230076, complectation=6, state=1, sum_price=2322222, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
         await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, dollar_price=1234223, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year= None)
         await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, dollar_price=53458799, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None )
-        car_id = 0
-        for index in range(9, 132):
-            for state_index in range(1, 3):
-                for color_index in range(1, 10):
-                    if state_index == 1:
-                        mileage, year = None, None
-                        car_id += 1
-                        # await CarConfigs.add_advert(902230076, )
-                        insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
-                                             'dollar_price': random.randint(500000, 3800000),
-                                             'color': color_index, 'mileage': mileage,
-                                             'year': year})
+    car_id = 0
+    for index in range(9, 132):
+        for state_index in range(1, 3):
+            for color_index in range(1, 10):
+                if state_index == 1:
+                    mileage, year = None, None
+                    car_id += 1
+                    # await CarConfigs.add_advert(902230076, )
+                    insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
+                                         'dollar_price': random.randint(500000, 3800000),
+                                         'color': color_index, 'mileage': mileage,
+                                         'year': year})
 
-                    elif state_index == 2:
-                        for mileage in range(1, 13):
-                            for year in range(1, 8):
-                                car_id += 1
-                                # insert_photos.append({"car_id": car_id, 'photo_id': 1, 'photo_unique_id': 1})
-                                insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
-                                                      'dollar_price': random.randint(500000, 3800000),
-                                                      'color': color_index,
-                                                      'mileage': mileage,
-                                                      'year': year})
+                elif state_index == 2:
+                    for mileage in range(1, 13):
+                        for year in range(1, 8):
+                            car_id += 1
+                            # insert_photos.append({"car_id": car_id, 'photo_id': 1, 'photo_unique_id': 1})
+                            insert_carars.append({'seller': 902230076, 'complectation': index, 'state': state_index,
+                                                  'dollar_price': random.randint(500000, 3800000),
+                                                  'color': color_index,
+                                                  'mileage': mileage,
+                                                  'year': year})
 
-
-        await manager.execute(CarAdvert.insert_many(insert_carars))
+        if cars:
+            await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     if photos:
-        await insert_advert_photos(photos)
+        await insert_advert_photos(photos, params = insert_carars if not cars else None)
+
+    return insert_carars
     # if insert_data:
     #     insert_photo_query = AdvertPhotos.insert_many(insert_data)
     #     await manager.execute(insert_photo_query)

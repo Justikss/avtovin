@@ -35,14 +35,14 @@ async def handle_stats_callback(query: CallbackQuery, state: FSMContext):
         seller_name, entity = await get_user_name(seller_model)
         seller_date_of_registration = seller_model.data_registration
 
-        adverts_count, feedbacks_count = await calculate_stats(seller_id, period)
+        counts = await calculate_stats(seller_id=seller_id, period=period)
 
         period_string = await get_period_string(period)
         lexicon_part = STATISTIC_LEXICON['seller_statistic_view']
         lexicon_part['message_text'] = lexicon_part['message_text'].format(seller_name=seller_name,
                                                                            date_of_registration=seller_date_of_registration,
-                                                                           period=period_string, adverts_count=adverts_count,
-                                                                           feedbacks_count=feedbacks_count)
+                                                                           period=period_string, adverts_count=counts['advert'],
+                                                                           feedbacks_count=counts['feedback'])
 
         await query.answer(ADMIN_LEXICON['information_was_updated'])
 

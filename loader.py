@@ -12,6 +12,16 @@ from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions, catalog
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.choose_statistic_type import \
+    ChooseStatisticTypeHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.calculate_method import \
+    CalculateDemandMethodHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_method import \
+    StatisticsOutputMethodHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_type_handler import \
+    DemandOutputSplitterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.general_statistics.general_statistic import \
+    GeneralBotStatisticHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
     NewCarStateParameters
 
@@ -77,6 +87,7 @@ from states.admin_part_states.catalog_states.advert_parameters_states import Adm
 from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates, \
     AdminCarCatalogSearchByIdStates
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
+from states.admin_part_states.statistics_states import StatisticsStates
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
@@ -140,9 +151,9 @@ async def start_bot():
 
     # admin_router = Router()
     # dp.include_router(admin_router)
+    await create_tables()
 
     await mailing_service.schedule_mailing(bot)
-    await create_tables()
 
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
@@ -340,6 +351,26 @@ async def start_bot():
     dp.callback_query.register(catalog.choose_catalog_action.choose_catalog_action_admin_handler,
                                F.data == 'admin_button_catalog')
 
+    dp.callback_query.register(ChooseStatisticTypeHandler().callback_handler,
+                               F.data == 'admin_button_bot_statistics')
+
+    '''bot statistics'''
+    dp.callback_query.register(GeneralBotStatisticHandler().callback_handler,
+                               or_f(and_f(StateFilter(StatisticsStates.general_bot_statistic),
+                               lambda callback: callback.data.startswith('select_bot_statistic_period')),
+                                    F.data == 'general_statistics'),
+                               AdminStatusController())
+
+    dp.callback_query.register(StatisticsOutputMethodHandler().callback_handler,
+                               F.data == 'demand_for_cars')
+    dp.callback_query.register(CalculateDemandMethodHandler().callback_handler,
+                               lambda callback: callback.data.startswith('output_method:'),
+                               StateFilter(StatisticsStates.accept_demand_output_method))
+    dp.callback_query.register(DemandOutputSplitterHandler().callback_handler,
+                               lambda callback: callback.data.startswith('calculate_method:'),
+                               StateFilter(StatisticsStates.accept_demand_calculate_method),
+                               AdminStatusController())
+
     '''catalog_action'''
 
     dp.callback_query.register(
@@ -533,7 +564,8 @@ async def start_bot():
                         correct_name.CheckInputName())
 
     dp.callback_query.register(user_actions.actions_admin_to_user.check_seller_statistic.seller_statistic_output.handle_stats_callback,
-                               lambda callback: callback.data.startswith('select_seller_statistic_period'))
+                               lambda callback: callback.data.startswith('select_seller_statistic_period'),
+                               AdminStatusController())
 
     '''admin_tariff'''
 

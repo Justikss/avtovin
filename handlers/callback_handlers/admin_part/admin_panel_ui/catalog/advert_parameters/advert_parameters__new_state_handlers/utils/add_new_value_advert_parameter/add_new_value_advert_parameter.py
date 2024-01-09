@@ -42,6 +42,8 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
         )
         # if kwargs.get('add_new_branch_mode'):
         lexicon_part = await self.insert_into_lexicon_part_selected_params_header(state, lexicon_part)
+        if memory_storage.get('params_type_flag') == 'new':
+            lexicon_part['buttons'] = ADVERT_PARAMETERS_LEXICON['start_add_new_advert_parameter_value_new_state_buttons']
         return lexicon_part
 
 

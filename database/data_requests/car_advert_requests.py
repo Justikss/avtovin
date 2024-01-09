@@ -12,10 +12,50 @@ from database.tables.car_configurations import (CarBrand, CarModel, CarComplecta
 from database.tables.commodity import AdvertPhotos
 from database.tables.offers_history import CacheBuyerOffers, ActiveOffers
 from database.tables.seller import Seller
+from database.tables.statistic_tables.advert_parameters import AdvertParameters
+
 
 class AdvertRequester:
     @staticmethod
     async def load_related_data_for_advert(advert):
+        async def async_fetch_deep_related(objects, intermediate_model, final_model, intermediate_field, final_field):
+            if not objects:
+                return []
+
+            intermediate_ids = {getattr(obj, intermediate_field) for obj in objects if getattr(obj, intermediate_field)}
+            intermediate_objects = await manager.execute(
+                intermediate_model.select().where(intermediate_model.id.in_(intermediate_ids)))
+
+            final_ids = {getattr(intermediate_obj, final_field) for intermediate_obj in intermediate_objects if
+                         getattr(intermediate_obj, final_field)}
+            final_objects = await manager.execute(final_model.select().where(final_model.id.in_(final_ids)))
+
+            final_dict = {final_obj.id: final_obj for final_obj in final_objects}
+            intermediate_dict = {intermediate_obj.id: intermediate_obj for intermediate_obj in intermediate_objects}
+
+            for intermediate_obj in intermediate_objects:
+                setattr(intermediate_obj, final_model.__name__.lower(),
+                        final_dict.get(getattr(intermediate_obj, final_field)))
+
+            for obj in objects:
+                setattr(obj, intermediate_model.__name__.lower(),
+                        intermediate_dict.get(getattr(obj, intermediate_field)))
+
+            return objects
+
+        async def async_fetch_related(objects, related_model, foreign_key_field, related_field_name):
+            if not objects:
+                return []
+
+            related_ids = {getattr(obj, foreign_key_field) for obj in objects if getattr(obj, foreign_key_field)}
+            related_objects = await manager.execute(related_model.select().where(related_model.id.in_(related_ids)))
+            related_dict = {related.id: related for related in related_objects}
+
+            for obj in objects:
+                setattr(obj, related_field_name, related_dict.get(getattr(obj, foreign_key_field)))
+
+            return objects
+        """"""
         ic(advert)
         if not advert:
             return []
@@ -24,30 +64,49 @@ class AdvertRequester:
         else:
             adverts = advert
 
-        if not isinstance(adverts[0], CarAdvert):
+        if not isinstance(adverts[0], (CarAdvert, AdvertParameters)):
             adverts = [offer.car_id for offer in adverts]
 
         ic(adverts)
-            # Собираем все ID для разных типов связанных данных
-        state_ids = {advert.state_id for advert in adverts}
-        color_ids = {advert.color_id for advert in adverts}
-        # Повторите для других типов связанных данных
+        await async_fetch_related(adverts, CarState, 'state_id', 'state')
+        await async_fetch_related(adverts, CarColor, 'color_id', 'color')
+        await async_fetch_related(adverts, CarMileage, 'mileage_id', 'mileage')
+        await async_fetch_related(adverts, CarYear, 'year_id', 'year')
 
-        # Получаем все связанные данные одним запросом для каждого типа
-        states = await manager.execute(CarState.select().where(CarState.id.in_(state_ids)))
-        colors = await manager.execute(CarColor.select().where(CarColor.id.in_(color_ids)))
-        # Повторите для других типов связанных данных
+        # Привязка глубоких связей (например, CarComplectation -> CarModel -> CarBrand)
+        adverts = await async_fetch_related(adverts, CarComplectation, 'complectation_id', 'complectation')
+        await async_fetch_deep_related([advert.complectation for advert in adverts],  CarModel, CarBrand, 'model_id', 'brand_id')
+        #     # Собираем все ID для разных типов связанных данных
+        # state_ids = {advert.state_id for advert in adverts}
+        # color_ids = {advert.color_id for advert in adverts}
+        # complectation_ids = {advert.complectation_id for advert in adverts}
+        # mileage_ids = {advert.mileage_id for advert in adverts}
+        # year_ids = {advert.year_id for advert in adverts}
+        #
+        #
+        # # Получаем все связанные данные одним запросом для каждого типа
+        # states = await manager.execute(CarState.select().where(CarState.id.in_(state_ids)))
+        # colors = await manager.execute(CarColor.select().where(CarColor.id.in_(color_ids)))
+        # complectations = await manager.execute(CarComplectation.select().where(CarComplectation.id.in_(complectation_ids)))
+        # mileages = await manager.execute(CarMileage.select().where(CarMileage.id.in_(mileage_ids)))
+        # years = await manager.execute(CarYear.select().where(CarYear.id.in_(year_ids)))
+        #
+        # # Преобразуем результаты в словари для удобного доступа
+        # state_dict = {state.id: state for state in states}
+        # color_dict = {color.id: color for color in colors}
+        # complectation_dict = {complectation.id: complectation for complectation in complectations}
+        # mileage_dict = {mileage.id: mileage for mileage in mileages}
+        # year_dict = {year.id: year for year in years}
+        #
+        #
+        # # Связываем каждое объявление с его связанными данными
+        # for advert in adverts:
+        #     advert.state = state_dict.get(advert.state_id)
+        #     advert.color = color_dict.get(advert.color_id)
+        #     advert.complectation = complectation_dict.get(advert.complectation_id)
+        #     advert.mileage = mileage_dict.get(advert.mileage_id)
+        #     advert.year = year_dict.get(advert.year_id)
 
-        # Преобразуем результаты в словари для удобного доступа
-        state_dict = {state.id: state for state in states}
-        color_dict = {color.id: color for color in colors}
-        # Повторите для других типов связанных данных
-
-        # Связываем каждое объявление с его связанными данными
-        for advert in adverts:
-            advert.state = state_dict.get(advert.state_id)
-            advert.color = color_dict.get(advert.color_id)
-            # Повторите для других связей
 
         return adverts if not len(adverts) == 1 else adverts[0]
 

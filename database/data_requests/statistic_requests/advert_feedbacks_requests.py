@@ -1,8 +1,11 @@
 import importlib
 
+from peewee import fn, JOIN
+
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel
 from database.tables.offers_history import SellerFeedbacksHistory
+from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
 
@@ -64,3 +67,74 @@ class AdvertFeedbackRequester:
 
         await manager.execute(SellerFeedbacksHistory().update(advert_parameters=None)\
                                                       .where(SellerFeedbacksHistory.id.in_(base_query)))
+
+    @staticmethod
+    async def get_top_advert_parameters(top_direction='top'):
+        # Фильтруем записи, где advert_parameters не равно null
+        # query = (SellerFeedbacksHistory
+        #          .select(SellerFeedbacksHistory.advert_parameters,
+        #                  fn.COUNT(SellerFeedbacksHistory.id).alias('feedbacks_count'),
+        #                  Seller)
+        #          .join(Seller, on=(SellerFeedbacksHistory.seller_id == Seller.telegram_id))
+        #          .where(SellerFeedbacksHistory.advert_parameters.is_null(False))
+        #          .group_by(SellerFeedbacksHistory.advert_parameters, Seller)
+        #          .order_by(fn.COUNT(SellerFeedbacksHistory.id).desc()))
+        #
+        # if top_direction == 'bottom':
+        #     query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
+        #
+        # top_10 = list(await manager.execute(query.dicts().limit(10)))
+        query = (SellerFeedbacksHistory
+                 .select(SellerFeedbacksHistory.advert_parameters,
+                         SellerFeedbacksHistory.seller_id,
+                         Seller,
+                         AdvertParameters,
+                         fn.COUNT(SellerFeedbacksHistory.id).alias('feedbacks_count'))
+                 .join(Seller, JOIN.LEFT_OUTER, on=(SellerFeedbacksHistory.seller_id == Seller.telegram_id))
+                 .switch(SellerFeedbacksHistory)
+                 .join(AdvertParameters, JOIN.LEFT_OUTER,
+                       on=(SellerFeedbacksHistory.advert_parameters == AdvertParameters.id))
+                 .where(SellerFeedbacksHistory.advert_parameters.is_null(False))
+                 .group_by(SellerFeedbacksHistory.advert_parameters, SellerFeedbacksHistory.seller_id, Seller,
+                           AdvertParameters)
+                 .order_by(fn.COUNT(SellerFeedbacksHistory.id).desc()))
+
+        if top_direction == 'bottom':
+            query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
+
+        # Получение результатов запроса
+        top_10_raw = await manager.execute(query.dicts().limit(10))
+
+        top_10 = []
+        for item in top_10_raw:
+            seller = Seller()
+            advert_params = AdvertParameters()
+            feedback_history = SellerFeedbacksHistory()
+
+            for key in Seller._meta.fields.keys():
+                if key in item:
+                    setattr(seller, key, item[key])
+
+            for key in AdvertParameters._meta.fields.keys():
+                if key in item:
+                    setattr(advert_params, key, item[key])
+
+            for key in SellerFeedbacksHistory._meta.fields.keys():
+                if key in item:
+                    setattr(feedback_history, key, item[key])
+
+            feedback_history.seller = seller
+            feedback_history.advert_parameters = advert_params
+            feedback_history.feedbacks_count = item['feedbacks_count']
+            top_10.append(feedback_history)
+
+        ic(top_10)
+        return top_10
+
+    @staticmethod
+    async def get_seller_feedback_by_id(feedback_id):
+        if not isinstance(feedback_id, int):
+            feedback_id = int(feedback_id)
+        return await manager.get_or_none(SellerFeedbacksHistory.select(SellerFeedbacksHistory, AdvertParameters,
+                                                                       Seller).where(
+                                                                            SellerFeedbacksHistory.id == feedback_id))
