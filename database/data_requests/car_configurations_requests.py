@@ -426,8 +426,6 @@ async def mock_feedbacks(sellers, raw_cars):
                 'complectation': car['complectation'],
                 'state': car['state'],
                 'color': car['color'],
-                'mileage': car['mileage'],
-                'year': car['year']
             })
 
         async with manager.atomic():

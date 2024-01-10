@@ -57,7 +57,8 @@ __STATISTIC_LEXICON = {
         **to_statistic_panel,
         'width': (3, 2, 1, 1)
     }},
-
+    'top_ten_message_text':  'Место в топе: {top_position}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
+                        + ('▬' * 13) + '\nМашины подписаны своим местом в топе:'
 }
 
 class SelectCustomParamsProcess:
@@ -70,8 +71,7 @@ class SelectCustomParamsProcess:
 
 
 class TopTenDisplay:
-    message_text = 'Место в топе: {top_position}{parameters}\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
-                        + ('▬' * 13) + '\nМашины подписаны своим местом в топе:'
+    # message_text =
 
     buttons_callback_data = 'top_ten_params:'
     backward_command = {'admin_backward:top_ten_display': captions['backward'], **to_statistic_panel}

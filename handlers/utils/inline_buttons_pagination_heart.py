@@ -16,7 +16,8 @@ from utils.lexicon_utils.Lexicon import LastButtonsInCarpooling
 class CachedRequestsView:
     '''Сердце класса - output_message_with_inline_pagination'''
     @staticmethod
-    async def output_message_with_inline_pagination(callback: CallbackQuery | Message, buttons_data=None, operation=None, state: Optional[FSMContext] = None, pagesize=None):
+    async def output_message_with_inline_pagination(callback: CallbackQuery | Message, buttons_data=None, operation=None,
+                                                    state: Optional[FSMContext] = None, pagesize=None, current_page=0):
         '''Пока что адаптирован под покупателя(см. get_keyboard)
         Требует контент в виде key: value для кнопок'''
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -25,13 +26,17 @@ class CachedRequestsView:
         redis_key = f'{str(callback.from_user.id)}:inline_buttons_pagination_data'
 
         if buttons_data:
-            data = [buttons_data]
+            if not isinstance(buttons_data, list):
+                data = [buttons_data]
+            else:
+                data = buttons_data
             ic(type(data))
-            ic(data)
+            ic(data, len(data))
             if len(data) == 1:
                 data = [{key: value} for key, value in data[0].items()]
-            pagination = Pagination(data=data, page_size=pagesize, current_page=0)
+            pagination = Pagination(data=data, page_size=pagesize, current_page=current_page)
             operation = '+'
+            ic()
         else:
             pagination_data = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
             # ic(pagination_data)
@@ -92,11 +97,13 @@ class CachedRequestsView:
                 message_text = {'message_text': memory_storage.get('message_text')}
 
         ic(message_text)
+        ic(memory_storage.get('message_text'))
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                         lexicon_part=message_text,
                                                         delete_mode=True, my_keyboard=keyboard)
         # await callback.message.edit_reply_markup(reply_markup=keyboard)
         await redis_module.redis_data.set_data(key=redis_key, value=await pagination.to_dict())
+        ic()
 
     @staticmethod
     async def get_keyboard(callback, pagination, operation, state: Optional[FSMContext]):

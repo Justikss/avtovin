@@ -17,7 +17,6 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
             advert_model = await advert_requests_module.AdvertRequester.get_where_id(advert_id)
         else:
             advert_model = advert_id
-        car_state = advert_model.state.name
         engine_type = advert_model.complectation.engine.name
         brand = advert_model.complectation.model.brand.name
         model = advert_model.complectation.model.name
@@ -28,6 +27,8 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
         if (sum_price or usd_price):
             year_of_realise = advert_model.year
             mileage = advert_model.mileage
+            car_state = advert_model.state.name
+
 
 
 
@@ -47,7 +48,16 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
     configurate_block = f'''\n{configurate_block}'''
     ic(configurate_block)
 
+    ic(sum_price, usd_price)
     if sum_price or usd_price:
         configurate_block += f'''\n{await get_valutes(usd=usd_price, sum_valute=sum_price, get_string='block')}'''
+    ic(configurate_block)
+
+    if not car_state:
+        configurate_block = configurate_block.split('\n')
+        configurate_block[2] = f'<blockquote>{configurate_block[2]}'
+        configurate_block = '\n'.join(configurate_block)
+
+    ic(configurate_block)
 
     return configurate_block

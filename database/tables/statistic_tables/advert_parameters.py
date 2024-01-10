@@ -7,8 +7,4 @@ from database.tables.car_configurations import CarComplectation, CarState, CarEn
 class AdvertParameters(BaseModel):
     complectation = ForeignKeyField(CarComplectation, backref='parameters')
     state = ForeignKeyField(CarState, backref='parameters')
-
-
     color = ForeignKeyField(CarColor, backref='parameters')
-    mileage = ForeignKeyField(CarMileage, backref='parameters', null=True)
-    year = ForeignKeyField(CarYear, backref='parameters', null=True)

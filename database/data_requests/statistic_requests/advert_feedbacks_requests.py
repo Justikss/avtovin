@@ -1,9 +1,12 @@
+import asyncio
 import importlib
 
 from peewee import fn, JOIN
 
+from database.data_requests.utils.raw_sql_handler import get_top_advert_parameters
 from database.db_connect import manager
-from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel
+from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarState, CarColor, CarMileage, \
+    CarYear, CarBrand
 from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
@@ -11,8 +14,8 @@ from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
 class AdvertFeedbackRequester:
     @staticmethod
-    async def get_or_create_by_parameters(state_id, color_id, mileage_id, year_id, complectation_id, only_get=False):
-        ic(state_id, color_id, mileage_id, year_id, complectation_id)
+    async def get_or_create_by_parameters(color_id, complectation_id, only_get=False):
+        ic(color_id, complectation_id)
         if only_get:
             manager_method = manager.get_or_none
         else:
@@ -20,8 +23,7 @@ class AdvertFeedbackRequester:
 
         query = await manager_method(AdvertParameters,
                                      complectation=complectation_id,
-                                     state=state_id, color=color_id,
-                                     mileage=mileage_id, year=year_id)
+                                     color=color_id)
 
         # if not only_get:
         #     query = query[0]
@@ -33,9 +35,8 @@ class AdvertFeedbackRequester:
 
     @staticmethod
     async def extract_parameters(advert: CarAdvert):
-        parameters = await manager.get_or_create(AdvertParameters, complectation=advert.complectation, state=advert.state,
-                                                 color=advert.color,
-                                    mileage=advert.mileage, year=advert.year)
+        parameters = await manager.get_or_create(AdvertParameters, complectation=advert.complectation,
+                                                 color=advert.color)
 
         return parameters
 
@@ -70,66 +71,33 @@ class AdvertFeedbackRequester:
 
     @staticmethod
     async def get_top_advert_parameters(top_direction='top'):
-        # Фильтруем записи, где advert_parameters не равно null
-        # query = (SellerFeedbacksHistory
-        #          .select(SellerFeedbacksHistory.advert_parameters,
-        #                  fn.COUNT(SellerFeedbacksHistory.id).alias('feedbacks_count'),
-        #                  Seller)
-        #          .join(Seller, on=(SellerFeedbacksHistory.seller_id == Seller.telegram_id))
-        #          .where(SellerFeedbacksHistory.advert_parameters.is_null(False))
-        #          .group_by(SellerFeedbacksHistory.advert_parameters, Seller)
-        #          .order_by(fn.COUNT(SellerFeedbacksHistory.id).desc()))
-        #
-        # if top_direction == 'bottom':
-        #     query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
-        #
-        # top_10 = list(await manager.execute(query.dicts().limit(10)))
         query = (SellerFeedbacksHistory
                  .select(SellerFeedbacksHistory.advert_parameters,
-                         SellerFeedbacksHistory.seller_id,
-                         Seller,
-                         AdvertParameters,
-                         fn.COUNT(SellerFeedbacksHistory.id).alias('feedbacks_count'))
-                 .join(Seller, JOIN.LEFT_OUTER, on=(SellerFeedbacksHistory.seller_id == Seller.telegram_id))
+                         # AdvertParameters,
+                         # CarComplectation,
+                         # CarModel,
+                         # CarBrand,
+                         # SellerFeedbacksHistory.seller_id,
+                         fn.COUNT(SellerFeedbacksHistory.id).alias('feedbacks_count'),
+                         Seller)
+                 .join(Seller, on=(SellerFeedbacksHistory.seller_id == Seller.telegram_id))
                  .switch(SellerFeedbacksHistory)
-                 .join(AdvertParameters, JOIN.LEFT_OUTER,
-                       on=(SellerFeedbacksHistory.advert_parameters == AdvertParameters.id))
+                 .join(AdvertParameters)
+                 .join(CarComplectation)
+                 .join(CarModel)
+                 .join(CarBrand)
                  .where(SellerFeedbacksHistory.advert_parameters.is_null(False))
-                 .group_by(SellerFeedbacksHistory.advert_parameters, SellerFeedbacksHistory.seller_id, Seller,
-                           AdvertParameters)
+                 .group_by(SellerFeedbacksHistory.advert_parameters, Seller)
                  .order_by(fn.COUNT(SellerFeedbacksHistory.id).desc()))
 
         if top_direction == 'bottom':
             query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
 
-        # Получение результатов запроса
-        top_10_raw = await manager.execute(query.dicts().limit(10))
-
-        top_10 = []
-        for item in top_10_raw:
-            seller = Seller()
-            advert_params = AdvertParameters()
-            feedback_history = SellerFeedbacksHistory()
-
-            for key in Seller._meta.fields.keys():
-                if key in item:
-                    setattr(seller, key, item[key])
-
-            for key in AdvertParameters._meta.fields.keys():
-                if key in item:
-                    setattr(advert_params, key, item[key])
-
-            for key in SellerFeedbacksHistory._meta.fields.keys():
-                if key in item:
-                    setattr(feedback_history, key, item[key])
-
-            feedback_history.seller = seller
-            feedback_history.advert_parameters = advert_params
-            feedback_history.feedbacks_count = item['feedbacks_count']
-            top_10.append(feedback_history)
-
-        ic(top_10)
+        top_10 = list(await manager.execute(query.limit(10)))
+        ic(top_10, len(top_10))
+        ic([model.__dict__ for model in top_10])
         return top_10
+
 
     @staticmethod
     async def get_seller_feedback_by_id(feedback_id):

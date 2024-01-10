@@ -20,7 +20,8 @@ async def add_lively_buttons(lexicon_part, buttons_captions, buttons_callback_da
     ic(lexicon_part)
     return lexicon_part
 
-async def create_lexicon_part(lexicon_part_abc, buttons_captions, request=None, state=None, need_width=False, need_last_buttons=True):
+async def create_lexicon_part(lexicon_part_abc, buttons_captions, request=None, state=None, need_width=False,
+                              need_last_buttons=True):
     ic(lexicon_part_abc.__class__.__dict__)
     ic(lexicon_part_abc.__dict__)
 

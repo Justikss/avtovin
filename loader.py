@@ -20,6 +20,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_
     StatisticsOutputMethodHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_type_handler import \
     DemandOutputSplitterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
+    TopTenByDemandDisplayHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.general_statistics.general_statistic import \
     GeneralBotStatisticHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
@@ -170,10 +172,10 @@ async def start_bot():
                         F.photo[0].file_unique_id.as_('unique_id'),
                         or_f(StateFilter(LoadCommodityStates.photo_verification),
                              StateFilter(AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos)))
+    # dp.callback_query.register(bot_help)
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
-    dp.message.register(bot_help, Command(commands=['fr']))
     dp.message.register(save_tariff_handler, Command(commands=['ut']))
 
     '''обработка Сообщений'''
@@ -370,6 +372,9 @@ async def start_bot():
                                lambda callback: callback.data.startswith('calculate_method:'),
                                StateFilter(StatisticsStates.accept_demand_calculate_method),
                                AdminStatusController())
+    dp.callback_query.register(TopTenByDemandDisplayHandler().callback_handler,
+                               lambda callback: callback.data.startswith('top_ten_params:'),
+                               StateFilter(StatisticsStates.display_top_ten))
 
     '''catalog_action'''
 

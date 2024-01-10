@@ -39,13 +39,6 @@ class RecommendationsToBuyer(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations_to_buyer')
 
     parameters = ForeignKeyField(AdvertParameters, backref='recommendations_to_buyer')
-    # complectation = ForeignKeyField(CarComplectation, backref='recommendations')
-    # state = ForeignKeyField(CarState, backref='recommendations')
-    # engine_type = ForeignKeyField(CarEngine, backref='recommendations')
-    #
-    # color = ForeignKeyField(CarColor, backref='recommendations', null=True)
-    # mileage = ForeignKeyField(CarMileage, backref='recommendations', null=True)
-    # year = ForeignKeyField(CarYear, backref='recommendations', null=True)
 
     class Meta:
         db_table = 'Параметры_Рекомендаций'
