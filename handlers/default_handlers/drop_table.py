@@ -102,9 +102,9 @@ async def drop_table_handler(message: Message):
     # await advert_to_admin_view_related_requester.create_relation(adv)
     #
     # return
-    inserted_cars = await get_car(photos=None, cars=0)
-    await mock_feedbacks(sellers=None, raw_cars=inserted_cars)
-    return
+    # inserted_cars = await get_car(photos=None, cars=0)
+    # await mock_feedbacks(sellers=None, raw_cars=inserted_cars)
+    # return
 
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')

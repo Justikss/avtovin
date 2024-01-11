@@ -68,10 +68,10 @@ class AdvertRequester:
             adverts = [offer.car_id for offer in adverts]
 
         ic(adverts)
-        await async_fetch_related(adverts, CarState, 'state_id', 'state')
+        # await async_fetch_related(adverts, CarState, 'state_id', 'state')
         await async_fetch_related(adverts, CarColor, 'color_id', 'color')
-        await async_fetch_related(adverts, CarMileage, 'mileage_id', 'mileage')
-        await async_fetch_related(adverts, CarYear, 'year_id', 'year')
+        # await async_fetch_related(adverts, CarMileage, 'mileage_id', 'mileage')
+        # await async_fetch_related(adverts, CarYear, 'year_id', 'year')
 
         # Привязка глубоких связей (например, CarComplectation -> CarModel -> CarBrand)
         adverts = await async_fetch_related(adverts, CarComplectation, 'complectation_id', 'complectation')

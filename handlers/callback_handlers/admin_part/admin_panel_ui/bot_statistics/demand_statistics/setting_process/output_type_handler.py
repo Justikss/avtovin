@@ -31,5 +31,6 @@ class DemandOutputSplitterHandler(BaseStatisticCallbackHandler):
 
     async def accept_calculate_method(self, request: Message | CallbackQuery, state: FSMContext):
         if 'calculate_method:' in request.data:
+            await self.send_alert_answer(request, self.statistic_manager.lexicon['stats_loading'])
             calculate_method = request.data.split(':')[-1]
             await state.update_data(calculate_method=calculate_method)

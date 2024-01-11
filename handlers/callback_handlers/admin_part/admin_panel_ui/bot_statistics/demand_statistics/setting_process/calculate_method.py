@@ -15,7 +15,8 @@ class CalculateDemandMethodHandler(BaseStatisticCallbackHandler):
         self.output_methods = [
             self.menu_manager.travel_editor(
                 lexicon_part=self.statistic_manager.lexicon['choose_method_of_calculating'],
-                dynamic_buttons=2
+                dynamic_buttons=2,
+                delete_mode=True
             )
         ]
         await super().process_callback(request, state, **kwargs)

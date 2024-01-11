@@ -2,6 +2,7 @@ import asyncio
 import importlib
 
 from peewee import fn, JOIN
+from peewee_async import Manager
 
 from database.data_requests.utils.raw_sql_handler import get_top_advert_parameters
 from database.db_connect import manager
@@ -70,7 +71,7 @@ class AdvertFeedbackRequester:
                                                       .where(SellerFeedbacksHistory.id.in_(base_query)))
 
     @staticmethod
-    async def get_top_advert_parameters(top_direction='top'):
+    async def get_top_advert_parameters(top_direction='top', manager=manager):
         query = (SellerFeedbacksHistory
                  .select(SellerFeedbacksHistory.advert_parameters,
                          # AdvertParameters,
@@ -93,9 +94,14 @@ class AdvertFeedbackRequester:
         if top_direction == 'bottom':
             query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
 
-        top_10 = list(await manager.execute(query.limit(10)))
+        if isinstance(manager, Manager):
+            top_10 = list(await manager.execute(query.limit(10)))
+
+        else:
+            top_10 = list(manager.execute(query.limit(10)))
+
         ic(top_10, len(top_10))
-        ic([model.__dict__ for model in top_10])
+        # ic([model.__dict__ for model in top_10])
         return top_10
 
 

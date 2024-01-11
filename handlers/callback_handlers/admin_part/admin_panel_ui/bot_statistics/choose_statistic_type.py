@@ -12,7 +12,8 @@ class ChooseStatisticTypeHandler(BaseCallbackQueryHandler):
 
         self.output_methods = [
             self.menu_manager.travel_editor(
-                lexicon_part=STATISTIC_LEXICON['choose_statistic_type']
+                lexicon_part=STATISTIC_LEXICON['choose_statistic_type'],
+                delete_mode=True
             )
         ]
 

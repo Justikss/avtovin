@@ -9,6 +9,7 @@ from icecream import ic
 
 from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from handlers.utils.pagination_heart import Pagination
+from utils.chat_cleaner.media_group_messages import delete_media_groups
 from utils.lexicon_utils.Lexicon import LastButtonsInCarpooling
 
 
@@ -36,9 +37,11 @@ class CachedRequestsView:
                 data = [{key: value} for key, value in data[0].items()]
             pagination = Pagination(data=data, page_size=pagesize, current_page=current_page)
             operation = '+'
+            delete_mode = True
             ic()
         else:
             pagination_data = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
+            delete_mode = False
             # ic(pagination_data)
             if pagination_data:
                 pagination = Pagination(**pagination_data)
@@ -50,7 +53,8 @@ class CachedRequestsView:
         keyboard = await CachedRequestsView.get_keyboard(callback, pagination, operation, state)
         # ic(await state.get_state())
         try:
-            await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state)
+            await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state,
+                                                                delete_mode=delete_mode)
         except Exception as ex:
             traceback.print_exc()
             ic(keyboard, pagination, redis_key)
@@ -61,11 +65,10 @@ class CachedRequestsView:
             await callback.answer()
 
     @staticmethod
-    async def send_message_with_keyboard(callback, keyboard, pagination, redis_key, state: Optional[FSMContext] = None):
+    async def send_message_with_keyboard(callback, keyboard, pagination, redis_key, state: Optional[FSMContext] = None,
+                                         delete_mode=False):
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-        sub_text = True
 
         if state:
             current_state = str(await state.get_state())
@@ -75,6 +78,29 @@ class CachedRequestsView:
             current_state = None
             memory_storage = None
         ic(current_state)
+
+        message_text = await CachedRequestsView.action_resources_splitter(redis_module, callback, current_state, memory_storage)
+        ic(message_text)
+        ic(memory_storage.get('message_text'))
+
+        media_group = await CachedRequestsView.get_media_group(memory_storage, state, callback, delete_mode)
+
+        await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
+                                                        lexicon_part=message_text,
+                                                        delete_mode=delete_mode, my_keyboard=keyboard,
+                                                        media_group=media_group,
+                                                        save_media_group=callback.data.startswith('inline_buttons_pagination:'))
+        # await callback.message.edit_reply_markup(reply_markup=keyboard)
+        await redis_module.redis_data.set_data(key=redis_key, value=await pagination.to_dict())
+        ic()
+
+
+    @staticmethod
+    async def action_resources_splitter(redis_module, callback, current_state, memory_storage):
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        sub_text = True
+        message_text = None
+
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
 
         if user_state == 'buy' and current_state:
@@ -96,14 +122,21 @@ class CachedRequestsView:
             if memory_storage:
                 message_text = {'message_text': memory_storage.get('message_text')}
 
-        ic(message_text)
-        ic(memory_storage.get('message_text'))
-        await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                        lexicon_part=message_text,
-                                                        delete_mode=True, my_keyboard=keyboard)
-        # await callback.message.edit_reply_markup(reply_markup=keyboard)
-        await redis_module.redis_data.set_data(key=redis_key, value=await pagination.to_dict())
-        ic()
+        return message_text
+
+    @staticmethod
+    async def get_media_group(memory_storage, state, callback, delete_mode):
+        media_group = memory_storage.get('media_group_for_inline_pg')
+        media_group_in_chat = memory_storage.get('media_group_in_chat')
+        ic(callback.data)
+        if media_group_in_chat and not callback.data.startswith('inline_buttons_pagination:'):
+            await state.update_data(media_group_in_chat=False)
+            await delete_media_groups(callback)
+        if media_group:
+            await state.update_data(media_group_for_inline_pg=None)
+            await state.update_data(media_group_in_chat=True)
+
+        return media_group
 
     @staticmethod
     async def get_keyboard(callback, pagination, operation, state: Optional[FSMContext]):

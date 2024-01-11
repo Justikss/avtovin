@@ -7,6 +7,7 @@ from aiogram.types import Message, CallbackQuery
 from config_data.config import top_ten_pagesize
 from database.data_requests.advert_parameters_requests import AdvertParameterManager
 from database.data_requests.car_advert_requests import AdvertRequester
+from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.tables.offers_history import SellerFeedbacksHistory
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
@@ -28,11 +29,10 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
     async def set_pagination_display(self, request: Message | CallbackQuery, state: FSMContext):
         models_range = await self.construct_models_structure(state)
 
-        # todo добавить вывод фото
-        ic(models_range[0].__dict__)
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 lexicon_class=await self.construct_lexicon_part(
+                    state=state,
                     position=models_range[0].name[:models_range[0].name.index('.')],
                     feedback_model=models_range[0]),
                 page_size=top_ten_pagesize,
@@ -40,14 +40,24 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             )
         ]
 
-    async def edit_displayed_data(self, request: Message | CallbackQuery, advert_parameters, seller_model, position):
+    async def get_photos_by_params(self, state: FSMContext, params_model):
+        media_group = await PhotoRequester.try_get_photo(state=state,
+                                                         complectation=params_model.complectation.id,
+                                                         color=params_model.color.id,
+                                                         for_admin=True)
+        ic(media_group)
+        ic()
+        await state.update_data(media_group_for_inline_pg=media_group)
+
+    async def edit_displayed_data(self, state: FSMContext, advert_parameters, seller_model, position):
         # todo Добавить edit media group
         feedback_model = SellerFeedbacksHistory()
         feedback_model.seller_id = seller_model
         feedback_model.advert_parameters = advert_parameters
         ic(feedback_model.advert_parameters)
         ic(feedback_model.advert_parameters.complectation.model.brand.name)
-        new_message_text = await self.construct_lexicon_part(position=position,
+        new_message_text = await self.construct_lexicon_part(state=state,
+                                                             position=position,
                                                              feedback_model=feedback_model,
                                                              only_message_text=True)
         ic(new_message_text)
@@ -77,7 +87,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         ic(advert_parameters)
         ic(advert_parameters.complectation.model.brand.name)
         if advert_parameters and seller_model:
-            await self.edit_displayed_data(request, advert_parameters, seller_model, position)
+            await self.edit_displayed_data(state, advert_parameters, seller_model, position)
         else:
             await state.clear()
             await self.send_alert_answer(request, LEXICON['non_actiallity'])
@@ -93,18 +103,16 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
                 if (other_params_id == params_id and other_seller_id == seller_id):
                     return value[:value.index('.')]
 
+    async def construct_lexicon_part(self, state: FSMContext, position, feedback_model, only_message_text=False):
+        async def get_seller_entity():
+            seller_entity = await get_seller_name(feedback_model.seller_id, for_admin=True)
+            if seller_entity:
+                if isinstance(seller_entity, tuple):
+                    seller_entity = f'{seller_entity[0]}\n{seller_entity[1]}'
 
+                return seller_entity
 
-    # async def get_params_to_output(self, params_in_queue, position_to_output=None, seller_id=None, params_id=None):
-    #     for part in params_in_queue:
-    #         for key, value in part:
-    #             params_id = int(key.data.split(':')[-2])
-    #             seller_id = int(key.data.split(':')[-1])
-    #             if feedback_id == position_to_output:
-    #                 params_to_output = {'position': int(ic(value[:value.index('.')])), 'id': feedback_id}
-    #                 return params_to_output
-
-    async def construct_lexicon_part(self, position, feedback_model, only_message_text=False):
+        await self.get_photos_by_params(state, feedback_model.advert_parameters)
         lexicon_class = deepcopy(TopTenDisplay)
         params_text = await self.statistic_manager.car_params_card_pattern(advert_id=feedback_model.advert_parameters)
         ic(params_text)
@@ -115,7 +123,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         lexicon_class.message_text = copy(self.statistic_manager.lexicon['top_ten_message_text']).format(
             top_position=position,
             parameters=params_text,
-            seller_entity=await get_seller_name(feedback_model.seller_id, for_admin=True))
+            seller_entity=await get_seller_entity())
 
         ic(lexicon_class.message_text)
 

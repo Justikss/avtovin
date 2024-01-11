@@ -507,8 +507,9 @@ async def insert_advert_photos(new_car_photos, params):
 
         # Массовая вставка данных
         if advert_photo_data_list:
-            await manager.execute(AdvertPhotos.insert_many(advert_photo_data_list))
-            print(f"Вставлено {len(advert_photo_data_list)} записей фотографий.")
+            pass
+            # await manager.execute(AdvertPhotos.insert_many(advert_photo_data_list))
+            # print(f"Вставлено {len(advert_photo_data_list)} записей фотографий.")
         else:
             print("Нет данных для вставки")
         try:

@@ -13,6 +13,7 @@ class StatisticsOutputMethodHandler(BaseStatisticCallbackHandler):
             self.menu_manager.travel_editor(
                 lexicon_part=self.statistic_manager.lexicon['choose_statistics_output_method'],
                 dynamic_buttons=2
+
             )
         ]
         ic()
