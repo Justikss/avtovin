@@ -114,7 +114,7 @@ async def drop_table_handler(message: Message):
 
     photos = None
     photos = read_photos_by_brand('utils/carss')
-    inserted_cars = await get_car(photos, cars=0)
+    inserted_cars = await get_car(photos, cars=1)
     asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     type_photos = read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)

@@ -156,8 +156,8 @@ class TravelEditor:
                             media_group = media_group[:5]
 
                         new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
-
                         print('post ', new_album)
+                        ic(len(new_album))
                         try:
                             new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
                         except TelegramServerError:

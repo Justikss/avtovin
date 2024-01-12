@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
@@ -64,17 +66,20 @@ class AdvertParameterValueFilter(BaseFilterObject):
         return message_input_request_handler
 
     async def seek_matched_new_state_param_names(self, request, state: FSMContext, last_advert_parameter, parameter_value):
-        # output_specific_parameters_module = importlib.import_module(
-        #     'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+        output_specific_parameters_module = importlib.import_module(
+            'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
 
         # await state.update_data()
 
-        # current_params = await output_specific_parameters_module\
-        #     .OutputSpecificAdvertParameters().get_need_new_car_state_params(request, state, last_advert_parameter)
-        exists_param = await CarConfigs.custom_action(mode=last_advert_parameter, action='get_by_name',
-                                                      name=parameter_value)
-        if exists_param:
-            return True
+        exists_params = await output_specific_parameters_module\
+            .OutputSpecificAdvertParameters().get_need_new_car_state_params(request, state, last_advert_parameter)
+        # exists_param = await CarConfigs.custom_action(mode=last_advert_parameter, action='get_by_name',
+        #                                               name=parameter_value)
+        ic(exists_params)
+        if exists_params:
+            exists_names = [param.name for param in exists_params]
+            if parameter_value in exists_names:
+                return True
         # if current_params:
         #     current_names = [param.name for param in current_params]
         #     if parameter_value in current_names:

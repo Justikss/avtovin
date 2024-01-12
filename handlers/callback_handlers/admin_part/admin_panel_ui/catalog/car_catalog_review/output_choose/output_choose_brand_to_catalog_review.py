@@ -6,9 +6,10 @@ from aiogram.types import CallbackQuery
 from config_data.config import admin_brand_pagination_pagesize
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
+from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates
 from utils.lexicon_utils.Lexicon import CATALOG_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import AdminReviewCatalogChooseCarBrand
+from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import AdminReviewCatalogChooseCarBrand, catalog_captions
 
 
 async def try_set_correct_state(callback: CallbackQuery, state: FSMContext):
@@ -46,7 +47,7 @@ async def choose_review_catalog_brand_admin_handler(callback: CallbackQuery, sta
     ic(viewed_status)
     brand_models = await advert_to_admin_view_related_requester.retrieve_by_view_status(status=viewed_status, get_brands=True)
     if not brand_models:
-        return False
+        return await send_message_answer(callback, catalog_captions['empty'])
     ic(brand_models)
     await output_choose_module.output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,
                         models_range=brand_models, page_size=admin_brand_pagination_pagesize)

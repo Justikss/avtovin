@@ -31,7 +31,18 @@ class ConfirmRewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
             current_parameter['value'] = current_new_parameter_value
             await state.update_data(current_advert_parameter=current_parameter)
             await self.send_alert_answer(request, captions['successfully'])
-            await ChooseActionOnAdvertParameterHandler().callback_handler(request, state)
+
+            params_state_type_flag = memory_storage.get('params_type_flag')
+
+            match params_state_type_flag:
+                case 'new':
+                    output_specific_parameters_module = importlib.import_module(
+                        'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+                    await output_specific_parameters_module \
+                        .OutputSpecificAdvertParameters().callback_handler(request, state)  #
+                case 'second_hand':
+                    await ChooseActionOnAdvertParameterHandler().callback_handler(request, state)
+
             asyncio.create_task(self.logging_action(request, 'rewrote_param', {
                 current_parameter_name: {current_parameter['value']: current_new_parameter_value}
             }))

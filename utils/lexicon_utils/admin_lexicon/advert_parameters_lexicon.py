@@ -124,7 +124,7 @@ class AdvertParametersChooseSpecificValue:
     def __init__(self, parameter_name: str, header: str):
 
         if parameter_name:
-            self.message_text = f'''{header}{self.__class__.__dict__.get(f'message_text_{parameter_name}')}'''
+            self.message_text = f'''{header if header else ''}{self.__class__.__dict__.get(f'message_text_{parameter_name}')}'''
 
             ic(self.message_text)
         if header:

@@ -8,7 +8,9 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                    format='[{asctime}] #{levelname:8} {filename}:'
+                            '{lineno} - {name} - {message}',
+                    style='{')
 
 
 if not find_dotenv():

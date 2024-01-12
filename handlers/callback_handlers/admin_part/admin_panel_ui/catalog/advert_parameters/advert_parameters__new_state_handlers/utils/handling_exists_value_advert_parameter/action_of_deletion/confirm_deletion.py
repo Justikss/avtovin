@@ -24,6 +24,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         memory_storage = await state.get_data()
         params_state_type_flag = memory_storage.get('params_type_flag')
+        ic(params_state_type_flag)
         match params_state_type_flag:
             case 'new':
                 selected_parameters = memory_storage.get('selected_parameters')
@@ -32,6 +33,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                     memory_storage.get('admin_chosen_advert_parameter'): memory_storage.get('current_advert_parameter')['id']
                 }
             case _:#
+                ic()
                 await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 
@@ -77,8 +79,9 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
     async def delete_query(self, request, state, selected_params):
         memory_storage = await state.get_data()
         delete_query = None
-
-        match memory_storage.get('params_type_flag'):
+        params_type_flag = memory_storage.get('params_type_flag')
+        ic(params_type_flag)
+        match params_type_flag:
             case 'new':
                 delete_query = await self.delete_new_state_params(selected_params)
             case 'second_hand':
@@ -89,6 +92,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                         mode=parameter_type_name
                     )
             case _:
+                ic()
                 await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 

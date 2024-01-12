@@ -11,7 +11,10 @@ from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_p
 
 async def get_user_name(subject):
     person_request_module = importlib.import_module('database.data_requests.person_requests')
-    ic(len(subject))
+    try:
+        ic(len(subject))
+    except:
+        pass
     seller_model = None
     buyer_model = None
     tariff_model = None
@@ -59,7 +62,8 @@ async def get_user_name(subject):
             if isinstance(value, int):
                 value = await CarConfigs.get_by_id(key, value)
 
-            name += f"\n{advert_parameters_captions[key]}: {value.name}"
+            value_name = value if isinstance(value, str) else value.name
+            name += f"\n{advert_parameters_captions[key]}: {value_name}"
     else:
         return subject
 

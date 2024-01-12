@@ -47,12 +47,13 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
                                                   user=user, seller=seller)
         if ban_query:
             user_mode = 'seller' if seller else 'buyer'
-            await log_admin_action(callback.from_user.username, f'ban_{user_mode}', ban_query, block_reason)
             await callback.answer(ADMIN_LEXICON['user_block_success'])
             await wipe_user_chat_history(callback, state, user_id, user=user, seller=seller)
             await send_notification(callback, user_status=user_status, chat_id=user_id, ban_reason=block_reason)
             ic()
-            return await return_admin_from_user_block_panel(callback, state, current_state)
+            await return_admin_from_user_block_panel(callback, state, current_state)
+            await log_admin_action(callback.from_user.username, f'ban_{user_mode}', ban_query, block_reason)
+            return
 
     except AdminDoesNotExistsError:
         return await admin_does_not_exists_handler(callback)

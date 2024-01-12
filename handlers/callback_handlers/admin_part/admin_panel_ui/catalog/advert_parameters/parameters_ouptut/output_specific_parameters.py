@@ -1,4 +1,5 @@
 import importlib
+from copy import deepcopy
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -29,6 +30,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         if request.data.endswith(':0'):
             return
         ic()
+        await self.incorrect_manager.try_delete_incorrect_message(request, state)
         delete_mode = kwargs.get('delete_mode')
         memory_storage = await state.get_data()
         # logging.debug("Стек вызовов: %s", traceback.format_stack())
@@ -43,15 +45,16 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
         if isinstance(request, CallbackQuery) and \
                 ('_choice_advert_parameters_type_' or (request.data.startswith('admin_backward')\
-                                                       or 'state' in request.data or 'new' in request.data\
-                        ))\
+                                                       or any(kwarg in request.data for kwarg in ('state', 'rewrite') ) \
+                                                       or 'new' in request.data))\
                 and 'choose_action_on_specific_adv_parameter' not in request.data:
 
             if (request.data.startswith(('admin_backward', 'new')) or any(pattern in request.data for pattern in (
                     'state',
                     'new',
                     'second_hand_choice_advert_parameters_type_',
-                    'confirm_delete_advert_parameter'
+                    'confirm_delete_advert_parameter',
+                    'rewrite'
             ))):
 
                 ic()
@@ -84,12 +87,16 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                         parameters = await self.get_need_new_car_state_params(request, state, parameter_name)
                     else:
                         raise Exception('Selected data is empty')
-                elif request.data == 'confirm_delete_advert_parameter' and memory_storage.get('params_type_flag') == 'second_hand':
-                    parameter_name = memory_storage.get('admin_chosen_advert_parameter')
 
-                else:
+                elif any(param == request.data.split('_')[-1] for param in ('year', 'mileage')):
+                    ic()
                     parameter_name = request.data.split('_')[-1]
                     await state.update_data(admin_chosen_advert_parameter=parameter_name)
+
+                elif (request.data.startswith('admin_backward') or request.data == 'confirm_delete_advert_parameter') and memory_storage.get('params_type_flag') == 'second_hand':
+                    ic()
+                    parameter_name = memory_storage.get('admin_chosen_advert_parameter')
+
         else:
             message_text_header = memory_storage.get('message_text_header')
             parameter_name = memory_storage.get('admin_chosen_advert_parameter')
@@ -103,21 +110,24 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
             parameters = [EmptyField]
 
         ic(message_text_header)
+        ic(parameters)
         if not parameters and parameter_name != 'review':
             if parameter_name in ('mileage', 'year'):
                 parameters = await CarConfigs.custom_action(mode=parameter_name, action='get_*')
             else:
                 await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
-
-        if not self.output_methods:
+        ic(parameters)
+        ic(parameter_name)
+        if not parameter_name == 'review':
             display_view_class = InlinePaginationInit(
-                    lexicon_class=AdvertParametersChooseSpecificValue(parameter_name, message_text_header),
+                    lexicon_class=deepcopy(AdvertParametersChooseSpecificValue)(parameter_name, message_text_header),
                     models_range=parameters,
                     page_size=car_configurations_in_keyboard_page
                 )
 
             self.output_methods = [display_view_class]
+            ic(display_view_class)
         else:
             display_view_class = None
 

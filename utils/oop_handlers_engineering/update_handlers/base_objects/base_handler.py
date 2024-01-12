@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 
+from handlers.utils.delete_message import delete_message
 from handlers.utils.message_answer_without_callback import send_message_answer
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 from utils.oop_handlers_engineering.generate_output_objects.specific_objects.output_generator_manager import \
@@ -19,7 +20,6 @@ class BaseHandler(ABC):
         self.incorrect_manager = IncorrectAdapter()
         self.redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         self.menu_manager = MenuGenerator
-
 
     async def send_alert_answer(self, request: Message| CallbackQuery, text: str, show_alert=False):
         await send_message_answer(request, text, show_alert=show_alert)
@@ -35,6 +35,7 @@ class BaseHandler(ABC):
 
     async def _output_panel(self, request: CallbackQuery | Message, state: FSMContext):
         if self.output_methods:
+            ic(len(self.output_methods))
             for output_class in self.output_methods:
                 if output_class:
                     if not isinstance(output_class, Callable):

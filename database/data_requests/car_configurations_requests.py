@@ -91,8 +91,8 @@ class CarConfigs:
                     return '(exists)'
 
             case 'delete' if model_id:
-                # if mode:
-                await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
+                if not mode in ('mileage', 'year'):
+                    await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
                 result = await manager.execute(current_table.delete().where(default_condition))
 
             case 'update' if name and model_id:
@@ -507,11 +507,12 @@ async def insert_advert_photos(new_car_photos, params):
 
         # Массовая вставка данных
         if advert_photo_data_list:
-            pass
-            # await manager.execute(AdvertPhotos.insert_many(advert_photo_data_list))
-            # print(f"Вставлено {len(advert_photo_data_list)} записей фотографий.")
+            # pass
+            await manager.execute(AdvertPhotos.insert_many(advert_photo_data_list))
+            print(f"Вставлено {len(advert_photo_data_list)} записей фотографий.")
         else:
             print("Нет данных для вставки")
+        # return
         try:
             await PhotoRequester.load_photo_in_base(photo_base)
         except:
@@ -603,13 +604,17 @@ async def get_car(photos=None, cars=False):
                                                   'mileage': mileage,
                                                   'year': year})
 
-        if cars:
-            await manager.execute(CarAdvert.insert_many(insert_carars))
+    if cars:
+        insert_carars = insert_carars[:len(insert_carars)//100]
+        await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
-    if photos:
-        await insert_advert_photos(photos, params = insert_carars if not cars else None)
-
-    return insert_carars
     # if insert_data:
     #     insert_photo_query = AdvertPhotos.insert_many(insert_data)
     #     await manager.execute(insert_photo_query)
+
+    # return
+
+    if photos:
+        await insert_advert_photos(photos, 0)
+
+    return insert_carars

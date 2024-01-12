@@ -126,7 +126,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             seller_entity=await get_seller_entity())
 
         ic(lexicon_class.message_text)
-
+        ic()
         if only_message_text:
             return lexicon_class.message_text
         return lexicon_class

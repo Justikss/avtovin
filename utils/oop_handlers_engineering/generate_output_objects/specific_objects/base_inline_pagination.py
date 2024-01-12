@@ -20,5 +20,6 @@ class InlinePaginationInit(OutputObject):
         self.method = output_choose_module.output_choose
 
     async def process(self, request: Message | CallbackQuery, state: FSMContext = None):
+        ic(self.lexicon_class.message_text, self.model_range)
         await self.method(request, state, self.lexicon_class, self.model_range, self.page_size,
                           remove_last_pagination_data=self.remove_last_pagination_data)
