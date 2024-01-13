@@ -406,12 +406,14 @@ async def mock_values():
     # await database.create(CarYear)
     pass
 async def get_seller_account(mock_feedbacks=False):
+    sellers = list(await manager.execute(Seller.select()))
+    if sellers:
+        return sellers
     await manager.create(User, telegram_id=902230076, username='Justion', name='Boris', surname='Борисов', phone_number='+79371567898')
     await manager.create(Admin, telegram_id=902230076)
     justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
     mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
     mockselle2 = await manager.create(Seller, telegram_id=912330076, entity='natural', name='Мокнутый', surname='Частюк', patronymic=None, dealship_address=None, authorized=True, phone_number='+79323557898')
-
 
     return [justion, mockseller, mockselle2]
 
@@ -450,7 +452,7 @@ async def mock_feedbacks(sellers, raw_cars):
     ic()
     for seller in sellers:
         for ap_id in advert_params_ids:
-            batch = [{'seller_id': seller, 'advert_parameters': ap_id, 'feedback_time': datetime.now() - timedelta(days=random.randint(0, 365))} for _ in range(random.randint(6, 10))]
+            batch = [{'seller_id': seller, 'advert_parameters': ap_id, 'feedback_time': datetime.now() - timedelta(days=random.randint(0, 365))} for _ in range(random.randint(2, 50))]
             await queue.put(batch)
 
     # Завершение работы рабочих
@@ -605,7 +607,7 @@ async def get_car(photos=None, cars=False):
                                                   'year': year})
 
     if cars:
-        insert_carars = insert_carars[:len(insert_carars)//100]
+        insert_carars = insert_carars#[:len(insert_carars)//100]
         await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     # if insert_data:

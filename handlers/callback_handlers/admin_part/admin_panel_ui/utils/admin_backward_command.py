@@ -13,6 +13,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
     request_choose_mailing_type
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.choose_statistic_type import \
     ChooseStatisticTypeHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.choose_param_handler import \
+    ChooseParamToDemandStatsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.choose_period import \
     CustomParamsChoosePeriod
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.calculate_method import \
@@ -80,7 +82,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     ic(memory_storage.get('params_type_flag') == 'new')
     match backward_mode:
         case 'choose_custom_params':
-            await choose_custom_params_stats_backwarder(callback, state, memory_storage)
+            await choose_custom_params_stats_backwarder(callback, state, memory_storage, current_state)
         case 'top_ten_display' | 'custom_params_period':
             await CalculateDemandMethodHandler().callback_handler(callback, state)
 
@@ -275,33 +277,31 @@ async def backward_in_advert_parameters_interface(current_state, callback, state
         await OutputSpecificAdvertParameters().callback_handler(callback, state, delete_mode=delete_mode)#
 
 
-async def choose_custom_params_stats_backwarder(callback: CallbackQuery, state: FSMContext, memory_storage):
+async def choose_custom_params_stats_backwarder(callback: CallbackQuery, state: FSMContext, memory_storage=None, current_state=None):
+    if not memory_storage:
+        memory_storage = await state.get_data()
+    if not current_state:
+        current_state = str(await state.get_state())
+
     chosen_demand_params = memory_storage.get('chosen_demand_params')
     out_flag = False
     if chosen_demand_params:
         chosen_demand_params_keys = chosen_demand_params.keys()
+        ic(chosen_demand_params_keys)
         all_params_to_choose = ['engine', 'brand', 'model', 'complectation', 'color']
+        for param_type in reversed(all_params_to_choose):
+            if param_type in chosen_demand_params_keys:
+                ic()
+                ic(chosen_demand_params)
+                chosen_demand_params.pop(param_type)
+                ic(chosen_demand_params)
+                await state.update_data(chosen_demand_params=chosen_demand_params)
 
-        if 'color' in chosen_demand_params_keys:
-            chosen_demand_params.pop('color')
-            # param_to_output = all_params_to_choose[all_params_to_choose.index('color')-2]
-        elif 'complectation' in chosen_demand_params_keys:
-            chosen_demand_params.pop('complectation')
-#             param_to_output = all_params_to_choose[all_params_to_choose.index('complectation')-2]
-        elif 'model' in chosen_demand_params_keys:
-            chosen_demand_params.pop('model')
-#             param_to_output = all_params_to_choose[all_params_to_choose.index('model')-2]
-        elif 'brand' in chosen_demand_params_keys:
-            chosen_demand_params.pop('brand')
-#             param_to_output = None
-        elif 'engine' in chosen_demand_params_keys:
-            chosen_demand_params.pop('engine')
+                if current_state == 'StatisticsStates.CustomParams:review_process':
+                    await state.update_data(media_group_for_inline_pg=None)
+                break
 
-            # out_flag=True
-#             param_to_output = 'break'
-
-        # if param_to_output:
-        await state.update_data(chosen_demand_params=chosen_demand_params)
+        await ChooseParamToDemandStatsHandler().callback_handler(callback, state)
     else:
     #     out_flag = True
     #

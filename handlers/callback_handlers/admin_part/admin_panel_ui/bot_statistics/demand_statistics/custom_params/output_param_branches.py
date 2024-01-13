@@ -11,23 +11,28 @@ from utils.lexicon_utils.Lexicon import LEXICON
 
 
 class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
-    async def callback_handler(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        async with self.idle_callback_answer(request):
-            await self.set_state(state, self.statistic_manager.states.CustomParams.review_process)
-            if request.data.startswith('custom_demand_param:'):
-                pagination_data = await self.get_pagination_data(request, state)
-                if pagination_data:
-                    self.output_methods = [
-                        self.menu_manager.admin_simple_pagination(
-                            pagination_data=pagination_data
-                        )
-                    ]
+    async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        ic()
+        ic()
+        # async with self.idle_callback_answer(request):
+        await self.set_state(state, self.statistic_manager.states.CustomParams.review_process)
+        ic(request.data)
+        if request.data.startswith('custom_demand_param:') or request.data == 'output_current_demand_stats':
+            await self.send_alert_answer(request, self.statistic_manager.lexicon['stats_loading'])
+            pagination_data = await self.get_pagination_data(request, state)
+            if pagination_data:
+                self.output_methods = [
+                    self.menu_manager.admin_simple_pagination(
+                        pagination_data=pagination_data
+                    )
+                ]
 
     async def get_pagination_data(self, request: Message | CallbackQuery, state: FSMContext):
         memory_storage = await state.get_data()
         stats_period = memory_storage.get('stats_period')
         chosen_demand_params = memory_storage.get('chosen_demand_params')
         calculate_method = memory_storage.get('calculate_method')
+        ic(chosen_demand_params)
         if chosen_demand_params:
             get_statistic_method_kwargs = {
                 'engine_id': chosen_demand_params.get('engine'),
@@ -41,36 +46,45 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
             return
 
         models_range = await self.statistic_manager.database_requests.get_statistics_by_params(
-            calculate_method, period=stats_period, **get_statistic_method_kwargs
+            calculate_method, period=stats_period, **get_statistic_method_kwargs, for_output=True
         )
-
+        ic(stats_period, calculate_method, models_range)
         if models_range:
             pagination_data = []
             for index, feedback in enumerate(models_range):
                 pagination_data.append(f'{feedback.id}:{index+1}')
+            # ic(pagination_data)
             return pagination_data
 
 
     async def get_output_part(self, request, state, admin_pagination_object, data_to_output, message_editor):
+        data_to_output = data_to_output[0]
         top_position = data_to_output.split(':')[-1]
         feedback_id = data_to_output.split(':')[0]
         lexicon_part = self.statistic_manager.lexicon['review_custom_stats_branches']
-        feedback_model =
-        message_text = TopTenByDemandDisplayHandler().construct_lexicon_part(state, top_position, )
-        if message_text:
-            memory_storage = await state.get_data()
+        feedback_model = await self.statistic_manager.database_requests.get_seller_feedback_by_id(feedback_id)
+        ic(data_to_output)
+        if feedback_model:
+            message_text = await TopTenByDemandDisplayHandler().construct_lexicon_part(state, top_position,
+                                                                                       feedback_model,
+                                                                                       only_message_text=True)
+            ic(message_text)
+            if message_text:
+                message_text = '\n'.join(message_text.split('\n'))
+                memory_storage = await state.get_data()
+                media_group = memory_storage.get('media_group_for_inline_pg')
 
-            media_group = memory_storage.get('media_group_for_inline_pg')
-            lexicon_part['message_text'] = message_text
-            lexicon_part['buttons']['page_counter'] = lexicon_part['buttons']['page_counter'].format(
-                start=admin_pagination_object.current_page,
-                end=admin_pagination_object.total_pages
-            )
+                lexicon_part['message_text'] = message_text
 
-            await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
-                                                            media_group=media_group, dynamic_buttons=2)
+                lexicon_part['buttons']['page_counter'] = lexicon_part['buttons']['page_counter'].format(
+                    start=admin_pagination_object.current_page,
+                    end=admin_pagination_object.total_pages
+                )
 
-        else:
-            await self.send_alert_answer(request, LEXICON['non_actiallity'])
-            await CustomParamsChoosePeriod().callback_handler(request, state)
-            return
+                await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
+                                                                media_group=media_group, dynamic_buttons=2)
+                return
+
+        await self.send_alert_answer(request, LEXICON['non_actiallity'])
+        await CustomParamsChoosePeriod().callback_handler(request, state)
+        return

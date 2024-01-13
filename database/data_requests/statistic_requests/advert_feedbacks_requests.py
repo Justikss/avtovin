@@ -1,6 +1,8 @@
 import asyncio
 import importlib
+import operator
 from datetime import timedelta, datetime
+from functools import reduce
 
 from peewee import fn, JOIN
 from peewee_async import Manager
@@ -111,14 +113,19 @@ class AdvertFeedbackRequester:
     async def get_seller_feedback_by_id(feedback_id):
         if not isinstance(feedback_id, int):
             feedback_id = int(feedback_id)
-        return await manager.get_or_none(SellerFeedbacksHistory.select(SellerFeedbacksHistory, AdvertParameters,
-                                                                       Seller).where(
-                                                                            SellerFeedbacksHistory.id == feedback_id))
+        ic(feedback_id)
+        query = SellerFeedbacksHistory.select(SellerFeedbacksHistory, AdvertParameters,
+                                                                       Seller).join(Seller)\
+                                                                        .switch(SellerFeedbacksHistory)\
+                                                                        .join(AdvertParameters).where(
+                                                                            SellerFeedbacksHistory.id == feedback_id)
+        return await manager.get_or_none(query)
 
     @staticmethod
     async def get_statistics_by_params(top_direction, period, engine_id=None, brand_id=None, model_id=None,
-                             complectation_id=None, color_id=None):
-
+                             complectation_id=None, color_id=None, for_output=False):
+        ic(engine_id, brand_id, model_id,
+                             complectation_id, color_id)
         async def get_time_filter():
             current_time = datetime.now()
 
@@ -142,14 +149,33 @@ class AdvertFeedbackRequester:
 
         time_filter = await get_time_filter()
 
+        if for_output:
+            conditions = []
+            if color_id is not None:
+                conditions.append(CarColor.id == color_id)
+            if complectation_id is not None:
+                conditions.append(AdvertParameters.complectation_id == complectation_id)
+            if model_id is not None:
+                conditions.append(CarModel.id == model_id)
+            if brand_id is not None:
+                conditions.append(CarBrand.id == brand_id)
+            if engine_id is not None:
+                conditions.append(CarComplectation.engine_id == engine_id)
+            conditions.append(time_filter)
+
+            combined_conditions = reduce(operator.and_, conditions)
+            ic(combined_conditions)
+            query = SellerFeedbacksHistory.select(
+                                             SellerFeedbacksHistory.seller_id,
+                                             SellerFeedbacksHistory.advert_parameters_id,
+                                            # fn.ARRAY_AGG(SellerFeedbacksHistory.id).alias('ids'),
+                                             fn.COUNT(SellerFeedbacksHistory.id).alias('count')
+                                            ).join(
+                AdvertParameters).join(CarColor).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(
+                CarBrand) \
+                .where(combined_conditions).group_by(SellerFeedbacksHistory.seller_id, SellerFeedbacksHistory.advert_parameters_id)
+
         # Изменяем логику запроса в зависимости от входных параметров
-        if color_id is not None:
-            query = SellerFeedbacksHistory.select(SellerFeedbacksHistory.id, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
-                AdvertParameters).join(CarColor).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(CarBrand)\
-                .where(((CarColor.id == color_id) & \
-                        (AdvertParameters.complectation_id == complectation_id) & \
-                        (CarModel.id == model_id) & (CarBrand.id == brand_id) & \
-                        (CarComplectation.engine_id == engine_id)), time_filter).group_by(CarColor)
         elif complectation_id is not None:
             query = CarColor.select(CarColor, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
                 AdvertParameters).join(SellerFeedbacksHistory).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(CarBrand).where(
@@ -183,5 +209,14 @@ class AdvertFeedbackRequester:
             query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id).asc())
 
         # Выполнение запроса
-        results = await manager.execute(query)
+        results = list(await manager.execute(query))
+        if isinstance(results[0], SellerFeedbacksHistory):
+            print('SFHH')
+            print([feedback.count for feedback in results])
+            # for index, feedback in enumerate(results):
+            #     if index != 0:
+            #         assert feedback.count >= results[index - 1].count
+                # ic(feedback)
+        # ic(results)
         return results
+

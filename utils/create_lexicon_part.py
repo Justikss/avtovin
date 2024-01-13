@@ -1,3 +1,4 @@
+from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.user import User
 from handlers.state_handlers.seller_states_handler.load_new_car.boot_car_buttons_controller import \
@@ -12,6 +13,7 @@ async def add_lively_buttons(lexicon_part, buttons_captions, buttons_callback_da
         elif isinstance(button_part, Seller) and button_part.dealship_name:
             name = button_part.dealship_name
             object_id = button_part.telegram_id
+
         else:
             name = button_part.name
             object_id = button_part.id

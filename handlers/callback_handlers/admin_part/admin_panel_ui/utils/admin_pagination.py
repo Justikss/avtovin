@@ -7,13 +7,14 @@ from aiogram.types import CallbackQuery, Message
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.mailing_requests import get_mailing_by_id
 from database.tables.mailing import Mailing
-from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
-    TopTenByDemandDisplayHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.output_param_branches import \
+    OutputStatisticAdvertParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.utils.send_advert_review import \
     send_advert_review
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.utils.\
     send_mailing_review import send_mailing_review
 from handlers.utils.pagination_heart import Pagination
+
 
 redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -60,6 +61,8 @@ class AdminPaginationOutput(Pagination):
                 if current_model:
                     current_model = current_model.__dict__
                     output_structured_data.append(current_model)
+            elif current_state == 'StatisticsStates.CustomParams:review_process':
+                output_structured_data.append(data_part)
             else:
                 advert_model = await AdvertRequester.get_where_id(data_part)
                 if advert_model:
@@ -80,6 +83,8 @@ class AdminPaginationOutput(Pagination):
                                                  value=dictated_pagination_data)
 
         await AdminPaginationOutput.output_page(request, state, '+')
+            # await send_message_answer(request, LEXICON['non_actiallity'])
+            # await AdminPaginationOutput.return_action(request, state)
 
     @staticmethod
     async def output_page(request: CallbackQuery | Message, state: FSMContext, operation):
@@ -98,16 +103,21 @@ class AdminPaginationOutput(Pagination):
             if data_to_output:
                 await media_group_delete_module.delete_media_groups(request=request)
 
-                if current_state.startswith('MailingReviewStates'):
-                    await send_mailing_review(request, admin_pagination_object, data_to_output, message_editor)
+            if current_state.startswith('MailingReviewStates'):
+                await send_mailing_review(request, state, admin_pagination_object, data_to_output, message_editor)
+                return True
+            elif current_state.startswith(('AdminCarCatalogReviewStates', 'AdminCarCatalogSearchByIdStates')):
+                ic()
+                await send_advert_review(request, state, admin_pagination_object, data_to_output,
+                                                message_editor)
+                return True
+            elif current_state == 'StatisticsStates.CustomParams:review_process':
+                await OutputStatisticAdvertParamsHandler().get_output_part(request, state,
+                                                                                  admin_pagination_object,
+                                                                                  data_to_output, message_editor)
+                return True
 
-                elif current_state.startswith(('AdminCarCatalogReviewStates', 'AdminCarCatalogSearchByIdStates')):
-                    ic()
-                    await send_advert_review(request, state, admin_pagination_object, data_to_output, message_editor)
-                elif current_state == 'StatisticsStates.CustomParams:review_process':
-                    await
-            else:
-                return False
+        # return False
 
 
     @staticmethod
@@ -116,3 +126,6 @@ class AdminPaginationOutput(Pagination):
         ic(operation)
         await AdminPaginationOutput.output_page(callback, state, operation)
 
+
+    # @staticmethod
+    # async def return_action(callback: CallbackQuery, state: FSMContext):

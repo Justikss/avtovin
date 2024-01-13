@@ -1,9 +1,16 @@
+from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
+    request_choose_mailing_type
+from handlers.utils.message_answer_without_callback import send_message_answer
 from handlers.utils.send_any_medias import send_media
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
+from utils.lexicon_utils.Lexicon import ADVERT_LEXICON, LEXICON
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 
 
-async def send_mailing_review(request, admin_pagination_object, data_to_output, message_editor):
+async def send_mailing_review(request, state, admin_pagination_object, data_to_output, message_editor):
+    if not data_to_output:
+        await request_choose_mailing_type(request, state)
+        await send_message_answer(request, LEXICON['non_actiallity'])
+        return
     output_data = data_to_output[0]['__data__']
     lexicon_part = ADVERT_LEXICON['send_mailing_review']
     lexicon_part['message_text'] = lexicon_part['message_text'].format(

@@ -16,32 +16,37 @@ from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import ChooseCusto
 
 class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        async with self.idle_callback_answer(request):
-            memory_storage = await state.get_data()
+        # async with self.idle_callback_answer(request):
+        memory_storage = await state.get_data()
 
-            if not await self.set_state(state, self.statistic_manager.states.CustomParams.choose_params) \
-                                                            and request.data.startswith('select_bot_statistic_period:'):
-                await state.update_data(stats_period=request.data.split(':')[-1])
+        if not await self.set_state(state, self.statistic_manager.states.CustomParams.choose_params) \
+                                                        and request.data.startswith('select_bot_statistic_period:'):
+            await state.update_data(stats_period=request.data.split(':')[-1])
 
-            chosen_params, chosen_param_name = await self.try_extract_inputted_data(request, state, memory_storage)
-            ic(chosen_params, chosen_param_name)
-            param_to_output = await self.get_choose_data(request, state, chosen_param_name)
-            if not param_to_output:
-                return
+        chosen_params, chosen_param_name = await self.try_extract_inputted_data(request, state, memory_storage)
+        ic(chosen_params, chosen_param_name)
+        if all(value is None for value in (chosen_params, chosen_param_name)):
+            return
+        param_to_output = await self.get_choose_data(request, state, chosen_param_name)
+        ic(param_to_output)
+        if not param_to_output:
+            self.output_methods = []
+            return
+        ic()
+        memory_storage = await state.get_data()
 
-            memory_storage = await state.get_data()
-
-            lexicon_class = await self.get_lexicon_class(request, state, memory_storage, chosen_params, param_to_output)
-            if not lexicon_class:
-                return
-
-            self.output_methods = [
-                self.menu_manager.inline_pagination(
-                    lexicon_class=lexicon_class,
-                    models_range=await self.get_models_range(state, memory_storage),
-                    page_size=admin_brand_pagination_pagesize
-                )
-            ]
+        lexicon_class = await self.get_lexicon_class(request, state, memory_storage, chosen_params, param_to_output)
+        if not lexicon_class:
+            self.output_methods = []
+            return
+        # ic(lexicon_class.__dict__)
+        self.output_methods = [
+            self.menu_manager.inline_pagination(
+                lexicon_class=lexicon_class,
+                models_range=await self.get_models_range(state, memory_storage),
+                page_size=admin_brand_pagination_pagesize
+            )
+        ]
 
 
 
@@ -52,12 +57,18 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
         chosen_params = memory_storage.get('chosen_demand_params')
         if not chosen_params:
             chosen_params = {}
-        chosen_param_name = None
+        # chosen_param_name = None
+
+        chosen_param_name = await self.get_last_chosen_param(request, state,
+                                                             get_next_param=not request.data.startswith('admin_backward:')
+                                                             )
+        if not chosen_param_name:
+            chosen_param_name = 'engine'
+        elif chosen_param_name == 'exit':
+            return None, None
+
         if request.data.startswith('custom_demand_param:'):
             chosen_param_id = int(request.data.split(':')[-1])
-            chosen_param_name = await self.get_last_chosen_param(state, get_next_param=True)
-            if not chosen_param_name:
-                chosen_param_name = 'engine'
             ic(chosen_param_name, chosen_param_id)
             chosen_params = {**chosen_params, chosen_param_name: chosen_param_id}
             await state.update_data(chosen_demand_params=chosen_params)
@@ -80,6 +91,7 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
             calculate_method, period=memory_storage.get('stats_period'), **get_statistic_method_kwargs
         )
 
+        # ic(models_range)
 
         # models_range = await self.transform_feedbacks_to_car_param(models_range, chosen_demand_params)
 
@@ -107,7 +119,7 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
 
                     await self.send_alert_answer(request, LEXICON['search_parameter_invalid'])
                     await admin_backward_command_module\
-                            .choose_custom_params_stats_backwarder(request, state, await state.get_data())
+                            .choose_custom_params_stats_backwarder(request, state)
                     return
             header = header[:-1] + '; '
         lexicon_class.message_text = lexicon_class.message_text.format(header=header)
@@ -128,14 +140,14 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
         ic(next_param_to_output)
         return next_param_to_output
 
-    async def get_last_chosen_param(self, state: FSMContext, get_next_param=False):
+    async def get_last_chosen_param(self, request, state: FSMContext, get_next_param=False):
         memory_storage = await state.get_data()
         chosen_params = memory_storage.get('chosen_demand_params')
         if chosen_params:
             chosen_params_keys = chosen_params.keys()
             if 'color' in chosen_params_keys:
-                chosen_param = 'color'
-                raise Exception('В разработке')
+                await OutputStatisticAdvertParamsHandler().callback_handler(request, state)
+                return 'exit'
             # elif chosen_params_keys in ()
             elif 'complectation' in chosen_params_keys:
                 chosen_param = 'complectation'

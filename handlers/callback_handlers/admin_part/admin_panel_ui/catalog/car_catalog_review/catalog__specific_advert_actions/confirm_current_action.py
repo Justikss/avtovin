@@ -8,10 +8,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_re
     delete_advert_admin_action
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.output_specific_advert import \
     output_review_adverts_catalog_admin_handler
-from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_ban.confirm_block_user_action import \
-    confirm_user_block_action
 from handlers.utils.message_answer_without_callback import send_message_answer
-from utils.lexicon_utils.Lexicon import CATALOG_LEXICON
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 
 
@@ -27,7 +24,9 @@ async def confirm_specific_advert_action_admin_handler(callback: CallbackQuery, 
             await delete_advert_admin_action(callback, state, current_advert_id, current_seller_id)
             return await output_review_adverts_catalog_admin_handler(callback, state)
         elif action == 'block':
-            await confirm_user_block_action(callback, state)
+            confirm_block_user_action_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_ban.confirm_block_user_action')
+            await confirm_block_user_action_module\
+                    .confirm_user_block_action(callback, state)
     else:
         await send_message_answer(callback, catalog_captions['inactive_advert_or_seller'])
 

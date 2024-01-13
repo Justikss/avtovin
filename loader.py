@@ -7,6 +7,7 @@ from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
+from icecream import ic
 
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
@@ -145,7 +146,7 @@ bot = None
 
 redis = Redis(host='localhost')
 storage = RedisStorage(redis=redis)
-
+ic.disable()
 dp = Dispatcher(storage=storage)
 
 async def start_bot():
@@ -387,9 +388,9 @@ async def start_bot():
                                        lambda callback: callback.data.startswith('select_bot_statistic_period:')),
                                    and_f(
                                        StateFilter(StatisticsStates.CustomParams.choose_params),
-                                       lambda callback: callback.data.startswith('custom_demand_param:'))),
-                               StateFilter(StatisticsStates.CustomParams.choose_params),
-                               )
+                                       lambda callback: callback.data.startswith('custom_demand_param:'),
+                               StateFilter(StatisticsStates.CustomParams.choose_params)
+                               )))
     dp.callback_query.register(OutputStatisticAdvertParamsHandler().callback_handler,
                                StateFilter(StatisticsStates.CustomParams.choose_params),
                                F.data == 'output_current_demand_stats',
