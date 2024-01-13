@@ -28,7 +28,8 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
     async def set_pagination_display(self, request: Message | CallbackQuery, state: FSMContext):
         models_range = await self.construct_models_structure(state)
-
+        if not models_range:
+            return await self.send_alert_answer(request, LEXICON['non_actiallity'])
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 lexicon_class=await self.construct_lexicon_part(
@@ -84,9 +85,10 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
         advert_parameters = await AdvertParameterManager.get_by_id(params_id)
         seller_model = await person_requests_module.PersonRequester.get_user_for_id(seller_id, seller=True)
-        ic(advert_parameters)
-        ic(advert_parameters.complectation.model.brand.name)
+        # ic(advert_parameters)
+        # ic(advert_parameters.complectation.model.brand.name)
         if advert_parameters and seller_model:
+            await AdvertRequester.load_related_data_for_advert(advert_parameters)
             await self.edit_displayed_data(state, advert_parameters, seller_model, position)
         else:
             await state.clear()
@@ -138,11 +140,14 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             top_direction=await self.get_demand_direction(state)
         )
 
+        ic(models_range)
         if not models_range:
-            models_range = [self.statistic_manager.empty_button_field]
+            return False
+            # models_range = [self.statistic_manager.empty_button_field]
+            # ic(models_range)
         else:
             for index,  model in enumerate(models_range):
-                await AdvertRequester.load_related_data_for_advert(model.advert_parameters)
+                # await AdvertRequester.load_related_data_for_advert(model.advert_parameters)
                 model.name = f'{index+1}. {model.advert_parameters.complectation.model.brand.name} - {model.advert_parameters.complectation.model.name}'
                 model.id = f'{model.advert_parameters_id}:{model.seller_id}'
                 ic(hasattr(model, 'name'))

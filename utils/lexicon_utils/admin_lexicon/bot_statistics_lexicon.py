@@ -1,10 +1,23 @@
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions
+from copy import copy
+
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions, pagination_interface
+from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
+
+
 
 statistic_captions = {'Day': 'День',
                     'Week': 'Неделя',
                     'Month': 'Месяц',
                     'Year': 'Год',
-                    'General': 'Общая'}
+                    'General': 'Общая',
+                      'color': 'Цвет',
+                      'complectation': 'Комплектацию',
+                      'model': advert_parameters_captions['model'],#.lower(),
+                      'brand': advert_parameters_captions['brand'],#.lower(),
+                      'engine': advert_parameters_captions['engine'],#.lower(),
+                    'top_demand_on': 'Топ спроса на',
+                    'car': 'авто'
+}
 
 choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions['Day'],
                           'select_bot_statistic_period:week': statistic_captions['Week'],
@@ -52,14 +65,29 @@ __STATISTIC_LEXICON = {
         'width': 2
     }},
 
-    'period_of_calculate_demand_statistics': {'message_text': 'Период расчёта статистики:', 'buttons': {
-        **choose_period_keyboard,
-        'admin_backward:period_of_calcul_demand_stats': captions['backward'],
-        **to_statistic_panel,
-        'width': (3, 2, 1, 1)
-    }},
+    # 'period_of_calculate_demand_statistics': {'message_text': 'Период расчёта статистики:', 'buttons': {
+    #     **choose_period_keyboard,
+    #     'admin_backward:period_of_calcul_demand_stats': captions['backward'],
+    #     **to_statistic_panel,
+    #     'width': (3, 2, 1, 1)
+    # }},
     'top_ten_message_text':  'Место в топе: {top_position}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
-                        + ('▬' * 13) + '\nМашины подписаны своим местом в топе:'
+                        + ('▬' * 13) + '\nМашины подписаны своим местом в топе:',
+
+    'custom_params_period': {'message_text': 'Период расчёта индивидуальной статистики спроса:',
+                             'buttons': {
+                                 **choose_period_keyboard,
+                                 'admin_backward:custom_params_period': captions['backward'],
+                                 **to_statistic_panel,
+                                 'width': 3
+                             }},
+
+    'review_custom_stats_branches': {'message_text': '', 'buttons': {
+        **pagination_interface,
+        'admin_backward:choose_custom_params': captions['backward'],
+        **to_statistic_panel,
+        'width': 3
+    }}
 }
 
 class SelectCustomParamsProcess:
@@ -72,9 +100,31 @@ class SelectCustomParamsProcess:
 
 
 class TopTenDisplay:
-    # message_text =
-
     buttons_callback_data = 'top_ten_params:'
     backward_command = {'admin_backward:top_ten_display': captions['backward'], **to_statistic_panel}
     width = 1
     dynamic_buttons = 2
+
+class ChooseCustomParamsToStats:
+    buttons_callback_data = 'custom_demand_param:'
+    backward_command = {'admin_backward:choose_custom_params': captions['backward'], **to_statistic_panel}
+    output_top_button = {'output_current_demand_stats': 'Вывести текущий топ'}
+    width = 1
+    dynamic_buttons = 2
+
+    async def async_init(self, period, param_to_output, calculate_method, chosen_params=None):
+        self.buttons_callback_data = self.buttons_callback_data
+        self.width = self.width
+        self.dynamic_buttons = self.dynamic_buttons if param_to_output == 'engine' else 3
+        self.message_text = '{header}'
+
+        if chosen_params:
+            self.backward_command = {**self.output_top_button, **self.backward_command}
+        else:
+            self.backward_command = self.backward_command
+
+        self.message_text += f'''за {copy(captions[period if period != 'all' else 'any'])};\nВыберите нужное место из топа;\n\
+Список {'по убыванию' if calculate_method == 'bottom' else 'по увеличению'} спроса;\
+\n{advert_parameters_captions[param_to_output]}:'''
+
+        return self

@@ -7,6 +7,8 @@ from aiogram.types import CallbackQuery, Message
 from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.mailing_requests import get_mailing_by_id
 from database.tables.mailing import Mailing
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
+    TopTenByDemandDisplayHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.output_choose.utils.send_advert_review import \
     send_advert_review
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.utils.\
@@ -102,6 +104,8 @@ class AdminPaginationOutput(Pagination):
                 elif current_state.startswith(('AdminCarCatalogReviewStates', 'AdminCarCatalogSearchByIdStates')):
                     ic()
                     await send_advert_review(request, state, admin_pagination_object, data_to_output, message_editor)
+                elif current_state == 'StatisticsStates.CustomParams:review_process':
+                    await
             else:
                 return False
 

@@ -68,44 +68,13 @@ class AdvertRequester:
             adverts = [offer.car_id for offer in adverts]
 
         ic(adverts)
-        # await async_fetch_related(adverts, CarState, 'state_id', 'state')
-        await async_fetch_related(adverts, CarColor, 'color_id', 'color')
-        # await async_fetch_related(adverts, CarMileage, 'mileage_id', 'mileage')
-        # await async_fetch_related(adverts, CarYear, 'year_id', 'year')
 
-        # Привязка глубоких связей (например, CarComplectation -> CarModel -> CarBrand)
         adverts = await async_fetch_related(adverts, CarComplectation, 'complectation_id', 'complectation')
         await async_fetch_deep_related([advert.complectation for advert in adverts],  CarModel, CarBrand, 'model_id', 'brand_id')
-        #     # Собираем все ID для разных типов связанных данных
-        # state_ids = {advert.state_id for advert in adverts}
-        # color_ids = {advert.color_id for advert in adverts}
-        # complectation_ids = {advert.complectation_id for advert in adverts}
-        # mileage_ids = {advert.mileage_id for advert in adverts}
-        # year_ids = {advert.year_id for advert in adverts}
-        #
-        #
-        # # Получаем все связанные данные одним запросом для каждого типа
-        # states = await manager.execute(CarState.select().where(CarState.id.in_(state_ids)))
-        # colors = await manager.execute(CarColor.select().where(CarColor.id.in_(color_ids)))
-        # complectations = await manager.execute(CarComplectation.select().where(CarComplectation.id.in_(complectation_ids)))
-        # mileages = await manager.execute(CarMileage.select().where(CarMileage.id.in_(mileage_ids)))
-        # years = await manager.execute(CarYear.select().where(CarYear.id.in_(year_ids)))
-        #
-        # # Преобразуем результаты в словари для удобного доступа
-        # state_dict = {state.id: state for state in states}
-        # color_dict = {color.id: color for color in colors}
-        # complectation_dict = {complectation.id: complectation for complectation in complectations}
-        # mileage_dict = {mileage.id: mileage for mileage in mileages}
-        # year_dict = {year.id: year for year in years}
-        #
-        #
-        # # Связываем каждое объявление с его связанными данными
-        # for advert in adverts:
-        #     advert.state = state_dict.get(advert.state_id)
-        #     advert.color = color_dict.get(advert.color_id)
-        #     advert.complectation = complectation_dict.get(advert.complectation_id)
-        #     advert.mileage = mileage_dict.get(advert.mileage_id)
-        #     advert.year = year_dict.get(advert.year_id)
+        # await async_fetch_deep_related([advert.complectation for advert in adverts],  CarComplectation, CarEngine, 'complectation', 'engine_id')
+
+        await async_fetch_related(adverts, CarColor, 'color_id', 'color')
+        await async_fetch_related([advert.complectation for advert in adverts], CarEngine, 'engine_id', 'engine ')
 
 
         return adverts if not len(adverts) == 1 else adverts[0]

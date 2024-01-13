@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+from datetime import timedelta, datetime
 
 from peewee import fn, JOIN
 from peewee_async import Manager
@@ -7,7 +8,7 @@ from peewee_async import Manager
 from database.data_requests.utils.raw_sql_handler import get_top_advert_parameters
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarState, CarColor, CarMileage, \
-    CarYear, CarBrand
+    CarYear, CarBrand, CarEngine
 from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
@@ -93,13 +94,14 @@ class AdvertFeedbackRequester:
 
         if top_direction == 'bottom':
             query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
-
+        ic(type(manager), isinstance(manager, Manager))
         if isinstance(manager, Manager):
             top_10 = list(await manager.execute(query.limit(10)))
 
         else:
-            top_10 = list(manager.execute(query.limit(10)))
+            top_10 = list(manager.execute(query.dicts().limit(10)))
 
+        ic([feedback.feedbacks_count for feedback in top_10])
         ic(top_10, len(top_10))
         # ic([model.__dict__ for model in top_10])
         return top_10
@@ -112,3 +114,74 @@ class AdvertFeedbackRequester:
         return await manager.get_or_none(SellerFeedbacksHistory.select(SellerFeedbacksHistory, AdvertParameters,
                                                                        Seller).where(
                                                                             SellerFeedbacksHistory.id == feedback_id))
+
+    @staticmethod
+    async def get_statistics_by_params(top_direction, period, engine_id=None, brand_id=None, model_id=None,
+                             complectation_id=None, color_id=None):
+
+        async def get_time_filter():
+            current_time = datetime.now()
+
+            # Фильтры для временных периодов
+            if period == 'day':
+                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=1))
+            elif period == 'week':
+                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(weeks=1))
+            elif period == 'month':
+                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=30))
+            elif period == 'year':
+                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=365))
+            elif period in ('general', 'any', 'all'):
+                time_filter = True  # Без временного фильтра
+            else:
+                raise ValueError("Invalid period parameter")
+
+            return time_filter
+        ''''''
+        # Определяем текущее время
+
+        time_filter = await get_time_filter()
+
+        # Изменяем логику запроса в зависимости от входных параметров
+        if color_id is not None:
+            query = SellerFeedbacksHistory.select(SellerFeedbacksHistory.id, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
+                AdvertParameters).join(CarColor).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(CarBrand)\
+                .where(((CarColor.id == color_id) & \
+                        (AdvertParameters.complectation_id == complectation_id) & \
+                        (CarModel.id == model_id) & (CarBrand.id == brand_id) & \
+                        (CarComplectation.engine_id == engine_id)), time_filter).group_by(CarColor)
+        elif complectation_id is not None:
+            query = CarColor.select(CarColor, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
+                AdvertParameters).join(SellerFeedbacksHistory).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(CarBrand).where(
+                ((AdvertParameters.complectation_id == complectation_id) & \
+                 (CarModel.id == model_id) & (CarBrand.id == brand_id) & \
+                 (CarComplectation.engine_id == engine_id)), time_filter)\
+                .group_by(CarColor)
+        elif model_id is not None:
+            query = CarComplectation.select(CarComplectation, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
+                AdvertParameters).join(SellerFeedbacksHistory).switch(CarComplectation).join(CarModel)\
+                .where(((CarModel.id == model_id) & \
+                        (CarComplectation.engine_id == engine_id) & \
+                        (CarModel.brand_id == brand_id)), time_filter).group_by(CarComplectation)
+        elif brand_id is not None:
+            query = CarModel.select(CarModel, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
+                CarComplectation).join(AdvertParameters).join(SellerFeedbacksHistory).switch(CarModel).join(CarBrand)\
+                .where(((CarBrand.id == brand_id) & (CarComplectation.engine_id == engine_id)),
+                       time_filter).group_by(CarModel)
+        elif engine_id is not None:
+            query = CarBrand.select(CarBrand, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(CarModel).join(
+                CarComplectation).join(AdvertParameters).join(SellerFeedbacksHistory).switch(CarComplectation).join(CarEngine)\
+                .where(CarEngine.id == engine_id, time_filter).group_by(CarBrand)
+        else:
+            query = CarEngine.select(CarEngine, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
+                CarComplectation).join(AdvertParameters).join(SellerFeedbacksHistory).group_by(CarEngine)
+
+        # Добавление сортировки
+        if top_direction == 'top':
+            query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id).desc())
+        else:
+            query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id).asc())
+
+        # Выполнение запроса
+        results = await manager.execute(query)
+        return results

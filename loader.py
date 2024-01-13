@@ -14,6 +14,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, t
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions import mailing
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.choose_statistic_type import \
     ChooseStatisticTypeHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.choose_param_handler import \
+    ChooseParamToDemandStatsHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.output_param_branches import \
+    OutputStatisticAdvertParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.calculate_method import \
     CalculateDemandMethodHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_method import \
@@ -126,7 +130,8 @@ from handlers.callback_handlers.sell_part import start_sell_button_handler, star
     commodity_requests
 from handlers.callback_handlers.admin_part import accept_registration_request_button
 from handlers.callback_handlers import sell_part
-from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, await_confirm_from_admin, check_your_registration_config
+from handlers.state_handlers.seller_states_handler.seller_registration import seller_registration_handlers, \
+    await_confirm_from_admin, check_your_registration_config
 from handlers.state_handlers.seller_states_handler import load_new_car, seller_profile_branch
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.hybrid_part.faq import seller_faq, buyer_faq, faq
@@ -375,6 +380,21 @@ async def start_bot():
     dp.callback_query.register(TopTenByDemandDisplayHandler().callback_handler,
                                lambda callback: callback.data.startswith('top_ten_params:'),
                                StateFilter(StatisticsStates.display_top_ten))
+
+    dp.callback_query.register(ChooseParamToDemandStatsHandler().callback_handler,
+                               or_f(and_f(
+                                       StateFilter(StatisticsStates.CustomParams.choose_period),
+                                       lambda callback: callback.data.startswith('select_bot_statistic_period:')),
+                                   and_f(
+                                       StateFilter(StatisticsStates.CustomParams.choose_params),
+                                       lambda callback: callback.data.startswith('custom_demand_param:'))),
+                               StateFilter(StatisticsStates.CustomParams.choose_params),
+                               )
+    dp.callback_query.register(OutputStatisticAdvertParamsHandler().callback_handler,
+                               StateFilter(StatisticsStates.CustomParams.choose_params),
+                               F.data == 'output_current_demand_stats',
+                               AdminStatusController()
+                               )
 
     '''catalog_action'''
 

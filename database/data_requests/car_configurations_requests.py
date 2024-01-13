@@ -410,7 +410,7 @@ async def get_seller_account(mock_feedbacks=False):
     await manager.create(Admin, telegram_id=902230076)
     justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
     mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
-    mockselle2 = await manager.create(Seller, telegram_id=912330076, dealship_name='Мокнутый Частюк', entity='natural', dealship_address=None, authorized=True, phone_number='+79323557898')
+    mockselle2 = await manager.create(Seller, telegram_id=912330076, entity='natural', name='Мокнутый', surname='Частюк', patronymic=None, dealship_address=None, authorized=True, phone_number='+79323557898')
 
 
     return [justion, mockseller, mockselle2]
@@ -424,7 +424,6 @@ async def mock_feedbacks(sellers, raw_cars):
         for car in raw_cars:
             good_cars.append({
                 'complectation': car['complectation'],
-                'state': car['state'],
                 'color': car['color'],
             })
 
@@ -448,9 +447,10 @@ async def mock_feedbacks(sellers, raw_cars):
 
     # Добавление задач в очередь
     batch_size = 1000
+    ic()
     for seller in sellers:
         for ap_id in advert_params_ids:
-            batch = [{'seller_id': seller, 'advert_parameters': ap_id, 'feedback_time': datetime.now() - timedelta(days=random.randint(0, 365))} for _ in range(random.randint(30, 60))]
+            batch = [{'seller_id': seller, 'advert_parameters': ap_id, 'feedback_time': datetime.now() - timedelta(days=random.randint(0, 365))} for _ in range(random.randint(6, 10))]
             await queue.put(batch)
 
     # Завершение работы рабочих
