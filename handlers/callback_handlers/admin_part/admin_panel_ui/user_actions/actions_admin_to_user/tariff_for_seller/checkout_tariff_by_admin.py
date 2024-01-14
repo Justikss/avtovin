@@ -6,12 +6,12 @@ from aiogram.types import CallbackQuery
 
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import seller_profile_card_constructor, \
     get_seller_name
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import ReviewSellerTariff
+
 
 
 async def construct_review_tariff_by_admin(callback: CallbackQuery, state: FSMContext, get_header=False):
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
+    admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
     memory_storage = await state.get_data()
     seller_id = memory_storage.get('current_seller_id')
@@ -23,7 +23,7 @@ async def construct_review_tariff_by_admin(callback: CallbackQuery, state: FSMCo
     if seller_model:
         seller_model = seller_model[0]
 
-        review_tariff_card_materials = ReviewSellerTariff(tariff_exists)
+        review_tariff_card_materials = admin_lexicon_module.ReviewSellerTariff(tariff_exists)
         await state.update_data(tariff_exists=tariff_exists)
         seller_name = await get_seller_name(seller_model, get_only_fullname=True)
         if seller_name:
@@ -48,11 +48,13 @@ async def construct_review_tariff_by_admin(callback: CallbackQuery, state: FSMCo
 async def checkout_seller_tariff_by_admin_handler(callback: CallbackQuery, state: FSMContext):
     choose_specific_person_by_admin_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
     message_editor_module = importlib.import_module('handlers.message_editor')
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
     ic()
     tariff_card = await construct_review_tariff_by_admin(callback, state)
     if not tariff_card:
         memory_storage = await state.get_data()
-        await callback.answer(ADMIN_LEXICON['user_non_active'])
+        await callback.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
         await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(callback, state, first_call=False)
         logging.critical(
             f'''Администратор {callback.from_user.id} не смог получить вывод тарифа продавца {memory_storage.get('current_seller_id')}''')

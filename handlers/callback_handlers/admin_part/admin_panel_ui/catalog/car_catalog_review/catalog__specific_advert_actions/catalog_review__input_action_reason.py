@@ -4,9 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogReviewStates
-from utils.lexicon_utils.Lexicon import CATALOG_LEXICON, ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def input_reason_lexicon_part_modification(request: CallbackQuery| Message, state: FSMContext, incorrect):
     if isinstance(request, CallbackQuery) and 'catalog_action__' in request.data:
@@ -16,10 +15,10 @@ async def input_reason_lexicon_part_modification(request: CallbackQuery| Message
         memory_storage = await state.get_data()
         acton_subject = memory_storage.get('advert_action_subject')
 
-    lexicon_part = CATALOG_LEXICON['catalog_close_advert__input_reason']
-    lexicon_part['message_text'] = lexicon_part['message_text'].format(acton_subject=catalog_captions[f'to_{acton_subject}'])
+    lexicon_part = Lexicon_module.CATALOG_LEXICON['catalog_close_advert__input_reason']
+    lexicon_part['message_text'] = lexicon_part['message_text'].format(acton_subject=Lexicon_module.catalog_captions[f'to_{acton_subject}'])
     if incorrect:
-        lexicon_part['message_text'] += f'''\n{ADMIN_LEXICON['incorrect_input_block_reason']}{incorrect}'''
+        lexicon_part['message_text'] += f'''\n{Lexicon_module.ADMIN_LEXICON['incorrect_input_block_reason']}{incorrect}'''
     return lexicon_part
 
 async def input_reason_to_close_advert_admin_handler(request: CallbackQuery| Message, state: FSMContext, incorrect=False):

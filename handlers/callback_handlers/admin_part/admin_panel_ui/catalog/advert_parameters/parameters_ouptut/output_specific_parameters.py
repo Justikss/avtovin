@@ -4,7 +4,6 @@ from copy import deepcopy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from config_data.config import car_configurations_in_keyboard_page
 from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
@@ -15,14 +14,13 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_media_group_to_advert.input_media import \
     InputCarPhotosToSetParametersBranchHandler
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
-from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import \
     AdvertParametersChooseSpecificValue, advert_parameters_captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler import InlinePaginationInit
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
@@ -82,7 +80,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                     ic(structured_selected_data)
                     if structured_selected_data:
 
-                        message_text_header = ADVERT_PARAMETERS_LEXICON['selected_new_car_params_pattern'].format(
+                        message_text_header = Lexicon_module.ADVERT_PARAMETERS_LEXICON['selected_new_car_params_pattern'].format(
                             params_data=structured_selected_data)
                         parameters = await self.get_need_new_car_state_params(request, state, parameter_name)
                     else:
@@ -105,7 +103,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         ic(parameters)
         if parameters == [] and parameter_name in ('brand', 'mileage', 'year'):
             class EmptyField:
-                name = catalog_captions['empty']
+                name = Lexicon_module.catalog_captions['empty']
                 id = 0
             parameters = [EmptyField]
 
@@ -115,15 +113,17 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
             if parameter_name in ('mileage', 'year'):
                 parameters = await CarConfigs.custom_action(mode=parameter_name, action='get_*')
             else:
-                await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
         ic(parameters)
         ic(parameter_name)
         if not parameter_name == 'review':
+            config_module = importlib.import_module('config_data.config')
+
             display_view_class = InlinePaginationInit(
                     lexicon_class=deepcopy(AdvertParametersChooseSpecificValue)(parameter_name, message_text_header),
                     models_range=parameters,
-                    page_size=car_configurations_in_keyboard_page
+                    page_size=config_module.car_configurations_in_keyboard_page
                 )
 
             self.output_methods = [display_view_class]

@@ -1,10 +1,12 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.mailing_requests import get_mailings_by_viewed_status
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from states.admin_part_states.mailing.mailing_review_states import MailingReviewStates
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
+
 
 
 async def output_mailings(callback: CallbackQuery, state: FSMContext):
@@ -27,4 +29,6 @@ async def output_mailings(callback: CallbackQuery, state: FSMContext):
         ic()
 
     else:
-        await callback.answer(ADVERT_LEXICON['this_mailing_type_do_not_exists'])
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+        await callback.answer(Lexicon_module.ADVERT_LEXICON['this_mailing_type_do_not_exists'])

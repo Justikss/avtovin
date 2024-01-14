@@ -6,8 +6,9 @@ from aiogram.types import CallbackQuery
 
 from database.tables.statistic_tables.period_seller_statistic import calculate_stats
 from utils.get_user_name import get_user_name
-from utils.lexicon_utils.Lexicon import STATISTIC_LEXICON, ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
 
 async def get_period_string(period):
@@ -17,7 +18,7 @@ async def get_period_string(period):
         case _:#
             period = 'any'
 
-    result = copy(captions[period])
+    result = copy(admin_lexicon_module.captions[period])
     return result
 
 
@@ -38,19 +39,19 @@ async def handle_stats_callback(query: CallbackQuery, state: FSMContext):
         counts = await calculate_stats(seller_id=seller_id, period=period)
 
         period_string = await get_period_string(period)
-        lexicon_part = STATISTIC_LEXICON['seller_statistic_view']
+        lexicon_part = Lexicon_module.STATISTIC_LEXICON['seller_statistic_view']
         lexicon_part['message_text'] = lexicon_part['message_text'].format(seller_name=seller_name,
                                                                            date_of_registration=seller_date_of_registration,
                                                                            period=period_string, adverts_count=counts['advert'],
                                                                            feedbacks_count=counts['feedback'])
 
-        await query.answer(ADMIN_LEXICON['information_was_updated'])
+        await query.answer(Lexicon_module.ADMIN_LEXICON['information_was_updated'])
 
         await message_editor_module.travel_editor.edit_message(request=query, lexicon_key='',
                                                                lexicon_part=lexicon_part)
 
     else:
-        await query.answer(ADMIN_LEXICON['user_non_active'])
+        await query.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
         choose_specific_person_by_admin_module = importlib.import_module(
             'handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
         await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(query, state, first_call=False)

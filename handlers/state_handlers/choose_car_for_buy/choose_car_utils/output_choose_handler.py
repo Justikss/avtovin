@@ -3,7 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 
 from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
+
 
 
 async def get_last_inline_pagination_buttons(callback):
@@ -30,8 +30,9 @@ async def output_choose(callback, state: FSMContext, lexicon_class, models_range
                         remove_last_pagination_data=True, operation=None):
     create_lexicon_part_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.hybrid_handlers')
     inline_pagination_module = importlib.import_module('handlers.utils.inline_buttons_pagination_heart')
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     if not models_range:
-        await callback.answer(catalog_captions['empty'])
+        await callback.answer(Lexicon_module.catalog_captions['empty'])
         await return_main_menu_callback_handler(callback, state)
         return
 

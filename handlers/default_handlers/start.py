@@ -4,10 +4,7 @@ from datetime import datetime
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from config_data.config import REGISTRATION_DATETIME_FORMAT
-from database.data_requests.admin_requests import AdminManager
-from database.db_connect import manager
-from database.tables.user import User
+
 from handlers.utils.delete_message import delete_message
 from handlers.utils.message_answer_without_callback import send_message_answer
 from keyboards.inline.kb_creator import InlineCreator

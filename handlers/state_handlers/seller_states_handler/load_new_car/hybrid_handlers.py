@@ -8,12 +8,12 @@ import importlib
 from typing import Union
 from icecream import ic
 
-from config_data.config import car_configurations_in_keyboard_page
-from database.data_requests.car_configurations_requests import CarConfigs
-from database.data_requests.new_car_photo_requests import PhotoRequester
 from states.load_commodity_states import LoadCommodityStates
 from handlers.state_handlers.seller_states_handler.load_new_car.utils import data_update_controller, change_boot_car_state_controller, rewrite_boot_state_stopper
 from utils.create_lexicon_part import create_lexicon_part
+
+config_module = importlib.import_module('database.data_requests.car_configurations_requests')
+bot_config_module = importlib.import_module('config_data.config')
 
 
 async def get_load_car_state(state: FSMContext):
@@ -45,7 +45,8 @@ async def input_state_to_load(callback: CallbackQuery, state: FSMContext, bot=No
         delete_mode = False
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_state()
     lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
-                                             buttons_captions=await CarConfigs.get_all_states(), need_width=True)
+                                             buttons_captions=await config_module\
+            .CarConfigs.get_all_states(), need_width=True)
     ic(lexicon_part)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, delete_mode=delete_mode, dynamic_buttons=lexicon_class.dynamic_buttons)
 
@@ -72,7 +73,8 @@ async def input_engine_type_to_load(callback: CallbackQuery, state: FSMContext, 
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_engine_type()
     lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
-                                             buttons_captions=await CarConfigs.get_all_engines(), need_width=True)
+                                             buttons_captions=await config_module\
+            .CarConfigs.get_all_engines(), need_width=True)
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
@@ -101,11 +103,14 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     if await data_update_controller(request=callback, state=state):
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_brand()
-    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.get_brands_by_engine(engine_for_load),
-                        car_configurations_in_keyboard_page, need_last_buttons=False)
+    await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
+            .CarConfigs.get_brands_by_engine(engine_for_load),
+                        bot_config_module\
+                                             .car_configurations_in_keyboard_page, need_last_buttons=False)
 
     # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, state=state,
-    #                                          buttons_captions=await CarConfigs.get_brands_by_engine(engine_for_load), request=callback)
+    #                                          buttons_captions=await config_module\
+    #                                          .CarConfigs.get_brands_by_engine(engine_for_load), request=callback)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
@@ -138,11 +143,14 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
         return
     engine_for_load = memory_storage.get('engine_for_load')
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_model()
-    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.get_models_by_brand_and_engine(
-                                                                                    brand_for_load, engine_for_load),
-                                                                                    car_configurations_in_keyboard_page, need_last_buttons=False)
+    await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
+            .CarConfigs.get_models_by_brand_and_engine(
+                                brand_for_load, engine_for_load),
+                                bot_config_module\
+                                             .car_configurations_in_keyboard_page, need_last_buttons=False)
     # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, state=state,
-    #                                          buttons_captions=await CarConfigs.get_models_by_brand_and_engine(
+    #                                          buttons_captions=await config_module\
+    #                                          .CarConfigs.get_models_by_brand_and_engine(
     #                                              brand_for_load, engine_for_load), request=callback)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
 
@@ -175,10 +183,13 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
     if await data_update_controller(request=callback, state=state):
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_complectation()
-    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.get_complectations_by_model_and_engine(
-        model_for_load, engine_for_load), car_configurations_in_keyboard_page, need_last_buttons=False)
+    await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
+            .CarConfigs.get_complectations_by_model_and_engine(
+        model_for_load, engine_for_load), bot_config_module\
+                                             .car_configurations_in_keyboard_page, need_last_buttons=False)
     # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, state=state,
-    #                                          buttons_captions=await CarConfigs.get_complectations_by_model_and_engine(
+    #                                          buttons_captions=await config_module\
+    #                                          .CarConfigs.get_complectations_by_model_and_engine(
     #                                              model_for_load, engine_for_load), request=callback)
     # ic(lexicon_part)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
@@ -217,9 +228,12 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
     ic(lexicon_class.last_buttons)
     # lexicon_class.last_buttons = {key: value for key, value in lexicon_class.last_buttons.items() if key != last_button_key}
     ic(lexicon_class.last_buttons)
-    last_color_value = await CarConfigs.get_by_id(table='color', model_id=1)
-    await output_choose_module.output_choose(callback, state, lexicon_class, await CarConfigs.get_color_by_complectaiton(complectation_id=user_answer),
-                                                                                    car_configurations_in_keyboard_page,
+    last_color_value = await config_module\
+            .CarConfigs.get_by_id(table='color', model_id=1)
+    await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
+            .CarConfigs.get_color_by_complectaiton(complectation_id=user_answer),
+                                        bot_config_module\
+                                             .car_configurations_in_keyboard_page,
                         need_last_buttons={f'{lexicon_module.LexiconCommodityLoader.load_commodity_color.buttons_callback_data}{str(last_color_value.id)}': last_color_value.name})
     await callback.answer()
     cars_state = await get_load_car_state(state=state)
@@ -289,7 +303,8 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
 
 
     ic(await state.get_state())
-    await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, reply_mode=reply_mode, seller_boot=True, bot=bot)
+    await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
+                                                    reply_mode=reply_mode, seller_boot=True, bot=bot, delete_mode=True)
 
     if isinstance(request, CallbackQuery):
         await request.answer()
@@ -351,6 +366,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         if cars_state == 'new' and int(memory_storage.get('color_for_load')) != 1 and not need_photo_flag:
             output_config_module = importlib.import_module(
                 'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
+
 
             need_photo_flag = False
             #

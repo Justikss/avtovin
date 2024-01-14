@@ -5,8 +5,6 @@ from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 from typing import Union
 from aiogram.fsm.context import FSMContext
 
-from database.data_requests.car_configurations_requests import CarConfigs
-from utils.lexicon_utils.Lexicon import LEXICON
 
 
 async def data_formatter(request: Union[Message, CallbackQuery], state: FSMContext, id_values=False):
@@ -33,14 +31,18 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     result_data = dict()
     ic(sub_data)
     if not id_values:
+        car_configurations_requests_module = importlib.import_module('database.data_requests.car_configurations_requests')
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
         for key, value in sub_data.items():
             if key not in ('seller_id', 'sum_price', 'dollar_price', 'photos') and value != None:
 
                 if str(value).isdigit():
-                    value = await CarConfigs.get_by_id(key, value)
+                    value = await car_configurations_requests_module\
+                        .CarConfigs.get_by_id(key, value)
                     ic(key, value)
                     if str(value) in ('0', 'None', 'False') and key == 'color':
-                        value = LEXICON['other_caption']
+                        value = Lexicon_module\
+                            .LEXICON['other_caption']
                     else:
                         value = value.name
 

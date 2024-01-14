@@ -3,7 +3,6 @@ from abc import ABC
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon
 
 class SellerRequestsPagination(ABC):
     @staticmethod
@@ -30,10 +29,11 @@ class SellerRequestsPagination(ABC):
 
                 await media_group_delete_module.delete_media_groups(request=callback)
 
-
                 return await pagination_module.output_sellers_commodity_page(request=callback, output_data_part=output_data_part, state=state)
 
-        await callback.answer(Lexicon.pages_were_end)
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+        await callback.answer(Lexicon_module.LexiconSellerRequests.pages_were_end)
 
 
 class SellerRequestPaginationHandlers(SellerRequestsPagination):

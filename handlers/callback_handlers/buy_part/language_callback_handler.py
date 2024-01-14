@@ -5,7 +5,6 @@ from aiogram.types import CallbackQuery, Message
 
 from database.data_requests.admin_requests import AdminManager
 from keyboards.inline.kb_creator import InlineCreator
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 from utils.redis_for_language import redis_data
 
 async def unpack_lexicon_to_start_using(callback, string_user_id):
@@ -17,7 +16,7 @@ async def unpack_lexicon_to_start_using(callback, string_user_id):
         admin_lexicon_part = {}
         for callback_value, button_caption in lexicon_part.items():
             if callback_value == 'width':
-                admin_lexicon_part['admin_panel_button'] = ADMIN_LEXICON['admin_panel_button_caption']
+                admin_lexicon_part['admin_panel_button'] = lexicon_module.ADMIN_LEXICON['admin_panel_button_caption']
             admin_lexicon_part[callback_value] = button_caption
         if admin_lexicon_part:
             lexicon_part = admin_lexicon_part
@@ -41,13 +40,13 @@ async def set_language(request: CallbackQuery | Message, delete_mode=False, set_
     else:
         message = request
     string_user_id = str(request.from_user.id)
-    if set_languange and isinstance(request, CallbackQuery):
-        redis_key = str(string_user_id) + ':language'
-        redis_value = request.data.split('_')
-        if len(redis_value) >= 1:
-            if redis_value[0] == 'language':
-                redis_value = redis_value[1]
-                await redis_data.set_data(key=redis_key, value=redis_value)
+    # if set_languange and isinstance(request, CallbackQuery):
+    #     redis_key = str(string_user_id) + ':language'
+    #     redis_value = request.data.split('_')
+    #     if len(redis_value) >= 1:
+    #         if redis_value[0] == 'language':
+    #             redis_value = redis_value[1]
+    #             await redis_data.set_data(key=redis_key, value=redis_value)
 
     #Будет меняться язык от callback.data#
 

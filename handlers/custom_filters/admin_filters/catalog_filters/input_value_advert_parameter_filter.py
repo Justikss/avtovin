@@ -13,7 +13,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
 from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from utils.custom_exceptions.database_exceptions import FilterWithoutInput
-from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_filter import BaseFilterObject
 
 
@@ -53,6 +52,8 @@ class AdvertParameterValueFilter(BaseFilterObject):
 
     @staticmethod
     async def get_returning_method(request, state):
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
         current_state = str(await state.get_state())
         match current_state:
             case 'AdminAdvertParametersStates:start_add_value_process':
@@ -60,7 +61,7 @@ class AdvertParameterValueFilter(BaseFilterObject):
             case 'AdminAdvertParametersStates:start_rewrite_exists_parameter' | 'AdminAdvertParametersStates:confirmation_rewrite_exists_parameter':
                 message_input_request_handler = RewriteExistsAdvertParameterHandler().callback_handler
             case _:#
-                await send_message_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                await send_message_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         return message_input_request_handler

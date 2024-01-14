@@ -11,10 +11,10 @@ from database.data_requests.utils.raw_sql_handler import get_top_advert_paramete
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarState, CarColor, CarMileage, \
     CarYear, CarBrand, CarEngine
-from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
+offers_history_module = importlib.import_module('database.tables.offers_history')
 
 class AdvertFeedbackRequester:
     @staticmethod
@@ -54,12 +54,15 @@ class AdvertFeedbackRequester:
             advert = await car_advert_requests_module.AdvertRequester.get_where_id(advert)
 
         parameters = await AdvertFeedbackRequester.extract_parameters(advert)
-        await manager.execute(SellerFeedbacksHistory.insert(seller_id=seller_id, advert_parameters=parameters[0]))
+        await manager.execute(offers_history_module\
+                              .SellerFeedbacksHistory.insert(seller_id=seller_id, advert_parameters=parameters[0]))
 
 
     @staticmethod
     async def update_parameters_to_null_by_specific_parameter(table_name, model_id):
-        base_query = SellerFeedbacksHistory.select(SellerFeedbacksHistory.id).join(AdvertParameters)\
+        base_query = offers_history_module\
+            .SellerFeedbacksHistory.select(offers_history_module\
+                                           .SellerFeedbacksHistory.id).join(AdvertParameters)\
                                                                              .join(CarComplectation).join(CarModel)
         if table_name == 'color':
             base_query = base_query.where(AdvertParameters.color.in_(model_id))
@@ -70,32 +73,42 @@ class AdvertFeedbackRequester:
         if table_name == 'brand':
             base_query = base_query.where(CarModel.brand.in_(model_id))
 
-        await manager.execute(SellerFeedbacksHistory().update(advert_parameters=None)\
-                                                      .where(SellerFeedbacksHistory.id.in_(base_query)))
+        await manager.execute(offers_history_module\
+                              .SellerFeedbacksHistory().update(advert_parameters=None)\
+                                                      .where(offers_history_module\
+                                                             .SellerFeedbacksHistory.id.in_(base_query)))
 
     @staticmethod
     async def get_top_advert_parameters(top_direction='top', manager=manager):
-        query = (SellerFeedbacksHistory
+        query = (offers_history_module\
+                 .SellerFeedbacksHistory
                  .select(AdvertParameters,
                          # AdvertParameters,
                          # CarComplectation,
                          # CarModel,
                          # CarBrand,
-                         # SellerFeedbacksHistory.seller_id,
-                         fn.COUNT(SellerFeedbacksHistory.id).alias('count'),
+                         # offers_history_module\
+                         # .SellerFeedbacksHistory.seller_id,
+                         fn.COUNT(offers_history_module\
+                                  .SellerFeedbacksHistory.id).alias('count'),
                          Seller)
-                 .join(Seller, on=(SellerFeedbacksHistory.seller_id == Seller.telegram_id))
-                 .switch(SellerFeedbacksHistory)
+                 .join(Seller, on=(offers_history_module\
+                                   .SellerFeedbacksHistory.seller_id == Seller.telegram_id))
+                 .switch(offers_history_module\
+                         .SellerFeedbacksHistory)
                  .join(AdvertParameters)
                  .join(CarComplectation)
                  .join(CarModel)
                  .join(CarBrand)
-                 .where(SellerFeedbacksHistory.advert_parameters.is_null(False))
+                 .where(offers_history_module\
+                        .SellerFeedbacksHistory.advert_parameters.is_null(False))
                  .group_by(AdvertParameters, Seller)
-                 .order_by(fn.COUNT(SellerFeedbacksHistory.id).desc()))
+                 .order_by(fn.COUNT(offers_history_module\
+                                    .SellerFeedbacksHistory.id).desc()))
 
         if top_direction == 'bottom':
-            query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id))
+            query = query.order_by(fn.COUNT(offers_history_module\
+                                            .SellerFeedbacksHistory.id))
         ic(type(manager), isinstance(manager, Manager))
         if isinstance(manager, Manager):
             top_10 = list(await manager.execute(query.limit(10)))
@@ -113,12 +126,17 @@ class AdvertFeedbackRequester:
         if not isinstance(feedback_id, int):
             feedback_id = int(feedback_id)
         ic(feedback_id)
-        query = SellerFeedbacksHistory.select(SellerFeedbacksHistory, AdvertParameters,
+        query = offers_history_module\
+            .SellerFeedbacksHistory.select(offers_history_module\
+                                           .SellerFeedbacksHistory, AdvertParameters,
                                                                        Seller).join(Seller)\
-                                                                        .switch(SellerFeedbacksHistory)\
+                                                                        .switch(offers_history_module\
+                                                                                .SellerFeedbacksHistory)\
                                                                         .join(AdvertParameters).where(
-                                                                            (SellerFeedbacksHistory.id == feedback_id)\
-                                                            & (SellerFeedbacksHistory.advert_parameters.is_null(False)))
+                                                                            (offers_history_module\
+                                                                             .SellerFeedbacksHistory.id == feedback_id)\
+                                                            & (offers_history_module\
+                                                               .SellerFeedbacksHistory.advert_parameters.is_null(False)))
         return await manager.get_or_none(query)
 
     @staticmethod
@@ -131,13 +149,17 @@ class AdvertFeedbackRequester:
 
             # Фильтры для временных периодов
             if period == 'day':
-                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=1))
+                time_filter = (offers_history_module\
+                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=1))
             elif period == 'week':
-                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(weeks=1))
+                time_filter = (offers_history_module\
+                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(weeks=1))
             elif period == 'month':
-                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=30))
+                time_filter = (offers_history_module\
+                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=30))
             elif period == 'year':
-                time_filter = (SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=365))
+                time_filter = (offers_history_module\
+                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=365))
             elif period in ('general', 'any', 'all'):
                 time_filter = True  # Без временного фильтра
             else:
@@ -161,33 +183,41 @@ class AdvertFeedbackRequester:
                 conditions.append(CarBrand.id == brand_id)
             if engine_id is not None:
                 conditions.append(CarComplectation.engine_id == engine_id)
-            conditions.append(SellerFeedbacksHistory.advert_parameters.is_null(False))
+            conditions.append(offers_history_module\
+                              .SellerFeedbacksHistory.advert_parameters.is_null(False))
             conditions.append(time_filter)
 
             combined_conditions = reduce(operator.and_, conditions)
             ic(combined_conditions)
 
-            query = (SellerFeedbacksHistory
+            query = (offers_history_module\
+                     .SellerFeedbacksHistory
                      .select(Seller,
                              AdvertParameters,
-                             fn.COUNT(SellerFeedbacksHistory.id).alias('count'),
-                             fn.ARRAY_AGG(SellerFeedbacksHistory.id).alias('ids'))
+                             fn.COUNT(offers_history_module\
+                                      .SellerFeedbacksHistory.id).alias('count'),
+                             fn.ARRAY_AGG(offers_history_module\
+                                          .SellerFeedbacksHistory.id).alias('ids'))
                      .join(AdvertParameters)
                      .join(CarColor)
                      .switch(AdvertParameters)
                      .join(CarComplectation)
                      .join(CarModel)
                      .join(CarBrand)
-                     .switch(SellerFeedbacksHistory)
+                     .switch(offers_history_module\
+                             .SellerFeedbacksHistory)
                      .join(Seller)
                      .where(combined_conditions)
                      .group_by(Seller, AdvertParameters))
 
 
             # # Основной запрос с добавлением поля count
-            # query = (SellerFeedbacksHistory
-            #          .select(SellerFeedbacksHistory,
-            #                  fn.COUNT(SellerFeedbacksHistory.id).alias('count')
+            # query = (offers_history_module\
+            # .SellerFeedbacksHistory
+            #          .select(offers_history_module\
+            #          .SellerFeedbacksHistory,
+            #                  fn.COUNT(offers_history_module\
+            #                  .SellerFeedbacksHistory.id).alias('count')
             #                  ).join(AdvertParameters)
             #             .join(CarColor)
             #             .switch(AdvertParameters)
@@ -195,54 +225,68 @@ class AdvertFeedbackRequester:
             #             .join(CarModel)
             #             .join(CarBrand)
             #             .where(combined_conditions, time_filter)
-            #             .group_by(SellerFeedbacksHistory.seller_id, SellerFeedbacksHistory.advert_parameters_id))
+            #             .group_by(offers_history_module\
+            #             .SellerFeedbacksHistory.seller_id, offers_history_module\
+            #             .SellerFeedbacksHistory.advert_parameters_id))
 
         # Изменяем логику запроса в зависимости от входных параметров
         elif complectation_id is not None:
-            query = CarColor.select(CarColor, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
-                AdvertParameters).join(SellerFeedbacksHistory).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(CarBrand).where(
-                ((AdvertParameters.complectation_id == complectation_id) & (SellerFeedbacksHistory.advert_parameters.is_null(False)) & \
+            query = CarColor.select(CarColor, fn.COUNT(offers_history_module\
+                                                       .SellerFeedbacksHistory.id).alias('count')).join(
+                AdvertParameters).join(offers_history_module\
+                                       .SellerFeedbacksHistory).switch(AdvertParameters).join(CarComplectation).join(CarModel).join(CarBrand).where(
+                ((AdvertParameters.complectation_id == complectation_id) & (offers_history_module\
+                                                                            .SellerFeedbacksHistory.advert_parameters.is_null(False)) & \
                  (CarModel.id == model_id) & (CarBrand.id == brand_id) & \
                  (CarComplectation.engine_id == engine_id)), time_filter)\
                 .group_by(CarColor)
         elif model_id is not None:
-            query = CarComplectation.select(CarComplectation, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
-                AdvertParameters).join(SellerFeedbacksHistory).switch(CarComplectation).join(CarModel)\
-                .where(((CarModel.id == model_id) & (SellerFeedbacksHistory.advert_parameters.is_null(False)) & \
+            query = CarComplectation.select(CarComplectation, fn.COUNT(offers_history_module\
+                                                                       .SellerFeedbacksHistory.id).alias('count')).join(
+                AdvertParameters).join(offers_history_module\
+                                       .SellerFeedbacksHistory).switch(CarComplectation).join(CarModel)\
+                .where(((CarModel.id == model_id) & (offers_history_module\
+                                                     .SellerFeedbacksHistory.advert_parameters.is_null(False)) & \
                         (CarComplectation.engine_id == engine_id) & \
                         (CarModel.brand_id == brand_id)), time_filter).group_by(CarComplectation)
         elif brand_id is not None:
-            query = CarModel.select(CarModel, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
-                CarComplectation).join(AdvertParameters).join(SellerFeedbacksHistory).switch(CarModel).join(CarBrand)\
-                .where(((CarBrand.id == brand_id) & (SellerFeedbacksHistory.advert_parameters.is_null(False)) \
+            query = CarModel.select(CarModel, fn.COUNT(offers_history_module\
+                                                       .SellerFeedbacksHistory.id).alias('count')).join(
+                CarComplectation).join(AdvertParameters).join(offers_history_module\
+                                                              .SellerFeedbacksHistory).switch(CarModel).join(CarBrand)\
+                .where(((CarBrand.id == brand_id) & (offers_history_module\
+                                                     .SellerFeedbacksHistory.advert_parameters.is_null(False)) \
                         & (CarComplectation.engine_id == engine_id)),
                        time_filter).group_by(CarModel)
         elif engine_id is not None:
-            query = CarBrand.select(CarBrand, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(CarModel).join(
-                CarComplectation).join(AdvertParameters).join(SellerFeedbacksHistory).switch(CarComplectation).join(CarEngine)\
-                .where((CarEngine.id == engine_id) & (SellerFeedbacksHistory.advert_parameters.is_null(False)),
+            query = CarBrand.select(CarBrand, fn.COUNT(offers_history_module\
+                                                       .SellerFeedbacksHistory.id).alias('count')).join(CarModel).join(
+                CarComplectation).join(AdvertParameters).join(offers_history_module\
+                                                              .SellerFeedbacksHistory).switch(CarComplectation).join(CarEngine)\
+                .where((CarEngine.id == engine_id) & (offers_history_module\
+                                                      .SellerFeedbacksHistory.advert_parameters.is_null(False)),
                        time_filter).group_by(CarBrand)
         else:
-            query = CarEngine.select(CarEngine, fn.COUNT(SellerFeedbacksHistory.id).alias('count')).join(
-                CarComplectation).join(AdvertParameters).join(SellerFeedbacksHistory).group_by(CarEngine)
+            query = CarEngine.select(CarEngine, fn.COUNT(offers_history_module\
+                                                         .SellerFeedbacksHistory.id).alias('count')).join(
+                CarComplectation).join(AdvertParameters).join(offers_history_module\
+                                                              .SellerFeedbacksHistory).group_by(CarEngine)
 
         # Добавление сортировки
         if top_direction == 'top':
-            query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id).desc())
+            query = query.order_by(fn.COUNT(offers_history_module\
+                                            .SellerFeedbacksHistory.id).desc())
         else:
-            query = query.order_by(fn.COUNT(SellerFeedbacksHistory.id).asc())
+            query = query.order_by(fn.COUNT(offers_history_module\
+                                            .SellerFeedbacksHistory.id).asc())
 
         # Выполнение запроса
         results = list(await manager.execute(query))
         ic(results)
-        if isinstance(results[0], SellerFeedbacksHistory):
-            print('SFHH')
-            print(results[0].ids, results[0].count)
-            # print([{feedback.ids: feedback.count} for feedback in results])
-            # for index, feedback in enumerate(results):
-            #     if index != 0:
-            #         assert feedback.count >= results[index - 1].count
-                # ic(feedback)
-        # ic(results)
+        if isinstance(results[0], offers_history_module\
+                .SellerFeedbacksHistory):
+
+            ic(results[0].ids, results[0].count)
+
         return results
 

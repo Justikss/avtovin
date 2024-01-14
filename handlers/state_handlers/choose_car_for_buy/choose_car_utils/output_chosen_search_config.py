@@ -4,13 +4,13 @@ from typing import Optional, List
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.tables.car_configurations import CarAdvert
-from database.tables.offers_history import ActiveOffers
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from utils.get_currency_sum_usd import get_valutes
 
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+offers_history_module = importlib.import_module('database.tables.offers_history')
 
 async def get_seller_header(seller=None, car=None, state=None):
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -25,9 +25,9 @@ async def get_seller_header(seller=None, car=None, state=None):
             seller_number = f'''{message_text.get('phone_number')}\n{seller.phone_number}'''
 
     if seller.dealship_name:
-        seller_header = message_text.get('from_dealership').replace('X', seller.dealship_name).replace('Y', seller.dealship_address)
+        seller_header = message_text.get('from_dealership').format(dealership_name=seller.dealship_name, dealership_address=seller.dealship_address)
     else:
-        seller_header = message_text.get('from_seller').replace('X', ' '.join([seller.surname, seller.name, seller.patronymic if seller.patronymic else '']))
+        seller_header = message_text.get('from_seller').format(seller_name=' '.join([seller.surname, seller.name, seller.patronymic if seller.patronymic else '']))
 
     seller_header = f'{seller_header}{seller_number}'
     return seller_header
@@ -40,7 +40,8 @@ async def get_output_string(advert, state=None, callback=None):
     if isinstance(advert, set) and len(advert) == 1:
         advert = advert.pop()
     if isinstance(advert, int | str):
-        advert = await AdvertRequester.get_where_id(advert)
+        advert = await car_advert_requests_module\
+            .AdvertRequester.get_where_id(advert)
     seller_header = await get_seller_header(car=advert, state=state)
     footer_viewed_by_seller_status = ''
 
@@ -102,7 +103,8 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
         ic(car_state)
 
 
-        advert_models = await AdvertRequester.get_advert_by(state_id=int(car_state),
+        advert_models = await car_advert_requests_module\
+            .AdvertRequester.get_advert_by(state_id=int(car_state),
                                                          engine_type_id=engine_type,
                                                          brand_id=brand,
                                                          model_id=model,
@@ -119,10 +121,12 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
         advert_models = [advert_models]
 
     if advert_models:
-        if isinstance(advert_models[0], ActiveOffers):
+        if isinstance(advert_models[0], offers_history_module\
+                .ActiveOffers):
             data_stack = [offer_model.car_id.id for offer_model in advert_models]
         # elif isinstance(advert_models, int):
-        #     advert_models = await AdvertRequester.get_where_id(advert_models)
+        #     advert_models = await car_advert_requests_module\
+        #     .AdvertRequester.get_where_id(advert_models)
     else:
         return False
 

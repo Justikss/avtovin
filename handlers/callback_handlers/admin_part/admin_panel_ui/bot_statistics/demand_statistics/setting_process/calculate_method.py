@@ -11,10 +11,11 @@ class CalculateDemandMethodHandler(BaseStatisticCallbackHandler):
         await self.accept_output_method(request, state)
 
         await self.set_state(state, self.statistic_manager.states.accept_demand_calculate_method)
+        statistic_lexicon = await self.statistic_manager.statistic_lexicon()
 
         self.output_methods = [
             self.menu_manager.travel_editor(
-                lexicon_part=self.statistic_manager.lexicon['choose_method_of_calculating'],
+                lexicon_part=statistic_lexicon['choose_method_of_calculating'],
                 dynamic_buttons=2,
                 delete_mode=True
             )

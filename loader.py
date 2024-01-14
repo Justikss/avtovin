@@ -107,12 +107,13 @@ from states.seller_feedbacks_states import SellerFeedbacks
 from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.mailing_heart.mailing_service import mailing_service
+from utils.middleware.language import LanguageMiddleware
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 from utils.middleware.messages_dupe_defender import ThrottlingMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
-from config_data.config import BOT_TOKEN
+# from config_data.config import BOT_TOKEN
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, \
     confirm_search_config, language_callback_handler
 from handlers.callback_handlers.buy_part.buyer_offers_branch import show_requests
@@ -153,7 +154,9 @@ dp = Dispatcher(storage=storage)
 
 async def start_bot():
     global redis, edit_last_message, bot, dp, redis, storage
-    bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
+    config_module = importlib.import_module('config_data.config')
+
+    bot = Bot(token=config_module.BOT_TOKEN, parse_mode='HTML')
     redis = Redis(host='localhost')
     storage = RedisStorage(redis=redis)
 
@@ -168,6 +171,9 @@ async def start_bot():
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
     asyncio.create_task(GetDealershipAddress.process_queue())
+
+    dp.callback_query.middleware(LanguageMiddleware())
+    dp.message.middleware(LanguageMiddleware())
 
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())

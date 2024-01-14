@@ -7,15 +7,16 @@ from aiogram.types import CallbackQuery, InputMediaPhoto, Message, FSInputFile
 from typing import List, Union
 import importlib
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.tables.car_configurations import CarAdvert
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     CheckFeedbacksHandler
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from states.requests_by_seller import SellerRequestsState
-from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon
 from handlers.utils.pagination_heart import Pagination
 from utils.get_currency_sum_usd import get_valutes
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
 
 async def set_car_id_in_redis(callback, output_data_part):
@@ -43,12 +44,15 @@ async def set_car_id_in_redis(callback, output_data_part):
     await message_editor.redis_data.set_data(
         key=f'{str(callback.from_user.id)}:seller_request_data', value=load_data)
 
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
 async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
     '''Создатель строк для вывода зарегистрированных заявок продавца'''
-    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    # lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     if isinstance(advert_id, int | str):
-        advert = await AdvertRequester.get_where_id(advert_id)
+        advert = await car_advert_requests_module\
+            .AdvertRequester.get_where_id(advert_id)
         ic()
         ic(advert)
         if not advert:
@@ -64,16 +68,18 @@ async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
         mileage, year_of_realise = None, None
     #     heart = ''
     #
-    output_string = f'''{copy(Lexicon.output_car_request_header).replace('_', str(advert.id))}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name,
-                                                                                             brand=advert.complectation.model.brand.name,
-                                                                                             model=advert.complectation.model.name,
-                                                                                             complectation=advert.complectation.name, color=advert.color.name,
-                                                                                             mileage=mileage, year_of_realise=year_of_realise,
-                                                                                             sum_price=advert.sum_price, usd_price=advert.dollar_price)}'''
+    output_string = f'''{copy(Lexicon_module.LexiconSellerRequests.output_car_request_header).replace(
+        '_', str(advert.id))}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name,
+                                                                     brand=advert.complectation.model.brand.name,
+                                                                     model=advert.complectation.model.name,
+                                                                     complectation=advert.complectation.name, color=advert.color.name,
+                                                                     mileage=mileage, year_of_realise=year_of_realise,
+                                                                     sum_price=advert.sum_price, usd_price=advert.dollar_price)}'''
     output_string = output_string.format()
     ic(output_string)
 
-    current_photo_album = await AdvertRequester.get_photo_album_by_advert_id(advert.id)
+    current_photo_album = await car_advert_requests_module\
+        .AdvertRequester.get_photo_album_by_advert_id(advert.id)
 
     if current_photo_album:
         commodity_photo_album = [photo['id'] for photo in current_photo_album]
@@ -112,7 +118,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
         seller_requests_pagination = Pagination(**seller_requests_pagination)
     else:
         seller_requests_pagination = Pagination(data=pagination_data,
-                                                 page_size=Lexicon.pagination_pagesize)
+                                                 page_size=Lexicon_module.LexiconSellerRequests.pagination_pagesize)
 
         dicted_pagination_class = await seller_requests_pagination.to_dict()
 
@@ -191,7 +197,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
     keyboard = await inline_keyboard_creator_module.InlineCreator.create_markup(
         input_data=keyboard_part)
 
-    page_monitoring_string = f'{Lexicon.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]'
+    page_monitoring_string = f'{Lexicon_module.LexiconSellerRequests.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]'
     lexicon_part = {'message_text': page_monitoring_string}
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True, reply_message=commodity_card_message, save_media_group=True)
@@ -203,7 +209,8 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
     '''Обработчик кнопки просмотра созданных запросов продавца'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
-    await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination', value=Lexicon.selected_brand_output_buttons)
+    await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination',
+                                             value=Lexicon_module.LexiconSellerRequest.s.selected_brand_output_buttons)
     if not chosen_brand:
 
         if isinstance(request, CallbackQuery):
@@ -213,13 +220,14 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
                                                 value=chosen_brand)
 
 
-    chosen_commodities = await AdvertRequester.get_by_seller_id_and_brand(seller_id=request.from_user.id, brand=int(chosen_brand))
+    chosen_commodities = await car_advert_requests_module\
+        .AdvertRequester.get_by_seller_id_and_brand(seller_id=request.from_user.id, brand=int(chosen_brand))
     ic(chosen_commodities)
     if chosen_commodities:
         chosen_commodities = [advert.id for advert in chosen_commodities]
         await message_editor.redis_data.set_data(
             key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination',
-            value=Lexicon.selected_brand_output_buttons)
+            value=Lexicon_module.LexiconSellerRequests.selected_brand_output_buttons)
 
         path_after_delete_car = await message_editor.redis_data.get_data(
             key=f'{str(request.from_user.id)}:return_path_after_delete_car')
@@ -237,7 +245,7 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
         return True
     else:
         if isinstance(request, CallbackQuery):
-            await request.answer(Lexicon.seller_does_have_active_car_by_brand)
+            await request.answer(Lexicon_module.LexiconSellerRequests.seller_does_have_active_car_by_brand)
         return False
 
 

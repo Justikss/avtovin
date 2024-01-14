@@ -4,8 +4,9 @@ from copy import copy
 from database.tables.car_configurations import CarColor, CarAdvert
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from utils.get_currency_sum_usd import get_valutes
-from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon, LEXICON
+# from  import LexiconSellerRequests as Lexicon
 
+lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def create_advert_configuration_block(car_state=None, engine_type=None, brand=None, model=None, complectation=None, color=None, sum_price=None, usd_price=None, year_of_realise=None, mileage=None, advert_id=None):
     # configurate_block = f'''{copy(Lexicon.commodity_output_block).replace('SN', car_state).replace('EN', engine_type).replace('BN', brand).replace('MN', model).replace('COMPN', complectation).replace('COLN', color).replace('YV', str(year_of_realise)).replace('MV', str(mileage))}'''
@@ -36,7 +37,8 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
     ic(color)
 
 
-    configurate_block = copy(Lexicon.commodity_output_block).format(state=car_state, engine_type=engine_type,
+    configurate_block = copy(lexicon_module\
+                             .LexiconSellerRequests.commodity_output_block).format(state=car_state, engine_type=engine_type,
                                             brand_name=brand, model_name=model,
                                             complectation=complectation, year_of_release=year_of_realise,
                                             mileage=mileage, color=color)

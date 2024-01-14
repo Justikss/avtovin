@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery
 import importlib
 from typing import Tuple, Union
 
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
+# from  import captions
 
 
 async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False) -> Union[Tuple[str, str], str]:
@@ -14,13 +14,14 @@ async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False
 
     ic(seller_model.dealship_name, seller_model.dealship_address)
     if seller_model.dealship_name:
-        name = f'''{lexicon_module.LexiconSellerProfile.dealership_prefix}\n{lexicon_module.LexiconSellerProfile.dealership_name_prefix.replace('X', seller_model.dealship_name)}'''
-        address = f'''{lexicon_module.LexiconSellerProfile.dealership_address_prefix.replace('X', seller_model.dealship_address)}'''
+        name = f'''{lexicon_module.LexiconSellerProfile.dealership_prefix}\n{lexicon_module.LexiconSellerProfile.dealership_name_prefix.format(dealership_name=seller_model.dealship_name)}'''
+        address = f'''{lexicon_module.LexiconSellerProfile.dealership_address_prefix.format(dealership_address=seller_model.dealship_address)}'''
         if get_only_fullname:
             return seller_model.dealship_name
         else:
             return (name, address)
     else:
+        admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
         if seller_model.patronymic:
             patronymic = seller_model.patronymic
         else:
@@ -28,9 +29,9 @@ async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False
 
         fullname = f'{seller_model.surname} {seller_model.name} {patronymic}'
         if for_admin:
-            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{captions['surname_name_patronymic']}{fullname}'''
+            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{admin_lexicon_module.captions['surname_name_patronymic']}{fullname}'''
         else:
-            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{lexicon_module.LexiconSellerProfile.seller_name_prefix.replace('X', fullname)}'''
+            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{lexicon_module.LexiconSellerProfile.seller_name_prefix.format(seller_name=fullname)}'''
         if get_only_fullname:
             return fullname
         else:
@@ -73,7 +74,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
     else:
         seller_data = f'{seller_data}'
     ic(seller_data)
-    output_string = f'''{lexicon_module.LexiconSellerProfile.header}{seller_data}\n{lexicon_module.LexiconSellerProfile.phonenumber_prefix.replace('X', seller_model.phone_number)}'''
+    output_string = f'''{lexicon_module.LexiconSellerProfile.header}{seller_data}\n{lexicon_module.LexiconSellerProfile.phonenumber_prefix.format(phone_number=seller_model.phone_number)}'''
 
     if get_part == 'top':
         return output_string, seller_entity
@@ -97,7 +98,9 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
         else:
             output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
-            output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.replace('T', seller_tariff_model.tariff.name).replace('D', str(days_to_end.days)).replace('R', str(seller_tariff_model.residual_feedback)))
+            output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.format(
+                tariff=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
+                feedbacks_remaining=seller_tariff_model.residual_feedback))
             tariff_exists = True
         ic(output_string)
     if not get_part:

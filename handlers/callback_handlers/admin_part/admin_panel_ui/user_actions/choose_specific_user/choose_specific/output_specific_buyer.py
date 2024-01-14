@@ -4,7 +4,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from utils.get_user_name import get_user_name
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 
 async def output_buyer_profile(request: CallbackQuery | Message, state: FSMContext, user_id=None):
@@ -19,12 +18,14 @@ async def output_buyer_profile(request: CallbackQuery | Message, state: FSMConte
             user_id = memory_storage.get('current_user_id')
     user_model = await person_requester_module.PersonRequester.get_user_for_id(user_id, user=True)
     if user_model:
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
         ic()
         ic(user_id)
         await state.update_data(current_user_id=user_id)
         user_model = user_model[0]
         user_fullname, user_status = await get_user_name(user_model)
-        lexicon_part = ADMIN_LEXICON['review_buyer_card']
+        lexicon_part = Lexicon_module.ADMIN_LEXICON['review_buyer_card']
         lexicon_part['message_text'] = lexicon_part['message_text'].format(full_name=user_fullname,
                                                                            phone_number=user_model.phone_number)
 

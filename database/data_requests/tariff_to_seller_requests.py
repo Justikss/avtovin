@@ -11,7 +11,6 @@ from database.tables.tariff import Tariff, TariffsToSellers
 from utils.asyncio_tasks.invalid_tariffs_deleter import set_timer_on_active_tariff
 from utils.custom_exceptions.database_exceptions import NonExistentIdException, NonExistentTariffException, \
     SellerWithoutTariffException
-from config_data.config import DATETIME_FORMAT
 from database.db_connect import manager
 
 
@@ -152,6 +151,8 @@ class TariffToSellerBinder:
         person_requester = importlib.import_module('database.data_requests.person_requests')
 
         if isinstance(data, dict):
+            config_module = importlib.import_module('config_data.config')
+
             seller_id = data.get('seller')
             tariff = data.get('tariff')
             if seller_id:
@@ -173,8 +174,8 @@ class TariffToSellerBinder:
                     end_time = now_time + end_plut_datetime
 
                     data['tariff'] = tariff
-                    data['start_date_time'] = now_time.strftime(DATETIME_FORMAT)
-                    data['end_date_time'] = end_time.strftime(DATETIME_FORMAT)
+                    data['start_date_time'] = now_time.strftime(config_module.DATETIME_FORMAT)
+                    data['end_date_time'] = end_time.strftime(config_module.DATETIME_FORMAT)
                     data['residual_feedback'] = tariff.feedback_amount
 
                     return data

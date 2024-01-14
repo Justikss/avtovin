@@ -6,7 +6,8 @@ from datetime import datetime
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message, CallbackQuery
 
-from config_data.config import message_answer_awaited
+
+config_module = importlib.import_module('config_data.config')
 
 
 async def send_message_answer(request: Message | CallbackQuery, text: str, sleep_time=None, show_alert=False):
@@ -26,7 +27,7 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
 
             for time_point in range(3, 0, -1):
                 await alert_message.edit_text(text=f'{text}{time_point}...')
-                await asyncio.sleep(message_answer_awaited / 3)
+                await asyncio.sleep(config_module.message_answer_awaited / 3)
 
             try:
                 await request.chat.delete_message(alert_message.message_id)

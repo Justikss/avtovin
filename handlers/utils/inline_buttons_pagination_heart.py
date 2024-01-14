@@ -10,7 +10,6 @@ from icecream import ic
 from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from handlers.utils.pagination_heart import Pagination
 from utils.chat_cleaner.media_group_messages import delete_media_groups
-from utils.lexicon_utils.Lexicon import LastButtonsInCarpooling
 
 
 
@@ -81,10 +80,12 @@ class CachedRequestsView:
 
         message_text = await CachedRequestsView.action_resources_splitter(redis_module, callback, current_state, memory_storage)
         ic(message_text)
-        ic(memory_storage.get('message_text'))
+        ic(memory_storage.get('message_text') if memory_storage else None)
 
-        media_group = await CachedRequestsView.get_media_group(memory_storage, state, callback, delete_mode)
-
+        if memory_storage:
+            media_group = await CachedRequestsView.get_media_group(memory_storage, state, callback, delete_mode)
+        else:
+            media_group = None
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                         lexicon_part=message_text,
                                                         delete_mode=delete_mode, my_keyboard=keyboard,
@@ -116,7 +117,10 @@ class CachedRequestsView:
             if message_text and sub_text:
                 message_text['message_text'] = f'''{message_text['message_text']}{lexicon_module.LEXICON['make_choose_brand']}'''
         elif user_state == 'sell':
-            message_text = lexicon_module.LexiconSellerRequests.select_brand_message_text
+            if memory_storage:
+                message_text = memory_storage.get('message_text')
+            if not message_text:
+                message_text = lexicon_module.LexiconSellerRequests.select_brand_message_text
         elif user_state == 'admin':
             # if current_state:
             if memory_storage:
@@ -201,14 +205,16 @@ class CachedRequestsView:
 
         if current_state:
             if 'ChooseStates' in current_state:
+                Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
                 # ic(list(current_page.items())[-2:])
-                backward_command = LastButtonsInCarpooling.last_buttons
+                backward_command = Lexicon_module.LastButtonsInCarpooling.last_buttons
                 dynamic_buttons = memory_storage.get('dynamic_buttons')
 
         if not backward_command:
             # seller_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
             backward_command = memory_storage.get('last_buttons')
-        if memory_storage.get('dynamic_buttons') and dynamic_buttons == 1:
+        if memory_storage and memory_storage.get('dynamic_buttons') and dynamic_buttons == 1:
             dynamic_buttons = memory_storage.get('dynamic_buttons')
             ic(backward_command)
             # if 'input_to_load_color' in current_state:

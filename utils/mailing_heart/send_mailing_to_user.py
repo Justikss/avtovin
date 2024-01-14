@@ -3,7 +3,6 @@ import importlib
 from aiogram import Bot
 
 from handlers.utils.send_any_medias import send_media
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 
 message_editor_module = importlib.import_module('handlers.message_editor')
 

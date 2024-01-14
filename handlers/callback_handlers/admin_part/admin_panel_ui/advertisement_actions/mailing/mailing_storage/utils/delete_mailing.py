@@ -8,9 +8,9 @@ from database.data_requests.mailing_requests import delete_mailing_action, get_m
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
 from handlers.utils.delete_message import delete_message
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
 async def delete_mailing_messages_pack(callback, messages_to_delete):
@@ -31,11 +31,11 @@ async def delete_current_mailing_handler(callback: CallbackQuery, state: FSMCont
         if messages_to_delete:
             asyncio.create_task(delete_mailing_messages_pack(callback, messages_to_delete))
 
-        alert_text = ADVERT_LEXICON['successfully_delete_mailing']
+        alert_text = Lexicon_module.ADVERT_LEXICON['successfully_delete_mailing']
 
         await log_admin_action(callback.from_user.username, 'delete_mailing', mailing.text, mailing.scheduled_time)
     else:
-        alert_text = ADVERT_LEXICON['unsuccessfully_delete_mailing']
+        alert_text = Lexicon_module.ADVERT_LEXICON['unsuccessfully_delete_mailing']
 
 
     await callback.answer(alert_text)

@@ -6,13 +6,10 @@ from aiogram.fsm.context import FSMContext
 from typing import Union
 import importlib
 
-from config_data.config import money_valute
-from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from states.load_commodity_states import LoadCommodityStates
 from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromatter import data_formatter
-from utils.get_currency_sum_usd import get_valutes
-from utils.lexicon_utils.Lexicon import LexiconSellerRequests as Lexicon, LEXICON
+
 
 
 async def get_output_string(mode, boot_data: dict) -> str:
@@ -23,7 +20,7 @@ async def get_output_string(mode, boot_data: dict) -> str:
         start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_seller)
     elif mode.startswith('to_admins_from_'):
         seller_link = mode.split('_')[3]
-        start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).replace('X', seller_link)
+        start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).format(username=seller_link)
 
 
     bottom_layer = f'''\n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
@@ -73,10 +70,12 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     print('cstate: ', cars_state)
     if cars_state == 'new':
+        new_car_photo_requests_module = importlib.import_module('database.data_requests.new_car_photo_requests')
         output_config_module = importlib.import_module(
             'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
 
-        photo_pack = await PhotoRequester.try_get_photo(state)
+        photo_pack = await new_car_photo_requests_module\
+            .PhotoRequester.try_get_photo(state)
         ic(photo_pack)
         if photo_pack:
             media_photos=photo_pack

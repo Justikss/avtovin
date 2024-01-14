@@ -4,19 +4,17 @@ from copy import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from config_data.config import tariffs_pagesize
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
 from handlers.state_handlers.seller_states_handler.seller_profile_branch.selected_tariff_preview import \
     tariff_preview_card_constructor
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import ChooseTariff
-
 
 async def choose_tariff_for_seller_by_admin_handler(callback: CallbackQuery, state: FSMContext):
 
     async def generate_choose_tariff_by_admin_lexicon_class(callback: CallbackQuery, state: FSMContext):
         person_requester_module = importlib.import_module('database.data_requests.person_requests')
+        admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
-        lexicon_class = copy(ChooseTariff)
+        lexicon_class = copy(admin_lexicon_module.ChooseTariff)
 
         memory_storage = await state.get_data()
         seller_id = memory_storage.get('current_seller_id')
@@ -28,12 +26,13 @@ async def choose_tariff_for_seller_by_admin_handler(callback: CallbackQuery, sta
 
     output_choose_module = importlib.import_module(
         'handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
+    config_module = importlib.import_module('config_data.config')
     tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 
     tariffs = await tariff_requests_module.TarifRequester.retrieve_all_data()
 
     lexicon_class = await generate_choose_tariff_by_admin_lexicon_class(callback, state)
-    await output_choose_module.output_choose(callback, state, lexicon_class, tariffs, tariffs_pagesize)
+    await output_choose_module.output_choose(callback, state, lexicon_class, tariffs, config_module.tariffs_pagesize)
 
 
 async def checkout_tariff_for_seller_by_admin_handler(callback: CallbackQuery, state: FSMContext):

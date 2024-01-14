@@ -1,8 +1,10 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON, ADVERT_LEXICON
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def incorrect_controller(request: Message | CallbackQuery, state: FSMContext, incorrect, lexicon_key, current_lexicon):
     ic(lexicon_key)
@@ -14,7 +16,7 @@ async def incorrect_controller(request: Message | CallbackQuery, state: FSMConte
             (isinstance(request, CallbackQuery) and not request.data == 'add_other_media') and \
             memory_storage.get('mailing_media'):
         ic()
-        lexicon_part['buttons'] = ADVERT_LEXICON['edit_mailing_media_buttons']
+        lexicon_part['buttons'] = Lexicon_module.ADVERT_LEXICON['edit_mailing_media_buttons']
 
     if not incorrect:
         reply_mode = None

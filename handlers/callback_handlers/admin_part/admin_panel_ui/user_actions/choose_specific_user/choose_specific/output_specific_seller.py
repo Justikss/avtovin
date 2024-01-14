@@ -4,10 +4,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import seller_profile_card_constructor
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def person_output_modification(profile_card, seller_entity):
-    seller_profile_card_lexicon_part = ADMIN_LEXICON['review_seller_card']['message_header']
+    seller_profile_card_lexicon_part = Lexicon_module.ADMIN_LEXICON['review_seller_card']['message_header']
 
     profile_card = profile_card.split('\n')[1:]
     profile_card[0] = f'{seller_profile_card_lexicon_part}'
@@ -40,13 +41,13 @@ async def output_specific_seller_profile_handler(request: CallbackQuery | Messag
         profile_card, seller_entity = seller_data
 
         message_text = await person_output_modification(profile_card, seller_entity)
-        lexcion_part = {'message_text': message_text, 'buttons': {**ADMIN_LEXICON['review_seller_card']['buttons']}}
+        lexcion_part = {'message_text': message_text, 'buttons': {**Lexicon_module.ADMIN_LEXICON['review_seller_card']['buttons']}}
         await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='',
                                                                lexicon_part=lexcion_part, dynamic_buttons=2,
                                                                delete_mode=True)
     else:
         if isinstance(request, CallbackQuery):
-            await request.answer(ADMIN_LEXICON['user_non_active'])
+            await request.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
         return await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(request, state,
                                                                                                     first_call=False)
 

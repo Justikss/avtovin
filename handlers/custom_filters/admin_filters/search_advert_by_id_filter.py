@@ -1,14 +1,16 @@
+import importlib
+
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search import \
     input_advert_id_for_search_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
     incorrect
 from handlers.utils.delete_message import delete_message
 
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 class InputAdvertIdFilter(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext) -> bool | dict:
@@ -24,7 +26,8 @@ class InputAdvertIdFilter(BaseFilter):
 
         if message_text.isdigit():
             ic()
-            advert_model = await AdvertRequester.get_where_id(message_text)
+            advert_model = await car_advert_requests_module\
+                .AdvertRequester.get_where_id(message_text)
             if advert_model:
                 ic()
                 await delete_message(message, message.message_id)

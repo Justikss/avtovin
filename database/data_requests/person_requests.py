@@ -1,15 +1,17 @@
+import importlib
+import logging
 import traceback
 from typing import Union, List
 
 from peewee import IntegrityError, DoesNotExist
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.offers_requests import OffersRequester
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from database.tables.user import User, BannedUser
 from database.db_connect import manager
 from database.tables.seller import Seller, BannedSeller
 
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 class PersonRequester:
     @staticmethod
@@ -82,7 +84,8 @@ class PersonRequester:
                 if user:
                     await OffersRequester.delete_all_buyer_history(telegram_id)
                 elif seller:
-                    await AdvertRequester.delete_advert_by_id(telegram_id)
+                    await car_advert_requests_module\
+                        .AdvertRequester.delete_advert_by_id(telegram_id)
                     await TariffToSellerBinder.remove_bind(telegram_id)
             await manager.execute(table_model.delete().where(table_model.telegram_id == telegram_id))
             return user_model
@@ -137,9 +140,9 @@ class PersonRequester:
                         await manager.execute(current_table.insert_many(*data))
                         return True
 
-        except IntegrityError as ex:
-            print('IntegrityError', ex)
-            return False, ex
+        except IntegrityError:
+            logging.error('', exc_info=True)
+            return False
 
     @staticmethod
     async def change_authorized_state(telegram_id, boolean: bool):
@@ -148,8 +151,8 @@ class PersonRequester:
             query = Seller.update(authorized=boolean).where(Seller.telegram_id == telegram_id)
             await manager.execute(query)
             return True
-        except IntegrityError as ex:
-            print(ex)
+        except IntegrityError:
+            logging.error('', exc_info=True)
             return False
 
     @staticmethod

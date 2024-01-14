@@ -4,12 +4,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
-from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters\
     .advert_parameters__second_hand_state_handlers.choose_parameter_type import TravelMessageEditorInit
+
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
@@ -32,7 +34,7 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
     async def lexicon_part_formatting(self, request, state, **kwargs):
         memory_storage = await state.get_data()
         lexicon_part = await self.incorrect_manager.get_lexicon_part_in_view_of_incorrect(
-                    lexicon_object=ADVERT_PARAMETERS_LEXICON,
+                    lexicon_object=Lexicon_module.ADVERT_PARAMETERS_LEXICON,
                     lexicon_key='start_add_new_advert_parameter_value',
                     incorrect=kwargs.get('incorrect'))
         lexicon_part['message_text'] = lexicon_part['message_text'].format(
@@ -43,7 +45,7 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
         # if kwargs.get('add_new_branch_mode'):
         lexicon_part = await self.insert_into_lexicon_part_selected_params_header(state, lexicon_part)
         if memory_storage.get('params_type_flag') == 'new':
-            lexicon_part['buttons'] = ADVERT_PARAMETERS_LEXICON['start_add_new_advert_parameter_value_new_state_buttons']
+            lexicon_part['buttons'] = Lexicon_module.ADVERT_PARAMETERS_LEXICON['start_add_new_advert_parameter_value_new_state_buttons']
         return lexicon_part
 
 
@@ -72,7 +74,7 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
 
             message_text = await output_specific_parameters_module \
                 .OutputSpecificAdvertParameters().construct_message_text_header_for_new_state_choose(state)
-            lexicon_part['message_text'] = f'''{ADVERT_PARAMETERS_LEXICON['selected_new_car_params_pattern'].format(
+            lexicon_part['message_text'] = f'''{Lexicon_module.ADVERT_PARAMETERS_LEXICON['selected_new_car_params_pattern'].format(
                 params_data=message_text
             )}{lexicon_part['message_text']}'''
 

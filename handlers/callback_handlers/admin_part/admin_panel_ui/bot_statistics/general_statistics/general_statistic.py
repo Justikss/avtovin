@@ -1,3 +1,4 @@
+import importlib
 from typing import Dict
 
 from aiogram.fsm.context import FSMContext
@@ -6,7 +7,6 @@ from aiogram.types import Message, CallbackQuery
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
 from states.admin_part_states.statistics_states import StatisticsStates
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 
 class GeneralBotStatisticHandler(BaseStatisticCallbackHandler):
@@ -25,7 +25,9 @@ class GeneralBotStatisticHandler(BaseStatisticCallbackHandler):
         ]
 
         if change_period_flag:
-            await self.send_alert_answer(request, ADMIN_LEXICON['information_was_updated'])
+            Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+            await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['information_was_updated'])
 
     # async def edit_message_text(self, request: Message | CallbackQuery, lexicon_part):
     #     message_object = await self.message_object(request)
@@ -50,7 +52,9 @@ class GeneralBotStatisticHandler(BaseStatisticCallbackHandler):
     async def construct_statistic_view(self, period) -> Dict[str, str | dict | int]:
         counts = await self.statistic_manager.calculate_statistics(period=period)
         period_string = await self.statistic_manager.ident_period_string(period)
-        lexicon_part = self.statistic_manager.lexicon['general_bot_statistics']
+        statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+
+        lexicon_part = statistic_lexicon['general_bot_statistics']
 
         lexicon_part['message_text'] = lexicon_part['message_text'].format(feedbacks=counts['feedback'],
                                                                            adverts=counts['advert'],

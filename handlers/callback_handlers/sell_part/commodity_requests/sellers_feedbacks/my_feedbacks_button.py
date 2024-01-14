@@ -6,16 +6,14 @@ from copy import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from states.seller_feedbacks_states import SellerFeedbacks
-from utils.lexicon_utils.Lexicon import LEXICON, LexiconSellerRequests
 from utils.custom_exceptions.database_exceptions import UserExistsError, CarExistsError
 from utils.get_currency_sum_usd import get_valutes
 from utils.user_notification import delete_notification_for_seller
 
 
-
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 class CheckFeedBacksABC(ABC):
     pass
@@ -28,6 +26,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
     @staticmethod
     async def create_offer_data(offer_id):
         active_offers_module = importlib.import_module('database.data_requests.offers_requests')
+        car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
         offer = await active_offers_module.OffersRequester.get_by_offer_id(offer_id)
 
@@ -42,7 +41,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
             await active_offers_module.OffersRequester.delete_offer(offer_id)
             raise UserExistsError()
 
-        for_seller_lexicon_part = LEXICON['confirm_from_seller']['message_text']
+        for_seller_lexicon_part = Lexicon_module.LEXICON['confirm_from_seller']['message_text']
 
         fullname = f'''{buyer.surname} {buyer.name} {buyer.patronymic if buyer.patronymic else ''}'''
         ic(offer_id)
@@ -63,7 +62,8 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
         result_string = f'''{card_startswith}{advert_data}'''
 
-        photo_album = await AdvertRequester.get_photo_album_by_advert_id(car.id, get_list=True)
+        photo_album = await car_advert_requests_module\
+            .AdvertRequester.get_photo_album_by_advert_id(car.id, get_list=True)
 
         result_data = {'offer_id': offer_id, 'car_id': offer.car_id, 'message_text': result_string, 'album': photo_album}
         return result_data
@@ -102,10 +102,12 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
         if callback_data == 'new_feedbacks':
             viewed = False
-            keyboard_part = LexiconSellerRequests.check_viewed_feedbacks_buttons
+            keyboard_part = Lexicon_module\
+                .LexiconSellerRequests.check_viewed_feedbacks_buttons
         elif 'viewed_feedbacks' in (command, callback_data):
             viewed = True
-            keyboard_part = LexiconSellerRequests.check_viewed_feedbacks_buttons
+            keyboard_part = Lexicon_module\
+                .LexiconSellerRequests.check_viewed_feedbacks_buttons
 
         try:
             ic(viewed)
@@ -138,15 +140,17 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
         else:
             if error_flag:
                 if error_flag == UserExistsError:
-                    error_alert_message = LEXICON['seller_dont_exists']
+                    error_alert_message = Lexicon_module.LEXICON['seller_dont_exists']
                 elif error_flag == CarExistsError:
-                    error_alert_message = LEXICON['car_was_withdrawn_from_sale']
+                    error_alert_message = Lexicon_module.LEXICON['car_was_withdrawn_from_sale']
                 else:
                     error_alert_message = False
             elif callback_data == 'new_feedbacks':
-                callback_alert_message = copy(LexiconSellerRequests.new_feedbacks_not_found)
+                callback_alert_message = copy(Lexicon_module\
+                                              .LexiconSellerRequests.new_feedbacks_not_found)
             elif callback_data == 'viewed_feedbacks':
-                callback_alert_message = copy(LexiconSellerRequests.viewed_feedbacks_not_found)
+                callback_alert_message = copy(Lexicon_module\
+                                              .LexiconSellerRequests.viewed_feedbacks_not_found)
 
             if callback_alert_message:
                 if error_alert_message:

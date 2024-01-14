@@ -1,17 +1,17 @@
 import importlib
-from copy import copy
+from copy import copy, deepcopy
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from config_data.config import logger, admin_brand_pagination_pagesize
 from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.output_param_branches import \
     OutputStatisticAdvertParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
-from utils.lexicon_utils.Lexicon import LEXICON
-from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import ChooseCustomParamsToStats, statistic_captions
+from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import ChooseCustomParamsToStats
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
@@ -39,12 +39,15 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
         if not lexicon_class:
             self.output_methods = []
             return
+        config_module = importlib.import_module('config_data.config')
+
+
         # ic(lexicon_class.__dict__)
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 lexicon_class=lexicon_class,
                 models_range=await self.get_models_range(state, memory_storage),
-                page_size=admin_brand_pagination_pagesize
+                page_size=config_module.admin_brand_pagination_pagesize
             )
         ]
 
@@ -102,22 +105,22 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
         period = memory_storage.get('stats_period')
         calculate_method = memory_storage.get('calculate_method')
         ic(period)
-        lexicon_class = await copy(ChooseCustomParamsToStats()).async_init(period, param_to_output, calculate_method,
+        lexicon_class = deepcopy(ChooseCustomParamsToStats)(period, param_to_output, calculate_method,
                                                                            chosen_params)
         ic(lexicon_class)
-        header = f'''{copy(statistic_captions['top_demand_on'])}'''
+        header = f'''{copy(Lexicon_module.statistic_captions['top_demand_on'])}'''
         if not chosen_params:
-            header += f''' {copy(statistic_captions['car'])} '''
+            header += f''' {copy(Lexicon_module.statistic_captions['car'])} '''
         elif chosen_params:
             header += ':\n'
             for param_type, param_id in chosen_params.items():
                 param_object = await CarConfigs.get_by_id(param_type, param_id)
                 if param_object:
-                    header += f'''{statistic_captions[param_type]}: {param_object.name}\n'''
+                    header += f'''{Lexicon_module.statistic_captions[param_type]}: {param_object.name}\n'''
                 else:
                     admin_backward_command_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_backward_command')
 
-                    await self.send_alert_answer(request, LEXICON['search_parameter_invalid'])
+                    await self.send_alert_answer(request, Lexicon_module.LEXICON['search_parameter_invalid'])
                     await admin_backward_command_module\
                             .choose_custom_params_stats_backwarder(request, state)
                     return

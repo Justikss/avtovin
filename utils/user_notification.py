@@ -5,9 +5,7 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramServerError
 from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from keyboards.inline.kb_creator import InlineCreator
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON, CATALOG_LEXICON
 from utils.lexicon_utils.admin_lexicon.admin_lexicon_utils import get_ban_notification_lexicon_part
 
 
@@ -75,7 +73,9 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
         lexicon_part = await get_ban_notification_lexicon_part(lexicon_caption_key, ban_reason)
 
     elif user_status == 'close_advert':
-        lexicon_part = CATALOG_LEXICON['close_advert_seller_notification']
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        lexicon_part = lexicon_module\
+            .CATALOG_LEXICON['close_advert_seller_notification']
         lexicon_part['message_text'] = lexicon_part['message_text'].format(**advert_block_data)
         redis_sub_key = f'close_advert_notification'
         current_id = chat_id
@@ -114,8 +114,10 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
 async def send_notification_for_seller(callback: CallbackQuery, data_for_seller, media_mode=False):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
-    commodity_model = await AdvertRequester.get_where_id(data_for_seller['car_id'])
+    commodity_model = await car_advert_requests_module\
+        .AdvertRequester.get_where_id(data_for_seller['car_id'])
     seller_id = commodity_model.seller.telegram_id
     ic(seller_id)
 

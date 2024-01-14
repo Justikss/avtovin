@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
@@ -13,9 +15,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_does_not_e
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_user_output import \
     backward_from_user_profile_review
 from utils.custom_exceptions.database_exceptions import AdminDoesNotExistsError, UserNonExistsError
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 from utils.user_notification import send_notification
+
+
 
 async def return_admin_from_user_block_panel(callback: CallbackQuery, state: FSMContext, current_state):
     ic()
@@ -25,6 +28,8 @@ async def return_admin_from_user_block_panel(callback: CallbackQuery, state: FSM
     else:
         return await backward_from_user_profile_review(callback, state)
 async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
     current_state = str(await state.get_state())
     memory_storage = await state.get_data()
 
@@ -47,7 +52,7 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
                                                   user=user, seller=seller)
         if ban_query:
             user_mode = 'seller' if seller else 'buyer'
-            await callback.answer(ADMIN_LEXICON['user_block_success'])
+            await callback.answer(Lexicon_module.ADMIN_LEXICON['user_block_success'])
             await wipe_user_chat_history(callback, state, user_id, user=user, seller=seller)
             await send_notification(callback, user_status=user_status, chat_id=user_id, ban_reason=block_reason)
             ic()
@@ -59,5 +64,5 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
         return await admin_does_not_exists_handler(callback)
 
     except UserNonExistsError:
-        await callback.answer(ADMIN_LEXICON['user_non_active'])
+        await callback.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
         return await return_admin_from_user_block_panel(callback, state, current_state)

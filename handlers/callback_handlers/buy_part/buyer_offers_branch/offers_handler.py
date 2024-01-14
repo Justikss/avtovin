@@ -4,10 +4,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.recomendations_request import RecommendationRequester
-from utils.lexicon_utils.Lexicon import LEXICON
 
 
 async def insert_numbers_in_buttons(callback: CallbackQuery):
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     offer_requester = importlib.import_module('database.data_requests.offers_requests')
     user_id = callback.from_user.id
 
@@ -17,7 +17,7 @@ async def insert_numbers_in_buttons(callback: CallbackQuery):
 
     recommendated_offers = await RecommendationRequester.retrieve_by_buyer_id(buyer_id=user_id)
     ic(non_confirm_offers)
-    lexicon_part = LEXICON['buyer_requests']
+    lexicon_part = Lexicon_module.LEXICON['buyer_requests']
     lexicon_part['buttons']['buyer_active_offers'] = lexicon_part['buttons']['buyer_active_offers'].format(
         confirmed=str(len(confirm_offers)) if confirm_offers else '0')
     lexicon_part['buttons']['buyer_cached_offers'] = lexicon_part['buttons']['buyer_cached_offers'].format(

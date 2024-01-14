@@ -9,15 +9,16 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_
 from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.tariffs_branch_states import TariffEditState
 from utils.get_currency_sum_usd import get_valutes
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
 async def tariff_edit_lexicon_part_constructor(tariff_model: Tariff, state: FSMContext):
     memory_storage = await state.get_data()
     nice_buttons = {}
 
-    raw_lexicon_part = ADMIN_LEXICON['start_tariff_edit_action']
+    raw_lexicon_part = Lexicon_module.ADMIN_LEXICON['start_tariff_edit_action']
 
     tariff_edited_data = {
     'tariff_name': memory_storage.get('tariff_name'),
@@ -40,9 +41,9 @@ async def tariff_edit_lexicon_part_constructor(tariff_model: Tariff, state: FSMC
             value = edited_data if edited_data else value
 
         if callback_data.endswith('time'):
-            value = f'''{value} {captions['days']}'''
+            value = f'''{value} {admin_lexicon_module.captions['days']}'''
         elif callback_data.endswith('residual'):
-            value = f'''{value} {captions['feedbacks']}'''
+            value = f'''{value} {admin_lexicon_module.captions['feedbacks']}'''
         elif callback_data.endswith('cost'):
             value = await get_valutes(None, int(value), get_string=True)
         nice_buttons[callback_data] = value
@@ -68,7 +69,7 @@ async def edit_tariff_by_admin_handler(request: CallbackQuery | Message, state: 
                                                                lexicon_part=lexicon_part, delete_mode=delete_mode)
         await state.set_state(TariffEditState.waiting_for_field_choice)
     else:
-        await send_message_answer(request, ADMIN_LEXICON['tariff_was_inactive'], 1)
+        await send_message_answer(request, Lexicon_module.ADMIN_LEXICON['tariff_was_inactive'], 1)
         await output_tariffs_for_admin(request, state)
 
 

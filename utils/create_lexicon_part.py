@@ -1,4 +1,3 @@
-from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.user import User
 from handlers.state_handlers.seller_states_handler.load_new_car.boot_car_buttons_controller import \

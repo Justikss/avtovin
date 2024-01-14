@@ -6,7 +6,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from icecream import ic
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.recomendations_request import RecommendationRequester
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
@@ -15,11 +14,11 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
     BuyerCarsPagination
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_output_string
 from states.buyer_offers_states import CheckActiveOffersStates
-from utils.custom_exceptions.database_exceptions import SellerWithoutTariffException, SubtractLastFeedback
-from utils.lexicon_utils.Lexicon import LEXICON
-from utils.seller_notifications.seller_lose_tariff import send_notification_about_lose_tariff
+from utils.custom_exceptions.database_exceptions import SellerWithoutTariffException
 from utils.user_notification import send_notification_for_seller
 
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car_model, car_id, pagination_data):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -31,7 +30,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                                                                                    car_id=car_id,
                                                                                    seller_id=car_model.seller.telegram_id)
     if not insert_response and not current_state.startswith(('CheckRecommendationsStates', 'CheckActiveOffersStates')):
-        await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
+        await callback.answer(text=Lexicon_module.LEXICON['buy_configuration_error']['message_text'], show_alert=True)
     if car_model:
         choose_hybrid_handlers_module = importlib.import_module(
             'handlers.state_handlers.choose_car_for_buy.hybrid_handlers')
@@ -56,12 +55,14 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
 
         formatted_cars_data = await choose_hybrid_handlers_module.get_cars_data_pack(callback=callback,
                                                                                      state=state,
-                                                                                     advert_models=await AdvertRequester.get_where_id(
+                                                                                     advert_models=await car_advert_requests_module\
+                                                                                     .AdvertRequester.get_where_id(
                                                                                          car_id))
 
         result_string = await get_output_string(car_id, state=state, callback=callback)
 
-        photo_album = await AdvertRequester.get_photo_album_by_advert_id(advert_id=car_id)
+        photo_album = await car_advert_requests_module\
+            .AdvertRequester.get_photo_album_by_advert_id(advert_id=car_id)
 
         iteration_pagination_data = copy(pagination_data['data'])
         # ic(formatted_cars_data)
@@ -106,9 +107,9 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
         except Exception as ex:
             ic(ex)
             traceback.print_exc()
-        callback_answer_text = LEXICON['order_was_created']
+        callback_answer_text = Lexicon_module.LEXICON['order_was_created']
     else:
-        callback_answer_text = LEXICON['seller_dont_exists']
+        callback_answer_text = Lexicon_module.LEXICON['seller_dont_exists']
     ic(callback_answer_text)
     await callback.answer(text=callback_answer_text, show_alert=True)
 
@@ -139,7 +140,8 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     pagination_data = await message_editor.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
                                              use_json=True)
     car_was_withdrawn_from_sale = False
-    car_model = await AdvertRequester.get_where_id(car_id)
+    car_model = await car_advert_requests_module\
+        .AdvertRequester.get_where_id(car_id)
     cached_data = None
     ic(car_model)
     if car_model:
@@ -151,7 +153,8 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                 ic(seller_have_feedbacks)
             except SellerWithoutTariffException:
                 traceback.print_exc()
-                await AdvertRequester.delete_advert_by_id(seller_model)
+                await car_advert_requests_module\
+                    .AdvertRequester.delete_advert_by_id(seller_model)
                 seller_have_feedbacks = None
                 insert_response = None
                 car_model = None
@@ -181,7 +184,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                         print(ex)
                         traceback.print_exc()
                         insert_response = None
-                        await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
+                        await callback.answer(text=Lexicon_module.LEXICON['buy_configuration_error']['message_text'], show_alert=True)
                         advert_offer_already_exists = True
 
                     except Exception as ex:
@@ -204,11 +207,11 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
 
         if not car_model or seller_tariff_run_out:
             insert_response = None
-            await callback.answer(text=LEXICON['car_was_withdrawn_from_sale'], show_alert=True)
+            await callback.answer(text=Lexicon_module.LEXICON['car_was_withdrawn_from_sale'], show_alert=True)
             car_was_withdrawn_from_sale = True
         else:
             insert_response = None
-            await callback.answer(text=LEXICON['buy_configuration_error']['message_text'], show_alert=True)
+            await callback.answer(text=Lexicon_module.LEXICON['buy_configuration_error']['message_text'], show_alert=True)
             advert_offer_already_exists = True
 
     if is_recommendated_state:

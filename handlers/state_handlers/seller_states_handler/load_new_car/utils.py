@@ -7,9 +7,6 @@ from aiogram.exceptions import TelegramBadRequest
 from typing import Union
 import importlib
 
-from config_data.config import money_valute
-from database.data_requests.car_configurations_requests import CarConfigs
-from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import output_load_config_for_seller
 from handlers.state_handlers.seller_states_handler.load_new_car import second_hand_handlers
 from states.load_commodity_states import LoadCommodityStates
@@ -287,8 +284,11 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
         return {'message_text': output_string, 'buttons': lexicon_button_part}
 
 async def set_photo_for_new_state_car(callback: CallbackQuery, state: FSMContext):
+    new_car_photo_requests_module = importlib.import_module('database.data_requests.new_car_photo_requests')
+
     memory_storage = await state.get_data()
-    new_photographies = await PhotoRequester.try_get_photo(state)
+    new_photographies = await new_car_photo_requests_module\
+        .PhotoRequester.try_get_photo(state)
     if not new_photographies and not int(memory_storage.get('color_for_load')) == 1:
         input_photo_module = importlib.import_module(
             'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')

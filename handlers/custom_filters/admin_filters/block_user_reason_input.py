@@ -8,7 +8,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, chat
 import importlib
 
-from config_data.config import block_user_reason_text_len
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.catalog__specific_advert_actions.catalog_review__input_action_reason import \
     input_reason_to_close_advert_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_ban.start_ban_process_input_reason import \
@@ -16,17 +15,19 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_a
 from handlers.utils.delete_message import delete_message
 
 
+
 class ControlInputUserBlockReason(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
-        escape_html_module = importlib.import_module('handlers.utils.escape_html_message')
+        config_module = importlib.import_module('config_data.config')
+
         ic(str(await state.get_state()))
         ic(ControlInputUserBlockReason)
         # message_text = await escape_html_module.escape_html(message)
         message_text = message.text
         message_len = len(message_text.replace(' ', ''))
         ic(message_len)
-        if block_user_reason_text_len['min'] <= message_len \
-                <= block_user_reason_text_len['max']:
+        if config_module.block_user_reason_text_len['min'] <= message_len \
+                <= config_module.block_user_reason_text_len['max']:
 
             await self.delete_last_admin_message(message, state)
             # await state.update_data(reason=message_text.strip())

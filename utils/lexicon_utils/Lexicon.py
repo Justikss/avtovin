@@ -1,13 +1,29 @@
 from abc import ABC
 
-from config_data.config import SUPPORT_NUMBER, SUPPORT_TELEGRAM, faq_seller, faq_buyer, faq, money_valute, \
-    SUPPORT_NUMBER_2, max_price_len, max_contact_info_len
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import __CATALOG_LEXICON
+# from config_data.config import
+from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import __CATALOG_LEXICON, catalog_captions
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import __ADVERT_PARAMETERS_LEXICON
-from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import __STATISTIC_LEXICON
+from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import __STATISTIC_LEXICON, statistic_captions
+from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.admin_lexicon_uz import ADMIN_LEXICON_uz
+from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_action_lexicon_uz import ADVERT_LEXICON_UZ
+from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_parameters_uz import ADVERT_PARAMETERS_LEXICON_UZ
+from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.bot_statistic_uz import STATISTIC_LEXICON_UZ, statistic_captions_uz
+from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.catalog_lexicon_uz import CATALOG_LEXICON_UZ, catalog_captions_uz
+from utils.lexicon_utils.lexicon_uz.lexicon_uz import LEXICON_UZ, faq_seller, faq_buyer, faq, money_valute, \
+    max_price_len, max_contact_info_len, lexicon_uz, captions_uz
 from utils.safe_dict_class import SafeDict
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON, captions
+from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_action_lexicon import __ADVERT_LEXICON
+
+captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
+            'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
+            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов',
+            'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".',
+            'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
+            'by_dealership': 'автосалона',
+            'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: ', 'add': 'Добавить',
+            'successfully': 'Успешно'
+            }
 
 __LEXICON = {
             'you_are_blocked_alert': 'Вы заблокированы в данной деятельности',
@@ -21,7 +37,7 @@ __LEXICON = {
             "buyer_haven't_cached_requests": 'История недавно просмотренных пуста.',
             'incoming_address_caption': 'Указанный адрес:\n',
             'address': 'Адрес',
-            'waiting_request_process': "Ваш запрос обрабатывается. Примерное время ожидания: X секунд.",
+            'waiting_request_process': "Ваш запрос обрабатывается. Примерное время ожидания: {time} {seconds}",
             'cached_requests_for_buyer_message_text': {
                 'message_text': 'Просмотр неподтверждённых вами предложений\n'},
             'active_offers_for_buyer_message_text': {
@@ -65,8 +81,8 @@ __LEXICON = {
                       'return_main_menu': '◂ Назад ▸', 'width': 2},
             'tech_support': {'message_text': 'Выберите ваше действие:', 'write_to_support': 'Написать 💬',
                              'call_to_support': 'Позвонить 📱', 'width': 2, 'return_main_menu': '◂ Назад ▸'},
-            'write_to_support': {'message_text': SUPPORT_TELEGRAM, 'backward:support': '◂ Назад ▸', 'width': 1},
-            'call_to_support': {'message_text': f'Вы можете позвонить нам по следующим номерам:\n👩🏻‍💻Сотрудница поддержки: {SUPPORT_NUMBER}\n👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER_2}', 'backward:support': '◂ Назад ▸', 'width': 1},
+            'write_to_support': {'message_text': '{SUPPORT_TELEGRAM}', 'backward:support': '◂ Назад ▸', 'width': 1},
+            'call_to_support': {'message_text': 'Вы можете позвонить нам по следующим номерам:\n👩🏻‍💻Сотрудница поддержки: {SUPPORT_NUMBER}\n👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER_2}', 'backward:support': '◂ Назад ▸', 'width': 1},
 
             'search_car': {'message_text': 'Выберите тип автомобиля:', 'choose_state_1': 'Новое', 'choose_state_2': 'Б\У',
                            'return_main_menu': '◂ Назад ▸', 'width': 2},
@@ -80,8 +96,8 @@ __LEXICON = {
             'chosen_configuration': {
                 'message_text': {'phone_number': '\nМобильный телефон: ',
                                 'your_configs': '<b>Предложения по вашему запросу:</b>',
-                                 'from_seller': 'От Продавца: \n<i>X</i>',
-                                 'from_dealership': 'От Автосалона: \n<i>X</i>\nПо Адресу: <i>Y</i>',
+                                 'from_seller': 'От Продавца: \n<i>{seller_name}</i>',
+                                 'from_dealership': 'От Автосалона: \n<i>{dealership_name}</i>\nПо Адресу: <i>{dealership_address}</i>',
                                  'car_state': 'Состояние: <i>X</i>',
                                  'engine_type': 'Тип двигателя: <i>X</i>',
                                  'model': 'Модель: <i>X</i>',
@@ -112,7 +128,7 @@ __LEXICON = {
             'write_full_seller_name(novalid)': {
                 'message_text': f'Некорректный ввод, принимается 2-3 буквенных слова, разделённые пробелом\nДлиной до {max_contact_info_len} символов.',
                 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 2},
-            'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегестрировано\nожидается иное', 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 1},
+            'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегистрировано\nожидается иное', 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 1},
 
             'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
             'write_dealership_name(novalid)': f'Название автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр:',
@@ -180,204 +196,332 @@ __LEXICON = {
 
 
 
+ADMIN_LEXICON = SafeDict({'ru': __ADMIN_LEXICON,
+                          'uz': ADMIN_LEXICON_uz})
+CATALOG_LEXICON = SafeDict({'ru': __CATALOG_LEXICON,
+                            'uz': CATALOG_LEXICON_UZ})
+ADVERT_PARAMETERS_LEXICON = SafeDict({'ru': __ADVERT_PARAMETERS_LEXICON,
+                                      'uz': ADVERT_PARAMETERS_LEXICON_UZ})
+STATISTIC_LEXICON = SafeDict({'ru': __STATISTIC_LEXICON,
+                              'uz': STATISTIC_LEXICON_UZ})
 
-ADMIN_LEXICON = SafeDict(__ADMIN_LEXICON)
-CATALOG_LEXICON = SafeDict(__CATALOG_LEXICON)
-ADVERT_PARAMETERS_LEXICON = SafeDict(__ADVERT_PARAMETERS_LEXICON)
-STATISTIC_LEXICON = SafeDict(__STATISTIC_LEXICON)
+ADVERT_LEXICON = SafeDict({'ru': __ADVERT_LEXICON,
+                           'uz': ADVERT_LEXICON_UZ})
+LEXICON = SafeDict({'ru': __LEXICON,
+                    'uz': LEXICON_UZ})
+catalog_captions = SafeDict({'ru': catalog_captions,
+                            'uz': catalog_captions_uz})
 
-ADVERT_LEXICON = SafeDict(__ADVERT_LEXICON)
-LEXICON = SafeDict(__LEXICON)
+statistic_captions = SafeDict({'ru': statistic_captions,
+                            'uz': statistic_captions_uz})
+
+captions = SafeDict({'ru': captions,
+                     'uz': captions_uz})
+
+lexicon_ru = {
+    'to_offers': 'К заявкам',
+    'backward_in_carpooling': '◂ Назад ▸',
+    'choose_engine_type_text': 'Выберите тип двигателя',
+    'choose_brand_text': 'Выберите марку',
+    'choose_model_text': 'Выберите модель',
+    'choose_complectation_text': 'Выберите комплектацию',
+    'choose_year_text': 'Выберите год',
+    'choose_mileage_text': 'Выберите пробег',
+    'choose_color_text': 'Выберите цвет',
+    'seller_sure_delete_car_ask_text': 'Вы уверены что хотите удалить с витрины машину №{number} ?',
+    'seller_does_have_active_requests_alert': 'У вас нет активных заявок',
+    'seller_does_have_active_car_by_brand': 'Эта марка не актуальна.',
+    'matched_advert': 'У вас в каталоге уже имеется идентичное объявление, повторно не выложить!',
+    'select_brand_message_text': 'Выберите марку автомобиля',
+    'input_new_price': 'Введите новую стоимость.\nНынешняя цена: {current_price}',
+    'input_new_price_incorrect_message_text': f'Пожалуйста, укажите целочисленное значение до {max_price_len} цифр.',
+    'input_new_price_car_dont_exists': 'К сожалению автомобиль снят с продажи.',
+    'succes_rewrite_price': 'Цена успешно изменена',
+    'commodity_output_block': '''
+        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+        <blockquote>Состояние: <i>{state}</i>
+        Тип двигателя: <i>{engine_type}</i>
+        Марка: <i>{brand_name}</i>
+        Модель: <i>{model_name}</i>
+        Комплектация: <i>{complectation}</i>
+        Год выпуска: <i>{year_of_release}</i>
+        Пробег: <i>{mileage}</i>
+        Цвет: <i>{color}</i></blockquote>
+        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+    ''',
+    'output_car_request_header': 'Заявка <i>№{request_number}</i>',
+    'commodity_state': 'Состояние: <i>{state}</i>',
+    # ... И так далее для всех остальных текстов
+
+    'commodity_brand': 'Марка: <i>{brand}</i>',
+    'commodity_model': 'Модель: <i>{model}</i>',
+    'commodity_complectation': 'Комплектация: <i>{complectation}</i>',
+    'commodity_year_of_realise': 'Год выпуска: <i>{year_of_release}</i>',
+    'commodity_mileage': 'Пробег: <i>{mileage}</i>',
+    'commodity_color': 'Цвет: <i>{color}</i>',
+    'commodity_price': '<b>Стоимость: <i>{price}</i></b>',
+    'pages_were_end': 'Страницы кончились',
+    'new_feedbacks_not_found': 'У вас не появилось новых откликов',
+    'viewed_feedbacks_not_found': 'У вас нет просмотренных откликов',
+    'did_you_sure_to_delete_feedback_ask': 'Вы уверены удалить отклик №{feedback_number} ?',
+    'success_delete': 'Удалено',
+    'profile_header': '<b>Профиль продавца</b>\n\n',
+    'dealership_prefix': 'Юридическое лицо 🤵🏻‍♂️',
+    'seller_prefix': 'Частное лицо 👨🏻‍💼\n',
+    'dealership_name_prefix': 'Название автосалона: <i>{dealership_name}</i>',
+    'dealership_address_prefix': 'Адрес автосалона: <i>{dealership_address}</i>',
+    'seller_name_prefix': 'Ваше имя: <i>{seller_name}</i>',
+    'phonenumber_prefix': 'Телефонный номер: {phone_number}',
+    'tariff_block': '<blockquote>💰 Тариф: <i>{tariff_name}</i>\n🕰 До окончания подписки: <i>{days_remaining} Дней</i>\n🔸 Откликов: <i>{feedbacks_remaining}</i></blockquote>',
+    'tariff_out_date_prefix': '<blockquote>🕰 До окончания подписки: <i>{days_remaining} Дней</i></blockquote>',
+    'residual_feedback_prefix': '<blockquote>🔸 Остаток откликов: <i>{feedbacks_remaining}</i></blockquote>',
+    'tariff_expired': 'Ваш тариф истёк',
+    'tariff_selection_not_found_message_text': 'Тарифов не найдено',
+    'tariff_selection_message_text': 'Все доступные тарифы',
+    'selected_tariff_preview_header': '<b>Информация о тарифе:</b>',
+    'tariff_name': '<blockquote>🪪 <b>Название: <i>{tariff_name}</i></b></blockquote>',
+    'tariff_price': '<blockquote>💰 <b>Стоимость: <i>{tariff_price}</i></b></blockquote>',
+    'tariff_duration_time': '<blockquote>🕰 <b>Срок действия: <i>{tariff_duration} дней</i></b></blockquote>',
+    'tariff_feedback_amount': '<blockquote>🔸 <b>Лимит откликов: <i>{tariff_feedback_limit}</i></b></blockquote>',
+    'choice_payment_system_message_text': 'Выберите платёжную систему',
+    'create_invoice_in_progress_notification': 'В разработке',
+    'create_invoice_title': 'Оформление тарифа',
+    'create_invoice_description': 'Подписка на {feedbacks_amount} откликов покупателей.\nПериодом {subscription_days} дней.',
+    'create_invoice_load_price_label': 'Цена за тариф',
+    'payment_operation_error_text': 'Ошибка оплаты, попробуйте снова, соблюдая тайм аут в 15 минут',
+    'payment_operation_success_text': 'Удачно!',
+    'payment_operation_cancel_button': '🚫 Отмена 🚫',
+    'tariff_extension_button': 'Продлить тариф ✅',
+    'tariff_store_button': 'Каталог тарифов 🎫',
+    'confirm': 'Подтвердить ✅',
+    'delete': 'Удалить',
+    'rewrite_price_by_seller': 'Изменить цену',
+    'withdrawn': 'Снять с продажи',
+    'deal_fell_through': 'Сделка сорвалась',
+    'page_view_separator': 'Страница: ',
+    'tariff_prefix': '<blockquote>💰 Тариф: <i>X</i></blockquote>',
+    'tarif_expired': 'Ваш тариф истёк',
+    'start_choose_payment_method': 'Выбор платёжной системы',
+
+}
+
+
+class_lexicon = SafeDict({'ru': lexicon_ru,
+                          'uz': lexicon_uz})
+
+
 
 class LastButtonsInCarpooling(ABC):
-    last_buttons = {'backward_in_carpooling': '◂ Назад ▸', **LEXICON['return_main_menu_button']}
-    buttons_callback_data = None
-    width = 2
-    message_text = ''
-    dynamic_buttons = 2
-
     def __init__(self):
-        self.last_buttons = self.last_buttons
-        self.width = self.width
-        self.message_text = self.message_text
-        self.buttons_callback_data = self.buttons_callback_data
-        self.width = self.width
-        self.dynamic_buttons = self.dynamic_buttons
+        self.last_buttons = {'backward_in_carpooling': class_lexicon['backward_in_carpooling'],
+                            **LEXICON['return_main_menu_button']}
+        self.buttons_callback_data = None
+        self.width = 2
+        self.message_text = ''
+        self.dynamic_buttons = 2
 
 class ChooseEngineType(LastButtonsInCarpooling):
-    message_text = 'Выберите тип двигателя'
-    buttons_callback_data = 'cars_engine_type_'
-    width = 2
+    def __init__(self):
+        super().__init__()
+        self.message_text = class_lexicon['choose_engine_type_text']
+        self.buttons_callback_data = 'cars_engine_type_'
+        self.width = 2
 
 class ChooseBrand(LastButtonsInCarpooling):
-    message_text = 'Выберите марку'
-    buttons_callback_data = 'cars_brand_'
-    last_buttons = None
+    def __init__(self):
+        super().__init__()
+
+        self.message_text = class_lexicon['choose_brand_text']
+        self.buttons_callback_data = 'cars_brand_'
+        self.last_buttons = None
 
 class ChooseModel(LastButtonsInCarpooling):
-    message_text = 'Выберите модель'
-    buttons_callback_data = 'cars_model_'
-    last_buttons = None
+    def __init__(self):
+        super().__init__()
+
+        self.message_text = class_lexicon['choose_model_text']
+        self.buttons_callback_data = 'cars_model_'
+        self.last_buttons = None
 
 class ChooseComplectation(LastButtonsInCarpooling):
-    message_text = 'Выберите комплектацию'
-    buttons_callback_data = 'cars_complectation_'
-    last_buttons = None
+    def __init__(self):
+        super().__init__()
+
+        self.message_text = class_lexicon['choose_complectation_text']
+        self.buttons_callback_data = 'cars_complectation_'
+        self.last_buttons = None
 
 class ChooseYearOfRelease(LastButtonsInCarpooling):
-    message_text = 'Выберите год'
-    buttons_callback_data = 'cars_year_of_release_'
-    last_buttons = None
+    def __init__(self):
+        super().__init__()
+
+        self.message_text = class_lexicon['choose_year_text']
+        self.buttons_callback_data = 'cars_year_of_release_'
+        self.last_buttons = None
 
 class ChooseMileage(LastButtonsInCarpooling):
-    message_text = 'Выберите пробег'
-    buttons_callback_data = 'cars_mileage_'
-    last_buttons = None
+    def __init__(self):
+        super().__init__()
+
+        self.message_text = class_lexicon['choose_mileage_text']
+        self.buttons_callback_data = 'cars_mileage_'
+        self.last_buttons = None
 
 class ChooseColor(LastButtonsInCarpooling):
-    message_text = 'Выберите цвет'
-    buttons_callback_data = 'cars_color_'
+    def __init__(self):
+        super().__init__()
+        self.message_text = class_lexicon['choose_color_text']
+        self.buttons_callback_data = 'cars_color_'
 
 class SecondsEndswith:
     one = 'а'
     two_four = 'ы'
 
+
 class LexiconSellerRequests:
-    backward_from_delete_in_feedbacks = {'viewed_feedbacks': '◂ Назад ▸'}
+    def __init__(self):
+        self.backward_from_delete_in_feedbacks = {'viewed_feedbacks': class_lexicon['backward_in_carpooling']}
 
-    seller_sure_delete_car_ask = {'message_text': 'Вы уверены что хотите удалить с витрины машину №X ?',
-                                  'buttons': {"i'm_sure_delete": 'Удалить', 'backward_from_delete_car_menu': '◂ Назад ▸', 'width': 1}}
-    seller_does_have_active_requests_alert = 'У вас нет активных заявок'
-    seller_does_have_active_car_by_brand = 'Эта марка не актуальна.'
-    matched_advert = 'У вас в каталоге уже имеется идентичное объявление, повторно не выложить!'
-    select_brand_message_text = {'message_text': 'Выберите марку автомобиля'}
-    callback_prefix = 'seller_requests_brand:'
-    # backward_button = {'backward:sales_brand_choose': 'Назад'}
-    keyboard_end_part = {'backward:sales_brand_choose': '◂ Назад ▸'}
-    # choose_brand_keyboard_width = 1
-    return_to_requests_buttons = {'buttons': {'backward:rewrite_price_by_seller': 'К заявкам', 'width': 1}}
-    input_new_price = {'message_text': 'Введите новую стоимость.\nНынешняя цена: X', **return_to_requests_buttons}
-    input_new_price_incorrect_message_text = f'\nПожалуйста, укажите целочисленное значение до {max_price_len} цифр.'
-    input_new_price_car_dont_exists = {'message_text': 'К сожалению автомобиль снят с продажи.', **return_to_requests_buttons}
-    succes_rewrite_price = {'message_text': 'Цена успешно изменена', **return_to_requests_buttons}
+        self.seller_sure_delete_car_ask = {'message_text': class_lexicon['seller_sure_delete_car_ask_text'],
+                                      'buttons': {"i'm_sure_delete": class_lexicon['delete'],
+                                                  'backward_from_delete_car_menu': class_lexicon['backward_in_carpooling'],
+                                                  'width': 1}}
+        self.seller_does_have_active_requests_alert = class_lexicon['seller_does_have_active_requests_alert']
+        self.seller_does_have_active_car_by_brand = class_lexicon['seller_does_have_active_car_by_brand']
+        self.matched_advert = class_lexicon['matched_advert']
+        self.select_brand_message_text = {'message_text': class_lexicon['select_brand_message_text']}
+        self.callback_prefix = 'seller_requests_brand:'
+        self.keyboard_end_part = {'backward:sales_brand_choose': class_lexicon['backward_in_carpooling']}
+        self.return_to_requests_buttons = {'buttons': {'backward:rewrite_price_by_seller': class_lexicon['to_offers'],
+                                                  'width': 1}}
+        self.input_new_price = {'message_text': class_lexicon['input_new_price'], **self.return_to_requests_buttons}
+        self.input_new_price_incorrect_message_text = class_lexicon['input_new_price_incorrect_message_text']
+        self.input_new_price_car_dont_exists = {'message_text': class_lexicon['input_new_price_car_dont_exists'], **self.return_to_requests_buttons}
+        self.succes_rewrite_price = {'message_text': class_lexicon['succes_rewrite_price'], **self.return_to_requests_buttons}
 
-    pagination_vectors = {'seller_requests_pagination_left': '←', 'seller_requests_pagination_right': '→'}
+        self.pagination_vectors = {'seller_requests_pagination_left': '←', 'seller_requests_pagination_right': '→'}
 
-    selected_brand_output_buttons = {'buttons': {**pagination_vectors,
-                                                 'rewrite_price_by_seller': 'Изменить цену',
-                                                'withdrawn': 'Удалить из каталога',
-                                                'backward:sales_order_review': '◂ Назад ▸', 'width': (2, 1, 1, 1)}}
+        self.selected_brand_output_buttons = {'buttons': {**self.pagination_vectors,
+                                                     'rewrite_price_by_seller': class_lexicon['rewrite_price_by_seller'],
+                                                    'withdrawn': class_lexicon['withdrawn'],
+                                                    'backward:sales_order_review': class_lexicon['backward_in_carpooling'],
+                                                     'width': (2, 1, 1, 1)}}
 
-    check_viewed_feedbacks_buttons = {'buttons': {**pagination_vectors,
-                                               'withdrawn': 'Снять с продажи', 'deal_fell_through': 'Сделка сорвалась',
-                                               'backward:check_feedbacks': '◂ Назад ▸', 'width': (2, 2, 1)}}
+        self.check_viewed_feedbacks_buttons = {'buttons': {**self.pagination_vectors,
+                                                   'withdrawn': class_lexicon['withdrawn'], 'deal_fell_through': class_lexicon['deal_fell_through'],
+                                                   'backward:check_feedbacks': class_lexicon['backward_in_carpooling'], 'width': (2, 2, 1)}}
 
-    check_new_feedbacks_buttons = {'buttons': {**pagination_vectors,
-                                               'backward:check_feedbacks': '◂ Назад ▸', 'width': (2, 1)}}
+        self.check_new_feedbacks_buttons = {'buttons': {**self.pagination_vectors,
+                                                   'backward:check_feedbacks': class_lexicon['backward_in_carpooling'], 'width': (2, 1)}}
 
-    commodity_output_block = '▬' * 15 + '''
-<blockquote>Состояние: <i>{state}</i>
-Тип двигателя: <i>{engine_type}</i>
-Марка: <i>{brand_name}</i>
-Модель: <i>{model_name}</i>
-Комплектация: <i>{complectation}</i>
-Год выпуска: <i>{year_of_release}</i>
-Пробег: <i>{mileage}</i>
-Цвет: <i>{color}</i></blockquote>
-''' + '▬' * 15
+        self.commodity_output_block = class_lexicon['commodity_output_block']
 
-    output_car_request_header = '<b>Заявка <i>№_</i></b>'
-    commodity_state = '\nСостояние: <i>X</i>'
-    engine_type = '\nТип двигателя: <i>X</i>'
-    commodity_brand = '\nМарка: <i>X</i>'
-    commodity_model = '\nМодель: <i>X</i>'
-    commodity_complectation = '\nКомплектация: <i>X</i>'
-    commodity_year_of_realise = '\nГод выпуска: <i>X</i>'
-    commodity_mileage = '\nПробег: <i>X</i>'
-    commodity_color = '\nЦвет: <i>X</i>'
-    commodity_price = '\n<b>Стоимость: <i>X</i></b>'
 
-    sep = '▬' * 13
+        # output_car_request_header = '<b>Заявка <i>№_</i></b>'
+        # commodity_state = '\nСостояние: <i>X</i>'
+        # engine_type = '\nТип двигателя: <i>X</i>'
+        # commodity_brand = '\nМарка: <i>X</i>'
+        # commodity_model = '\nМодель: <i>X</i>'
+        # commodity_complectation = '\nКомплектация: <i>X</i>'
+        # commodity_year_of_realise = '\nГод выпуска: <i>X</i>'
+        # commodity_mileage = '\nПробег: <i>X</i>'
+        # commodity_color = '\nЦвет: <i>X</i>'
+        # commodity_price = '\n<b>Стоимость: <i>X</i></b>'
 
-    pagination_pagesize = 1
+        self.sep = '▬' * 13
 
-    page_view_separator = 'Страница: '
+        self.pagination_pagesize = 1
 
-    pages_were_end = 'Страницы кончились'
-    new_feedbacks_not_found = 'У вас не появилось новых откликов'
-    viewed_feedbacks_not_found = 'У вас нет просмотренных откликов'
+        self.page_view_separator = class_lexicon['page_view_separator']
 
-    did_you_sure_to_delete_feedback_ask = {'message_text': 'Вы уверены удалить отклик №X ?',
-                                           'buttons': {"i'm_sure_delete_feedback": 'Подтвердить ✅', 'backward_from_delete_feedback_menu': '◂ Назад ▸', 'width': 1}}
-    success_delete = 'Удалено'
+        self.pages_were_end = class_lexicon['pages_were_end']
+        self.new_feedbacks_not_found = class_lexicon['new_feedbacks_not_found']
+        self.viewed_feedbacks_not_found = class_lexicon['viewed_feedbacks_not_found']
+
+        self.did_you_sure_to_delete_feedback_ask = {'message_text': class_lexicon['did_you_sure_to_delete_feedback_ask'],
+                                               'buttons': {"i'm_sure_delete_feedback": class_lexicon['confirm'],
+                                                           'backward_from_delete_feedback_menu': class_lexicon['backward_in_carpooling'],
+                                                           'width': 1}}
+        self.success_delete = class_lexicon['success_delete']
 
 
 class LexiconSellerProfile:
-    header = '<b>Профиль продавца</b>\n\n'
-    dealership_prefix = 'Юридическое лицо 🤵🏻‍♂️'
-    seller_prefix = 'Частное лицо 👨🏻‍💼\n'
-    dealership_name_prefix = 'Название автосалона: <i>X</i>'
-    dealership_address_prefix = 'Адрес автосалона: <i>X</i>'
-    seller_name_prefix = 'Ваше имя: <i>X</i>'
-    phonenumber_prefix = 'Телефонный номер: X'
+    def __init__(self):
+        self.header = class_lexicon['profile_header']
+        self.dealership_prefix = class_lexicon['dealership_prefix']
+        self.seller_prefix = class_lexicon['seller_prefix']
+        self.dealership_name_prefix = class_lexicon['dealership_name_prefix']
+        self.dealership_address_prefix = class_lexicon['dealership_address_prefix']
+        self.seller_name_prefix = class_lexicon['seller_name_prefix']
+        self.phonenumber_prefix = class_lexicon['phonenumber_prefix']
 
-    tariff_block = '<blockquote>💰 Тариф: <i>T</i>\n🕰 До окончания подписки: <i>D Дней</i>\n🔸 Откликов: <i>R</i></blockquote>'
+        self.tariff_block = class_lexicon['tariff_block']
 
-    tariff_prefix = '<blockquote>💰 Тариф: <i>X</i></blockquote>'
-    tariff_out_date_prefix = '<blockquote>🕰 До окончания подписки: <i>X Дней</i></blockquote>'
-    residual_feedback_prefix = '<blockquote>🔸 Остаток откликов: <i>X</i></blockquote>'
-    tariff_extension_button = {'tariff_extension': 'Продлить тариф ✅'}
-    width = 1
-    tariff_store_button = {'tariff_extension': 'Каталог тарифов 🎫'}
-    tarif_expired = 'Ваш тариф истёк'
-    sep = ' ' * 10 + '▬' * 15
-
+        self.tariff_prefix = class_lexicon['tariff_prefix']
+        self.tariff_out_date_prefix = class_lexicon['tariff_out_date_prefix']
+        self.residual_feedback_prefix = class_lexicon['residual_feedback_prefix']
+        self.tariff_extension_button = {'tariff_extension': class_lexicon['tariff_extension_button']}
+        self.width = 1
+        self.tariff_store_button = {'tariff_extension': class_lexicon['tariff_store_button']}
+        self.tarif_expired = class_lexicon['tarif_expired']
+        self.sep = ' ' * 10 + '▬' * 15
 
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'
 
 class LexiconTariffSelection:
-    not_found_message_text = 'Тарифов не найдено'
-    message_text = 'Все доступные тарифы'
-    # callback_type = 'select_tariff:'
-    # backward_button_callback = 'backward:affordable_tariffs'
-    # backward_button_caption = '◂ Назад ▸'
-    width = 2
-    buttons_callback_data = 'select_tariff:'
-    backward_command = {'backward:affordable_tariffs': captions['backward']}
+    def __init__(self):
+        self.not_found_message_text = class_lexicon['tariff_selection_not_found_message_text']
+        self.message_text = class_lexicon['tariff_selection_message_text']
+        self.width = 2
+        self.buttons_callback_data = 'select_tariff:'
+        self.backward_command = {'backward:affordable_tariffs': class_lexicon['backward_in_carpooling']}
 
 class LexiconSelectedTariffPreview:
-    header = '<b>Информация о тарифе:</b>'
-
-    tariff_block = '\n<blockquote>🪪 Название: <i>{tariff_name}</i>\n🕰 Срок действия: <i>{days} дней</i>\n🔸 Лимит откликов: <i>{feedbacks}</i>\n💰 Стоимость: <i>{price}</i></blockquote>'
-
-    name = '\n<blockquote>🪪 <b>Название: <i>X</i></b></blockquote>'
-    price = '\n<blockquote>💰 <b>Стоимость: <i>X</i></b></blockquote>'
-    duration_time = '\n<blockquote>🕰 <b>Срок действия: <i>X дней</i></b></blockquote>'
-    feedback_amount = '\n<blockquote>🔸 <b>Лимит откликов: <i>X</i></b></blockquote>'
-    separator = ' ' * 10 + '▬' * 13
-    low_separator = ' ' * 10 + '▬' * 13
-    buttons = {'start_choose_payment_method': 'Выбор платёжной системы', 'backward:tariff_preview': '◂ Назад ▸', 'width': 1}
+    def __init__(self):
+        self.header = class_lexicon['selected_tariff_preview_header']
+        self.tariff_block = class_lexicon['tariff_block']
+        self.separator = ' ' * 10 + '▬' * 13
+        self.low_separator = ' ' * 10 + '▬' * 13
+        self.buttons = {'start_choose_payment_method': class_lexicon['start_choose_payment_method'],
+                       'backward:tariff_preview': class_lexicon['backward_in_carpooling'], 'width': 1}
 
 class LexiconChoicePaymentSystem:
-    message_text = 'Выберите платёжную систему'
-    payment_click = {'run_tariff_payment:click': '💷 CLICK'}
-    payment_payme = {'run_tariff_payment:payme': '💴 PayMe'}
-    payment_uzumPay = {'run_tariff_payment:uzumPay': '💶 UzumPay'}
-    bottom_buttons = {'backward:choose_payment_system': '◂ Назад ▸', 'width': 1}
-    buttons_list = [payment_click, payment_payme, payment_uzumPay, bottom_buttons]
-
+    def __init__(self):
+        self.message_text = class_lexicon['choice_payment_system_message_text']
+        self.payment_click = {'run_tariff_payment:click': '💷 CLICK'}
+        self.payment_payme = {'run_tariff_payment:payme': '💴 PayMe'}
+        self.payment_uzumPay = {'run_tariff_payment:uzumPay': '💶 UzumPay'}
+        self.bottom_buttons = {'backward:choose_payment_system': class_lexicon['backward_in_carpooling'], 'width': 1}
+        self.buttons_list = [self.payment_click, self.payment_payme, self.payment_uzumPay, self.bottom_buttons]
 
 class LexiconCreateInvoice:
-    in_progress_notification = 'В разработке'
-    title = 'Оформление тарифа '
-    description = 'Подписка на -_- откликов покупателей.\nПериодом -_- дней.'
-    load_price_label = 'Цена за тариф'
+    def __init__(self):
+        self.in_progress_notification = class_lexicon['create_invoice_in_progress_notification']
+        self.title = class_lexicon['create_invoice_title']
+        self.description = class_lexicon['create_invoice_description']
+        self.load_price_label = class_lexicon['create_invoice_load_price_label']
 
 class LexiconPaymentOperation:
-    error_payment_text = 'Ошибка оплаты, попробуйте снова, соблюдая тайм аут в 15 минут'
+    def __init__(self):
+        self.error_payment_text = class_lexicon['payment_operation_error_text']
+        self.success_payment_text = class_lexicon['payment_operation_success_text']
+        self.cancel_button = {'backward:make_payment': class_lexicon['payment_operation_cancel_button']}
+        self.width_parameter = {'width': 1}
 
-    success_payment_text = 'Удачно!'
 
-    cancel_button = {'🚫 Отмена 🚫': 'backward:make_payment'}
-    width_parameter = {'width': 1}
+LexiconSellerRequests = LexiconSellerRequests()
+LexiconTariffSelection = LexiconTariffSelection()
+LexiconSelectedTariffPreview = LexiconSelectedTariffPreview()
+LexiconChoicePaymentSystem = LexiconChoicePaymentSystem()
+LexiconCreateInvoice = LexiconCreateInvoice()
+LexiconPaymentOperation = LexiconPaymentOperation()
+LexiconSellerProfile = LexiconSellerProfile()
+LastButtonsInCarpooling = LastButtonsInCarpooling()
+ChooseEngineType = ChooseEngineType()
+ChooseBrand = ChooseBrand()
+ChooseModel = ChooseModel()
+ChooseComplectation = ChooseComplectation()
+ChooseYearOfRelease = ChooseYearOfRelease()
+ChooseMileage = ChooseMileage()
+ChooseColor = ChooseColor()

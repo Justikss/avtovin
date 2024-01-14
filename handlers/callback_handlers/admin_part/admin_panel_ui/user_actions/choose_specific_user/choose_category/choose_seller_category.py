@@ -3,7 +3,8 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 async def choose_seller_category_by_admin_handler(callback: CallbackQuery, state: FSMContext):
@@ -11,4 +12,4 @@ async def choose_seller_category_by_admin_handler(callback: CallbackQuery, state
     if await state.get_state():
         await state.clear()
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-                                                    lexicon_part=ADMIN_LEXICON['select_seller_category'])
+                                                    lexicon_part=Lexicon_module.ADMIN_LEXICON['select_seller_category'])

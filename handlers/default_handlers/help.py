@@ -1,14 +1,10 @@
 import importlib
 from datetime import time
 
-from aiogram import Router
-from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
 
-from config_data.config import DEFAULT_COMMANDS
-from database.db_connect import manager
-from database.tables.car_configurations import CarAdvert
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery
+
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
     TopTenByDemandDisplayHandler
 

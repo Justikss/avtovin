@@ -4,16 +4,16 @@ from copy import copy, deepcopy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from config_data.config import top_ten_pagesize
 from database.data_requests.advert_parameters_requests import AdvertParameterManager
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.tables.offers_history import SellerFeedbacksHistory
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
-from utils.lexicon_utils.Lexicon import LEXICON
 from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import TopTenDisplay
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+config_module = importlib.import_module('config_data.config')
 
 
 class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
@@ -27,16 +27,17 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             await self.set_pagination_display(request, state)
 
     async def set_pagination_display(self, request: Message | CallbackQuery, state: FSMContext):
+
         models_range = await self.construct_models_structure(state)
         if not models_range:
-            return await self.send_alert_answer(request, LEXICON['non_actiallity'])
+            return await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 lexicon_class=await self.construct_lexicon_part(
                     state=state,
                     position=models_range[0].name[:models_range[0].name.index('.')],
                     feedback_model=models_range[0]),
-                page_size=top_ten_pagesize,
+                page_size=config_module.top_ten_pagesize,
                 models_range=models_range
             )
         ]
@@ -51,6 +52,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         await state.update_data(media_group_for_inline_pg=media_group)
 
     async def edit_displayed_data(self, state: FSMContext, advert_parameters, seller_model, position, feedback_count):
+
         # todo Добавить edit media group
         feedback_model = SellerFeedbacksHistory()
         feedback_model.seller_id = seller_model
@@ -67,7 +69,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             self.menu_manager.inline_pagination(
                 remove_last_pagination_data=False,
                 lexicon_class=new_message_text,
-                page_size=top_ten_pagesize,
+                page_size=config_module.top_ten_pagesize,
                 models_range=1,
             )
         ]
@@ -94,11 +96,13 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         ic()
         ic(advert_parameters, seller_model)
         if advert_parameters and seller_model:
-            await AdvertRequester.load_related_data_for_advert(advert_parameters)
+            car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
+            await car_advert_requests_module.AdvertRequester.load_related_data_for_advert(advert_parameters)
             await self.edit_displayed_data(state, advert_parameters, seller_model, position, feedback_count)
         else:
             await state.clear()
-            await self.send_alert_answer(request, LEXICON['non_actiallity'])
+            await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
             return await self.callback_handler(request, state)
 
     async def get_params_top_position(self, params_in_queue, params_id, seller_id):
@@ -130,7 +134,9 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         ic(params_text)
         ic()
         ic(hasattr(lexicon_class, 'message_text'))
-        lexicon_class.message_text = copy(self.statistic_manager.lexicon['top_ten_message_text']).format(
+        statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+
+        lexicon_class.message_text = copy(statistic_lexicon['top_ten_message_text']).format(
             top_position=position,
             parameters=params_text,
             period=await self.statistic_manager.ident_period_string(memory_storage.get('stats_period')),

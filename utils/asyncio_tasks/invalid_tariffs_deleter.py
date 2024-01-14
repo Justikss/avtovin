@@ -5,9 +5,8 @@ from aiogram import Bot
 from peewee import *
 from datetime import datetime, timedelta
 
-from config_data.config import DATETIME_FORMAT
 
-
+config_module = importlib.import_module('config_data.config')
 # Ваши классы моделей: Seller, Tariff, TariffsToSellers
 # Инициализация менеджера (предполагается, что у вас уже есть инициализированный объект database)
 
@@ -32,7 +31,7 @@ async def set_timer_on_dying_tariff(dying_tariff, bot):
     now = datetime.now()
     end_time = dying_tariff.end_time
     if isinstance(end_time, str):
-        end_time = datetime.strptime(end_time, DATETIME_FORMAT)
+        end_time = datetime.strptime(end_time, config_module.DATETIME_FORMAT)
     wait_seconds = (end_time - now).total_seconds()
     asyncio.create_task(delete_expired_dying_tariff(dying_tariff.id, wait_seconds, bot))
 
@@ -43,7 +42,7 @@ async def set_timer_on_active_tariff(active_tariff, bot):
     now = datetime.now()
     end_time = active_tariff.end_date_time
     if isinstance(end_time, str):
-        end_time = datetime.strptime(end_time, DATETIME_FORMAT)
+        end_time = datetime.strptime(end_time, config_module.DATETIME_FORMAT)
     wait_seconds = (end_time - now).total_seconds()
     asyncio.create_task(stop_active_tariff(active_tariff, wait_seconds, bot))
 

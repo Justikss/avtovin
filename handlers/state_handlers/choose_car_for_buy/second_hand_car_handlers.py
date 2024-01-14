@@ -3,13 +3,11 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from config_data.config import car_configurations_in_keyboard_page
-from database.data_requests.car_advert_requests import AdvertRequester
-from database.tables.offers_history import ActiveOffers
-
 from states.second_hand_choose_states import SecondHandChooseStates
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import cache_state, output_choose
 
+config_module = importlib.import_module('config_data.config')
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -23,7 +21,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
         await state.update_data(cars_color=user_answer)
     else:
         user_answer = memory_storage['cars_color']
-    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+    models_range = await car_advert_requests_module.AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=memory_storage['cars_model'],
@@ -32,7 +30,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
 
     # button_texts = {car.mileage for car in models_range}
     lexicon_class = lexicon_module.ChooseMileage()
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page)
+    await output_choose(callback, state, lexicon_class, models_range, config_module.car_configurations_in_keyboard_page)
 
     # lexicon_part = await create_lexicon_part(lexicon_class, models_range)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
@@ -60,7 +58,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
         await state.update_data(cars_mileage=user_answer)
     else:
         user_answer = memory_storage['cars_mileage']
-    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+    models_range = await car_advert_requests_module.AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=memory_storage['cars_model'],
@@ -71,7 +69,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
     # button_texts = {car.year for car in models_range}
     lexicon_class = lexicon_module.ChooseYearOfRelease()
     # lexicon_part = await create_lexicon_part(lexicon_class, models_range)
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page)
+    await output_choose(callback, state, lexicon_class, models_range, config_module.car_configurations_in_keyboard_page)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
     #                                                 lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode,
     #                                                 dynamic_buttons=lexicon_class.dynamic_buttons)

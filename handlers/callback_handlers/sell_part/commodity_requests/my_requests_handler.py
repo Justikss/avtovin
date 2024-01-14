@@ -5,7 +5,6 @@ from time import time
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from states.requests_by_seller import SellerRequestsState
 
 
@@ -22,12 +21,14 @@ async def seller_requests_callback_handler(callback: CallbackQuery, state: FSMCo
     media_group_delete_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     cached_requests_view_module = importlib.import_module('handlers.utils.inline_buttons_pagination_heart')
+    car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 
     await media_group_delete_module.delete_media_groups(request=callback)
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':seller_requests_pagination')
     ic()
-    car_brands = await AdvertRequester.get_advert_brands_by_seller_id(seller_id=callback.from_user.id)
+    car_brands = await car_advert_requests_module\
+        .AdvertRequester.get_advert_brands_by_seller_id(seller_id=callback.from_user.id)
     ic(car_brands)
     ic()
     if car_brands:

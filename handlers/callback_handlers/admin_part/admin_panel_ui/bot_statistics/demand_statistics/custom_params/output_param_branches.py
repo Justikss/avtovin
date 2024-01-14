@@ -4,14 +4,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from database.data_requests.advert_parameters_requests import AdvertParameterManager
-from database.data_requests.car_advert_requests import AdvertRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.choose_period import \
     CustomParamsChoosePeriod
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
     TopTenByDemandDisplayHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
-from utils.lexicon_utils.Lexicon import LEXICON
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
@@ -22,7 +22,8 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
         await self.set_state(state, self.statistic_manager.states.CustomParams.review_process)
         ic(request.data)
         if request.data.startswith('custom_demand_param:') or request.data == 'output_current_demand_stats':
-            await self.send_alert_answer(request, self.statistic_manager.lexicon['stats_loading'])
+            statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+            await self.send_alert_answer(request, statistic_lexicon['stats_loading'])
             pagination_data = await self.get_pagination_data(request, state)
             if pagination_data:
                 self.output_methods = [
@@ -47,7 +48,7 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
             }
 
         else:
-            await self.send_alert_answer(request, LEXICON['non_actiallity'])
+            await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
             await CustomParamsChoosePeriod().callback_handler(request, state)
             return
 
@@ -65,17 +66,20 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
 
     async def get_output_part(self, request, state, admin_pagination_object, data_to_output, message_editor):
         person_requests_module = importlib.import_module('database.data_requests.person_requests')
+        car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
         data_to_output = data_to_output[0]
 
         feedback_count = data_to_output.split(':')[0]
         seller_id = data_to_output.split(':')[1]
         advert_parameters_id = data_to_output.split(':')[2]
         top_position = data_to_output.split(':')[-1]
+        statistic_lexicon = await self.statistic_manager.statistic_lexicon()
 
         # feedback_id = data_to_output.split(':')[0]
-        lexicon_part = self.statistic_manager.lexicon['review_custom_stats_branches']
+        lexicon_part = statistic_lexicon['review_custom_stats_branches']
         advert_parameters_model = await AdvertParameterManager.get_by_id(advert_parameters_id)
-        advert_parameters_model = await AdvertRequester.load_related_data_for_advert(advert_parameters_model)
+        advert_parameters_model = await car_advert_requests_module.AdvertRequester.load_related_data_for_advert(advert_parameters_model)
         seller_model = await person_requests_module\
                 .PersonRequester.get_user_for_id(seller_id, seller=True)
         ic(data_to_output)
@@ -104,6 +108,6 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
                                                                 media_group=media_group, dynamic_buttons=2)
                 return
 
-        await self.send_alert_answer(request, LEXICON['non_actiallity'])
+        await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
         await CustomParamsChoosePeriod().callback_handler(request, state)
         return

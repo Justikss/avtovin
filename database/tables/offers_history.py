@@ -1,6 +1,6 @@
+import importlib
 from datetime import datetime, timedelta
 
-from config_data.config import DATETIME_FORMAT, REGISTRATION_DATETIME_FORMAT
 from database.db_connect import BaseModel
 from peewee import ForeignKeyField, BooleanField, DateTimeField, CompositeKey, DateField
 
@@ -46,7 +46,7 @@ class RecommendationsToBuyer(BaseModel):
 class SellerFeedbacksHistory(BaseModel):
     seller_id = ForeignKeyField(Seller, backref='feedbacks_history')
     advert_parameters = ForeignKeyField(AdvertParameters, backref='feedbacks_history', null=True)
-    feedback_time = DateField(default=datetime.now().strftime(REGISTRATION_DATETIME_FORMAT))
+    feedback_time = DateField(default=datetime.now().strftime('%d-%m-%Y'))
 
 class RecommendedOffers(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')

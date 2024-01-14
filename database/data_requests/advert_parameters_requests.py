@@ -1,15 +1,21 @@
+import importlib
+
 from database.db_connect import manager
 from database.tables.car_configurations import CarModel, CarEngine, CarBrand, CarComplectation, CarColor, CarMileage, \
     CarYear
-from database.tables.offers_history import RecommendationsToBuyer
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
+
+offers_history_module = importlib.import_module('database.tables.offers_history')
 
 class AdvertParameterManager:
     @staticmethod
     async def get_wire_to_config(parameter_table, base_table):
-        if base_table == RecommendationsToBuyer:
-            base_query = RecommendationsToBuyer.select(RecommendationsToBuyer.id).join(AdvertParameters)
+        if base_table == offers_history_module\
+                .RecommendationsToBuyer:
+            base_query = offers_history_module\
+                .RecommendationsToBuyer.select(offers_history_module\
+                                               .RecommendationsToBuyer.id).join(AdvertParameters)
         elif base_table == AdvertParameters:
             base_query = AdvertParameters.select(AdvertParameters.id)
 

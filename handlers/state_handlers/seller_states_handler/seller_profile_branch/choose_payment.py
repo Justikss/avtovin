@@ -3,14 +3,16 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.lexicon_utils.Lexicon import LexiconChoicePaymentSystem
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
 async def payments_lexicon_part_constructor():
     '''Конструктор lexicon_part'a для предоставления выбора оплат'''
     lexicon_part = dict()
-    lexicon_part['message_text'] = LexiconChoicePaymentSystem.message_text
+    lexicon_part['message_text'] = Lexicon_module.LexiconChoicePaymentSystem.message_text
     lexicon_part['buttons'] = {
-        callback_data: caption for button_pare in LexiconChoicePaymentSystem.buttons_list
+        callback_data: caption for button_pare in Lexicon_module.LexiconChoicePaymentSystem.buttons_list
                                 for callback_data, caption in button_pare.items()
                                  }
     return lexicon_part

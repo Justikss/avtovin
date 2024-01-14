@@ -4,7 +4,6 @@ import importlib
 
 from database.data_requests.banned_person_requests import BannedRequester
 from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
-from utils.lexicon_utils.Lexicon import LEXICON
 
 
 async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext):
@@ -30,6 +29,6 @@ async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext
         lexicon_code = 'who_is_seller'
         await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code, delete_mode=True)
     else:
-        await callback.answer(LEXICON['you_are_blocked_alert'])
+        await callback.answer(lexicon_module.LEXICON['you_are_blocked_alert'])
 
     await callback.answer()

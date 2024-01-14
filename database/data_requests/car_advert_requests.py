@@ -252,7 +252,6 @@ class AdvertRequester:
 
 
         query = query.distinct()
-        print(query)
         if without_actual_filter:
             result_adverts = list(await manager.execute(query))
         else:
@@ -291,6 +290,8 @@ class AdvertRequester:
                 result_adverts = await AdvertRequester.load_related_data_for_advert(result_adverts)
 
         if result_adverts:
+            if not isinstance(result_adverts, list):
+                result_adverts = [result_adverts]
             result_adverts = [advert for advert in result_adverts if advert.id is not None]
 
         ic(result_adverts)

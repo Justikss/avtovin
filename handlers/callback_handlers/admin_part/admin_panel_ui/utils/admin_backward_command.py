@@ -65,7 +65,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
 from handlers.utils.delete_message import delete_message
 from handlers.utils.message_answer_without_callback import send_message_answer
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog import advert_parameters
 
 
@@ -172,7 +171,8 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'catalog__choose_specific_advert_action' | 'to_catalog_review_adverts':
             if await AdminPaginationOutput.output_page(callback, state, None) is False:
-                await send_message_answer(callback, catalog_captions['inactive_advert_or_seller'])
+                Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+                await send_message_answer(callback, Lexicon_module.catalog_captions['inactive_advert_or_seller'])
                 if await choose_review_catalog_brand_admin_handler(callback, state) is False:
                     await choose_review_catalog_type_admin_handler(callback, state)
 

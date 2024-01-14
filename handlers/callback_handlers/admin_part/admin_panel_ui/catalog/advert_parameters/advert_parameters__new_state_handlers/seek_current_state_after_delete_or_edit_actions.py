@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -5,7 +7,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     AdvertParametersChooseCarState
 from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
-from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
+
 
 
 async def seek_current_new_type_state(request: CallbackQuery | Message, state: FSMContext, delete_action: bool = False):
@@ -47,8 +49,10 @@ async def seek_current_new_type_state(request: CallbackQuery | Message, state: F
 
 #             next_state = AdminAdvertParametersStates.NewStateStates.parameters_branch_review
         case _:#
+            Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
             ic()
-            await send_message_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+            await send_message_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
             return await AdvertParametersChooseCarState().callback_handler(request, state)
     # match action:
     #     case 'delete':

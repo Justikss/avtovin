@@ -7,14 +7,15 @@ from aiogram.types import CallbackQuery
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.review_inputted_data import \
     request_review_mailing_data
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 
 message_editor_module = importlib.import_module('handlers.message_editor')
 
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def start_edit_state(callback, state):
-    edit_buttons = ADVERT_LEXICON['edit_inputted_data']
+    edit_buttons = Lexicon_module\
+        .ADVERT_LEXICON['edit_inputted_data']
     last_message_id = await message_editor_module.redis_data.get_data(key=f'{callback.from_user.id}:last_message')
     edit_keyboard = await message_editor_module.InlineCreator.create_markup(edit_buttons)
     try:
@@ -24,7 +25,8 @@ async def start_edit_state(callback, state):
 
 
 async def edit_mailing_data_handler(callback: CallbackQuery, state: FSMContext):
-    await callback.answer(ADVERT_LEXICON['edit_mailing_data_alert'], show_alert=True)
+    await callback.answer(Lexicon_module\
+                          .ADVERT_LEXICON['edit_mailing_data_alert'], show_alert=True)
 
     await state.set_state(MailingStates.edit_inputted_data)
 

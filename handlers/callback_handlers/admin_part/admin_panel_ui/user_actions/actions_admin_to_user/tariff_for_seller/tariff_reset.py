@@ -1,5 +1,4 @@
 import importlib
-import logging
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -8,13 +7,13 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_a
     construct_review_tariff_by_admin
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.output_specific_seller import \
     output_specific_seller_profile_handler
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def construct_confirm_reset_request_lexicon_part(callback: CallbackQuery, state: FSMContext):
     header = await construct_review_tariff_by_admin(callback, state, get_header=True)
-    lexicon_part = ADMIN_LEXICON['reset_tariff_confirm_request']
+    lexicon_part = Lexicon_module.ADMIN_LEXICON['reset_tariff_confirm_request']
     lexicon_part['message_text'] = f'''{header}{lexicon_part['message_text']}'''
     return lexicon_part
 
@@ -35,12 +34,12 @@ async def confirm_action_reset_seller_tariff(callback: CallbackQuery, state: FSM
     reset_query = await dying_tariff_module.DyingTariffRequester.set_status(seller=seller_id, bot=callback.bot)
 
     if reset_query:
-        await callback.answer(ADMIN_LEXICON['tariff_was_reset'])
+        await callback.answer(Lexicon_module.ADMIN_LEXICON['tariff_was_reset'])
         await output_specific_seller_profile_handler(callback, state)
         await log_admin_action(admin_username=callback.from_user.username,
                                action='reset_tariff_action',
                                subject=f'seller:{seller_id}')
     else:
-        await callback.answer(ADMIN_LEXICON['action_non_actuality'])
+        await callback.answer(Lexicon_module.ADMIN_LEXICON['action_non_actuality'])
         await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(callback, state,
                                                       first_call=False)

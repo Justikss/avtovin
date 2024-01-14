@@ -6,9 +6,9 @@ from aiogram.types import CallbackQuery
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
     output_specific_tariff_for_admin_handler
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def insert_tariff_data(callback: CallbackQuery, state: FSMContext):
     tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
@@ -35,7 +35,7 @@ async def insert_tariff_data(callback: CallbackQuery, state: FSMContext):
     if insert_response:
         await log_admin_action(callback.from_user.username, 'edit_tariff', insert_response)
         await state.update_data(current_tariff_view=insert_response.id)
-        await callback.answer(ADMIN_LEXICON['successfully_edit_action'])
+        await callback.answer(Lexicon_module.ADMIN_LEXICON['successfully_edit_action'])
         await output_specific_tariff_for_admin_handler(callback, state)
     else:
         logging.warning(f'Администратор {callback.from_user.username} неудачно отредактировал тариф {tariff_model.name}')

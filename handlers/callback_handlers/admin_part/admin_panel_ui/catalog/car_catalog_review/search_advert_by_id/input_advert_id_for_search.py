@@ -4,7 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from states.admin_part_states.catalog_states.catalog_review_states import AdminCarCatalogSearchByIdStates
-from utils.lexicon_utils.Lexicon import CATALOG_LEXICON
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 async def input_advert_id_for_search_admin_handler(request: CallbackQuery | Message, state: FSMContext, incorrect=False):
@@ -25,9 +26,9 @@ async def input_advert_id_for_search_admin_handler(request: CallbackQuery | Mess
 async def get_lexicon_part_in_view_on_incorrect_flag(request, incorrect):
     reply_mode = None
     lexicon_code = 'search_advert_by_id_await_input'
-    lexicon_part = CATALOG_LEXICON[lexicon_code]
+    lexicon_part = Lexicon_module.CATALOG_LEXICON[lexicon_code]
     if incorrect:
-        lexicon_part['message_text'] = CATALOG_LEXICON[f'{lexicon_code}{incorrect}']
+        lexicon_part['message_text'] = Lexicon_module.CATALOG_LEXICON[f'{lexicon_code}{incorrect}']
         if isinstance(request, Message):
             reply_mode = request.message_id
     return lexicon_part, reply_mode

@@ -1,4 +1,5 @@
 import asyncio
+import importlib
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -7,20 +8,24 @@ from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog_action import \
     choose_catalog_action_admin_handler
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
+
+
 
 class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         insert_query = await self.insert_new_branch(request, state, request.from_user.id)
         if insert_query:
-            await self.send_alert_answer(request, captions['successfully'])
+            admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
+
+            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'])
             await choose_catalog_action_admin_handler(request, state)
         else:
-            await self.send_alert_answer(request, ADMIN_LEXICON['action_non_actuality'])
+            Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+            await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['action_non_actuality'])
 
     # async def update_branch_photos(self, state: FSMContext):
     #     memory_storage = await state.get_data()

@@ -4,7 +4,6 @@ from typing import Optional
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.mailing_requests import get_mailing_by_id
 from database.tables.mailing import Mailing
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.output_param_branches import \
@@ -14,7 +13,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_re
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.utils.\
     send_mailing_review import send_mailing_review
 from handlers.utils.pagination_heart import Pagination
-
 
 redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
@@ -64,7 +62,10 @@ class AdminPaginationOutput(Pagination):
             elif current_state == 'StatisticsStates.CustomParams:review_process':
                 output_structured_data.append(data_part)
             else:
-                advert_model = await AdvertRequester.get_where_id(data_part)
+                car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
+                advert_model = await car_advert_requests_module\
+                    .AdvertRequester.get_where_id(data_part)
                 if advert_model:
                     output_structured_data.append(advert_model)
 

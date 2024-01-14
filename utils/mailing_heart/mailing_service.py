@@ -7,7 +7,6 @@ from typing import List, Tuple, Optional
 from aiogram import Bot
 from peewee import IntegrityError
 
-from config_data.config import MAILING_DATETIME_FORMAT, MODIFIED_MAILING_DATETIME_FORMAT
 from utils.mailing_heart.send_mailing_to_user import send_mailing
 
 mailing_requests_module = importlib.import_module('database.data_requests.mailing_requests')
@@ -79,7 +78,10 @@ class MailingService:
                     pass
 
     async def schedule_single_mailing(self, bot: Bot, mailing):
-        delay = (datetime.strptime(str(mailing.scheduled_time)[:-3], MODIFIED_MAILING_DATETIME_FORMAT) - datetime.now()).total_seconds()
+        config_module = importlib.import_module('config_data.config')
+
+        delay = (datetime.strptime(str(mailing.scheduled_time)[:-3], config_module\
+                                   .MODIFIED_MAILING_DATETIME_FORMAT) - datetime.now()).total_seconds()
         if delay > 0:
             task = asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))
             self.mailing_tasks[mailing.id] = task

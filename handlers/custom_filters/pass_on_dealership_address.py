@@ -8,8 +8,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from typing import Union
 
-from config_data.config import LOCATIONIQ_TOKEN, geolocation_cahce_expire, max_contact_info_len
-from utils.lexicon_utils.Lexicon import LEXICON, SecondsEndswith
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+config_module = importlib.import_module('config_data.config')
 
 queue = asyncio.Queue()
 
@@ -29,11 +29,14 @@ class GetDealershipAddress(BaseFilter):
         wait_time = str(time_value)
 
         if wait_time[-1] == '1':
-            endswith = SecondsEndswith.one
+            endswith = Lexicon_module.SecondsEndswith.one
         elif 1 < int(wait_time[-1]) <= 4:
-            endswith = SecondsEndswith.two_four
+            endswith = Lexicon_module.SecondsEndswith.two_four
         else:
             endswith = ''
+
+        uz = 'soniya'
+
         return endswith
 
 
@@ -46,12 +49,13 @@ class GetDealershipAddress(BaseFilter):
         cached_result = await redis_module.redis_data.get_data(key=f'{latitude},{longitude}')
         if cached_result:
             return cached_result
-        url = f"https://us1.locationiq.com/v1/reverse.php?key={LOCATIONIQ_TOKEN}&lat={latitude}&lon={longitude}&format=json"
+        url = f"https://us1.locationiq.com/v1/reverse.php?key={config_module.LOCATIONIQ_TOKEN}&lat={latitude}&lon={longitude}&format=json"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 data = await response.json()
                 address = await GetDealershipAddress.format_address(data.get("display_name"))
-                await redis_module.redis_data.set_data(key=f'{latitude},{longitude}', value=address, expire=geolocation_cahce_expire)
+                await redis_module.redis_data.set_data(key=f'{latitude},{longitude}', value=address,
+                                                       expire=config_module.geolocation_cahce_expire)
                 return address
 
     @staticmethod
@@ -80,7 +84,7 @@ class GetDealershipAddress(BaseFilter):
                 wait_time = queue.qsize()  # Расчет времени ожидания
                 if int(wait_time) > 3:
                     seconds_endswith = await GetDealershipAddress.time_endswith_fromatter(wait_time)
-                    lexicon_part = f'''{LEXICON['waiting_request_process'].replact('X', wait_time)}{seconds_endswith}'''
+                    lexicon_part = f'''{Lexicon_module.LEXICON['waiting_request_process'].format(time=wait_time, seconds=seconds_endswith)}.'''
                     await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part)
                     # await request.answer(f"Ваш запрос обрабатывается. Примерное время ожидания: {wait_time} секунд(ы).")
 
@@ -90,7 +94,7 @@ class GetDealershipAddress(BaseFilter):
                 return {'dealership_address': address}
             else:
                 dealership_address = request.text.strip()
-                if len(dealership_address) < max_contact_info_len:
+                if len(dealership_address) < config_module.max_contact_info_len:
                     for symbol in request.text:
                         if symbol.isalpha():
                             return {'dealership_address': request.text}

@@ -13,11 +13,12 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.start_deletion import \
     ActionOfDeletionExistsAdvertParameter
-from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON, ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 from utils.lexicon_utils.logging_utils.logg_string_utils import get_user_name
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
 
 class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
@@ -34,7 +35,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 }
             case _:#
                 ic()
-                await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         exists_model = await ActionOfDeletionExistsAdvertParameter().check_on_exists_adverts_by_parameter(
@@ -43,7 +44,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         if exists_model:
             await self.send_alert_answer(
                 request,
-                ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting']
+                Lexicon_module.ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting']
             )
 
         else:
@@ -57,10 +58,12 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 traceback.print_exc()
                 logging.critical(f'|||Ошибка при удалении связки параметров(удаление конфигурации авто): {ex}')
             if delete_query == 'no':
-                alert_message = ADMIN_LEXICON['action_non_actuality']
+                alert_message = Lexicon_module.ADMIN_LEXICON['action_non_actuality']
             else:
+                admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
+
                 asyncio.create_task(self.logging_action(request, 'deleted_param', reason=logg_message))
-                alert_message = captions['successfully']
+                alert_message = admin_lexicon_module.captions['successfully']
             await self.send_alert_answer(request, alert_message)
         ic()
         await state.update_data(delete_params_flag=True)
@@ -93,7 +96,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                     )
             case _:
                 ic()
-                await self.send_alert_answer(request, ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         return delete_query

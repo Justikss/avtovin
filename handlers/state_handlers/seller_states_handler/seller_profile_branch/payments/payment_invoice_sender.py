@@ -3,11 +3,13 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.lexicon_utils.Lexicon import LexiconCreateInvoice
 
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def send_invoice_offer(request: CallbackQuery, state: FSMContext):
-    await request.answer(LexiconCreateInvoice.in_progress_notification)
+    await request.answer(Lexicon_module\
+                         .LexiconCreateInvoice.in_progress_notification)
     return
 
     tarif_request_module = importlib.import_module('database.data_requests.tariff_requests')
@@ -18,8 +20,10 @@ async def send_invoice_offer(request: CallbackQuery, state: FSMContext):
     if tariff_model:        
         
         currency = 'UZS'
-        title = LexiconCreateInvoice.title + tariff_model.name
-        sub_description = LexiconCreateInvoice.description.split('-')
+        title = Lexicon_module\
+                    .LexiconCreateInvoice.title + tariff_model.name
+        sub_description = Lexicon_module\
+            .LexiconCreateInvoice.description.split('-')
         sub_description[1], sub_description[3] = \
                     str(tariff_model.feedback_amount), str(tariff_model.duration_time)
 
@@ -29,7 +33,8 @@ async def send_invoice_offer(request: CallbackQuery, state: FSMContext):
 
         invoice_message = await request.message.bot.send_invoice(chat_id=request.message.chat.id,
         currency=currency, title=title, description=description, need_name=True, provider_token='398062629:TEST:999999999_F91D8F69C042267444B74CC0B3C747757EB0E065',
-                        request_timeout=request_timeout, prices=[LabeledPrice(label=LexiconCreateInvoice.load_price_label, amount=10000)], payload=request.data)
+                        request_timeout=request_timeout, prices=[LabeledPrice(label=Lexicon_module\
+                                                                              .LexiconCreateInvoice.load_price_label, amount=10000)], payload=request.data)
         
     else:
         #отправить на шаг назад

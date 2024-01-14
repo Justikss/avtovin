@@ -14,12 +14,13 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
 
-from utils.lexicon_utils.Lexicon import LEXICON
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 async def buyer_get_requests__chose_brand(callback: CallbackQuery, state: FSMContext):
     # redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     offer_requester_module = importlib.import_module('database.data_requests.offers_requests')
+
     buyer_id = str(callback.from_user.id)
     # offer_mode = await redis_module.redis_data.get_data(key=f'{buyer_id}:buyer_offers_mode')
     current_brands = None
@@ -29,18 +30,18 @@ async def buyer_get_requests__chose_brand(callback: CallbackQuery, state: FSMCon
                                                   current_state == 'CheckActiveOffersStates:show_from_non_confirm_offers'):
         current_brands = await offer_requester_module.CachedOrderRequests.get_offer_brands(buyer_id=buyer_id)
         current_state = CheckNonConfirmRequestsStates.await_input_brand
-        non_exists_alert_text = LEXICON["buyer_haven't_cached_requests"]
+        non_exists_alert_text = Lexicon_module.LEXICON["buyer_haven't_cached_requests"]
 
     elif callback.data == 'buyers_recommended_offers' or (current_state.startswith('CheckRecommendationsStates') or
                                                           current_state == 'CheckActiveOffersStates:show_from_recommendates'):
         current_brands = await RecommendationRequester.retrieve_by_buyer_id(buyer_id, get_brands=True)
         current_state = CheckRecommendationsStates.await_input_brand
-        non_exists_alert_text = LEXICON['buyer_havent_recommendated_offers']
+        non_exists_alert_text = Lexicon_module.LEXICON['buyer_havent_recommendated_offers']
 
     elif callback.data == 'buyer_active_offers' or current_state.startswith('CheckActiveOffersStates'):
         current_brands = await offer_requester_module.OffersRequester.get_for_buyer_id(buyer_id=buyer_id, get_brands=True)
         current_state = CheckActiveOffersStates.await_input_brand
-        non_exists_alert_text = LEXICON['active_offers_non_exists']
+        non_exists_alert_text = Lexicon_module.LEXICON['active_offers_non_exists']
     else:
         non_exists_alert_text = None
         await callback.answer('В разработке')
@@ -80,16 +81,16 @@ async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):
     if current_state.startswith('CheckActiveOffersStates'):
         offers = await offer_requester_module.OffersRequester.get_for_buyer_id(buyer_id=buyer_id, brand=car_brand)
         state_object = CheckActiveOffersStates.brand_flipping_process
-        non_exists_alert_text = LEXICON['active_offers_non_exists']
+        non_exists_alert_text = Lexicon_module.LEXICON['active_offers_non_exists']
 
     elif current_state.startswith('CheckNonConfirmRequestsStates'):
         adverts = await offer_requester_module.CachedOrderRequests.get_cache(buyer_id=buyer_id, brand=car_brand)
         state_object = CheckNonConfirmRequestsStates.brand_flipping_process
-        non_exists_alert_text = LEXICON["buyer_haven't_cached_requests"]
+        non_exists_alert_text = Lexicon_module.LEXICON["buyer_haven't_cached_requests"]
     elif current_state.startswith('CheckRecommendationsStates'):
         offers = await RecommendationRequester.retrieve_by_buyer_id(buyer_id=buyer_id, by_brand=car_brand)
         state_object = CheckRecommendationsStates.brand_flipping_process
-        non_exists_alert_text = LEXICON['buyer_havent_recommendated_offers']
+        non_exists_alert_text = Lexicon_module.LEXICON['buyer_havent_recommendated_offers']
     else:
         state_object = None
         non_exists_alert_text = None

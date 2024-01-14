@@ -2,7 +2,6 @@ from datetime import datetime
 
 from peewee import CharField, BooleanField, BigIntegerField, TextField, DateField
 
-from config_data.config import REGISTRATION_DATETIME_FORMAT
 from database.db_connect import BaseModel
 
 class Seller(BaseModel):
@@ -16,7 +15,7 @@ class Seller(BaseModel):
     surname = CharField(null=True, verbose_name='Фамилия')  # поле ограничено символами(возможно нулевое значение, название столбца)
     patronymic = CharField(null=True, verbose_name='Отчество')
     authorized = BooleanField(verbose_name='Наличие авторизации.')
-    data_registration = DateField(default=datetime.now().strftime(REGISTRATION_DATETIME_FORMAT))
+    data_registration = DateField(default=datetime.now().strftime('%d-%m-%Y'))
 
     class Meta:
         db_table = 'Продавцы'

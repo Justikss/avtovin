@@ -50,7 +50,7 @@ async def get_valutes(usd, sum_valute, get_string=None):
         result = (usd, sum_valute)
         if get_string:
             price_string = f'''{usd}$ {lexicon_module.LEXICON['convertation_sub_string']} {lexicon_module.LEXICON['uzbekistan_valute'].replace('X', sum_valute)}'''
-            block_string = copy(boot_commodity_lexicon_module.LexiconCommodityLoader.price_digital).replace('X', price_string)
+            block_string = copy(boot_commodity_lexicon_module.LexiconCommodityLoader.price_digital).format(price=price_string)
             if get_string == 'block':
                 return block_string
             else:

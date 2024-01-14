@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 
 async def incorrect_input_controller(request: CallbackQuery | Message, state: FSMContext, incorrect):
     memory_storage = await state.get_data()
@@ -25,14 +24,16 @@ async def incorrect_input_controller(request: CallbackQuery | Message, state: FS
         return request.message_id
 
 async def lexicon_part_to_start_input_search_name_constructor(incorrect, redis_value):
-    lexicon_part = ADMIN_LEXICON['input_name_to_search_process']
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+    lexicon_part = Lexicon_module.ADMIN_LEXICON['input_name_to_search_process']
     if incorrect:
         if incorrect != '(non_exists)' and redis_value:
             lexicon_key_endswith = redis_value
         else:
             lexicon_key_endswith = ''
         ic(lexicon_key_endswith)
-        lexicon_part['message_text'] = ADMIN_LEXICON[f'''input_name_to_search_process{incorrect}{lexicon_key_endswith}''']
+        lexicon_part['message_text'] = Lexicon_module.ADMIN_LEXICON[f'''input_name_to_search_process{incorrect}{lexicon_key_endswith}''']
     return lexicon_part
 
 async def input_person_name_to_search_request_handler(request: CallbackQuery | Message, state: FSMContext, incorrect=None):

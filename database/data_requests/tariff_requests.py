@@ -58,10 +58,8 @@ class TarifRequester:
             await manager.execute(insert_query)
             inserted_model = await TarifRequester.get_tariff_by_name(data.get('name'))
             return inserted_model
-        except Exception as ex:
-            logging.critical('')
-            traceback.print_exc()
-            print(ex)
+        except Exception:
+            logging.error('', exc_info=True)
             return False
 
     @staticmethod

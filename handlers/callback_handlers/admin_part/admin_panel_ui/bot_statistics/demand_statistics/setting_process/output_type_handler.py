@@ -26,7 +26,9 @@ class DemandOutputSplitterHandler(BaseStatisticCallbackHandler):
         ic(output_method)
         match output_method:
             case 'top_ten':
-                await self.send_alert_answer(request, self.statistic_manager.lexicon['stats_loading'])
+                statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+
+                await self.send_alert_answer(request, statistic_lexicon['stats_loading'])
                 await TopTenByDemandDisplayHandler().callback_handler(request, state)
 
             case 'individual':

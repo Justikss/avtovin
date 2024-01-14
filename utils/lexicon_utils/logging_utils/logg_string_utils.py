@@ -1,6 +1,5 @@
 import importlib
 
-from database.data_requests.car_configurations_requests import CarConfigs
 from database.tables.seller import Seller
 from database.tables.tariff import Tariff
 from database.tables.user import User
@@ -8,6 +7,7 @@ from handlers.callback_handlers.sell_part.checkout_seller_person_profile import 
 from handlers.utils.one_len_list_in_object import one_element_in_object
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 
+car_configurations_requests_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
 async def get_user_name(subject):
     person_request_module = importlib.import_module('database.data_requests.person_requests')
@@ -60,7 +60,7 @@ async def get_user_name(subject):
                     new_value = [param_name for param_name in value.values()][0]
                     value = f'С {old_value} на {new_value}'
             if isinstance(value, int):
-                value = await CarConfigs.get_by_id(key, value)
+                value = await car_configurations_requests_module.CarConfigs.get_by_id(key, value)
 
             value_name = value if isinstance(value, str) else value.name
             name += f"\n{advert_parameters_captions[key]}: {value_name}"

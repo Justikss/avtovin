@@ -1,3 +1,4 @@
+import importlib
 import sqlite3
 import traceback
 from datetime import datetime, time
@@ -6,8 +7,6 @@ from peewee import JOIN, DoesNotExist
 
 from icecream import ic
 
-from config_data.config import DATETIME_FORMAT
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.tables.car_configurations import CarComplectation, CarAdvert, CarModel, CarBrand
 from database.tables.offers_history import ActiveOffers, CacheBuyerOffers, RecommendationsToBuyer, RecommendedOffers
@@ -17,6 +16,8 @@ from typing import List, Union
 
 from database.tables.user import User
 from database.db_connect import manager
+
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 
 
@@ -47,7 +48,8 @@ class OffersRequester:
                                             .join(User)
                                         .where(ActiveOffers.id == offer_id)))
 
-            advert_model = await AdvertRequester.load_related_data_for_advert(result.car_id)
+            advert_model = await car_advert_requests_module\
+                .AdvertRequester.load_related_data_for_advert(result.car_id)
             result.car_id = advert_model
             ic(result, result.car_id)
         except:

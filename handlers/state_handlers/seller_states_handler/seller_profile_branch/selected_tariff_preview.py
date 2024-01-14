@@ -5,31 +5,32 @@ import importlib
 from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.lexicon_utils.Lexicon import LexiconSelectedTariffPreview, LEXICON, ADMIN_LEXICON
 from utils.get_currency_sum_usd import convertator
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import ChooseTariff
+from utils.lexicon_utils.Lexicon import class_lexicon
 
+admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
 async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_tariff=False) -> dict:
     '''Метод структурирует данные тарифа с кнопками в lexicon_part по которому выводится блок
     сообщения с теми же кнопками'''
     tariff_request_module = importlib.import_module('database.data_requests.tariff_requests')
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
     ic(tariff_model.name)
-    lexicon_class = copy(LexiconSelectedTariffPreview)
-    price = f'''{await convertator('sum', tariff_model.price)}$ {LEXICON['convertation_sub_string']} {LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
+    lexicon_class = copy(Lexicon_module.LexiconSelectedTariffPreview)
+    price = f'''{await convertator('sum', tariff_model.price)}$ {Lexicon_module.LEXICON['convertation_sub_string']} {Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
     tariff_view_card = f'''\
         {lexicon_class.header}\n\
 {lexicon_class.separator}\
-{lexicon_class.tariff_block.format(tariff_name=tariff_model.name, days=tariff_model.duration_time, 
-                                   feedbacks=tariff_model.feedback_amount, price=price)}\
-{lexicon_class.separator}'''
+{lexicon_class.tariff_block.format(tariff_name=tariff_model.name, days_remaining=tariff_model.duration_time, 
+                                   feedbacks_remaining=tariff_model.feedback_amount)}\
+{lexicon_class.separator}{class_lexicon['tariff_price'].format(tariff_price=price)}'''
 
     if by_admin:
-        buttons = copy(ChooseTariff.tariff_review_buttons)
+        buttons = copy(admin_lexicon_module.ChooseTariff.tariff_review_buttons)
     elif by_admin_tariff:
-        buttons = ADMIN_LEXICON['tariff_view_buttons']
+        buttons = Lexicon_module.ADMIN_LEXICON['tariff_view_buttons']
     else:
         buttons = lexicon_class.buttons
     lexicon_part = {'message_text': tariff_view_card, 'buttons': buttons}

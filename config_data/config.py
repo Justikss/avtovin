@@ -1,7 +1,11 @@
+import importlib
 import os
 from dotenv import load_dotenv, find_dotenv
 import logging
 
+from utils.lexicon_utils.lexicon_uz.config_uz import DEFAULT_COMMANDS_UZ, header_message_text_uz, faq_uz, faq_seller_uz, \
+    faq_buyer_uz
+# from utils.safe_dict_class import config_module.SafeDict
 
 logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
@@ -32,6 +36,9 @@ DEFAULT_COMMANDS = (
     ("help", "Вывести справку")
 )
 
+
+
+
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
 MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'
 MODIFIED_MAILING_DATETIME_FORMAT = '%Y-%m-%d %H:%M'
@@ -45,7 +52,7 @@ message_answer_awaited = 3
 max_price_len = 20
 max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
-header_message_text: str = f'<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
+header_message_text = '<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
 
 money_valute = '$'
 
@@ -89,3 +96,18 @@ faq_buyer = '''
 <i>[Меню покупателя] - [Предложения].</i>
 \nОни остаются там до момента отклика с вашей стороны или по истечению 7-ми дней с момента первого просмотра.
 '''
+
+safe_dict_module = importlib.import_module('utils.safe_dict_class')
+
+
+DEFAULT_COMMANDS = safe_dict_module.SafeDict({'ru': DEFAULT_COMMANDS,
+                             'uz': DEFAULT_COMMANDS_UZ})
+header_message_text = safe_dict_module.SafeDict({'ru': header_message_text,
+                                'uz': header_message_text_uz})
+faq = safe_dict_module.SafeDict({'ru': faq,
+                'uz': faq_uz})
+faq_seller = safe_dict_module.SafeDict({'ru': faq_seller,
+                       'uz': faq_seller_uz})
+faq_buyer = safe_dict_module.SafeDict({'ru': faq_buyer,
+                      'uz': faq_buyer_uz})
+

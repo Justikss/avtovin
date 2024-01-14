@@ -1,11 +1,25 @@
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import return_main_menu, captions, pagination_interface
+import importlib
+
+from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.catalog_lexicon_uz import catalog_mini_lexicon_uz
+from utils.safe_dict_class import SafeDict
+
+captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
+            'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
+            'month': 'месяц', 'year': 'год', 'days': 'дней', 'feedbacks': 'откликов',
+            'dont_write_html_tags': 'Запрещён ввод знаков "&lt; &gt;".',
+            'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
+            'by_dealership': 'автосалона',
+            'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: ', 'add': 'Добавить',
+            'successfully': 'Успешно'
+            }
+pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{end}]', 'admin_pagination:+': '→'}
+return_main_menu = {'return_main_menu': 'В меню'}
 
 catalog_captions = {'catalog_review__make_block': 'блокировку', 'to_block': 'блокировки', 'to_delete': 'удаления',
                     'catalog_review__make_delete': 'удаление объявления', 'advert': 'Объявление: №{advert_id}\n',
                     'inactive_advert_or_seller': 'Объявление или продавец неактивен',
                     'advert_successfully_closed': 'Автомобиль успешно снят с продажи!',
                     'empty': 'Пусто'
-
                     }
 
 __CATALOG_LEXICON = {
@@ -61,9 +75,21 @@ __CATALOG_LEXICON = {
 }
 
 
+catalog_mini_lexicon_ru = {
+    'admin_review_catalog_choose_car_brand_message_text': 'Выберите марку машины для просмотра:'
+}
+
+
+
+catalog_mini_lexicon = SafeDict({'ru': catalog_mini_lexicon_ru,
+                                 'uz': catalog_mini_lexicon_uz})
+
 class AdminReviewCatalogChooseCarBrand:
-    message_text = 'Выберите марку машины для просмотра:'
-    buttons_callback_data = 'admin_catalog_review_brand:'
-    dynamic_buttons = 2
-    width = 1
-    backward_command = {'admin_backward:catalog_review_choose_brand': captions['backward'], **return_main_menu}
+    def __init__(self):
+        self.message_text = catalog_mini_lexicon['admin_review_catalog_choose_car_brand_message_text']  # Для русской версии
+        self.buttons_callback_data = 'admin_catalog_review_brand:'
+        self.dynamic_buttons = 2
+        self.width = 1
+        self.backward_command = {'admin_backward:catalog_review_choose_brand': captions['backward'], **return_main_menu}
+
+AdminReviewCatalogChooseCarBrand = AdminReviewCatalogChooseCarBrand()

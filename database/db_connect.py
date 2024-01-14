@@ -24,7 +24,7 @@ manager = Manager(database)
 
 async def create_tables():
     try:
-        print(BaseModel.__subclasses__())
+        logging.info(BaseModel.__subclasses__())
         await manager.connect()
         database.create_tables(BaseModel.__subclasses__(), safe=True)
         print('Таблицы успешно созданы')

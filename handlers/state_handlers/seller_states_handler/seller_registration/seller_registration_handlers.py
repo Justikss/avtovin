@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
 
 from states.seller_registration_states import HybridSellerRegistrationStates, PersonSellerRegistrationStates, CarDealerShipRegistrationStates
-from utils.lexicon_utils.Lexicon import LEXICON
+
 
 
 async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect = None, from_backward_Delete_mode=None):
@@ -84,7 +84,7 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
-
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     if user_name:
         user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
@@ -93,7 +93,8 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
 
     travel_object = request
-    lexicon_part = LEXICON['write_seller_phone_number']
+    lexicon_part = Lexicon_module\
+        .LEXICON['write_seller_phone_number']
 
     if isinstance(request, CallbackQuery):
         message = request.message
@@ -109,7 +110,8 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
 
     if incorrect:
         await state.update_data(incorrect_answer=True)
-        lexicon_part['message_text'] = LEXICON[f'write_seller_phone_number{incorrect}']
+        lexicon_part['message_text'] = Lexicon_module\
+            .LEXICON[f'write_seller_phone_number{incorrect}']
         message_reply_mode = True
 
         delete_last_message_mode = False

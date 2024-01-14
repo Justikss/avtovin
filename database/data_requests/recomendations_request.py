@@ -1,3 +1,4 @@
+import importlib
 import traceback
 
 from peewee import JOIN
@@ -7,9 +8,13 @@ from database.data_requests.statistic_requests.advert_feedbacks_requests import 
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarState, CarEngine, CarColor, CarMileage, \
     CarYear, CarModel, CarBrand
-from database.tables.offers_history import RecommendedOffers, RecommendationsToBuyer
+# from database.tables.offers_history import offers_history_module\
+#     .RecommendedOffers, offers_history_module\
+#     .RecommendationsToBuyer
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
+
+offers_history_module = importlib.import_module('database.tables.offers_history')
 
 
 class RecommendationParametersBinder:
@@ -21,7 +26,8 @@ class RecommendationParametersBinder:
             parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(
                 color_id=color_id,
                 complectation_id=complectation_id)
-            select_query = await manager.get_or_create(RecommendationsToBuyer, buyer=buyer_id, parameters=parameters)
+            select_query = await manager.get_or_create(offers_history_module\
+                                                       .RecommendationsToBuyer, buyer=buyer_id, parameters=parameters)
 
 
         except Exception as ex:
@@ -38,11 +44,13 @@ class RecommendationParametersBinder:
 
         ic(complectation_id, color_id)
         parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(color_id, complectation_id)
-        query = (RecommendationsToBuyer
+        query = (offers_history_module\
+                 .RecommendationsToBuyer
                  .select()
                  .join(AdvertParameters)
                  .where(AdvertParameters.id == parameters.id)
-                 .switch(RecommendationsToBuyer)
+                 .switch(offers_history_module\
+                         .RecommendationsToBuyer)
                  .join(User)
                  .where(User.telegram_id != int(seller_id))
                  # Добавлено условие, что покупатель и продавец не совпадают
@@ -55,18 +63,21 @@ class RecommendationParametersBinder:
         if not isinstance(parameter_id, list):
             parameter_id = [parameter_id]
         parameter_recommendations_to_buyer_wire = await AdvertParameterManager.get_wire_to_config(
-            parameter_table, RecommendationsToBuyer
+            parameter_table, offers_history_module\
+                .RecommendationsToBuyer
         )
-        print(parameter_recommendations_to_buyer_wire)
+
         ic(parameter_recommendations_to_buyer_wire)
-        ic(await manager.execute(RecommendationsToBuyer.delete().where(
-            RecommendationsToBuyer.id.in_(
+        ic(await manager.execute(offers_history_module\
+            .RecommendationsToBuyer.delete().where(
+            offers_history_module\
+                .RecommendationsToBuyer.id.in_(
                 parameter_recommendations_to_buyer_wire.where(parameter_table.id.in_(parameter_id))
             ))
         ))
         ic()
         advert_parameters_wire = await AdvertParameterManager.get_wire_to_config(parameter_table, AdvertParameters)
-        print(advert_parameters_wire)
+
         ic(await manager.execute(
             AdvertParameters.delete().where(AdvertParameters.id.in_(
                 advert_parameters_wire.where(parameter_table.id.in_(parameter_id))
@@ -86,12 +97,19 @@ class RecommendationRequester:
             for wire in parameter_wire:
                 ic(advert, wire.buyer.telegram_id, parameter_wire)
                 data.append({'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
-                return list(await manager.execute(RecommendedOffers.insert_many(data)))
+                return list(await manager.execute(offers_history_module\
+                                                  .RecommendedOffers.insert_many(data)))
 
     @staticmethod
     async def retrieve_by_buyer_id(buyer_id, get_brands=False, by_brand=None):
         ic(buyer_id)
-        query = RecommendedOffers.select(RecommendedOffers, CarAdvert, RecommendationsToBuyer).join(CarAdvert).switch(RecommendedOffers).join(User).switch(RecommendedOffers).join(RecommendationsToBuyer).where(User.telegram_id == int(buyer_id))
+        query = offers_history_module\
+            .RecommendedOffers.select(offers_history_module\
+                                      .RecommendedOffers, CarAdvert, offers_history_module\
+                                      .RecommendationsToBuyer).join(CarAdvert).switch(offers_history_module\
+                                                                                                                    .RecommendedOffers).join(User).switch(offers_history_module\
+                                                                                                                                                          .RecommendedOffers).join(offers_history_module\
+                                                                                                                                                                                   .RecommendationsToBuyer).where(User.telegram_id == int(buyer_id))
         result = await manager.execute(query)
         if get_brands and result:
             ic()
@@ -103,7 +121,7 @@ class RecommendationRequester:
                 CarBrand.id == int(by_brand)
             )
         ic(result)
-        print(result)
+
         result = list(await manager.execute(query))
         if result:
             return result
@@ -114,7 +132,9 @@ class RecommendationRequester:
         if not isinstance(advert_id, list):
             advert_id = [advert_id]
         try:
-            await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.advert.in_(advert_id)))
+            await manager.execute(offers_history_module\
+                                  .RecommendedOffers.delete().where(offers_history_module\
+                                                                    .RecommendedOffers.advert.in_(advert_id)))
         except:
             traceback.print_exc()
             pass

@@ -5,10 +5,8 @@ from aiogram.fsm.context import FSMContext
 
 from handlers.utils.send_any_medias import send_media
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 import importlib
 
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 
 # Импорт модуля редактирования сообщений через importlib
 message_editor_module = importlib.import_module('handlers.message_editor')
@@ -47,10 +45,13 @@ async def send_mailing_review(callback, state, lexicon_part, media_group):
 
 
 async def construct_review_lexicon_part(callback, state):
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
+
     memory_storage = await state.get_data()
-    lexicon_part = ADVERT_LEXICON['review_inputted_data']
+    lexicon_part = Lexicon_module.ADVERT_LEXICON['review_inputted_data']
     lexicon_part['message_text'] = lexicon_part['message_text'].format(
-        mailing_recipients=captions[memory_storage['mailing_recipients']],
+        mailing_recipients=admin_lexicon_module.captions[memory_storage['mailing_recipients']],
         mailing_date=memory_storage['mailing_datetime'].split()[0],
         mailing_time=memory_storage['mailing_datetime'].split()[-1]
     )

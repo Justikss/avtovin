@@ -5,7 +5,6 @@ import importlib
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from handlers.state_handlers.seller_states_handler.seller_registration import utils
-from config_data.config import ADMIN_CHAT
 
 
 async def output_for_admin_formater(callback: CallbackQuery):
@@ -46,7 +45,7 @@ async def output_for_admin_formater(callback: CallbackQuery):
 async def send_message_to_admins(callback: CallbackQuery):
     '''Метод отправки оповещения о регистрации нового продавца в чат Админов.'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+    config_module = importlib.import_module('config_data.config')
     lexicon_part = lexicon_module.LEXICON['confirm_new_seller_registration_from_admin_button']
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
@@ -55,7 +54,7 @@ async def send_message_to_admins(callback: CallbackQuery):
 
     output_text = await output_for_admin_formater(callback=callback)
 
-    message_for_admins = await callback.message.bot.send_message(chat_id=ADMIN_CHAT, text=output_text, reply_markup=keyboard)
+    message_for_admins = await callback.message.bot.send_message(chat_id=config_module.ADMIN_CHAT, text=output_text, reply_markup=keyboard)
 
     await utils.update_non_confirm_seller_registrations(callback=callback, message_for_admins=message_for_admins.message_id)
 

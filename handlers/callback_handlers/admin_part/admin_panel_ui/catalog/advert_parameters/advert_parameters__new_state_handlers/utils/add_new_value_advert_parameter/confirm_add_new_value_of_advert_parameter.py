@@ -7,7 +7,6 @@ from aiogram.types import Message, CallbackQuery
 from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import \
     AddNewValueAdvertParameter
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
 
@@ -35,8 +34,10 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
             await AddNewValueAdvertParameter().callback_handler(request, state, incorrect=insert_query)
             await super().process_callback(request, state, **kwargs)
         else:
+            admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
             output_specific_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
-            await self.send_alert_answer(request, captions['successfully'])
+
+            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'])
             ic(insert_query)
             ic()
             await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#

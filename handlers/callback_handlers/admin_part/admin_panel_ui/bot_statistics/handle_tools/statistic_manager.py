@@ -1,3 +1,4 @@
+import importlib
 from copy import copy
 
 from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
@@ -8,19 +9,22 @@ from handlers.utils.create_advert_configuration_block import create_advert_confi
 
 from states.admin_part_states.statistics_states import StatisticsStates
 
-from utils.lexicon_utils.Lexicon import STATISTIC_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_captions
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 class EmptyField:
-    name = catalog_captions['empty']
+    name = Lexicon_module.catalog_captions['empty']
     id = 0
 
 class StatisticManager:
     calculate_statistics = calculate_stats
     ident_period_string = get_period_string
-    lexicon = STATISTIC_LEXICON
     states = StatisticsStates
     database_requests = AdvertFeedbackRequester
     empty_button_field = EmptyField
     car_params_card_pattern = create_advert_configuration_block
+
+    @staticmethod
+    async def statistic_lexicon():
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        return Lexicon_module.STATISTIC_LEXICON

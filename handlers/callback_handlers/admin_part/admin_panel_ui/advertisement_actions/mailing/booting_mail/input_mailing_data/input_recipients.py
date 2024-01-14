@@ -4,10 +4,10 @@ from aiogram.fsm.context import FSMContext
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.input_mailing_data.edit_mailing_data.edit_data_controller import \
     edit_mailing_data_controller
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
-from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
 import importlib
 
 # Импорт модуля редактирования сообщений через importlib
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 message_editor_module = importlib.import_module('handlers.message_editor')
 
 async def request_mailing_recipients(request: types.Message | types.CallbackQuery, state: FSMContext, mailing_datetime=None):
@@ -17,7 +17,7 @@ async def request_mailing_recipients(request: types.Message | types.CallbackQuer
     if await edit_mailing_data_controller(request, state, None):
         return
 
-    lexicon_part = ADVERT_LEXICON['enter_mailing_recipients']
+    lexicon_part = Lexicon_module.ADVERT_LEXICON['enter_mailing_recipients']
     await state.set_state(MailingStates.enter_recipients)
     await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                            delete_mode=True)

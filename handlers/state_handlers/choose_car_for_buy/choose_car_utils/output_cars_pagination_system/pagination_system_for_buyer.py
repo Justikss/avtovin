@@ -3,9 +3,8 @@ from typing import Union
 
 from aiogram import types
 from aiogram.fsm.context import FSMContext
-from aiogram.types import InputMediaPhoto, CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from handlers.utils.pagination_heart import Pagination
 
 
@@ -15,6 +14,8 @@ class BuyerCarsPagination:
 
     async def get_output_data(self, callback, state, advert_id):
         get_output_string_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config')
+        car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
         result = []
         if not isinstance(advert_id, list):
             advert_id = [advert_id]
@@ -24,7 +25,8 @@ class BuyerCarsPagination:
             if result_string:
                 current_data_part = {'car_id': advert_id, 'message_text': result_string}
             ic(result_string)
-            photo_album = await AdvertRequester.get_photo_album_by_advert_id(advert_id=advert)
+            photo_album = await car_advert_requests_module\
+                .AdvertRequester.get_photo_album_by_advert_id(advert_id=advert)
             if photo_album and result_string:
                 current_data_part['album'] = photo_album
 

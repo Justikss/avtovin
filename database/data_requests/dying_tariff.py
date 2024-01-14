@@ -1,13 +1,14 @@
 import importlib
 from datetime import datetime
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.tariff_requests import TarifRequester
 from database.db_connect import manager
 from database.tables.seller import Seller
 from database.tables.tariff import DyingTariffs, TariffsToSellers
 from utils.asyncio_tasks.invalid_tariffs_deleter import set_timer_on_dying_tariff
 from utils.seller_notifications.seller_lose_tariff import send_notification_about_lose_tariff
+
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 
 class DyingTariffRequester:
@@ -54,7 +55,7 @@ class DyingTariffRequester:
 
         ic(seller)
         ic(tariff_model)
-        await AdvertRequester.set_sleep_status(True, seller)
+        await car_advert_requests_module.AdvertRequester.set_sleep_status(True, seller)
         if bot:
             await send_notification_about_lose_tariff(seller_id=seller, bot=bot)
         ic(tariff_model)
@@ -67,10 +68,10 @@ class DyingTariffRequester:
             dying_tariff = await manager.create(DyingTariffs, tariff_wire=tariff_model)
         ic(dying_tariff)
         if dying_tariff:
-            car_adverts = await AdvertRequester.get_advert_by_seller(seller)
+            car_adverts = await car_advert_requests_module.AdvertRequester.get_advert_by_seller(seller)
             ic(car_adverts)
             if car_adverts:
-                await AdvertRequester.remove_user_view_to_advert(advert_id=car_adverts, seller_id=seller)
+                await car_advert_requests_module.AdvertRequester.remove_user_view_to_advert(advert_id=car_adverts, seller_id=seller)
             await set_timer_on_dying_tariff(dying_tariff, bot)
             return True
 
@@ -95,7 +96,7 @@ class DyingTariffRequester:
 
             await manager.execute(DyingTariffs.delete().where(DyingTariffs.id == tariff_id))
             await active_tariffs_module.TariffToSellerBinder.remove_bind(dying_tariff.tariff_wire.seller)
-            await AdvertRequester.delete_advert_by_id(seller_id=dying_tariff.tariff_wire.seller)
+            await car_advert_requests_module.AdvertRequester.delete_advert_by_id(seller_id=dying_tariff.tariff_wire.seller)
             await TarifRequester.try_delete_dying_tariff()
 
     @staticmethod

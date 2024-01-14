@@ -3,14 +3,15 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import CarConfigs
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
-from utils.lexicon_utils.Lexicon import ADVERT_PARAMETERS_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import TravelMessageEditorInit
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
 class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
@@ -31,7 +32,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
             current_state = str(await state.get_state())
             await self.send_alert_answer(
                 request,
-                ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting']
+                Lexicon_module.ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting']
             )
             ic(current_state)
             match current_state:
@@ -48,7 +49,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
         else:
             parameter_type_to_parameter_value = await self.get_param_values_to_type_names(selected_parameters)
             ic()
-            lexicon_part = ADVERT_PARAMETERS_LEXICON['confirmation_to_delete_exists_parameter']
+            lexicon_part = Lexicon_module.ADVERT_PARAMETERS_LEXICON['confirmation_to_delete_exists_parameter']
 
             ic(current_state)
             if memory_storage.get('params_type_flag') == 'new':
@@ -80,6 +81,8 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
         await self.set_state(state, AdminAdvertParametersStates.start_delete_action)
 
     async def check_on_exists_adverts_by_parameter(self, state: FSMContext, selected_parameters):
+        car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
         query = {}
         for param_type_name, param_id in selected_parameters.items():
             match param_type_name:
@@ -97,7 +100,8 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
 
             query.update({parameter_type_key: int(param_id)})
         ic(query)
-        advert_parameter_is_used = await AdvertRequester.get_advert_by(**query, without_actual_filter=True)
+        advert_parameter_is_used = await car_advert_requests_module\
+            .AdvertRequester.get_advert_by(**query, without_actual_filter=True)
         ic(advert_parameter_is_used)
         return advert_parameter_is_used
 

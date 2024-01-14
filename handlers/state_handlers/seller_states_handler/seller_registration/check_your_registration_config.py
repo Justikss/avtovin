@@ -4,13 +4,13 @@ import importlib
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
-from utils.lexicon_utils.Lexicon import LEXICON
 
 
 #Фильтр Dealership_name
 async def check_your_config(request: Union[CallbackQuery, Message], state: FSMContext, dealership_address=None, from_backward_Delete_mode=None):
     '''Обработчик конечного состояния регистрации пользовтаеля:
     Сверка введённых рег. данных'''
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     buyer_registration_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
@@ -34,13 +34,13 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
     memory_storage = await state.get_data()
     await buyer_registration_module.registartion_view_corrector(request=request, state=state)
 
-    lexicon_part = copy(LEXICON['checking_seller_entered_data'])
+    lexicon_part = copy(Lexicon_module.LEXICON['checking_seller_entered_data'])
     lexicon_part['rewrite_seller_name'] = memory_storage['seller_name']
     lexicon_part['rewrite_seller_number'] = memory_storage['seller_number']
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
     if seller_mode == 'dealership':
-        lexicon_part['rewrite_dealership_address'] = LEXICON['address']
-        lexicon_part['message_text'] = f'''{lexicon_part['message_text']}\n{LEXICON['incoming_address_caption']}{memory_storage['dealership_address']}'''
+        lexicon_part['rewrite_dealership_address'] = Lexicon_module.LEXICON['address']
+        lexicon_part['message_text'] = f'''{lexicon_part['message_text']}\n{Lexicon_module.LEXICON['incoming_address_caption']}{memory_storage['dealership_address']}'''
     # else:
     #     lexicon_part.pop('dealership_address')
 

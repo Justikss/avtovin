@@ -3,8 +3,6 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from config_data.config import car_configurations_in_keyboard_page
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.tables.car_configurations import CarEngine
 
@@ -18,6 +16,8 @@ from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import create_lexicon_part
 
+config_module = importlib.import_module('config_data.config')
+car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 async def search_auto_callback_handler(callback: CallbackQuery, state: FSMContext):
     choose_car_states_module = importlib.import_module('states.hybrid_choose_states')
@@ -48,8 +48,10 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
     await cache_state(callback=callback, state=state, first=True)
 
-    # models_range = await AdvertRequester.get_advert_by(state_id=cars_type)
-    models_range = await AdvertRequester.get_advert_by(state_id=cars_type)
+    # models_range = await car_advert_requests_module\
+    # .AdvertRequester.get_advert_by(state_id=cars_type)
+    models_range = await car_advert_requests_module\
+        .AdvertRequester.get_advert_by(state_id=cars_type)
     ic(models_range)
     if not models_range:
         return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found', lexicon_cache=False)
@@ -85,13 +87,15 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
     else:
         user_answer = memory_storage['cars_engine_type']
 
-    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+    models_range = await car_advert_requests_module\
+        .AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                     engine_type_id=user_answer,
                                                     )
 
     # button_texts = {car.complectation.model.brand for car in models_range}
     lexicon_class = lexicon_module.ChooseBrand()
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page)
+    await output_choose(callback, state, lexicon_class, models_range, config_module\
+                        .car_configurations_in_keyboard_page)
 
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
     #                                  lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=lexicon_class.dynamic_buttons)
@@ -122,11 +126,13 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
         brand = memory_storage['cars_brand']
 
 
-    models_range = await AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type)
+    models_range = await car_advert_requests_module\
+        .AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type)
 
     # button_texts = {car.complectation.model for car in models_range}
     lexicon_class = lexicon_module.ChooseModel()
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page)
+    await output_choose(callback, state, lexicon_class, models_range, config_module\
+                        .car_configurations_in_keyboard_page)
 
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
     #                                                 lexicon_part=lexicon_part, lexicon_cache=False, dynamic_buttons=lexicon_class.dynamic_buttons)
@@ -154,14 +160,16 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
         delete_mode = True
         user_answer = memory_storage['cars_model']
 
-    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+    models_range = await car_advert_requests_module\
+        .AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=user_answer)
 
     # button_texts = {car.complectation for car in models_range}
     lexicon_class = lexicon_module.ChooseComplectation()
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page)
+    await output_choose(callback, state, lexicon_class, models_range, config_module\
+                        .car_configurations_in_keyboard_page)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
     #                                                 lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode, dynamic_buttons=lexicon_class.dynamic_buttons)
 
@@ -185,7 +193,8 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
         delete_mode=True
         user_answer = memory_storage['cars_complectation']
 
-    models_range = await AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
+    models_range = await car_advert_requests_module\
+        .AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=memory_storage['cars_model'],
@@ -195,7 +204,8 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
     # button_texts = {car.color for car in models_range}
     lexicon_class = lexicon_module.ChooseColor()
-    await output_choose(callback, state, lexicon_class, models_range, car_configurations_in_keyboard_page, need_last_buttons=False)
+    await output_choose(callback, state, lexicon_class, models_range, config_module\
+                        .car_configurations_in_keyboard_page, need_last_buttons=False)
 
     # lexicon_part = await create_lexicon_part(lexicon_class, models_range)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',

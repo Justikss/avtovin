@@ -7,11 +7,11 @@ from aiogram.types import Message
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
     output_tariffs_for_admin
 from handlers.utils.message_answer_without_callback import send_message_answer
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
 
 async def insert_tariff_data(message: Message, state: FSMContext):
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     tariff_request_module = importlib.import_module('database.data_requests.tariff_requests')
 
     memory_storage = await state.get_data()
@@ -32,12 +32,14 @@ async def insert_tariff_data(message: Message, state: FSMContext):
     ic(insert_query)
 
     if insert_query:
-        alert_text = ADMIN_LEXICON['success_input_tariff_data'].format(tariff_name=insert_query.name)
+        alert_text = Lexicon_module\
+                .ADMIN_LEXICON['success_input_tariff_data'].format(tariff_name=insert_query.name)
         await log_admin_action(message.from_user.username, 'add_tariff', insert_query)
     else:
         logging.warning(f'Администратор {message.from_user.username} неудачно добавил тариф')
 
-        alert_text = ADMIN_LEXICON['unsuccessfully_add_tariff']
+        alert_text = Lexicon_module\
+                .ADMIN_LEXICON['unsuccessfully_add_tariff']
 
     await send_message_answer(message, alert_text, 1)
 

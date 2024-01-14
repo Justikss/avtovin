@@ -3,14 +3,11 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from config_data.config import user_pagesize_by_admin
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_seller_category import \
     choose_seller_category_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
     choose_user_category_by_admin_handler
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
-from utils.lexicon_utils.admin_lexicon.admin_lexicon import SellerList, UserList
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_does_not_exists_handler import send_message_answer
 
 async def construct_user_list_pagination_data(callback: CallbackQuery, state: FSMContext):
@@ -29,13 +26,17 @@ async def construct_user_list_pagination_data(callback: CallbackQuery, state: FS
 
     ic(user_mode)
     if user_mode:
+        admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
+
         if any(seller_entity in user_mode for seller_entity in ['legal', 'natural']):
-            lexicon_class = SellerList(user_mode)
+            lexicon_class = admin_lexicon_module\
+                .SellerList(user_mode)
             ic(user_mode)
             users = await person_requester_module.PersonRequester.retrieve_all_data(seller=True, entity=user_mode)
             current_state = SellerReviewStates.review_state
         elif 'buyer' in user_mode:
-            lexicon_class = UserList(user_mode)
+            lexicon_class = admin_lexicon_module\
+                .UserList(user_mode)
             users = await person_requester_module.PersonRequester.retrieve_all_data(user=True)
             current_state = BuyerReviewStates.review_state
         else:
@@ -49,6 +50,7 @@ async def construct_user_list_pagination_data(callback: CallbackQuery, state: FS
 async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Message, state: FSMContext, delete_redis_pagination_key=True, first_call=True):
     output_choose_module = importlib.import_module(
         'handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     ic()
     if first_call:
@@ -62,7 +64,7 @@ async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Mess
     ic(lexicon_class, users)
     ic(users)
     if not users:
-        alert_text = ADMIN_LEXICON['users_category_non_exists']
+        alert_text = Lexicon_module.ADMIN_LEXICON['users_category_non_exists']
         current_state = str(await state.get_state())
         if isinstance(callback, CallbackQuery):
             await callback.answer(alert_text)
@@ -73,6 +75,8 @@ async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Mess
         else:
             await choose_seller_category_by_admin_handler(callback, state)
 
-    if await output_choose_module.output_choose(callback, state, lexicon_class, users, user_pagesize_by_admin):
+    config_module = importlib.import_module('config_data.config')
+
+    if await output_choose_module.output_choose(callback, state, lexicon_class, users, config_module.user_pagesize_by_admin):
         ic()
 

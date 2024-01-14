@@ -5,14 +5,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 import importlib
 
-from config_data.config import max_price_len
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost
 from handlers.callback_handlers.sell_part.commodity_requests.rewrite_price_by_seller import \
     rewrite_price_by_seller_handler
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_price_to_load
 from handlers.utils.delete_message import delete_message
-from utils.get_currency_sum_usd import convertator
 
+config_module = importlib.import_module('config_data.config')
 
 class PriceIsDigit(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
@@ -29,7 +28,7 @@ class PriceIsDigit(BaseFilter):
             ic(message_text)
         else:
             dollar_cost = False
-        if message_text.isdigit() and len(str(message_text)) < max_price_len:
+        if message_text.isdigit() and len(str(message_text)) < config_module.max_price_len:
             ic(message.text.isdigit())
             car_price = int(message_text)
             await delete_message(message, chat_id=message.chat.id, message_id=message.message_id)

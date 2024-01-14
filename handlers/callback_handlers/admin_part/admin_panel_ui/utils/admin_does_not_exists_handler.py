@@ -6,7 +6,7 @@ from database.data_requests.admin_requests import AdminManager
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
 from handlers.utils.message_answer_without_callback import send_message_answer
 from utils.custom_exceptions.database_exceptions import AdminDoesNotExistsError
-from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
+
 
 
 async def admin_exists_checker(callback: CallbackQuery):
@@ -23,7 +23,9 @@ async def admin_exists_checker(callback: CallbackQuery):
         await admin_does_not_exists_handler(callback)
         return False
 async def admin_does_not_exists_handler(request: CallbackQuery | Message):
-    lexicon_text = ADMIN_LEXICON['user_havent_admin_permission']
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+    lexicon_text = Lexicon_module.ADMIN_LEXICON['user_havent_admin_permission']
     if isinstance(request, CallbackQuery):
         await request.answer(lexicon_text)
     else:

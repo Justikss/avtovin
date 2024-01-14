@@ -4,11 +4,8 @@ import uuid
 
 from aiogram.types import Message
 
-from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.car_configurations_requests import mock_values, get_car, get_seller_account, mock_feedbacks
 from database.data_requests.new_car_photo_requests import PhotoRequester
-from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
-    advert_to_admin_view_related_requester
 from database.data_requests.utils.drop_tables import drop_tables_except_one
 from database.db_connect import create_tables, manager
 import os

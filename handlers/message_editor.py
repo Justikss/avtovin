@@ -1,3 +1,4 @@
+import importlib
 import traceback
 from typing import Set
 
@@ -6,8 +7,9 @@ from aiogram.exceptions import TelegramBadRequest, TelegramServerError
 
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
 from handlers.utils.delete_message import delete_message
-from utils.lexicon_utils.Lexicon import LEXICON, ADMIN_LEXICON
 
+
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 class TravelEditor:
     @staticmethod
@@ -16,15 +18,15 @@ class TravelEditor:
         '''Высылальщик сообщений
         [reply_mode[bool]]: Работает только при удалении сообщений '''
         keyboard = None
-        print('load_photos editor??: ', media_group)
+        ic('load_photos editor??: ', media_group)
         user_id = str(request.from_user.id)
-        print('user_id =', user_id)
+        ic('user_id =', user_id)
         new_message = None
         if not lexicon_part:
-            lexicon_part = LEXICON[lexicon_key]
+            lexicon_part = Lexicon_module.LEXICON[lexicon_key]
         redis_key = str(user_id) + ':last_message'
         last_message_id = await redis_data.get_data(redis_key)
-        print('last_mas', last_message_id)
+        ic('last_mas', last_message_id)
 
         if isinstance(request, CallbackQuery):
             message_object = request.message
@@ -80,18 +82,20 @@ class TravelEditor:
         ic(keyboard)
 
         '''Идут методы работы с сообщениями'''
+        if not isinstance(lexicon_part, dict):
+            lexicon_part = {'message_text': lexicon_part}
 
         message_text = lexicon_part['message_text']
 
         if delete_mode and last_message_id and not media_group:
-            print('delete_if delete_mode and last_message_id:')
+            ic('delete_if delete_mode and last_message_id:')
             await delete_message(request, message_id=last_message_id)
 
             if reply_mode:
-                print('reply_mode2')
+                ic('reply_mode2')
                 new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
             elif not media_group:
-                print('NOreply_mode2')
+                ic('NOreply_mode2')
                 try:
                     new_message = await message_object.answer(text=message_text, reply_to_message_id=media_message_id, reply_markup=keyboard)
                 except TelegramBadRequest:
@@ -102,12 +106,12 @@ class TravelEditor:
                 '''Медиагруппа в чужой чат - идёт без кнопок'''
 
                 if not reply_mode and media_group:
-                    print('if not reply_mode and media_group:')
+                    ic('if not reply_mode and media_group:')
 
                     # Получение album_id
                     album_id = next(iter(media_group), None) if isinstance(media_group, dict) else None
 
-                    print(album_id)
+                    ic(album_id)
 
                     if send_chat or need_media_caption:
                         # Определение списка файлов
@@ -139,7 +143,7 @@ class TravelEditor:
                         await redis_data.set_data(key=user_id+':last_media_group',
                                                   value=[media_message.message_id
                                                          for media_message in new_media_message])
-                        print('post ', new_album)
+                        ic('post ', new_album)
 
                     else:
                         if album_id:
@@ -156,7 +160,7 @@ class TravelEditor:
                             media_group = media_group[:5]
 
                         new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
-                        print('post ', new_album)
+                        ic('post ', new_album)
                         ic(len(new_album))
                         try:
                             new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
@@ -167,7 +171,7 @@ class TravelEditor:
 
                             except:
                                 traceback.print_exc()
-                        print(lexicon_part['message_text'])
+                        ic(lexicon_part['message_text'])
                         new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'],
                                                              reply_markup=keyboard,
                                                              reply_to_message_id=new_media_message[0].message_id)
@@ -176,7 +180,7 @@ class TravelEditor:
                                                          for media_message in new_media_message])
 
             if reply_mode:
-                print('if reply_mode')
+                ic('if reply_mode')
                 if not seller_boot:
                     redis_reply_key=str(request.from_user.id) + ':last_user_message'
                 elif seller_boot:
@@ -197,7 +201,7 @@ class TravelEditor:
                 if not media_group:
                     try:
                         #await message_object.edit_text(text=message_text, reply_markup=keyboard)
-                        print('if last_message_id:if not media_group')
+                        ic('if last_message_id:if not media_group')
                         return await bot.edit_message_text(chat_id=send_chat_id, message_id=last_message_id, text=message_text, reply_markup=keyboard)
 
                     except Exception as ex:
@@ -207,12 +211,12 @@ class TravelEditor:
                             return await bot.send_message(chat_id=send_chat_id, reply_to_message_id=media_message_id, text=message_text, reply_markup=keyboard)
 
                 if not send_chat:
-                    print('delete_if_last_message_id')
+                    ic('delete_if_last_message_id')
                     await delete_message(request, chat_id=send_chat_id, message_id=last_message_id)
 
-            print('load_photos editor2??: ', media_group)
+            ic('load_photos editor2??: ', media_group)
             if not reply_mode and keyboard and not media_group:
-                print('if not reply_mode and keyboard')
+                ic('if not reply_mode and keyboard')
                 ic(send_chat_id, media_message_id, message_text, keyboard)
                 #new_message = await message_object.answer(text=message_text, reply_markup=keyboard)
                 new_message = await bot.send_message(chat_id=send_chat_id, reply_to_message_id=media_message_id, text=message_text, reply_markup=keyboard)
