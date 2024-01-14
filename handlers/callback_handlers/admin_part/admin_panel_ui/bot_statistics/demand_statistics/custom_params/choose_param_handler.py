@@ -19,9 +19,9 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
         # async with self.idle_callback_answer(request):
         memory_storage = await state.get_data()
 
-        if not await self.set_state(state, self.statistic_manager.states.CustomParams.choose_params) \
-                                                        and request.data.startswith('select_bot_statistic_period:'):
-            await state.update_data(stats_period=request.data.split(':')[-1])
+        await self.set_state(state, self.statistic_manager.states.CustomParams.choose_params) \
+                                                        and request.data.startswith('select_bot_statistic_period:')
+
 
         chosen_params, chosen_param_name = await self.try_extract_inputted_data(request, state, memory_storage)
         ic(chosen_params, chosen_param_name)

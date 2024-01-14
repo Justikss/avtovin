@@ -1,1 +1,1 @@
-from . import output_method, calculate_method, output_type_handler
+from . import output_method, calculate_method, output_type_handler, choose_period

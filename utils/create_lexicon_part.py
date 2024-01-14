@@ -13,7 +13,6 @@ async def add_lively_buttons(lexicon_part, buttons_captions, buttons_callback_da
         elif isinstance(button_part, Seller) and button_part.dealship_name:
             name = button_part.dealship_name
             object_id = button_part.telegram_id
-
         else:
             name = button_part.name
             object_id = button_part.id

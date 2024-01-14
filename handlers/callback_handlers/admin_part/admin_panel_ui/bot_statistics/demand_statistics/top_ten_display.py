@@ -50,11 +50,12 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         ic()
         await state.update_data(media_group_for_inline_pg=media_group)
 
-    async def edit_displayed_data(self, state: FSMContext, advert_parameters, seller_model, position):
+    async def edit_displayed_data(self, state: FSMContext, advert_parameters, seller_model, position, feedback_count):
         # todo Добавить edit media group
         feedback_model = SellerFeedbacksHistory()
         feedback_model.seller_id = seller_model
         feedback_model.advert_parameters = advert_parameters
+        feedback_model.count = feedback_count
         ic(feedback_model.advert_parameters)
         ic(feedback_model.advert_parameters.complectation.model.brand.name)
         new_message_text = await self.construct_lexicon_part(state=state,
@@ -77,8 +78,11 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
         ic(request.data)
         params_id = int(request.data.split(':')[-2])
-        seller_id = int(request.data.split(':')[-1])
-        ic(params_id, seller_id)
+        feedback_count = int(request.data.split(':')[-1])
+        seller_id = int(request.data.split(':')[-3])
+        ic(params_id, seller_id, feedback_count)
+        # ic(params_id, seller_id)
+        ic()
         redis_key = f'{str(request.from_user.id)}:inline_buttons_pagination_data'
         params_in_queue = await self.redis_module.redis_data.get_data(redis_key, use_json=True)
         position = await self.get_params_top_position(params_in_queue, params_id=params_id, seller_id=seller_id)
@@ -87,9 +91,11 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         seller_model = await person_requests_module.PersonRequester.get_user_for_id(seller_id, seller=True)
         # ic(advert_parameters)
         # ic(advert_parameters.complectation.model.brand.name)
+        ic()
+        ic(advert_parameters, seller_model)
         if advert_parameters and seller_model:
             await AdvertRequester.load_related_data_for_advert(advert_parameters)
-            await self.edit_displayed_data(state, advert_parameters, seller_model, position)
+            await self.edit_displayed_data(state, advert_parameters, seller_model, position, feedback_count)
         else:
             await state.clear()
             await self.send_alert_answer(request, LEXICON['non_actiallity'])
@@ -100,7 +106,8 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         for part in params_in_queue['data']:
             for key, value in part.items():
                 other_params_id = int(key.split(':')[-2])
-                other_seller_id = int(key.split(':')[-1])
+                feedback_count = int(key.split(':')[-1])
+                other_seller_id = int(key.split(':')[-3])
                 ic(key, other_seller_id, other_params_id)
                 if (other_params_id == params_id and other_seller_id == seller_id):
                     return value[:value.index('.')]
@@ -114,6 +121,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
                 return seller_entity
 
+        memory_storage = await state.get_data()
         await self.get_photos_by_params(state, feedback_model.advert_parameters)
         lexicon_class = deepcopy(TopTenDisplay)
         params_text = await self.statistic_manager.car_params_card_pattern(advert_id=feedback_model.advert_parameters)
@@ -125,6 +133,8 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         lexicon_class.message_text = copy(self.statistic_manager.lexicon['top_ten_message_text']).format(
             top_position=position,
             parameters=params_text,
+            period=await self.statistic_manager.ident_period_string(memory_storage.get('stats_period')),
+            feedback_count=feedback_model.count,
             seller_entity=await get_seller_entity())
 
         ic(lexicon_class.message_text)
@@ -149,7 +159,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             for index,  model in enumerate(models_range):
                 # await AdvertRequester.load_related_data_for_advert(model.advert_parameters)
                 model.name = f'{index+1}. {model.advert_parameters.complectation.model.brand.name} - {model.advert_parameters.complectation.model.name}'
-                model.id = f'{model.advert_parameters_id}:{model.seller_id}'
+                model.id = f'{model.seller_id.telegram_id}:{model.advert_parameters.id}:{model.count}'
                 ic(hasattr(model, 'name'))
                 ic(model.id)
         return models_range

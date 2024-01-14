@@ -16,7 +16,9 @@ statistic_captions = {'Day': 'День',
                       'brand': advert_parameters_captions['brand'],#.lower(),
                       'engine': advert_parameters_captions['engine'],#.lower(),
                     'top_demand_on': 'Топ спроса на',
-                    'car': 'авто'
+                    'car': 'авто',
+                    'individual_stats': 'индивидуальной статистики',
+                    'top_10_stats': 'топ 10'
 }
 
 choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions['Day'],
@@ -71,10 +73,10 @@ __STATISTIC_LEXICON = {
     #     **to_statistic_panel,
     #     'width': (3, 2, 1, 1)
     # }},
-    'top_ten_message_text':  'Место в топе: {top_position}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
+    'top_ten_message_text':  'Место в топе: {top_position}\nОткликов за {period}: {feedback_count}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
                         + ('▬' * 13) + '\nМашины подписаны своим местом в топе:',
 
-    'custom_params_period': {'message_text': 'Период расчёта индивидуальной статистики спроса:',
+    'custom_params_period': {'message_text': 'Период расчёта {output_method} спроса:',
                              'buttons': {
                                  **choose_period_keyboard,
                                  'admin_backward:custom_params_period': captions['backward'],
@@ -100,7 +102,7 @@ class SelectCustomParamsProcess:
 
 
 class TopTenDisplay:
-    buttons_callback_data = 'top_ten_params:'
+    buttons_callback_data = 'ttp:'
     backward_command = {'admin_backward:top_ten_display': captions['backward'], **to_statistic_panel}
     width = 1
     dynamic_buttons = 2

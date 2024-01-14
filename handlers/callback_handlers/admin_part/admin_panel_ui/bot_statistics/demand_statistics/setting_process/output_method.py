@@ -19,3 +19,6 @@ class StatisticsOutputMethodHandler(BaseStatisticCallbackHandler):
         ic()
         ic(request.data)
         await super().process_callback(request, state, **kwargs)
+
+
+

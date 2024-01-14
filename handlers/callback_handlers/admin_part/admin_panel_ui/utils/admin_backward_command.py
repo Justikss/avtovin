@@ -15,7 +15,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.choose_
     ChooseStatisticTypeHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.choose_param_handler import \
     ChooseParamToDemandStatsHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.choose_period import \
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.choose_period import \
     CustomParamsChoosePeriod
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.calculate_method import \
     CalculateDemandMethodHandler
@@ -83,7 +83,9 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     match backward_mode:
         case 'choose_custom_params':
             await choose_custom_params_stats_backwarder(callback, state, memory_storage, current_state)
-        case 'top_ten_display' | 'custom_params_period':
+        case 'top_ten_display':
+            await CustomParamsChoosePeriod().callback_handler(callback, state)
+        case 'custom_params_period':
             await CalculateDemandMethodHandler().callback_handler(callback, state)
 
         case 'method_of_calculate':

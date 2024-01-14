@@ -1,7 +1,11 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.choose_period import \
+from database.data_requests.advert_parameters_requests import AdvertParameterManager
+from database.data_requests.car_advert_requests import AdvertRequester
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.choose_period import \
     CustomParamsChoosePeriod
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
     TopTenByDemandDisplayHandler
@@ -39,7 +43,9 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
                 'brand_id': chosen_demand_params.get('brand'),
                 'model_id': chosen_demand_params.get('model'),
                 'complectation_id': chosen_demand_params.get('complectation'),
-                'color_id': chosen_demand_params.get('color')}
+                'color_id': chosen_demand_params.get('color')
+            }
+
         else:
             await self.send_alert_answer(request, LEXICON['non_actiallity'])
             await CustomParamsChoosePeriod().callback_handler(request, state)
@@ -52,21 +58,34 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
         if models_range:
             pagination_data = []
             for index, feedback in enumerate(models_range):
-                pagination_data.append(f'{feedback.id}:{index+1}')
+                pagination_data.append(f'{feedback.count}:{feedback.seller_id}:{feedback.advert_parameters}:{index+1}')
             # ic(pagination_data)
             return pagination_data
 
 
     async def get_output_part(self, request, state, admin_pagination_object, data_to_output, message_editor):
+        person_requests_module = importlib.import_module('database.data_requests.person_requests')
         data_to_output = data_to_output[0]
+
+        feedback_count = data_to_output.split(':')[0]
+        seller_id = data_to_output.split(':')[1]
+        advert_parameters_id = data_to_output.split(':')[2]
         top_position = data_to_output.split(':')[-1]
-        feedback_id = data_to_output.split(':')[0]
+
+        # feedback_id = data_to_output.split(':')[0]
         lexicon_part = self.statistic_manager.lexicon['review_custom_stats_branches']
-        feedback_model = await self.statistic_manager.database_requests.get_seller_feedback_by_id(feedback_id)
+        advert_parameters_model = await AdvertParameterManager.get_by_id(advert_parameters_id)
+        advert_parameters_model = await AdvertRequester.load_related_data_for_advert(advert_parameters_model)
+        seller_model = await person_requests_module\
+                .PersonRequester.get_user_for_id(seller_id, seller=True)
         ic(data_to_output)
-        if feedback_model:
+        if seller_model and advert_parameters_model:
+            class Feedback:
+                seller_id = seller_model[0]
+                advert_parameters = advert_parameters_model
+                count = feedback_count
             message_text = await TopTenByDemandDisplayHandler().construct_lexicon_part(state, top_position,
-                                                                                       feedback_model,
+                                                                                       Feedback,
                                                                                        only_message_text=True)
             ic(message_text)
             if message_text:

@@ -21,6 +21,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_
     OutputStatisticAdvertParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.calculate_method import \
     CalculateDemandMethodHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.choose_period import \
+    CustomParamsChoosePeriod
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_method import \
     StatisticsOutputMethodHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.output_type_handler import \
@@ -146,7 +148,7 @@ bot = None
 
 redis = Redis(host='localhost')
 storage = RedisStorage(redis=redis)
-ic.disable()
+# ic.disable()
 dp = Dispatcher(storage=storage)
 
 async def start_bot():
@@ -374,23 +376,30 @@ async def start_bot():
     dp.callback_query.register(CalculateDemandMethodHandler().callback_handler,
                                lambda callback: callback.data.startswith('output_method:'),
                                StateFilter(StatisticsStates.accept_demand_output_method))
-    dp.callback_query.register(DemandOutputSplitterHandler().callback_handler,
+
+    dp.callback_query.register(CustomParamsChoosePeriod().callback_handler,
                                lambda callback: callback.data.startswith('calculate_method:'),
-                               StateFilter(StatisticsStates.accept_demand_calculate_method),
-                               AdminStatusController())
+                               StateFilter(StatisticsStates.accept_demand_calculate_method)
+                               )
+    dp.callback_query.register(DemandOutputSplitterHandler().callback_handler,
+                               lambda callback: callback.data.startswith('select_bot_statistic_period:'),
+                               StateFilter(StatisticsStates.choose_period)
+                               )
     dp.callback_query.register(TopTenByDemandDisplayHandler().callback_handler,
-                               lambda callback: callback.data.startswith('top_ten_params:'),
-                               StateFilter(StatisticsStates.display_top_ten))
+                               lambda callback: callback.data.startswith('ttp:'),
+                               StateFilter(StatisticsStates.display_top_ten),
+                               AdminStatusController())
 
     dp.callback_query.register(ChooseParamToDemandStatsHandler().callback_handler,
                                or_f(and_f(
-                                       StateFilter(StatisticsStates.CustomParams.choose_period),
+                                       StateFilter(StatisticsStates.choose_period),
                                        lambda callback: callback.data.startswith('select_bot_statistic_period:')),
                                    and_f(
                                        StateFilter(StatisticsStates.CustomParams.choose_params),
                                        lambda callback: callback.data.startswith('custom_demand_param:'),
                                StateFilter(StatisticsStates.CustomParams.choose_params)
-                               )))
+                               )),
+                               AdminStatusController())
     dp.callback_query.register(OutputStatisticAdvertParamsHandler().callback_handler,
                                StateFilter(StatisticsStates.CustomParams.choose_params),
                                F.data == 'output_current_demand_stats',
