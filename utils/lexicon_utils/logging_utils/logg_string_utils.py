@@ -1,5 +1,7 @@
 import importlib
 
+from icecream import ic
+
 from database.tables.seller import Seller
 from database.tables.tariff import Tariff
 from database.tables.user import User
@@ -8,6 +10,7 @@ from handlers.utils.one_len_list_in_object import one_element_in_object
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 
 car_configurations_requests_module = importlib.import_module('database.data_requests.car_configurations_requests')
+ic.enable()
 
 async def get_user_name(subject):
     person_request_module = importlib.import_module('database.data_requests.person_requests')

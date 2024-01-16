@@ -29,8 +29,11 @@ async def construct_user_list_pagination_data(callback: CallbackQuery, state: FS
         admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
         if any(seller_entity in user_mode for seller_entity in ['legal', 'natural']):
-            lexicon_class = admin_lexicon_module\
-                .SellerList(user_mode)
+            if user_mode == 'legal':
+                lexicon_class = admin_lexicon_module.DealershipList(user_mode)
+            else:
+                lexicon_class = admin_lexicon_module\
+                    .NaturalList(user_mode)
             ic(user_mode)
             users = await person_requester_module.PersonRequester.retrieve_all_data(seller=True, entity=user_mode)
             current_state = SellerReviewStates.review_state
@@ -43,6 +46,8 @@ async def construct_user_list_pagination_data(callback: CallbackQuery, state: FS
             current_state = None
 
         if current_state:
+            ic(current_state)
+            ic()
             await state.set_state(current_state)
         return lexicon_class, users
 

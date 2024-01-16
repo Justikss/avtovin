@@ -10,7 +10,7 @@ from utils.lexicon_utils.Lexicon import class_lexicon
 
 admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
-async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_tariff=False) -> dict:
+async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_tariff=False, display_price=True) -> dict:
     '''Метод структурирует данные тарифа с кнопками в lexicon_part по которому выводится блок
     сообщения с теми же кнопками'''
     tariff_request_module = importlib.import_module('database.data_requests.tariff_requests')
@@ -25,7 +25,7 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
 {lexicon_class.separator}\
 {lexicon_class.tariff_block.format(tariff_name=tariff_model.name, days_remaining=tariff_model.duration_time, 
                                    feedbacks_remaining=tariff_model.feedback_amount)}\
-{lexicon_class.separator}{class_lexicon['tariff_price'].format(tariff_price=price)}'''
+{lexicon_class.separator}{class_lexicon['tariff_price'].format(tariff_price=price) if display_price else ''}'''
 
     if by_admin:
         buttons = copy(admin_lexicon_module.ChooseTariff.tariff_review_buttons)

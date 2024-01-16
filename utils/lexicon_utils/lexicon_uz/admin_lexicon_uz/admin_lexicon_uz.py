@@ -141,5 +141,6 @@ admin_class_mini_lexicon_uz = {
     'set': "O'rnatish",
     'set_tariff': "Tarifni belgilash",
     'remove_tariff': "Tarifni tiklash",
-    'search_by_name': "Ism bo'yicha qidirish"
+    'search_by_name': "Ism bo'yicha qidirish",
+    'return_main_menu': 'Menyuda'
 }

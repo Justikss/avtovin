@@ -19,7 +19,7 @@ catalog_captions = {'catalog_review__make_block': 'блокировку', 'to_bl
                     'catalog_review__make_delete': 'удаление объявления', 'advert': 'Объявление: №{advert_id}\n',
                     'inactive_advert_or_seller': 'Объявление или продавец неактивен',
                     'advert_successfully_closed': 'Автомобиль успешно снят с продажи!',
-                    'empty': 'Пусто'
+                    'empty': 'Раздел оказался пуст'
                     }
 
 __CATALOG_LEXICON = {

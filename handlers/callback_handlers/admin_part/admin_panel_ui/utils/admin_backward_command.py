@@ -52,7 +52,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.tariff_for_seller.checkout_tariff_by_admin import \
     checkout_seller_tariff_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.tariff_for_seller.choose_tariff_for_seller import \
-    checkout_tariff_for_seller_by_admin_handler
+    checkout_tariff_for_seller_by_admin_handler, choose_tariff_for_seller_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_seller_category import \
     choose_seller_category_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
@@ -115,7 +115,10 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'input_ban_reason' if current_state.startswith('BuyerReviewStates'):
             await output_buyer_profile(callback, state)
 
-        case 'choose_tariff_for_seller' | 'tariff_for_seller_review' | 'reset_seller_tariff':
+        case 'tariff_for_seller_review':
+            await choose_tariff_for_seller_by_admin_handler(callback, state)
+
+        case 'choose_tariff_for_seller' | 'reset_seller_tariff':
             await checkout_seller_tariff_by_admin_handler(callback, state)
 
         case 'tariff_to_seller_pre_confirm_moment':

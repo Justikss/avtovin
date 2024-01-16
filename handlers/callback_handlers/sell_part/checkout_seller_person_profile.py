@@ -99,7 +99,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
             output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
             output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.format(
-                tariff=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
+                tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
                 feedbacks_remaining=seller_tariff_model.residual_feedback))
             tariff_exists = True
         ic(output_string)

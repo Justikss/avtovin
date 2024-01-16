@@ -11,8 +11,8 @@ header_message_text_uz = '<b>AUTOWIN</b>\nCho‘ntak Market-pleysi\nEng yaxshi a
 
 faq_seller_uz = '''
 \n<b>Sotish:</b>
-\nSotuvchi ro‘yxatdan o‘tgandan va uni ma’muriyat tomonidan tasdiqlanganidan so‘ng - <b>Javoblarni olish uchun tarifni rasmiylashtirish kerak,
-:</b> <i>[Sotuvchi menyusi] - [Profil] - [Tarifni uzaytirish].</i>\n
+\nSotuvchi ro‘yxatdan o‘tgandan va uni ma’muriyat tomonidan tasdiqlanganidan so‘ng - <b>Javoblarni olish uchun tarifni rasmiylashtirish kerak:
+</b> <i>[Sotuvchi menyusi] - [Profil] - [Tarifni uzaytirish].</i>\n
 <b>O‘z savdo vitrinangizni to‘ldirish mumkin:
 </b> <i>[Sotuvchi menyusi] - [Arizalar] - [Ariza yaratish].</i>
 \n<b>Yaratilgan arizalar quyidagi joyda ko‘rsatiladi:

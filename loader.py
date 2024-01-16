@@ -166,6 +166,9 @@ async def start_bot():
     # dp.include_router(admin_router)
     await create_tables()
 
+    dp.message.register(bot_help, Command(commands=['free_tariff']))
+
+
     await mailing_service.schedule_mailing(bot)
 
     asyncio.create_task(fetch_currency_rate())
@@ -186,7 +189,6 @@ async def start_bot():
                         F.photo[0].file_unique_id.as_('unique_id'),
                         or_f(StateFilter(LoadCommodityStates.photo_verification),
                              StateFilter(AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos)))
-    # dp.callback_query.register(bot_help)
 
     dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))

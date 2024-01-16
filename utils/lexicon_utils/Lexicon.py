@@ -302,6 +302,7 @@ lexicon_ru = {
     'tariff_prefix': '<blockquote>💰 Тариф: <i>X</i></blockquote>',
     'tarif_expired': 'Ваш тариф истёк',
     'start_choose_payment_method': 'Выбор платёжной системы',
+    'offer': '<b>Заявка <i>№{offer_number}</i></b>'
 
 }
 
@@ -417,7 +418,7 @@ class LexiconSellerRequests:
         self.commodity_output_block = class_lexicon['commodity_output_block']
 
 
-        # output_car_request_header = '<b>Заявка <i>№_</i></b>'
+        self.output_car_request_header = class_lexicon['offer']
         # commodity_state = '\nСостояние: <i>X</i>'
         # engine_type = '\nТип двигателя: <i>X</i>'
         # commodity_brand = '\nМарка: <i>X</i>'

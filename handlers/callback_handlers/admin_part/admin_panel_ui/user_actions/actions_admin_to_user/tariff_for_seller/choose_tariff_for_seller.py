@@ -45,6 +45,6 @@ async def checkout_tariff_for_seller_by_admin_handler(callback: CallbackQuery, s
         memory_storage = await state.get_data()
         tariff_id = memory_storage.get('current_tariff')
 
-    lexicon_part = await tariff_preview_card_constructor(tariff_id, by_admin=True)
+    lexicon_part = await tariff_preview_card_constructor(tariff_id, by_admin=True, display_price=False)
 
     await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)

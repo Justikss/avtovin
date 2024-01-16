@@ -102,7 +102,10 @@ class DyingTariffRequester:
     @staticmethod
     async def remove_old_tariff_to_update(seller):
         if not isinstance(seller, int):
-            seller = seller.telegram_id
+            if isinstance(seller, str):
+                seller = int(seller)
+            else:
+                seller = seller.telegram_id
         old_tariff = DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller)
 
         await manager.execute(DyingTariffs.delete().where(DyingTariffs.id.in_(old_tariff)))

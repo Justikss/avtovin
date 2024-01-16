@@ -3,7 +3,7 @@ from datetime import time
 
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.top_ten_display import \
     TopTenByDemandDisplayHandler
@@ -13,10 +13,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_
 
 async def create_tarifs():
     a = importlib.import_module('database.data_requests.tariff_requests')
-    data = {'name': 'minimum',
-            'price': 50,
-            'duration_time': '365',
-            'feedback_amount': 100}
+    # data = {'name': 'minimum',
+    #         'price': 50,
+    #         'duration_time': '365',
+    #         'feedback_amount': 100}
 
     data2 = {'name': 'medium',
              'price': 200,
@@ -28,33 +28,33 @@ async def create_tarifs():
              'duration_time': '365',
              'feedback_amount': 10000}
 
-    a.TarifRequester.set_tariff(data)
-    a.TarifRequester.set_tariff(data3)
-    a.TarifRequester.set_tariff(data2)
+    # a.TarifRequester.set_tariff(data)
+    await a.TarifRequester.set_tariff(data3)
+    await a.TarifRequester.set_tariff(data2)
 
 
-async def bot_help(callback: CallbackQuery, state: FSMContext):
+async def bot_help(callback: Message, state: FSMContext):
     # await state.set_state()
-    await state.update_data(calculate_method='top')
-    await TopTenByDemandDisplayHandler().callback_handler(callback, state)
+    # await state.update_data(calculate_method='top')
+    # await TopTenByDemandDisplayHandler().callback_handler(callback, state)
     # await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=45545, color=2, mileage=None, year=None)
     # a
-#     a = importlib.import_module('database.data_requests.tariff_requests')
-#     tariff_to_seller_binder = importlib.import_module('database.data_requests.tariff_to_seller_requests')
+    a = importlib.import_module('database.data_requests.tariff_requests')
+    tariff_to_seller_binder = importlib.import_module('database.data_requests.tariff_to_seller_requests')
 
     # person_exists = await PersonRequester.get_user_for_id(user_id=message.from_user.id, seller=True)
     # if not person_exists:
     #     await message.answer('Зарегистрируйтесь продавцом')
 #
-#     tariffs = a.TarifRequester.retrieve_all_data()
-#     if not tariffs:
-#         await create_tarifs()
+    tariffs = await a.TarifRequester.retrieve_all_data()
+    if not tariffs:
+        await create_tarifs()
 #
-#
-#     data = {'seller': str(message.from_user.id),
-#             'tariff': 'minimum'
-#             }
-#
-#     await tariff_to_seller_binder.TariffToSellerBinder.set_bind(data=data, bot=message.bot)
-#
+
+    data = {'seller': str(callback.from_user.id),
+            'tariff': 'minimum'
+            }
+
+    # await tariff_to_seller_binder.TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=None)
+
 #

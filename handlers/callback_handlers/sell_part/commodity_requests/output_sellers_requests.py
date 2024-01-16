@@ -68,8 +68,8 @@ async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
         mileage, year_of_realise = None, None
     #     heart = ''
     #
-    output_string = f'''{copy(Lexicon_module.LexiconSellerRequests.output_car_request_header).replace(
-        '_', str(advert.id))}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name,
+    output_string = f'''{copy(Lexicon_module.LexiconSellerRequests.output_car_request_header).format(
+        offer_number=advert.id)}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name,
                                                                      brand=advert.complectation.model.brand.name,
                                                                      model=advert.complectation.model.name,
                                                                      complectation=advert.complectation.name, color=advert.color.name,
@@ -210,7 +210,7 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
 
     await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination',
-                                             value=Lexicon_module.LexiconSellerRequest.s.selected_brand_output_buttons)
+                                             value=Lexicon_module.LexiconSellerRequests.selected_brand_output_buttons)
     if not chosen_brand:
 
         if isinstance(request, CallbackQuery):

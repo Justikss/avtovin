@@ -3,6 +3,7 @@ from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, CallbackQuery
+from icecream import ic
 
 from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_LEXICON, STATISTIC_LEXICON, ADVERT_PARAMETERS_LEXICON, \
     CATALOG_LEXICON, ADMIN_LEXICON, statistic_captions, catalog_captions, captions as first_captions, class_lexicon, \
@@ -12,12 +13,14 @@ from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_LEXICON, STATISTIC_LEXIC
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_mini_lexicon, \
     AdminReviewCatalogChooseCarBrand
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions as second_captions, admin_class_mini_lexicon, \
-    NaturalList, ChooseTariff, TariffNonExistsPlug, AllTariffsOutput, SelectTariff
+    NaturalList, ChooseTariff, TariffNonExistsPlug, AllTariffsOutput
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_params_class_lexicon, \
     advert_params_captions, AdvertParametersChooseState
 from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import statistic_class_lexicon, TopTenDisplay, \
     SelectCustomParamsProcess
 from utils.lexicon_utils.commodity_loader import commodity_loader_lexicon, LexiconCommodityLoader, BaseBootButtons
+
+# ic.disable()
 
 
 class LanguageMiddleware(BaseMiddleware):
@@ -35,7 +38,7 @@ class LanguageMiddleware(BaseMiddleware):
                            statistic_captions,
                            class_lexicon]
         self.lexicon_objects_to_classes = {
-            class_lexicon: [LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection,
+            (class_lexicon): [LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection,
                             LexiconSelectedTariffPreview, LexiconChoicePaymentSystem, LexiconCreateInvoice,
                             LexiconPaymentOperation, LastButtonsInCarpooling, ChooseEngineType, ChooseBrand,
                             ChooseModel, ChooseComplectation, ChooseYearOfRelease, ChooseMileage, ChooseColor],
@@ -45,10 +48,10 @@ class LanguageMiddleware(BaseMiddleware):
             (catalog_mini_lexicon): [AdminReviewCatalogChooseCarBrand],
 
             (admin_class_mini_lexicon, second_captions): [NaturalList, TariffNonExistsPlug, AllTariffsOutput,
-                                                          SelectTariff, ChooseTariff],
+                                                        ChooseTariff],
             (advert_params_class_lexicon): [AdvertParametersChooseState],
 
-            (statistic_class_lexicon): [SelectCustomParamsProcess, TopTenDisplay]
+            (statistic_class_lexicon): [SelectCustomParamsProcess, TopTenDisplay],
         }
 
     async def __call__(
@@ -61,7 +64,7 @@ class LanguageMiddleware(BaseMiddleware):
         ic()
         language = None
         redis_key = f'{str(event.from_user.id)}:language'
-
+        # ic(class_lexicon.language, LexiconSelectedTariffPreview.tariff_block)
         if isinstance(event, CallbackQuery) and event.data.startswith('language_') and len(event.data) == 11:
 
             redis_value = event.data.split('_')
@@ -72,24 +75,40 @@ class LanguageMiddleware(BaseMiddleware):
                     language = redis_value
 
         if not language:
-            ic()
+            # ic()
             language = await redis_module.redis_data.get_data(key=f'{redis_key}')
-        ic(language)
+        # ic(language)
         if language:
 
             for lexicon in self.lexicon_objects:
-                ic(lexicon.language)
+                # ic(lexicon.language)
                 if lexicon.language != language:
                     await lexicon.set_language(language)
-                    ic()
-                    ic(lexicon.language)
+#                     ic()
+#                     ic(lexicon.language)
                     await self.reinit_instances(lexicon)
+                # ic(lexicon.__class__.__name__, lexicon.language)
+
+#         ic(class_lexicon.language, LexiconSelectedTariffPreview.tariff_block)
 
         return await handler(event, data)
 
     async def reinit_instances(self, key):
-        for keys, related_classes in self.lexicon_objects_to_classes.items():
-            for lexicon_model in keys:
-                if key == lexicon_model:
-                    for related_class in related_classes:
-                        related_class.__init__()
+        async def reinit_related(equanced_model):
+            # ic(index, key == equanced_model, type(key), equanced_model if isinstance(equanced_model, str) else None)
+            if key == equanced_model:
+                for related_class in related_classes:
+                    # ic(related_class.__class__.__name__)
+                    related_class.__init__()
+#                 ic(key.__dict__, key.language)
+
+        for index, (keys, related_classes) in enumerate(self.lexicon_objects_to_classes.items()):
+            # ic(index, len(keys) if isinstance(key, tuple) else None, type(related_classes), len(related_classes))
+            # ic()
+            if isinstance(keys, tuple):
+                for index, lexicon_model in enumerate(keys):
+                    await reinit_related(lexicon_model)
+            else:
+                await reinit_related(keys)
+
+

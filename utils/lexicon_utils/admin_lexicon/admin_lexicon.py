@@ -156,7 +156,8 @@ admin_class_mini_lexicon_ru = {
     'set': 'Установить',
     'set_tariff': 'Установить тариф',
     'remove_tariff': 'Обнулить тариф',
-    'search_by_name': 'Поиск по имени'
+    'search_by_name': 'Поиск по имени',
+    'return_main_menu': 'В меню'
 }
 
 
@@ -166,6 +167,7 @@ admin_class_mini_lexicon_ru = {
 
 admin_class_mini_lexicon = SafeDict({'ru': admin_class_mini_lexicon_ru,
                                      'uz': admin_class_mini_lexicon_uz})
+
 
 
 class TariffNonExistsPlug:
@@ -180,7 +182,8 @@ class AllTariffsOutput:
         self.width = 1
         self.dynamic_buttons = 2
         self.last_buttons = None
-        self.backward_command = {'add_tariff_by_admin': captions['add'], **return_main_menu}
+        self.backward_command = {'add_tariff_by_admin': captions['add'],
+                                 'return_main_menu': admin_class_mini_lexicon['return_main_menu']}
 
 class BanUser:
     class InputReason:
@@ -203,7 +206,7 @@ class BanUser:
 
 
 class SelectTariff:
-    def __init__(self):
+    def __init__(self, tariff_exists, tariff_name, seller_name):
         self.message_text = {
         'exists': admin_class_mini_lexicon['select_tariff_message_text_exists'],
         'non_exists': admin_class_mini_lexicon['select_tariff_message_text_non_exists']
@@ -212,6 +215,18 @@ class SelectTariff:
         self.last_buttons = {'confirm_set_tariff_to_seller_by_admin': captions['confirm']}
         self.backward_command = {'admin_backward:tariff_to_seller_pre_confirm_moment': captions['cancel']}
         self.width = 1
+
+        self.message_text_startswith = self.message_text_startswith.format(name=seller_name)
+        self.message_text = self.message_text['exists'] if tariff_exists else self.message_text['non_exists']
+        self.message_text = self.message_text_startswith + self.message_text.format(tariff_name=tariff_name)
+        self.last_buttons = self.last_buttons
+        self.backward_command = self.backward_command
+        self.width = self.width
+        self.lexicon_part = {'message_text': self.message_text, 'buttons': {**self.last_buttons,
+                                                                            **self.backward_command,
+                                                                            'width': self.width
+                                                                            }
+                             }
 
 class ChooseTariff:
     def __init__(self):
@@ -231,8 +246,8 @@ class ReviewSellerTariff:
             'legal': admin_class_mini_lexicon['review_seller_tariff_message_header_legal'],
             'natural': admin_class_mini_lexicon['review_seller_tariff_message_header_natural']
         }
-        self.set_tariff_button = {'set_seller_tariff_by_admin': captions['set_tariff']}
-        self.remove_tariff_buttons = {'reset_seller_tariff_by_admin': captions['remove_tariff']}
+        self.set_tariff_button = {'set_seller_tariff_by_admin': admin_class_mini_lexicon['set_tariff']}
+        self.remove_tariff_buttons = {'reset_seller_tariff_by_admin': admin_class_mini_lexicon['remove_tariff']}
         self.backward_buttons = {'admin_backward:review_seller_tariff': captions['backward']}
         self.tariff_not_exists = admin_class_mini_lexicon['tariff_not_exists']
 
@@ -247,9 +262,10 @@ class ReviewSellerTariff:
 class UserList:
     def __init__(self, user_status):
         self.buttons_callback_data = 'user_select_action:'
-        self.search_by_name_button_caption = captions['search_by_name']
+        self.search_by_name_button_caption = admin_class_mini_lexicon['search_by_name']
         self.search_by_name_callback_data_startswith = 'from_admin_search_by_name'
-        self.backward_command = {'admin_backward:user_list_to_admin': captions['backward'], **return_main_menu}
+        self.backward_command = {'admin_backward:user_list_to_admin': captions['backward'],
+                                 'return_main_menu': admin_class_mini_lexicon['return_main_menu']}
         self.message_text = admin_class_mini_lexicon['user_list_message_text']
         self.width = 1
         self.dynamic_buttons = 2
@@ -257,21 +273,25 @@ class UserList:
         self.last_buttons = {**self.search_by_name_button}
 
 class SellerList(UserList):
-    buttons_callback_data = 'seller_select_action:'
-    backward_command = {'admin_backward:seller_list_to_admin': captions['backward']}
+    def __init__(self, user_status):
+        super().__init__(user_status)
+        # self.message_text = admin_class_mini_lexicon['natural_list_message_text']
+        self.buttons_callback_data = 'seller_select_action:'
+        self.backward_command = {'admin_backward:seller_list_to_admin': captions['backward']}
 
-class NaturalList:
-    def __init__(self):
+class NaturalList(SellerList):
+    def __init__(self, user_status):
+        super().__init__(user_status)
         self.message_text = admin_class_mini_lexicon['natural_list_message_text']
 
-NaturalList = NaturalList()
+# NaturalList = NaturalList()
 TariffNonExistsPlug = TariffNonExistsPlug()
 AllTariffsOutput = AllTariffsOutput()
-SelectTariff = SelectTariff()
 ChooseTariff = ChooseTariff()
 
-class DealershipList:
+class DealershipList(SellerList):
     def __init__(self, seller_status):
+        super().__init__(seller_status)
         self.message_text = admin_class_mini_lexicon['dealership_list_message_text']
         self.message_text = NaturalList.message_text if seller_status == 'natural' \
             else self.message_text

@@ -187,8 +187,12 @@ class TariffToSellerBinder:
     @staticmethod
     async def remove_bind(seller_id):
         tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
+        try:
+            delete_query = await manager.execute(TariffsToSellers.delete().where(TariffsToSellers.seller == seller_id))
+        except IntegrityError:
+            await DyingTariffRequester.remove_old_tariff_to_update(seller_id)
+            delete_query = await manager.execute(TariffsToSellers.delete().where(TariffsToSellers.seller == seller_id))
 
-        delete_query = await manager.execute(TariffsToSellers.delete().where(TariffsToSellers.seller == seller_id))
         await tariff_requests_module.TarifRequester.try_delete_dying_tariff()
         return True if delete_query else False
 
