@@ -111,7 +111,8 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
                                                          complectation_id=int(complectation),
                                                          color_id=color,
                                                          mileage_id=mileage,
-                                                         year_of_release_id=year_of_release
+                                                         year_of_release_id=year_of_release,
+                                                         buyer_search_mode=callback.from_user.id
                                                          )
     else:
         first_view_mode = False

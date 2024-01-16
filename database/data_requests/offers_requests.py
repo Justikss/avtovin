@@ -7,7 +7,6 @@ from peewee import JOIN, DoesNotExist
 
 from icecream import ic
 
-from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.tables.car_configurations import CarComplectation, CarAdvert, CarModel, CarBrand
 from database.tables.offers_history import ActiveOffers, CacheBuyerOffers, RecommendationsToBuyer, RecommendedOffers
 from database.tables.seller import Seller
@@ -69,6 +68,7 @@ class OffersRequester:
     @staticmethod
     async def set_offer_model(buyer_id, car_id, seller_id):
         '''Асинхронный метод установки модели предложения'''
+
         if not await OffersRequester.get_offer_model(buyer_id, car_id):
             query = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id, seller_id=seller_id, viewed=False)
             select_response = await manager.execute(query)

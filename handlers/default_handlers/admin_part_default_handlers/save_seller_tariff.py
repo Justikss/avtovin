@@ -16,7 +16,7 @@ async def save_tariff_handler(message: Message):
     await dying_tariffs_requester_module.DyingTariffRequester.remove_old_tariff_to_update(user_id)
     await tariff_to_seller_binder_module.TariffToSellerBinder.remove_bind(user_id)
 
-    await car_advert_requests_module.AdvertRequester.set_sleep_status(sleep_status=False, seller_id=user_id)
+    # await car_advert_requests_module.AdvertRequester.set_sleep_status(sleep_status=False, seller_id=user_id)
 
     await get_tariff(message, normal_status=True)
 

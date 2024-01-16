@@ -109,6 +109,7 @@ class DyingTariffRequester:
         old_tariff = DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller)
 
         await manager.execute(DyingTariffs.delete().where(DyingTariffs.id.in_(old_tariff)))
+        await car_advert_requests_module.AdvertRequester.set_sleep_status(sleep_status=False, seller_id=seller)
         await TarifRequester.try_delete_dying_tariff()
 
     @staticmethod

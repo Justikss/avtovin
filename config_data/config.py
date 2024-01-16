@@ -36,8 +36,8 @@ DEFAULT_COMMANDS = (
     ("help", "Вывести справку")
 )
 
-
-
+YANDEX_IAM_TOKEN = os.getenv('YANDEX_IAM_TOKEN')
+YANDEX_folder_id = os.getenv('YANDEX_folder_id')
 
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
 MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'

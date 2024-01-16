@@ -527,7 +527,8 @@ async def start_bot():
                                AdminStatusController())
 
     '''mailing_action'''
-    dp.callback_query.register(mailing.choose_mailing_action.request_choose_mailing_action,
+    dp.callback_query.register(mailing.choose_mailing_action.ChooseMailingAction().callback_handler
+,
                                F.data == 'mailing_action')
 
     dp.callback_query.register(mailing.mailing_storage.choose_specific_type.request_choose_mailing_type,

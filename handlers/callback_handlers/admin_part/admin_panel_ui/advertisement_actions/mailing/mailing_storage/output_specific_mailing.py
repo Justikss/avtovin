@@ -4,10 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.mailing_requests import get_mailings_by_viewed_status
-from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from states.admin_part_states.mailing.mailing_review_states import MailingReviewStates
 
-
+admin_pagination_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination')
 
 async def output_mailings(callback: CallbackQuery, state: FSMContext):
     mailing_ids = None
@@ -25,7 +24,7 @@ async def output_mailings(callback: CallbackQuery, state: FSMContext):
 
     if mailing_ids:
 
-        await AdminPaginationOutput.set_pagination_data(callback, state, mailing_ids)
+        await admin_pagination_module.AdminPaginationOutput.set_pagination_data(callback, state, mailing_ids)
         ic()
 
     else:

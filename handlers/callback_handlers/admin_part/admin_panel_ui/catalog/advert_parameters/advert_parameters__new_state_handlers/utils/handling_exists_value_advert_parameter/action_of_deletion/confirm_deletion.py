@@ -8,7 +8,6 @@ from aiogram.types import Message, CallbackQuery
 
 from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
-from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.start_deletion import \
@@ -186,6 +185,9 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             return dependencies, photos
 
         async def delete_data(dependencies, photo_dependencies):
+            advert_feedbacks_requests_module = importlib.import_module(
+                'database.data_requests.statistic_requests.advert_feedbacks_requests')
+
             ic(dependencies)
             # Удаление фотографий
             photo_ids = [photo.id for photo in photo_dependencies]
@@ -197,7 +199,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             for table_name in params_can_delete:
                 if table_name in dependencies.keys():
                     ic(table_name)
-                    await AdvertFeedbackRequester.update_parameters_to_null_by_specific_parameter(table_name,
+                    await advert_feedbacks_requests_module\
+                            .AdvertFeedbackRequester.update_parameters_to_null_by_specific_parameter(table_name,
                                                                                                   dependencies[table_name])
                     if table_name != 'color':
                         await CarConfigs.custom_action(table_name, 'delete', model_id=dependencies[table_name])

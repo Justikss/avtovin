@@ -4,7 +4,6 @@ import traceback
 from peewee import JOIN
 
 from database.data_requests.advert_parameters_requests import AdvertParameterManager
-from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarState, CarEngine, CarColor, CarMileage, \
     CarYear, CarModel, CarBrand
@@ -20,10 +19,13 @@ offers_history_module = importlib.import_module('database.tables.offers_history'
 class RecommendationParametersBinder:
     @staticmethod
     async def store_parameters(buyer_id, color_id, complectation_id):
+        advert_feedbacks_requests_module = importlib.import_module('database.data_requests.statistic_requests.advert_feedbacks_requests')
+
         try:
             complectation_id = int(complectation_id)
             ic(buyer_id, complectation_id, color_id)
-            parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(
+            parameters = await advert_feedbacks_requests_module\
+                .AdvertFeedbackRequester.get_or_create_by_parameters(
                 color_id=color_id,
                 complectation_id=complectation_id)
             select_query = await manager.get_or_create(offers_history_module\
@@ -37,13 +39,15 @@ class RecommendationParametersBinder:
 
     @staticmethod
     async def get_wire_by_parameters(advert=None, complectation_id=None, color_id=None, seller_id=None):
+        advert_feedbacks_requests_module = importlib.import_module('database.data_requests.statistic_requests.advert_feedbacks_requests')
         if advert:
             complectation_id = advert.complectation.id
             color_id = advert.color.id
             seller_id = advert.seller.telegram_id
 
         ic(complectation_id, color_id)
-        parameters = await AdvertFeedbackRequester.get_or_create_by_parameters(color_id, complectation_id)
+        parameters = await advert_feedbacks_requests_module\
+            .AdvertFeedbackRequester.get_or_create_by_parameters(color_id, complectation_id)
         query = (offers_history_module\
                  .RecommendationsToBuyer
                  .select()

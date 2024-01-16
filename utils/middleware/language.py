@@ -5,6 +5,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, CallbackQuery
 from icecream import ic
 
+from database.tables.car_configurations import attribute_language_manager
 from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_LEXICON, STATISTIC_LEXICON, ADVERT_PARAMETERS_LEXICON, \
     CATALOG_LEXICON, ADMIN_LEXICON, statistic_captions, catalog_captions, captions as first_captions, class_lexicon, \
     LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection, LexiconChoicePaymentSystem, \
@@ -36,7 +37,7 @@ class LanguageMiddleware(BaseMiddleware):
                            statistic_class_lexicon,
                            catalog_captions,
                            statistic_captions,
-                           class_lexicon]
+                           class_lexicon, attribute_language_manager]
         self.lexicon_objects_to_classes = {
             (class_lexicon): [LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection,
                             LexiconSelectedTariffPreview, LexiconChoicePaymentSystem, LexiconCreateInvoice,
@@ -92,6 +93,8 @@ class LanguageMiddleware(BaseMiddleware):
 #         ic(class_lexicon.language, LexiconSelectedTariffPreview.tariff_block)
 
         return await handler(event, data)
+
+
 
     async def reinit_instances(self, key):
         async def reinit_related(equanced_model):

@@ -22,6 +22,7 @@ from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
+from utils.translator import translate
 
 
 class CarConfigs:
@@ -79,7 +80,12 @@ class CarConfigs:
                 result = list(query)
 
             case 'insert' if name:
-                insert_kwargs = {'name': name}
+                insert_kwargs = None
+                if mode in ('color', 'complectation'):
+                    insert_kwargs = await translate(name, 'name')
+                if not insert_kwargs:
+                    insert_kwargs = {'name': name}
+
                 try:
                     if first_subject and not second_subject:
                       insert_kwargs['brand'] = first_subject

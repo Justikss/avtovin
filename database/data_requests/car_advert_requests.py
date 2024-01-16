@@ -13,6 +13,7 @@ from database.tables.commodity import AdvertPhotos
 from database.tables.offers_history import CacheBuyerOffers, ActiveOffers
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
+from database.tables.user import User
 
 
 class AdvertRequester:
@@ -177,7 +178,8 @@ class AdvertRequester:
 
     @staticmethod
     async def get_advert_by(state_id=None, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
-                            color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None, without_actual_filter=None):
+                            color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None,
+                            without_actual_filter=None, buyer_search_mode=False):
         ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id)
         int_flag = None
         result_adverts = None
@@ -250,6 +252,14 @@ class AdvertRequester:
             query = query.switch(CarAdvert).join(CarYear).where(CarYear.id == int(year_of_release_id))
             last_table, int_flag = None, None
 
+        if query and buyer_search_mode:
+            if isinstance(buyer_search_mode, str):
+                buyer_search_mode = int(buyer_search_mode)
+
+            query = query.where(CarAdvert.id.not_in(
+                ActiveOffers.select(CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User).where(
+                    ActiveOffers.buyer_id == buyer_search_mode)
+            ))
 
         query = query.distinct()
         if without_actual_filter:

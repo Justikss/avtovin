@@ -26,7 +26,8 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=memory_storage['cars_model'],
                                                        complectation_id=memory_storage['cars_complectation'],
-                                                       color_id=user_answer)
+                                                       color_id=user_answer,
+                                                       buyer_search_mode=callback.from_user.id)
 
     # button_texts = {car.mileage for car in models_range}
     lexicon_class = lexicon_module.ChooseMileage()
@@ -64,7 +65,8 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
                                                        model_id=memory_storage['cars_model'],
                                                        complectation_id=memory_storage['cars_complectation'],
                                                        color_id=memory_storage['cars_color'],
-                                                       mileage_id=user_answer)
+                                                       mileage_id=user_answer,
+                                                       buyer_search_mode=callback.from_user.id)
 
     # button_texts = {car.year for car in models_range}
     lexicon_class = lexicon_module.ChooseYearOfRelease()

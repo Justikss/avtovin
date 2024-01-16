@@ -8,7 +8,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.booting_mail.review_inputted_data import \
     request_review_mailing_data
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.choose_mailing_action import \
-    request_choose_mailing_action
+    ChooseMailingAction
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.choose_statistic_type import \
@@ -61,7 +61,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
     output_buyer_profile
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.output_specific_seller import \
     output_specific_seller_profile_handler
-from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
+
 from handlers.callback_handlers.buy_part.language_callback_handler import set_language
 from handlers.utils.delete_message import delete_message
 from handlers.utils.message_answer_without_callback import send_message_answer
@@ -147,7 +147,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             ic(edit_mailing_flag)
             ic(current_state)
             if not edit_mailing_flag or current_state in ('MailingStates:edit_inputted_data', 'MailingStates:confirmation'):
-                await request_choose_mailing_action(callback, state)
+                await ChooseMailingAction().callback_handler(callback, state)
             else:
                 await request_review_mailing_data(callback, state)
 
@@ -155,7 +155,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
             await choose_advertisement_action(callback, state)
 
         case 'choose_review_mailing_type':
-            await request_choose_mailing_action(callback, state)
+            await ChooseMailingAction().callback_handler(callback, state)
 
         case 'review_mailings':
             await request_choose_mailing_type(callback, state)
@@ -173,7 +173,10 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
                 await input_advert_id_for_search_admin_handler(callback, state)
 
         case 'catalog__choose_specific_advert_action' | 'to_catalog_review_adverts':
-            if await AdminPaginationOutput.output_page(callback, state, None) is False:
+            admin_pagination_module = importlib.import_module(
+                'handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination')
+
+            if await admin_pagination_module.AdminPaginationOutput.output_page(callback, state, None) is False:
                 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
                 await send_message_answer(callback, Lexicon_module.catalog_captions['inactive_advert_or_seller'])
                 if await choose_review_catalog_brand_admin_handler(callback, state) is False:

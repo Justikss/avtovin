@@ -51,7 +51,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
     # models_range = await car_advert_requests_module\
     # .AdvertRequester.get_advert_by(state_id=cars_type)
     models_range = await car_advert_requests_module\
-        .AdvertRequester.get_advert_by(state_id=cars_type)
+        .AdvertRequester.get_advert_by(state_id=cars_type, buyer_search_mode=callback.from_user.id)
     ic(models_range)
     if not models_range:
         return await message_editor.travel_editor.edit_message(request=callback, lexicon_key='cars_not_found', lexicon_cache=False)
@@ -89,7 +89,8 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
 
     models_range = await car_advert_requests_module\
         .AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
-                                                    engine_type_id=user_answer,
+                                        engine_type_id=user_answer,
+                                       buyer_search_mode=callback.from_user.id
                                                     )
 
     # button_texts = {car.complectation.model.brand for car in models_range}
@@ -127,7 +128,8 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
 
 
     models_range = await car_advert_requests_module\
-        .AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type)
+        .AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type,
+                                       buyer_search_mode=callback.from_user.id)
 
     # button_texts = {car.complectation.model for car in models_range}
     lexicon_class = lexicon_module.ChooseModel()
@@ -164,7 +166,8 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
         .AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
-                                                       model_id=user_answer)
+                                                       model_id=user_answer,
+                                       buyer_search_mode=callback.from_user.id)
 
     # button_texts = {car.complectation for car in models_range}
     lexicon_class = lexicon_module.ChooseComplectation()
@@ -198,7 +201,8 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
                                                        model_id=memory_storage['cars_model'],
-                                                       complectation_id=user_answer)
+                                                       complectation_id=user_answer,
+                                                       buyer_search_mode=callback.from_user.id)
     if models_range:
         models_range = await set_other_color_on_last_position(models_range)
 
