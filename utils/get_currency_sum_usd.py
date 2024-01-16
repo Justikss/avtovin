@@ -8,6 +8,8 @@ import requests
 from bs4 import BeautifulSoup
 
 
+excepts = 0
+
 async def convertator(valute, cost):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     ic(valute, cost)
@@ -80,7 +82,11 @@ async def currency_usd_to_sum():
                     return False
 
     except Exception as e:
+        global excepts
         logging.error(f"Произошла ошибка при парсинге: {e}")
+        excepts += 1
+        if excepts == 5:
+            logging.critical('Five exceptions from converter parsing')
         return False
 
 async def fetch_currency_rate():

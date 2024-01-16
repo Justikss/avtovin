@@ -4,7 +4,6 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import \
     AddNewValueAdvertParameter
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
@@ -26,8 +25,11 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
                 await self.set_next_param_to_choose(request, state, memory_storage)
 
             case 'second_hand':
+                car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
                 param_kwarg = {memory_storage.get('admin_chosen_advert_parameter'): memory_storage.get('current_value')}
-                insert_query = await CarConfigs.custom_action(mode=memory_storage.get('admin_chosen_advert_parameter'),
+                insert_query = await car_configs_module\
+                    .CarConfigs.custom_action(mode=memory_storage.get('admin_chosen_advert_parameter'),
                                                name=memory_storage.get('current_value'),
                                                action='insert')
         if insert_query == '(exists)':

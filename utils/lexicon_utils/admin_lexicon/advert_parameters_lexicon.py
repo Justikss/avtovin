@@ -123,7 +123,7 @@ advert_params_class_lexicon_ru = {
     'return_main_menu': 'В меню'
 }
 
-advert_params_captions = SafeDict({'ru': advert_parameters_captions,
+advert_parameters_captions = SafeDict({'ru': advert_parameters_captions,
                                    'uz': advert_params_captions_uz})
 
 advert_params_class_lexicon = SafeDict({'ru': advert_params_class_lexicon_ru,
@@ -161,7 +161,7 @@ class AdvertParametersChooseSpecificValue:
             'return_main_menu': advert_params_class_lexicon['return_main_menu']}
 
         if parameter_name:
-            self.message_text = f'''{header if header else ''}{self.__class__.__dict__.get(f'message_text_{parameter_name}')}'''
+            self.message_text = f'''{header if header else ''}{getattr(self, f'message_text_{parameter_name}')}'''
 
         if header:
             if parameter_name == 'brand':

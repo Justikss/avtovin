@@ -4,7 +4,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
+
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog_action import \
     choose_catalog_action_admin_handler
@@ -46,6 +46,8 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
         return insert_query
 
     async def get_selected_param_models(self, state: FSMContext):
+        car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
         memory_storage = await state.get_data()
         selected_parameters = memory_storage.get('selected_parameters')
         ic(selected_parameters)
@@ -67,19 +69,25 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
                         subtables = {'first_subject': good_params['brand']}
                     elif key == 'complectation':
                         subtables = {'first_subject': good_params['model'],
-                                     'second_subject': good_params['engine_type']}
+                                     'second_subject': good_params['engine_type' if 'engine_type' in good_params.keys()
+                                                                                 else 'engine']}
                     else:
                         subtables = {}
-                    current_param = await CarConfigs.custom_action(value, 'insert', value, **subtables)
+                    current_param = await car_configs_module\
+                        .CarConfigs.custom_action(value, 'insert', value, **subtables)
             else:
-                current_param = await CarConfigs.get_by_id(key, value)
+                current_param = await car_configs_module\
+                    .CarConfigs.get_by_id(key, value)
 
             good_params[key] = current_param
         ic(good_params)
         return good_params
 
     async def get_selected_color(self, color):
-        color_exists = await CarConfigs.get_or_add_color(color)
+        car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
+        color_exists = await car_configs_module\
+            .CarConfigs.get_or_add_color(color)
 
         return color_exists
 

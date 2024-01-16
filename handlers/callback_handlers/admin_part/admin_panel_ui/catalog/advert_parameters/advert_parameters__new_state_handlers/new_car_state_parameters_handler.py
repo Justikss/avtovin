@@ -1,7 +1,9 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
+
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_params_branch_review import \
     ParamsBranchReviewHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
@@ -76,6 +78,7 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
                 #         last_chosen = None
                 ic(last_chosen)
                 if last_chosen:
+                    car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
                     for index, parameter_name in enumerate(parameter_names):
 
                         if last_chosen == parameter_names[index+1]:
@@ -87,7 +90,7 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
                             else:
                                 output_moment_flag = True
                             break
-                    parameter_name = await CarConfigs.get_by_id(chosen_param, selected_id)
+                    parameter_name = await car_configs_module.CarConfigs.get_by_id(chosen_param, selected_id)
                     if not parameter_name:
                         return False
                     await state.update_data(admin_chosen_advert_parameter=last_chosen)

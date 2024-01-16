@@ -179,11 +179,11 @@ class CarConfigs:
 
     @staticmethod
     async def get_all_engines():
-        return await manager.execute(CarEngine.select())
+        return list(await manager.execute(CarEngine.select()))
 
     @staticmethod
     async def get_all_states():
-        return await manager.execute(CarState.select())
+        return list(await manager.execute(CarState.select()))
 
 
     @staticmethod
@@ -283,11 +283,16 @@ async def insert_many(table, names):
 
                 name = name.split(head_symbol)
                 name = head_symbol.join([f"{int(nam):,}".replace(",", ".") for nam in name])
-        elif table == CarColor:
-            await manager.create(table, name=name)
-            continue
+        # elif table == CarColor:
+        #     await manager.create(table, name=name)
+        #     continue
 
-        await manager.create(table, name=name)
+        if table in (CarColor, CarEngine, CarState):
+            insert_data = {}
+            insert_data.update({'name_ru': name[0], 'name_uz': name[1]})
+        else:
+            insert_data = {'name': name}
+        await manager.create(table, **insert_data)
 
 async def insert_many_with_foregin(table, wire_to_name):
     for wire, names in wire_to_name.items():
@@ -327,15 +332,19 @@ async def insert_many_with_foregin(table, wire_to_name):
                                              engine=await manager.get(
                                                  CarEngine.select().where(CarEngine.name == engine)))
 
-async def mock_values():
+async def mock_values(only_base_params):
+    state_names = [('Новое', 'Yangi'), ('Б/У', 'Б/У')]
+    await insert_many(CarState, state_names)
+
+    engine_names = [('ГИБРИД', 'Gibrid'), ('ЭЛЕКТРО', 'Elektr'), ('ДВС', 'IYD')]
+    await insert_many(CarEngine, engine_names)
+
+    if only_base_params:
+        return
+
     brand_names = ['Сhevrolet', 'Li Xiang', 'Leapmotor', 'BYD', 'Mercedes', 'Audi', 'Ford', 'BMW', 'Renault', 'Jeep', 'Ferrari']
     await insert_many(CarBrand, brand_names)
 
-    state_names = ['Новое', 'Б/У']
-    await insert_many(CarState, state_names)
-
-    engine_names = ['ГИБРИД', 'ЭЛЕКТРО', 'ДВС']
-    await insert_many(CarEngine, engine_names)
 
     await insert_many(CarColor, ['Другой', 'Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
     await insert_many(CarYear, ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2022'])

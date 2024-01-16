@@ -3,7 +3,6 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import AddNewValueAdvertParameter
@@ -38,7 +37,9 @@ class AdvertParameterValueFilter(BaseFilterObject):
         ic(last_advert_parameter)
 
         if last_advert_parameter in ('mileage', 'year'):
-            existing_value = await CarConfigs.custom_action(last_advert_parameter, 'get_by_name', name=inputted_value)
+            car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
+            existing_value = await car_configs_module.CarConfigs.custom_action(last_advert_parameter, 'get_by_name', name=inputted_value)
         else:
             existing_value = await self.seek_matched_new_state_param_names(request, state, last_advert_parameter,
                                                                            inputted_value)

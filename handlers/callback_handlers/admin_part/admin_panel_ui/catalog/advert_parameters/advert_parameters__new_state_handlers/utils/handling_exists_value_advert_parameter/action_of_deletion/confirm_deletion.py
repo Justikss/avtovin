@@ -6,7 +6,6 @@ import traceback
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
@@ -18,6 +17,7 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
 
 class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
@@ -88,7 +88,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 delete_query = await self.delete_new_state_params(selected_params)
             case 'second_hand':
                 for parameter_type_name, parameter_value_id in selected_params.items():
-                    delete_query = await CarConfigs.custom_action(
+                    delete_query = await car_configs_module\
+                        .CarConfigs.custom_action(
                         action='delete',
                         model_id=int(parameter_value_id),
                         mode=parameter_type_name
@@ -107,14 +108,17 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
 
             async def delete_low_params(current_param):
                 if current_param == 'color':
-                    colors = await CarConfigs.get_color_by_complectaiton(selected_data['complectation'])
+                    colors = await car_configs_module\
+                        .CarConfigs.get_color_by_complectaiton(selected_data['complectation'])
                     if not colors:
                         dependencies['complectation'] = {selected_data['complectation']}
                         await delete_low_params('complectation')
 
                 elif current_param == 'complectation':
-                    complectations = await CarConfigs.get_complectations_by_model_and_engine(selected_data['model'])
-                    # complectations_by_engine = await CarConfigs.get_complectations_by_model_and_engine(selected_data['model'],
+                    complectations = await car_configs_module\
+                        .CarConfigs.get_complectations_by_model_and_engine(selected_data['model'])
+                    # complectations_by_engine = await car_configs_module\
+                    # .CarConfigs.get_complectations_by_model_and_engine(selected_data['model'],
                     #                                                                                    selected_data['engine'])
                     ic(complectations)
                     # if sorted({complectation.id for complectation in complectations}) \
@@ -123,8 +127,10 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                         dependencies['model'] = {selected_data['model']}
                         await delete_low_params('model')
                 elif current_param == 'model':
-                    models = await CarConfigs.get_models_by_brand_and_engine(selected_data['brand'])
-                    models_by_brand = await CarConfigs.get_models_by_brand_and_engine(selected_data['brand'],
+                    models = await car_configs_module\
+                        .CarConfigs.get_models_by_brand_and_engine(selected_data['brand'])
+                    models_by_brand = await car_configs_module\
+                        .CarConfigs.get_models_by_brand_and_engine(selected_data['brand'],
                                                                                       selected_data['engine'])
                     # if sorted({model.id for model in models}) \
                     #         == sorted({model_by_brand.id for model_by_brand in models_by_brand}):
@@ -149,7 +155,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             # Если 'model' есть в selected_data, ищем зависимые 'complectation'
             elif 'model' in selected_data:
                 # dependencies['model'] = {[selected_data['model']]}
-                complectations = await CarConfigs.get_complectations_by_model_and_engine(selected_data['model'],
+                complectations = await car_configs_module\
+                    .CarConfigs.get_complectations_by_model_and_engine(selected_data['model'],
                                                                                          selected_data['engine'])
                 dependencies['complectation'] = {comp.id for comp in complectations}
                 photos = await PhotoRequester.find_photos_by_model_and_engine(selected_data['model'],
@@ -160,14 +167,16 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             elif 'brand' in selected_data:
                 ic(dependencies)
                 # delete_low_params = await delete_low_params('brand')
-                models = await CarConfigs.get_models_by_brand_and_engine(selected_data['brand'],
+                models = await car_configs_module\
+                    .CarConfigs.get_models_by_brand_and_engine(selected_data['brand'],
                                                                          selected_data['engine'])
                 if models:
                     dependencies['complectation'] = set()
                     ic(dependencies)
 
                     for model in models:
-                        complectations = await CarConfigs.get_complectations_by_model_and_engine(model,
+                        complectations = await car_configs_module\
+                            .CarConfigs.get_complectations_by_model_and_engine(model,
                                                                                                  selected_data['engine'])
                         ic(complectations)
                         if complectations:
@@ -176,7 +185,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
 
                 dependencies['model'] = {mod.id for mod in models}
                 ic(dependencies)
-                # other_models = await CarConfigs.get_models_by_brand_and_engine(selected_data['brand'])
+                # other_models = await car_configs_module\
+                # .CarConfigs.get_models_by_brand_and_engine(selected_data['brand'])
                 await delete_low_params('model')
                 ic(dependencies)
 
@@ -203,7 +213,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                             .AdvertFeedbackRequester.update_parameters_to_null_by_specific_parameter(table_name,
                                                                                                   dependencies[table_name])
                     if table_name != 'color':
-                        await CarConfigs.custom_action(table_name, 'delete', model_id=dependencies[table_name])
+                        await car_configs_module\
+                            .CarConfigs.custom_action(table_name, 'delete', model_id=dependencies[table_name])
 
         if 'state' in selected_params:
             selected_params.pop('state')

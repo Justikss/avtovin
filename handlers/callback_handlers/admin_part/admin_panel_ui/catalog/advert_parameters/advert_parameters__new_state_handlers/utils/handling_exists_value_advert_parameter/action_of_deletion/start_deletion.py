@@ -3,7 +3,6 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
@@ -107,9 +106,11 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
 
 
     async def get_param_values_to_type_names(self, selected_parameters):
+        car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
         param_names_to_type_names = ''
         for key, value in selected_parameters.items():
-            config_object = await CarConfigs.get_by_id(table=key, model_id=value)
+            config_object = await car_configs_module.CarConfigs.get_by_id(table=key, model_id=value)
             param_names_to_type_names += f'{advert_parameters_captions[key]}: {config_object.name}\n'
 
         return param_names_to_type_names

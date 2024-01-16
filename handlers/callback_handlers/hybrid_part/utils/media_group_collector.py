@@ -4,10 +4,6 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto
 
-from database.data_requests.car_configurations_requests import CarConfigs
-from database.data_requests.new_car_photo_requests import PhotoRequester
-from database.db_connect import manager
-from database.tables.car_configurations import CarComplectation, CarBrand, CarModel, CarEngine, CarColor
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
     NewCarStateParameters
 

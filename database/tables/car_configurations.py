@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime
 
 # from config_data.config import REGISTRATION_DATETIME_FORMAT
@@ -11,30 +12,58 @@ class AttributeLanguageManager:
     async def set_language(self, language):
         self.language = language
 
+# clas(ABC):
 
 
 attribute_language_manager = AttributeLanguageManager()
 
 class CarState(BaseModel):
-    name = CharField(unique=True)
-
-class CarEngine(BaseModel):
-    name = CharField(unique=True)
-
-class CarColor(BaseModel):
     _name = CharField(unique=True, null=True)
     name_uz = CharField(unique=True, null=True)
     name_ru = CharField(unique=True, null=True)
-    # base_status = BooleanField(null=True)
 
     @property
     def name(self):
-        language_name = self.__dict__.get(f'_CarColor__name_{attribute_language_manager.language}')
+        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
         return language_name if language_name else self._name
 
     @name.setter
     def name(self, new_value):
         self._name = new_value
+
+
+class CarEngine(BaseModel):
+    _name = CharField(unique=True, null=True)
+    name_uz = CharField(unique=True, null=True)
+    name_ru = CharField(unique=True, null=True)
+
+    @property
+    def name(self):
+        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
+        return language_name if language_name else self._name
+
+
+    @name.setter
+    def name(self, new_value):
+        self._name = new_value
+
+
+class CarColor(BaseModel):
+    _name = CharField(unique=True, null=True)
+    name_uz = CharField(unique=True, null=True)
+    name_ru = CharField(unique=True, null=True)
+
+    @property
+    def name(self):
+        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
+        return language_name if language_name else self._name
+
+    @name.setter
+    def name(self, new_value):
+        self._name = new_value
+
+    # base_status = BooleanField(null=True)
+
 
 
 class CarMileage(BaseModel):
@@ -43,10 +72,6 @@ class CarMileage(BaseModel):
 class CarYear(BaseModel):
     name = CharField(unique=True)
 
-# class ModelCharacteristic(BaseModel):
-#     model = ForeignKeyField(Model, backref='characteristics')
-#     characteristic = ForeignKeyField(Characteristic, backref='models')
-#     value = CharField()
 
 class CarBrand(BaseModel):
     name = CharField(unique=True)
@@ -59,18 +84,19 @@ class CarModel(BaseModel):
 class CarComplectation(BaseModel):
     model = ForeignKeyField(CarModel, backref='complectations')
     engine = ForeignKeyField(CarEngine, backref='complectations')
-    _name = CharField(unique=True, null=True)
-    name_uz = CharField(unique=True, null=True)
-    name_ru = CharField(unique=True, null=True)
+    _name = CharField(null=True)
+    name_uz = CharField(null=True)
+    name_ru = CharField(null=True)
 
     @property
     def name(self):
-        language_name = self.__dict__.get(f'_CarComplectation__name_{attribute_language_manager.language}')
+        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
         return language_name if language_name else self._name
 
     @name.setter
     def name(self, new_value):
         self._name = new_value
+
 
 
 class CarAdvert(BaseModel):

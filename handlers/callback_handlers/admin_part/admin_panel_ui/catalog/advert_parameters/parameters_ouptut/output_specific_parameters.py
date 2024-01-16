@@ -4,7 +4,6 @@ from copy import deepcopy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.seek_current_state_after_delete_or_edit_actions import \
@@ -21,6 +20,8 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler import InlinePaginationInit
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
 
 class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
@@ -111,7 +112,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         ic(parameters)
         if not parameters and parameter_name != 'review':
             if parameter_name in ('mileage', 'year'):
-                parameters = await CarConfigs.custom_action(mode=parameter_name, action='get_*')
+                parameters = await car_configs_module\
+                    .CarConfigs.custom_action(mode=parameter_name, action='get_*')
             else:
                 await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
@@ -121,7 +123,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
             config_module = importlib.import_module('config_data.config')
 
             display_view_class = InlinePaginationInit(
-                    lexicon_class=deepcopy(AdvertParametersChooseSpecificValue)(parameter_name, message_text_header),
+                    lexicon_class=AdvertParametersChooseSpecificValue(parameter_name, message_text_header),
                     models_range=parameters,
                     page_size=config_module.car_configurations_in_keyboard_page
                 )
@@ -153,7 +155,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                     config_name = [value for value in param_value.values()][0]
                 else:
                 # if str(param_value).isdigit():
-                    config_object = await CarConfigs.get_by_id(param_key, param_value)
+                    config_object = await car_configs_module\
+                        .CarConfigs.get_by_id(param_key, param_value)
                     if not config_object:
                         config_name = param_value
                     else:
@@ -176,19 +179,24 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         add_new_branch_mode = await self.check_state_on_add_new_branch_status(state)
         match current_parameter:
             case 'engine':
-                parameters = await CarConfigs.get_all_engines()
+                parameters = await car_configs_module\
+                    .CarConfigs.get_all_engines()
             case 'brand':
-                parameters = await CarConfigs.get_brands_by_engine(selected_data.get('engine'))
+                parameters = await car_configs_module\
+                    .CarConfigs.get_brands_by_engine(selected_data.get('engine'))
             case 'model' if not add_new_branch_mode:
-                parameters = await CarConfigs.get_models_by_brand_and_engine(selected_data.get('brand'),
+                parameters = await car_configs_module\
+                    .CarConfigs.get_models_by_brand_and_engine(selected_data.get('brand'),
                                                                              selected_data.get('engine'))
             case 'complectation' if not add_new_branch_mode:
-                parameters = await CarConfigs.get_complectations_by_model_and_engine(
+                parameters = await car_configs_module\
+                    .CarConfigs.get_complectations_by_model_and_engine(
                     selected_data.get('model'),
                     selected_data.get('engine'))
 
             case 'color' if not add_new_branch_mode:
-                parameters = await CarConfigs.get_color_by_complectaiton(
+                parameters = await car_configs_module\
+                    .CarConfigs.get_color_by_complectaiton(
                     selected_data.get('complectation'), without_other=True)
 
                 # parameters = 'review'
@@ -198,7 +206,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                 parameters = None
 
         # if get_all_flag:
-        #     parameters = await CarConfigs.custom_action(current_parameter, 'get_*')
+        #     parameters = await car_configs_module\
+        #     .CarConfigs.custom_action(current_parameter, 'get_*')
         if not isinstance(parameters, list) and parameters is not None:
             parameters = list(parameters)
         return parameters

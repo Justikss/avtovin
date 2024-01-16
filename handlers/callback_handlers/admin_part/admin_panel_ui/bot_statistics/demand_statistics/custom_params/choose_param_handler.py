@@ -4,7 +4,7 @@ from copy import copy, deepcopy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from database.data_requests.car_configurations_requests import CarConfigs
+
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.custom_params.output_param_branches import \
     OutputStatisticAdvertParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
@@ -112,9 +112,10 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
         if not chosen_params:
             header += f''' {copy(Lexicon_module.statistic_captions['car'])} '''
         elif chosen_params:
+            car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
             header += ':\n'
             for param_type, param_id in chosen_params.items():
-                param_object = await CarConfigs.get_by_id(param_type, param_id)
+                param_object = await car_configs_module.CarConfigs.get_by_id(param_type, param_id)
                 if param_object:
                     header += f'''{Lexicon_module.statistic_captions[param_type]}: {param_object.name}\n'''
                 else:

@@ -14,9 +14,9 @@ from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_LEXICON, STATISTIC_LEXIC
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_mini_lexicon, \
     AdminReviewCatalogChooseCarBrand
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions as second_captions, admin_class_mini_lexicon, \
-    NaturalList, ChooseTariff, TariffNonExistsPlug, AllTariffsOutput
+    ChooseTariff, TariffNonExistsPlug, AllTariffsOutput
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_params_class_lexicon, \
-    advert_params_captions, AdvertParametersChooseState
+    advert_parameters_captions, AdvertParametersChooseState
 from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import statistic_class_lexicon, TopTenDisplay, \
     SelectCustomParamsProcess
 from utils.lexicon_utils.commodity_loader import commodity_loader_lexicon, LexiconCommodityLoader, BaseBootButtons
@@ -32,7 +32,7 @@ class LanguageMiddleware(BaseMiddleware):
                            config_module.faq, config_module.faq_seller, config_module.faq_buyer,
                            commodity_loader_lexicon, catalog_mini_lexicon, admin_class_mini_lexicon, first_captions,
                            second_captions,
-                           advert_params_captions,
+                           advert_parameters_captions,
                            advert_params_class_lexicon,
                            statistic_class_lexicon,
                            catalog_captions,
@@ -48,9 +48,9 @@ class LanguageMiddleware(BaseMiddleware):
 
             (catalog_mini_lexicon): [AdminReviewCatalogChooseCarBrand],
 
-            (admin_class_mini_lexicon, second_captions): [NaturalList, TariffNonExistsPlug, AllTariffsOutput,
+            (admin_class_mini_lexicon, second_captions): [TariffNonExistsPlug, AllTariffsOutput,
                                                         ChooseTariff],
-            (advert_params_class_lexicon): [AdvertParametersChooseState],
+            (advert_params_class_lexicon, advert_parameters_captions): [AdvertParametersChooseState],
 
             (statistic_class_lexicon): [SelectCustomParamsProcess, TopTenDisplay],
         }
@@ -65,9 +65,9 @@ class LanguageMiddleware(BaseMiddleware):
         ic()
         language = None
         redis_key = f'{str(event.from_user.id)}:language'
+
         # ic(class_lexicon.language, LexiconSelectedTariffPreview.tariff_block)
         if isinstance(event, CallbackQuery) and event.data.startswith('language_') and len(event.data) == 11:
-
             redis_value = event.data.split('_')
             if len(redis_value) >= 1:
                 if redis_value[0] == 'language':

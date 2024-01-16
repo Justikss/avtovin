@@ -1,3 +1,4 @@
+import logging
 import traceback
 
 from peewee import SqliteDatabase, Model, TextField, CharField, IntegerField, ForeignKeyField, AutoField
