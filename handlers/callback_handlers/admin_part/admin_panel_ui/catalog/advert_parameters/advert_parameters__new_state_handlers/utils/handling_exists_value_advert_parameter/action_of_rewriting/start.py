@@ -3,8 +3,10 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
+
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
-from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
+from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions, \
+    advert_params_class_lexicon
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.start_deletion import TravelMessageEditorInit
@@ -29,9 +31,14 @@ class RewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
 
 
     async def insert_in_message_text(self, state: FSMContext, **kwargs):
-        memory_storage = await state.get_data()
-        current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
-        current_parameter_value = memory_storage.get('current_advert_parameter')['value']
+        new_car_state_parameters_module = importlib.import_module(
+            'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler')
+
+        # memory_storage = await state.get_data()
+        # current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
+        # current_parameter_value = memory_storage.get('current_advert_parameter')['value']
+        current_parameter_name, current_parameter_value = await new_car_state_parameters_module\
+            .NewCarStateParameters().get_last_selected_param(state)
 
         lexicon_part = await self.incorrect_manager.get_lexicon_part_in_view_of_incorrect(
             'start_rewrite_exists_parameter', Lexicon_module.ADVERT_PARAMETERS_LEXICON, kwargs.get('incorrect'))
@@ -43,6 +50,8 @@ class RewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
         ic()
         ic(lexicon_part)
         lexicon_part['message_text'] = lexicon_part['message_text'].format(**formatted_kwargs)
+        if current_parameter_name in ('complectation', 'color'):
+            lexicon_part['message_text'] += advert_params_class_lexicon['translate_param_caption']
         ic()
         ic(lexicon_part)
         return lexicon_part

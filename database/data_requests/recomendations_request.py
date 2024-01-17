@@ -7,6 +7,7 @@ from database.data_requests.advert_parameters_requests import AdvertParameterMan
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarState, CarEngine, CarColor, CarMileage, \
     CarYear, CarModel, CarBrand
+from database.tables.offers_history import SellerFeedbacksHistory
 # from database.tables.offers_history import offers_history_module\
 #     .RecommendedOffers, offers_history_module\
 #     .RecommendationsToBuyer
@@ -82,12 +83,14 @@ class RecommendationParametersBinder:
         ic()
         advert_parameters_wire = await AdvertParameterManager.get_wire_to_config(parameter_table, AdvertParameters)
 
+        condition_by_advert_parameter_and_selected_param = advert_parameters_wire.where(parameter_table.id.in_(parameter_id))
+
+        await manager.execute(SellerFeedbacksHistory.update(advert_parameters=None).where(SellerFeedbacksHistory.id.in_(
+            SellerFeedbacksHistory.select(SellerFeedbacksHistory.id).join(AdvertParameters)\
+                                       .where(AdvertParameters.id.in_(condition_by_advert_parameter_and_selected_param)))))
+
         ic(await manager.execute(
-            AdvertParameters.delete().where(AdvertParameters.id.in_(
-                advert_parameters_wire.where(parameter_table.id.in_(parameter_id))
-            )
-            )
-        ))
+            AdvertParameters.delete().where(AdvertParameters.id.in_(condition_by_advert_parameter_and_selected_param))))
 
 class RecommendationRequester:
     @staticmethod

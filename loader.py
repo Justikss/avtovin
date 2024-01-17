@@ -9,6 +9,7 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from icecream import ic
 
+from database.data_requests.utils.drop_tables import drop_tables_except_one
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions, catalog
@@ -51,6 +52,24 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirm import \
+    ConfirmAddNewContactHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirmation import \
+    ConfirmationAddNewContactHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.start import StartAddNewContactHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.delete.confirm import \
+    ConfirmDeleteTSContactHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.delete.confirmation import \
+    ConfirmationDeleteTSContactHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.rewrite.confirm import \
+    ConfirmRewriteExistsTSContact
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.rewrite.confirmation import \
+    ConfirmationRewriteExistsTSContact
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.rewrite.start import \
+    StartRewriteExistsTSContact
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.choose_type import ChooseContactsTypeHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.list import ContactListHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.specific import OutputSpecificContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
@@ -70,6 +89,7 @@ from handlers.custom_filters.admin_filters.mailing_filters.input_media_filter im
 from handlers.custom_filters.admin_filters.mailing_filters.mailing_text_filter import MailingTextFilter
 from handlers.custom_filters.admin_filters.search_advert_by_id_filter import InputAdvertIdFilter
 from handlers.custom_filters.admin_filters.tariff_duration_time_filter import TimeDurationFilter
+from handlers.custom_filters.admin_filters.ts_contacts_filters.input_link_filter import InputTSLinkFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
 from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
@@ -98,6 +118,7 @@ from states.admin_part_states.catalog_states.catalog_review_states import AdminC
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 from states.admin_part_states.statistics_states import StatisticsStates
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates, TariffEditState
+from states.admin_part_states.tech_support_states import TechSupportStates
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
@@ -164,6 +185,8 @@ async def start_bot():
 
     # admin_router = Router()
     # dp.include_router(admin_router)
+    # await drop_tables_except_one('Фотографии_Новых_Машин')
+
     await create_tables()
 
     dp.message.register(bot_help, Command(commands=['free_tariff']))
@@ -526,6 +549,39 @@ async def start_bot():
                                F.data == 'confirm_load_new_params_branch',
                                AdminStatusController())
 
+    '''tech-support contacts'''
+    dp.callback_query.register(ChooseContactsTypeHandler().callback_handler,
+                               F.data == 'admin_button_contacts'),
+    dp.callback_query.register(ContactListHandler().callback_handler,
+                               lambda callback: callback.data.startswith('ts_contact_type:'))
+    dp.callback_query.register(OutputSpecificContactHandler().callback_handler,
+                               lambda callback: callback.data.startswith('review_ts_contact:'),
+                               StateFilter(TechSupportStates.review))
+
+    dp.callback_query.register(StartAddNewContactHandler().callback_handler,
+                               StateFilter(TechSupportStates.review),
+                               F.data.in_(('add_ts_contact', 'rewrite_ts_contact_link')))
+    dp.message.register(ConfirmationAddNewContactHandler(filters=InputTSLinkFilter()).message_handler,
+                        StateFilter(TechSupportStates.add_new))
+    dp.callback_query.register(ConfirmAddNewContactHandler().callback_handler,
+                               F.data == 'confirm_add_ts_contact',
+                               StateFilter(TechSupportStates.review))
+
+    dp.callback_query.register(ConfirmationDeleteTSContactHandler().callback_handler,
+                               F.data == 'delete_ts_contact',
+                               StateFilter(TechSupportStates.review))
+    dp.callback_query.register(ConfirmDeleteTSContactHandler().callback_handler,
+                               F.data == 'confirm_delete_contact',
+                               StateFilter(TechSupportStates.delete_exists))
+
+    dp.callback_query.register(StartRewriteExistsTSContact().callback_handler,
+                               F.data.in_(('edit_ts_contact', 'rewrite_rewriting_ts_contact')),
+                               StateFilter(TechSupportStates.review))
+    dp.message.register(ConfirmationRewriteExistsTSContact(filters=InputTSLinkFilter()).message_handler,
+                        StateFilter(TechSupportStates.rewrite_exists))
+    dp.callback_query.register(ConfirmRewriteExistsTSContact().callback_handler,
+                               F.data == 'confirm_rewrite_ts_contact',
+                               StateFilter(TechSupportStates.review))
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.ChooseMailingAction().callback_handler
 ,

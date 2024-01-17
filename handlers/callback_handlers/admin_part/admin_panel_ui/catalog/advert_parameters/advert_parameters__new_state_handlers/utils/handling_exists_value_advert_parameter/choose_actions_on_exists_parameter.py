@@ -36,9 +36,13 @@ class ChooseActionOnAdvertParameterHandler(BaseCallbackQueryHandler):
                 await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#
                 return
         else:
-            memory_storage = await state.get_data()
-            current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
-            current_parameter_value = memory_storage.get('current_advert_parameter')['value']
+            new_car_state_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler')
+            # memory_storage = await state.get_data()
+            # current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
+            # current_parameter_value = memory_storage.get('current_advert_parameter')['value']
+            current_parameter_name, current_parameter_value = await new_car_state_parameters_module\
+                .NewCarStateParameters().get_last_selected_param(
+                state)
 
         lexicon_part = Lexicon_module.ADVERT_PARAMETERS_LEXICON['choose_action_on_specific_parameter_value']
         lexicon_part['message_text'] = lexicon_part['message_text'].format(

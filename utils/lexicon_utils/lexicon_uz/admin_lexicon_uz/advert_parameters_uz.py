@@ -102,7 +102,8 @@ advert_params_class_lexicon_uz = {
     'backward': '◂ Orqaga ▸',
     'delete': 'O‘chirish',
     'add': 'Qo‘shish',
-    'return_main_menu': 'Menyuda'
+    'return_main_menu': 'Menyuda',
+    'translate_param_caption': '<blockquote>DIQQAT! Rus tilidagi sarlavhalar o‘zbek tili foydalanuvchilari uchun tarjima qilinadi.</blockquote>\n'
 }
 
 advert_params_captions_uz = {

@@ -67,6 +67,11 @@ async def get_user_name(subject):
 
             value_name = value if isinstance(value, str) else value.name
             name += f"\n{advert_parameters_captions[key]}: {value_name}"
+
+    elif isinstance(subject, tuple):
+        param_subject = await get_user_name(subject[0])
+        param_branch = await get_user_name(subject[1]) if subject[1] else ''
+        return f'{param_branch}{param_subject}'
     else:
         return subject
 

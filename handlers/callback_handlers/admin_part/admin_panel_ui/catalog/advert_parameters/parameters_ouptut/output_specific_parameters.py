@@ -58,6 +58,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
                 ic()
                 memory_storage = await state.get_data()
+
                 ic(memory_storage.get('selected_parameters'))
                 parameter_name = memory_storage.get('next_params_output')
                 ic(parameter_name)
@@ -102,21 +103,27 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
         ic(parameter_name)
         ic(parameters)
-        if parameters == [] and parameter_name in ('brand', 'mileage', 'year'):
-            class EmptyField:
-                name = Lexicon_module.catalog_captions['empty']
-                id = 0
-            parameters = [EmptyField]
+        ic((not parameters) and parameter_name in ('brand', 'mileage', 'year'))
+        if (not parameters) and parameter_name in ('brand', 'mileage', 'year'):
+
+            if not parameters:
+                if parameter_name in ('mileage', 'year'):
+                    parameters = await car_configs_module \
+                        .CarConfigs.custom_action(mode=parameter_name, action='get_*')
+            if not parameters:
+                class EmptyField:
+                    name = Lexicon_module.catalog_captions['empty']
+                    id = 0
+                parameters = [EmptyField]
+
+        if not parameters and parameter_name != 'review':
+            await self.send_alert_answer(request,
+                                         Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+            return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         ic(message_text_header)
         ic(parameters)
-        if not parameters and parameter_name != 'review':
-            if parameter_name in ('mileage', 'year'):
-                parameters = await car_configs_module\
-                    .CarConfigs.custom_action(mode=parameter_name, action='get_*')
-            else:
-                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
-                return await AdvertParametersChooseCarState().callback_handler(request, state)
+
         ic(parameters)
         ic(parameter_name)
         if not parameter_name == 'review':
@@ -220,8 +227,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         match memory_storage.get('params_type_flag'):
 
             case 'new':
-                if str(await state.get_state()) in ('AdminAdvertParametersStates:review_process',
-                        'AdminAdvertParametersStates:start_delete_action'):
+                if 'NewStateStates' not in str(await state.get_state()):
 
                     # if delete_params_flag:
                     #     await state.update_data(delete_params_flag=None)

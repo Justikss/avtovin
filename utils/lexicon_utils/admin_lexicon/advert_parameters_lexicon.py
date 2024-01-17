@@ -120,7 +120,8 @@ advert_params_class_lexicon_ru = {
     'delete': 'Удалить',
     'add': 'Добавить',
 
-    'return_main_menu': 'В меню'
+    'return_main_menu': 'В меню',
+    'translate_param_caption': '<blockquote>ВНИМАНИЕ! Русскоязычные названия будут переводиться для пользователей узбекского языка</blockquote>\n'
 }
 
 advert_parameters_captions = SafeDict({'ru': advert_parameters_captions,

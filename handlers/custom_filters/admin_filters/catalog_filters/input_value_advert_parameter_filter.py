@@ -19,6 +19,7 @@ class AdvertParameterValueFilter(BaseFilterObject):
     async def __call__(self, request: Message | CallbackQuery, state: FSMContext,
                        incorrect_flag=None,
                        message_input_request_handler=None) -> bool:
+        config_module = importlib.import_module('config_data.config')
 
         message_input_request_handler = await self.get_returning_method(request, state)
         memory_storage = await state.get_data()
@@ -39,7 +40,8 @@ class AdvertParameterValueFilter(BaseFilterObject):
         if last_advert_parameter in ('mileage', 'year'):
             car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
-            existing_value = await car_configs_module.CarConfigs.custom_action(last_advert_parameter, 'get_by_name', name=inputted_value)
+            existing_value = await car_configs_module.CarConfigs.custom_action(last_advert_parameter, 'get_by_name',
+                                                                               name=inputted_value)
         else:
             existing_value = await self.seek_matched_new_state_param_names(request, state, last_advert_parameter,
                                                                            inputted_value)
@@ -47,6 +49,10 @@ class AdvertParameterValueFilter(BaseFilterObject):
         ic(existing_value)
         if existing_value:
             incorrect_flag = '(exists)'
+
+        if not incorrect_flag:
+            incorrect_flag = not len(inputted_value) < config_module.max_naming_len
+
         ic(incorrect_flag)
         return await super().__call__(request, state, incorrect_flag=incorrect_flag,
                                       message_input_request_handler=message_input_request_handler)

@@ -110,7 +110,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 if current_param == 'color':
                     colors = await car_configs_module\
                         .CarConfigs.get_color_by_complectaiton(selected_data['complectation'])
-                    if not colors:
+                    ic(colors)
+                    if len(colors) <= 1:
                         dependencies['complectation'] = {selected_data['complectation']}
                         await delete_low_params('complectation')
 
@@ -123,7 +124,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                     ic(complectations)
                     # if sorted({complectation.id for complectation in complectations}) \
                     #         == sorted({complectation_by_engine.id for complectation_by_engine in complectations_by_engine}):
-                    if not complectations:
+                    if len(complectations) <= 1:
                         dependencies['model'] = {selected_data['model']}
                         await delete_low_params('model')
                 elif current_param == 'model':
@@ -134,14 +135,14 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                                                                                       selected_data['engine'])
                     # if sorted({model.id for model in models}) \
                     #         == sorted({model_by_brand.id for model_by_brand in models_by_brand}):
-                    if not models:
+                    if len(models) <= 1:
                         if 'model' not in dependencies.keys():
                             dependencies['model'] = {selected_data['model']}
                         if 'brand' not in dependencies.keys():
                             dependencies['brand'] = {selected_data['brand']}
 
             if 'color' in selected_data:
-                dependencies['color'] = {selected_data['color']}
+                # dependencies['color'] = {selected_data['color']}
                 photos = await PhotoRequester.find_photos_by_complectation_and_color(selected_data['complectation'],
                                                                                      selected_data['color'])
                 await delete_low_params('color')

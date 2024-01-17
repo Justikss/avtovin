@@ -156,7 +156,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
                                                                              viewed=False,
                                                                              offer_id=id_value)
 
-            output_part = await CheckFeedbacksHandler.create_offer_data(offer_ids[0])
+            output_part = await CheckFeedbacksHandler.create_offer_data(request, offer_ids[0])
         if output_part:
             if output_part.get('album'):
                 output_part['album'] = output_part['album'][:5]

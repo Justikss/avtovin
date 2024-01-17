@@ -73,7 +73,11 @@ class OffersRequester:
             query = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id, seller_id=seller_id, viewed=False)
             select_response = await manager.execute(query)
             if select_response:
-                await AdvertFeedbackRequester.write_string(seller_id, car_id)
+                advert_feedbacks_requests_module = importlib.import_module(
+                    'database.data_requests.statistic_requests.advert_feedbacks_requests')
+
+                await advert_feedbacks_requests_module\
+                    .AdvertFeedbackRequester.write_string(seller_id, car_id)
             return select_response if select_response else False
         else:
             raise BufferError('Такая заявка уже создана')

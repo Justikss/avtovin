@@ -48,9 +48,11 @@ REGISTRATION_DATETIME_FORMAT = '%d-%m-%Y'
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600
 message_answer_awaited = 3
+tech_support_tg_link_buttons_width = 3
 
 max_price_len = 20
 max_contact_info_len = 100
+max_naming_len = 70
 block_user_reason_text_len = {'max': 256, 'min': 3}
 header_message_text = '<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
 

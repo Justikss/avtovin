@@ -102,19 +102,19 @@ async def drop_table_handler(message: Message):
     # inserted_cars = await get_car(photos=None, cars=0)
     # await mock_feedbacks(sellers=None, raw_cars=inserted_cars)
     # return
-
+    #todo тест наколичество технарей: TechSupports
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
-    await mock_values(1)
+    await mock_values(0)
     sellers = await get_seller_account()
 
     photos = None
     photos = read_photos_by_brand('utils/carss')
     inserted_cars = await get_car(photos, cars=0)
     # asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
-    # type_photos = read_photos_by_brand('utils/type_carss')
-    # await load_type_photos(type_photos)
-    # await set_viewed_status()
+    type_photos = read_photos_by_brand('utils/type_carss')
+    await load_type_photos(type_photos)
+    await set_viewed_status()
 
     await message.answer('SUCCESS')

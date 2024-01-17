@@ -43,6 +43,9 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog
     choose_catalog_action_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search import \
     input_advert_id_for_search_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.choose_type import ChooseContactsTypeHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.list import ContactListHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.specific import OutputSpecificContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -80,6 +83,13 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     ic(backward_mode)
     ic(memory_storage.get('params_type_flag') == 'new')
     match backward_mode:
+        case 'start_delete_ts_contact' | 'confirmation_rewrite_ts' | 'start_rewrite_ts_contact':
+            await OutputSpecificContactHandler().callback_handler(callback, state)
+        case 'review_contacts_list' | 'to_type_contacts':
+            await ChooseContactsTypeHandler().callback_handler(callback, state)
+        case 'start_add_new_contact' | 'confirmation_add_new_ts' | 'review_profile':
+            await ContactListHandler().callback_handler(callback, state)
+
         case 'choose_custom_params':
             await choose_custom_params_stats_backwarder(callback, state, memory_storage, current_state)
         case 'top_ten_display':

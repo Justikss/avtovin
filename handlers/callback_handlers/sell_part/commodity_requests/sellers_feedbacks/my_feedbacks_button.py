@@ -4,12 +4,13 @@ from abc import ABC
 from copy import copy
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from states.seller_feedbacks_states import SellerFeedbacks
 from utils.custom_exceptions.database_exceptions import UserExistsError, CarExistsError
 from utils.get_currency_sum_usd import get_valutes
+from utils.get_username import get_username
 from utils.user_notification import delete_notification_for_seller
 
 
@@ -24,10 +25,9 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
         pass
 
     @staticmethod
-    async def create_offer_data(offer_id):
+    async def create_offer_data(request: CallbackQuery | Message, offer_id):
         active_offers_module = importlib.import_module('database.data_requests.offers_requests')
         car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
-
         offer = await active_offers_module.OffersRequester.get_by_offer_id(offer_id)
 
         try:
@@ -45,7 +45,11 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
         fullname = f'''{buyer.surname} {buyer.name} {buyer.patronymic if buyer.patronymic else ''}'''
         ic(offer_id)
-        card_startswith = f'''{for_seller_lexicon_part['feedback_header'].replace('X', str(offer_id))}\n{for_seller_lexicon_part['from_user'].replace('X', f'@{buyer.username}')}\n{for_seller_lexicon_part['tendered'].replace('X', str(car.id))}\n{for_seller_lexicon_part['contacts'].replace('N', fullname).replace('P', buyer.phone_number)}'''
+        card_startswith = f'''{for_seller_lexicon_part['feedback_header']}\n{for_seller_lexicon_part['from_user']}\n{for_seller_lexicon_part['tendered']}\n{for_seller_lexicon_part['contacts']}'''
+        ic(card_startswith)
+        card_startswith = card_startswith.format(feedback_number=offer_id,
+                                                 from_user=f'@{await get_username(request.bot, buyer.telegram_id)}',
+                                                 advert_number=car.id, name=fullname, phone=buyer.phone_number)
 
         mileage = car.mileage.name if car.state.id == 2 else None
         year_of_realise = car.year.name if car.state.id == 2 else None

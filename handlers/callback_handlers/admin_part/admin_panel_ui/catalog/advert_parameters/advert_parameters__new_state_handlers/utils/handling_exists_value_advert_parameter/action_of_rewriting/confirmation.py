@@ -24,12 +24,18 @@ class ConfirmationRewriteExistsAdvertParameterHandler(BaseMessageHandler):
         # await super().process_message(request, state, **kwargs)
 
     async def insert_data_into_message_text(self, request, state):
+        new_car_state_parameters_module = importlib.import_module(
+            'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler')
+
         ic()
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         memory_storage = await state.get_data()
-        current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
-        current_parameter_value = memory_storage.get('current_advert_parameter')['value']
+        # current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
+        # current_parameter_value = memory_storage.get('current_advert_parameter')['value']
+        current_parameter_name, current_parameter_value = await new_car_state_parameters_module\
+            .NewCarStateParameters().get_last_selected_param(state)
+
         new_parameter_value = request.text
         if memory_storage.get('current_new_parameter_value') != new_parameter_value:
             await state.update_data(current_new_parameter_value=new_parameter_value)

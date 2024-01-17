@@ -13,11 +13,15 @@ from handlers.utils.delete_message import delete_message
 
 class UniqueTariffNameFilter(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext):
+        config_module = importlib.import_module('config_data.config')
         tariff_requester_module = importlib.import_module('database.data_requests.tariff_requests')
 
         name = message.text.strip()
         match_name_tariff = await tariff_requester_module.TarifRequester.get_tariff_by_name(name)
         ic(match_name_tariff)
+        if not match_name_tariff:
+            match_name_tariff = len(name.replace('<', '&lt;').replace('>', '&gt;')) < config_module.max_contact_info_len
+
         memory_storage = await state.get_data()
 
         last_admin_answer = memory_storage.get('last_admin_answer')

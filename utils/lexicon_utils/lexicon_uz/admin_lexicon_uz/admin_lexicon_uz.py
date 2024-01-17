@@ -5,8 +5,6 @@ import importlib
 
 block_user_reason_text_len = {'max': 256, 'min': 3}
 max_contact_info_len = 100
-
-
 return_main_menu_uz = {'return_main_menu': 'Menyuga'}
 captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
             'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
@@ -16,6 +14,7 @@ captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel'
             'by_dealership': 'avtosalon', 'by_seller': 'shaxsiy shaxs', 'close': 'Yashirish', 'surname_name_patronymic': 'F.I.Sh.: ', 'add': 'Qo‘shish',
             'successfully': 'Muvaffaqiyatli'
             }
+
 ADMIN_LEXICON_uz = {
     'admin_panel_button_caption': '🔑 Admin Paneli',
     'user_havent_admin_permission': 'Siz administrator emassiz',
@@ -39,6 +38,7 @@ ADMIN_LEXICON_uz = {
                       'buttons': {'admin_button_users': 'Foydalanuvchilar', 'admin_button_tariffs': 'Tariflar',
                                   'admin_button_catalog': 'Katalog', 'admin_button_advert': 'Reklama',
                                   'admin_button_bot_statistics': 'Bot statistikasi',
+                                  'admin_button_contacts': 'Kontaktlar',
                                   'admin_backward:admin_main_menu': 'Chiqish',
                                   'width': 2}},
 
@@ -119,6 +119,14 @@ ADMIN_LEXICON_uz = {
     'width': 1})}
 
                                              }
+captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
+            'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
+            'month': 'oy', 'year': 'yil', 'days': 'kunlar', 'feedbacks': 'javoblar',
+            'dont_write_html_tags': '"&lt; &gt;" belgilarini kiriting taqiqlanadi.',
+            'all_users': 'barcha', 'buyers': 'xaridorlar', 'sellers': 'sotuvchilar', 'delete': 'O‘chirish',
+            'by_dealership': 'avtosalon', 'by_seller': 'shaxsiy shaxs', 'close': 'Yashirish', 'surname_name_patronymic': 'F.I.Sh.: ', 'add': 'Qo‘shish',
+            'successfully': 'Muvaffaqiyatli'
+            }
 
 admin_class_mini_lexicon_uz = {
     'tariff_non_exists_plug_name': 'Tariflar topilmadi',

@@ -1,49 +1,41 @@
-import asyncio
-
-import requests
-from icecream import ic
-from langdetect import detect
-
-
-async def detect_language(text):
-    if isinstance(text, list):
-        text = text[0]
-    language = detect(text)
-    return language
-
-
-async def translate(texts):
-
-    start_language = await detect_language(texts)
-    target_language = 'ru'
-    # start_language = 'ru' if inputted_language == 'ru' else 'uz'
-
-    YANDEX_IAM_TOKEN = 't1.9euelZrKxomPnMqblZ7Gy5yMlsyPz-3rnpWajo-TkI2Tl4yMi5zHj5yRxpfl8_dHEGZS-e8AGmsp_d3z9wc_Y1L57wAaayn9zef1656VmpSJj8aPzI-bjZeNkJudjJvH7_zF656VmpSJj8aPzI-bjZeNkJudjJvH.2TJpmi3fPOgy8f16GAUwFNOppQ6nYq6ezhYoPgiGSstztXvCZzZo7qz0f7qYwOLSh0mD14xQCMHq6vZ-Qbw9AQ'
-    YANDEX_folder_id = 'b1gi4hqlk5765s1otffr'
-
-    body = {
-        "targetLanguageCode": target_language,
-        "texts": texts,
-        "folderId": YANDEX_folder_id,
-    }
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {0}".format(YANDEX_IAM_TOKEN)
-    }
-
-    response = requests.post('https://translate.api.cloud.yandex.net/translate/v2/translate',
-        json=body,
-        headers=headers
-    )
-
-    result = response.json()
-    good_result = []
-    ic(result['translations'])
-    for index, translation in enumerate(result['translations']):
-        good_result.append({target_language: translation['text'], start_language: texts[index]})
-
-    print(good_result)
-    return good_result
-
-asyncio.run(translate('Complectation'))
+# def is_english_with_spaces(text):
+#     return any('A' <= char <= 'Z' or 'a' <= char <= 'z'  for char in text)
+#
+# text = "ф ыффыв"
+# if is_english_with_spaces(text):
+#     print("Text consists of English letters and spaces.")
+# else:
+#     print("Text does not consist of English letters and spaces.")
+# import asyncio
+# import httpx
+#
+# async def send_request():
+#     url = "https://prekladac24.cz/wp-content/themes/translatica/inc/translator.php"
+#     params = {
+#         "from": "ru",
+#         "to": "uz",
+#         "text": "White"
+#     }
+#
+#     headers = {
+#         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+#         "Referer": "https://prekladac24.cz/",
+#         "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+#         "Sec-Ch-Ua-Mobile": "?0",
+#         "Sec-Ch-Ua-Platform": '"Windows"',
+#         "Sec-Fetch-Dest": "empty",
+#         "Sec-Fetch-Mode": "cors",
+#         "Sec-Fetch-Site": "same-origin",
+#         "Sec-Gpc": "1",
+#         "Accept": "*/*",
+#         "Accept-Encoding": "gzip, deflate, br",
+#         "Accept-Language": "ru-RU,ru;q=0.7"
+#     }
+#
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(url, params=params, headers=headers)
+#         print("Status Code:", response.status_code)
+#         print("Response Content:", response.text)
+#
+# if __name__ == "__main__":
+#     asyncio.run(send_request())

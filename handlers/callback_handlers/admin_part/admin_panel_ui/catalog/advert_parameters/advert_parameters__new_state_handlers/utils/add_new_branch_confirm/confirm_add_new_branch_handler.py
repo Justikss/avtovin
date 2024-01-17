@@ -11,7 +11,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.choose_catalog
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
-
+from utils.translator import translate
 
 
 class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
@@ -53,33 +53,39 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
         ic(selected_parameters)
         ic()
         good_params = {}
-        for key, value in selected_parameters.items():
-            if key == 'photos':
-                # good_params[key] = value
-                continue
+        default_params = ['brand', 'model', 'complectation', 'color']
+        for key in default_params:
+            value = selected_parameters.get(key)
 
             ic(key, value)
             if isinstance(value, dict):
                 value = value['added']
                 if key == 'color':
                     current_param = await self.get_selected_color(value)
-                    current_param = current_param[0]
+                    ic(current_param, value)
                 else:
                     if key == 'model':
                         subtables = {'first_subject': good_params['brand']}
                     elif key == 'complectation':
                         subtables = {'first_subject': good_params['model'],
-                                     'second_subject': good_params['engine_type' if 'engine_type' in good_params.keys()
+                                     'second_subject': selected_parameters['engine_type' if 'engine_type' in selected_parameters.keys()
                                                                                  else 'engine']}
                     else:
                         subtables = {}
+                    if key == 'brand':
+                        action = 'insert_or_get'
+                    else:
+                        action = 'insert'
                     current_param = await car_configs_module\
-                        .CarConfigs.custom_action(value, 'insert', value, **subtables)
+                        .CarConfigs.custom_action(key, action, value, **subtables)
             else:
                 current_param = await car_configs_module\
                     .CarConfigs.get_by_id(key, value)
 
+            if current_param == '(translate_error)':
+                current_param = value
             good_params[key] = current_param
+            ic(good_params)
         ic(good_params)
         return good_params
 

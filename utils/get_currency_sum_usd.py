@@ -91,11 +91,13 @@ async def currency_usd_to_sum():
 
 async def fetch_currency_rate():
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    ic()
     while True:
         # Ваш код парсинга
         sum_currency = await currency_usd_to_sum()
+        ic(sum_currency)
         if sum_currency:
-            await message_editor.redis_data.set_data(key='usd_to_sum_currency', value=sum_currency)
+            ic()
+            ic(await message_editor.redis_data.set_data(key='usd_to_sum_currency', value=sum_currency))
 
         await asyncio.sleep(3600)

@@ -4,9 +4,6 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
-    NewCarStateParameters
-
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 
 mediagroups = {}
@@ -32,6 +29,8 @@ async def get_unique_dictionaries(mediagroups):
 async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo_id: int, unique_id: int):
     seller_boot_commodity_module = importlib.import_module(
         'handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs')
+    new_car_state_parameters_module = importlib.import_module(
+        'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler')
 
     '''Обработчик для принятия медиа групп
     Работает с:
@@ -77,7 +76,8 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                         case 'LoadCommodityStates:photo_verification':
                             await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state, media_photos=mediagroups)
                         case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
-                            await NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups)
+                            await new_car_state_parameters_module\
+                                .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups)
                     mediagroups.clear()
 
             elif state_name == "MailingStates:uploading_media":
@@ -93,4 +93,5 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                         await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
                                                                                          media_photos=mediagroups)
                     case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
-                        await NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups)
+                        await new_car_state_parameters_module\
+                            .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups)

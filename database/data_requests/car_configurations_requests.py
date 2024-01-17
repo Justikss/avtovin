@@ -46,7 +46,7 @@ class CarConfigs:
         elif model_id and not isinstance(model_id, int):
             model_id = int(model_id)
 
-        ic(name, mode, action, model_id)
+        ic(name, mode, action, model_id, first_subject, second_subject)
         if mode == 'color':
             current_table = CarColor
         elif mode == 'mileage':
@@ -59,8 +59,6 @@ class CarConfigs:
             current_table = CarModel
         elif mode == 'complectation':
             current_table = CarComplectation
-        # elif mode == 'state':
-        #     current_table = CarState
         else:
             return
 
@@ -69,9 +67,25 @@ class CarConfigs:
         else:
             default_condition = current_table.id == model_id
         ic(model_id)
+
+        condition = current_table.name == name
+        map_condition = {'name': name}
+        if current_table in (CarComplectation, CarColor) and name:
+            map_condition = await translate.translate(name, 'name', maybe_sorse_uz=True)
+            if map_condition.get('_name'):
+                condition = current_table._name == map_condition['_name']
+                map_condition.update({'name_ru': None, 'name_uz': None})
+            else:
+                condition = current_table.name_uz == map_condition['name_uz'] and \
+                            current_table.name_ru == map_condition['name_ru']
+                map_condition.update({'_name': None})
+
+            ic()
+            ic(condition, map_condition)
+
         match action:
             case 'get_by_name' if name:
-                result = await manager.get_or_none(current_table, current_table.name == name)
+                result = await manager.get_or_none(current_table, condition)
 
             case 'get_*':
                 query = current_table.select()
@@ -82,7 +96,8 @@ class CarConfigs:
             case 'insert' if name:
                 insert_kwargs = None
                 if mode in ('color', 'complectation'):
-                    insert_kwargs = await translate(name, 'name')
+                    insert_kwargs = await translate.translate(name, 'name')
+                    ic(insert_kwargs)
                 if not insert_kwargs:
                     insert_kwargs = {'name': name}
 
@@ -92,8 +107,12 @@ class CarConfigs:
                     elif all(subject for subject in (first_subject ,second_subject)):
                         insert_kwargs['model'] = first_subject
                         insert_kwargs['engine'] = second_subject
+                    ic(insert_kwargs)
+                    if not insert_kwargs:
+                        return '(translate_error)'
                     result = await manager.create(current_table, **insert_kwargs)
                 except IntegrityError:
+                    traceback.print_exc()
                     return '(exists)'
 
             case 'delete' if model_id:
@@ -102,7 +121,12 @@ class CarConfigs:
                 result = await manager.execute(current_table.delete().where(default_condition))
 
             case 'update' if name and model_id:
-                result = await manager.execute(current_table.update(name=name).where(default_condition))
+                result = await manager.execute(current_table.update(**map_condition).where(default_condition))
+
+            case 'insert_or_get':
+                ic(map_condition)
+                result = await manager.get_or_create(current_table, **map_condition)
+                result = result[0]
         ic(result)
         return result
 
@@ -189,9 +213,31 @@ class CarConfigs:
     @staticmethod
     async def get_or_add_color(name):
         try:
-            return await manager.get_or_create(CarColor, name=name)
+            map_condition = await translate.translate(name, 'name')
+            color = await manager.get_or_none(CarColor, **map_condition)
+            if not color:
+                color = await manager.create(CarColor, **map_condition)
+
+            return color
         except:
+            # return [await manager.get(CarColor, _name=name)]
+            traceback.print_exc()
             pass
+
+    @staticmethod
+    async def update_color_or_complectation(mode, model_id, new_name):
+        if isinstance(model_id, str):
+            model_id = int(model_id)
+        match mode:
+            case 'complectation':
+                table = CarComplectation
+            case 'color':
+                table = CarColor
+            case _:
+                return
+        update_kwargs = await translate.translate(new_name, 'name')
+        await manager.execute(table.update(**update_kwargs).where(table.id == model_id))
+
 
     @staticmethod
     async def get_brands_by_engine(engine_id):
@@ -287,7 +333,7 @@ async def insert_many(table, names):
         #     await manager.create(table, name=name)
         #     continue
 
-        if table in (CarColor, CarEngine, CarState):
+        if table in (CarColor, CarEngine, CarState) and isinstance(name, tuple):
             insert_data = {}
             insert_data.update({'name_ru': name[0], 'name_uz': name[1]})
         else:
@@ -308,35 +354,38 @@ async def insert_many_with_foregin(table, wire_to_name):
                     for engine_wire, real_name in elem.items():
                         ic()
                         ic(engine_wire, real_name, wire)
+                        engine_wire = await translate.translate(engine_wire, 'name')
+
                         if isinstance(real_name, list) and len(real_name) > 1:
                             for nam in real_name:
                                 ic()
                                 ic(engine_wire, nam, wire)
                                 await manager.create(table, name=nam,
                                                      model=await manager.get(CarModel.select().where(CarModel.name == wire)),
-                                                     engine=await manager.get(CarEngine.select().where(CarEngine.name == engine_wire)))
+                                                     engine=await manager.get(CarEngine, **engine_wire))
                         else:
                             ic()
                             ic(engine_wire, real_name, wire)
                             await manager.create(table, name=real_name,
                                                  model=await manager.get(CarModel.select().where(CarModel.name == wire)),
-                                                 engine=await manager.get(
-                                                     CarEngine.select().where(CarEngine.name == engine_wire)))
+                                                 engine=await manager.get(CarEngine, **engine_wire))
 
             elif isinstance(names, dict):
                 for engine, comps in names.items():
+                    engine_wire = await translate.translate(engine, 'name')
                     for comp in comps:
                         ic(wire, comp, engine)
                         await manager.create(table, name=comp,
                                              model=await manager.get(CarModel.select().where(CarModel.name == wire)),
-                                             engine=await manager.get(
-                                                 CarEngine.select().where(CarEngine.name == engine)))
+                                             engine=await manager.get(CarEngine, **engine_wire))
 
 async def mock_values(only_base_params):
-    state_names = [('Новое', 'Yangi'), ('Б/У', 'Б/У')]
-    await insert_many(CarState, state_names)
+    ''' V HEAD PARAMS V '''
+    await insert_many(CarState, [('Новое', 'Yangi'), ('Б/У', 'Б/У')])
+    await insert_many(CarColor, [('Другой', 'Boshqa')])
+    ''' ^ HEAD PARAMS ^ '''
 
-    engine_names = [('ГИБРИД', 'Gibrid'), ('ЭЛЕКТРО', 'Elektr'), ('ДВС', 'IYD')]
+    engine_names = [('Гибрид', 'Gibrid'), ('Электро', 'Elektro'), ('ДВС', 'IYD')]
     await insert_many(CarEngine, engine_names)
 
     if only_base_params:
@@ -346,7 +395,7 @@ async def mock_values(only_base_params):
     await insert_many(CarBrand, brand_names)
 
 
-    await insert_many(CarColor, ['Другой', 'Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
+    await insert_many(CarColor, ['Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
     await insert_many(CarYear, ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2022'])
     await insert_many(CarMileage, ['5000-10000', '10000-15000', '15000-20000', '20000-25000', '25000-30000', '30000-35000', '35000-40000', '40000-45000', '45000-50000', '50000-75000', '75000-100000', '100000+'])
 
@@ -360,57 +409,57 @@ async def mock_values(only_base_params):
                                               'Jeep': ['Grand Cherokee', 'Grand Cherokee L', 'Renegade', 'Wrangler', 'Wrangler'],
                                               'Ferrari': ['SF90 Stradale', 'F8 Tributo', 'Roma', 'Portofino M', '812 Superfast']})
 
-    await insert_many_with_foregin(CarComplectation, {'CHAZOR': [{'ГИБРИД': 'XXX'}], 'SONG PLUS CHAMPION': [
-        {'ЭЛЕКТРО': 'FLAGSHIP PLUS 605 km'}], 'C11': [{'ЭЛЕКТРО': ['Deluxe Edition 500 km (1)', 'Dual Motor 4WD 580 Km']}], 'L9': [
-        {'ГИБРИД': 'L9 Max'}], 'L7': [{'ГИБРИД': 'L7 Pro'}], 'Gentra': [{'ДВС': '3'}], 'Nexia 3': [{'ДВС': '2'}],
+    await insert_many_with_foregin(CarComplectation, {'CHAZOR': [{'Гибрид': 'XXX'}], 'SONG PLUS CHAMPION': [
+        {'Электро': 'FLAGSHIP PLUS 605 km'}], 'C11': [{'Электро': ['Deluxe Edition 500 km (1)', 'Dual Motor 4WD 580 Km']}], 'L9': [
+        {'Гибрид': 'L9 Max'}], 'L7': [{'Гибрид': 'L7 Pro'}], 'Gentra': [{'ДВС': '3'}], 'Nexia 3': [{'ДВС': '2'}],
 
-            'GLS': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'Metris': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
+            'GLS': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Metris': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
             'S-Class': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'EQS SUV': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'EQS Sedan': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
+            'EQS SUV': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'EQS Sedan': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
 
             'Q3': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'Q4 e-tron': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'Q5': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
+            'Q4 e-tron': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'Q5': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
             'A6': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
             'A8': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'S8': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'A7': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'S7': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'RS7': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'S8': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'A7': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'S7': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'RS7': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
 
-            'F-150': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'F-150': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
             'F-150 Lightning': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
             'Ford GT': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'Ford Maverick': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Ford Maverick': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
             'Ford Mustang': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'Ford Mustang Mach-E': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Ford Mustang Mach-E': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
 
-            'i3': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'iX': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'X1': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'X3': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'X4': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'i3': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'iX': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'X1': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'X3': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'X4': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
             'X5': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
             '8 Series': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
 
-            'Megane E-Tech': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'Scenic E-Tech': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            '5': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
+            'Megane E-Tech': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'Scenic E-Tech': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            '5': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
             '4': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'Renault Twingo': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Renault Twingo': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
 
-            'Grand Cherokee': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'Grand Cherokee L': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'Renegade': {'ЭЛЕКТРО': ['Стандарт', 'Расширенный', 'Продвинутый']},
-            'Wrangler': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
+            'Grand Cherokee': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Grand Cherokee L': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Renegade': {'Электро': ['Стандарт', 'Расширенный', 'Продвинутый']},
+            'Wrangler': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
 
-            'SF90 Stradale': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            'F8 Tributo': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
+            'SF90 Stradale': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            'F8 Tributo': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
             'Roma': {'ДВС': ['Базовая', 'Спортивная', 'Люкс']},
-            'Portofino M': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']},
-            '812 Superfast': {'ГИБРИД': ['Эко', 'Премиум', 'Улучшенный']}})
+            'Portofino M': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']},
+            '812 Superfast': {'Гибрид': ['Эко', 'Премиум', 'Улучшенный']}})
 
 
 
@@ -502,7 +551,8 @@ async def insert_advert_photos(new_car_photos, params):
             else:
                 current_table = CarAdvert
             matching_adverts = await manager.execute(
-                current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table).join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
+                current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table)\
+                    .join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
             )
             ic(brand_id, len(matching_adverts))
             # Подготовка данных для массовой вставки
@@ -622,7 +672,7 @@ async def get_car(photos=None, cars=False):
                                                   'year': year})
 
     if cars:
-        insert_carars = insert_carars#[:len(insert_carars)//100]
+        insert_carars = insert_carars[:len(insert_carars)//1000]
         await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     # if insert_data:

@@ -1,5 +1,7 @@
 import logging
 
+from database.tables.car_configurations import CarAdvert
+from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 from utils.lexicon_utils.logging_utils.logg_string_utils import get_user_name
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -22,9 +24,13 @@ __LOGGING_LEXICON = {'reset_tariff_action': 'Обнулил тариф прод�
 async def log_admin_action(admin_username, action, subject='', reason=False):
     ic(subject)
     name = await get_user_name(subject)
+    if len(name) == 2:
+        name = f'\n{name[0]}\n{name[1]}'
     if reason:
         if action == 'add_mailing':
             reason = f'''{__LOGGING_LEXICON['in_time']}{reason}'''
+        elif isinstance(reason, tuple) and isinstance(reason[0], CarAdvert):
+            reason = f'''\n{await create_advert_configuration_block(advert_id=reason[0])}\n{__LOGGING_LEXICON['for_reason']} {reason[1]}'''
         elif action == 'delete_mailing':
             reason = f'''{ __LOGGING_LEXICON['published_in_time']} {reason}'''
         elif action in ('deleted_param'):

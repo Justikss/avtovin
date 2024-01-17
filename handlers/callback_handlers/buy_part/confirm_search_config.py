@@ -5,6 +5,7 @@ from copy import copy
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from icecream import ic
+from peewee import IntegrityError
 
 from database.data_requests.recomendations_request import RecommendationRequester
 from handlers.callback_handlers.hybrid_part import return_main_menu
@@ -40,7 +41,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                                                                                            viewed=False,
                                                                                            car_id=car_id)
         if offer_ids:
-            data_for_seller = await CheckFeedbacksHandler.create_offer_data(offer_ids[0])
+            data_for_seller = await CheckFeedbacksHandler.create_offer_data(callback, offer_ids[0])
             if data_for_seller:
                 ic(data_for_seller)
                 media_mode = True if data_for_seller.get('album') else False
@@ -195,7 +196,10 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
             ic(cached_data, is_recommendated_state, car_id, car_model, dying_tariff_status)
 
             if dying_tariff_status or seller_tariff_run_out:
-                await dying_tariff_requester_module.DyingTariffRequester.dying_tariff_handler(seller_model, callback.bot)
+                try:
+                    await dying_tariff_requester_module.DyingTariffRequester.dying_tariff_handler(seller_model, callback.bot)
+                except IntegrityError:
+                    pass
                 # await AdvertRequester.delete_advert_by_id(seller_model)
 
             if seller_tariff_run_out:

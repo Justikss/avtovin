@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -11,8 +13,12 @@ from handlers.utils.delete_message import delete_message
 
 class DigitFilter(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext) -> bool | dict:
-        # Проверка на целое число или число с долларом
-        is_correct = message.text.isdigit()
+
+        config_module = importlib.import_module('config_data.config')
+
+        is_correct = message.text.isdigit() and len(str(message.text)) < config_module.max_price_len
+
+
 
         current_state = str(await state.get_state())
         memory_storage = await state.get_data()

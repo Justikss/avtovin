@@ -22,7 +22,7 @@ captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрал
             'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
             'by_dealership': 'автосалона',
             'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: ', 'add': 'Добавить',
-            'successfully': 'Успешно'
+            'successfully': 'Успешно', 'tech_support_entity': '👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER}\n'
             }
 
 __LEXICON = {
@@ -61,7 +61,7 @@ __LEXICON = {
             'seller_without_tariff_notification': {'message_text': 'Ваш тариф потрачен,\nпо истечению суток ваш каталог товаров и история откликов будут очищены, во избежание этого случая\nвам следует приобрести тариф снова!',
                                                    'buttons': {'tariff_extension': 'Продлить тариф ✅', 'close_seller_notification_by_redis:lose_tariff': 'Скрыть уведомление.', 'width': 1}},
             'user_in_system': {'message_text': 'Вы в системе'},
-            'choose_language': {'message_text': 'Выберите ваш язык', 'language_uz': '🇺🇿 Uzb',
+            'choose_language': {'message_text': 'Tilingizni tanlang\nВыберите ваш язык', 'language_uz': '🇺🇿 Uzb',
                                 'language_ru': "🇷🇺 Rus", 'width': 2},
             'hello_text': {'message_text': '<b>Привет, <i>{user_name}</i></b>!\nУ нас ты можешь купить или продать своё авто.\nВыбери один из пунктов ниже 👇🏼', 'start_sell': 'Продажа 👨🏻‍💼',
                            'start_buy': '👨🏻‍💻 Покупка', 'width': 2},
@@ -81,8 +81,8 @@ __LEXICON = {
                       'return_main_menu': '◂ Назад ▸', 'width': 2},
             'tech_support': {'message_text': 'Выберите ваше действие:', 'write_to_support': 'Написать 💬',
                              'call_to_support': 'Позвонить 📱', 'width': 2, 'return_main_menu': '◂ Назад ▸'},
-            'write_to_support': {'message_text': '{SUPPORT_TELEGRAM}', 'backward:support': '◂ Назад ▸', 'width': 1},
-            'call_to_support': {'message_text': 'Вы можете позвонить нам по следующим номерам:\n👩🏻‍💻Сотрудница поддержки: {SUPPORT_NUMBER}\n👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER_2}', 'backward:support': '◂ Назад ▸', 'width': 1},
+            'write_to_support': {'message_text': 'Вы можете связаться с нами по телеграмм:', 'backward:support': '◂ Назад ▸', 'width': 1},
+            'call_to_support': {'message_text': 'Вы можете позвонить нам по следующим номерам:\n', 'backward:support': '◂ Назад ▸', 'width': 1},
 
             'search_car': {'message_text': 'Выберите тип автомобиля:', 'choose_state_1': 'Новое', 'choose_state_2': 'Б\У',
                            'return_main_menu': '◂ Назад ▸', 'width': 2},
@@ -116,8 +116,8 @@ __LEXICON = {
             'notification_from_seller_by_buyer_buttons': {'my_sell_feedbacks:': 'Смотреть отклики', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
 
 
-            'confirm_from_seller': {'message_text': {'feedback_header': '<b>Отлкик №X</b>', 'from_user': 'Пользователь <i>X</i>', 'tendered': 'Оставил отклик на заявку <i>№X</i> :',
-                                    'contacts': '<b>Контакты:</b>\n<i>N</i>\nP', 'separator': ' ' *10 + '—' * 5}, 'confirm_button': 'Подтвердить ✅'},
+            'confirm_from_seller': {'message_text': {'feedback_header': '<b>Отлкик №{feedback_number}</b>', 'from_user': 'Пользователь <i>{from_user}</i>', 'tendered': 'Оставил отклик на заявку <i>№{advert_number}</i> :',
+                                    'contacts': '<b>Контакты:</b>\n<i>{name}</i>\n{phone}', 'separator': ' ' *10 + '—' * 5}, 'confirm_button': 'Подтвердить ✅'},
 
             'backward_name': '◂ Назад ▸',
             "seller_haven't_this_car": 'У вас не продаётся такой автомобиль',

@@ -1,1 +1,1 @@
-from . import kb_creator
+from . import kb_creator, kb_creator_with_urls

@@ -485,6 +485,8 @@ class AdvertRequester:
         await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
         await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
         await advert_to_admin_view_related_requester.delete_relation(adverts)
-        result.append(await manager.execute(CarAdvert.delete().where((CarAdvert.id.in_(car_advert_subquery)) & (CarAdvert.seller == seller_id))))
+        if len(adverts) == 1:
+            result = await manager.get_or_none(CarAdvert, CarAdvert.id == adverts[0])
+        await manager.execute(CarAdvert.delete().where((CarAdvert.id.in_(car_advert_subquery)) & (CarAdvert.seller == seller_id)))
         if result:
             return result

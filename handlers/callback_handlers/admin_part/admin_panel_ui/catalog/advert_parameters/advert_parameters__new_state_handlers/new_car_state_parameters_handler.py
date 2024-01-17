@@ -3,7 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-
+from database.data_requests.car_configurations_requests import CarConfigs
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_params_branch_review import \
     ParamsBranchReviewHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
@@ -44,6 +44,50 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
             self.output_methods = [display_view_class]
 
         await super().process_callback(request, state, **kwargs)
+
+    async def get_last_selected_param(self, state: FSMContext, id_mode=False):
+        memory_storage = await state.get_data()
+        current_parameter_value_id = None
+
+        if memory_storage.get('params_type_flag') == 'new':
+            selected_parameters = memory_storage.get('selected_parameters')
+            all_params = ['color', 'complectation', 'model', 'brand', 'engine']
+            last_param = None
+            for param in all_params:
+                if param in selected_parameters.keys():
+                    ic(param)
+                    last_param = param
+                    break
+
+            current_parameter_name = last_param
+            current_parameter_value_id = selected_parameters[last_param]
+            ic(current_parameter_value_id)
+            parameter_object = await CarConfigs.get_by_id(current_parameter_name, current_parameter_value_id)
+            current_parameter_value = parameter_object.name
+        else:
+            current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
+            ic(memory_storage.get('current_advert_parameter'))
+            param_data = memory_storage.get('current_advert_parameter')
+            if len(param_data) == 2:
+                current_parameter_value = param_data['value']
+                current_parameter_value_id = param_data['id']
+            else:
+                current_parameter_value = [value for value in memory_storage.get('current_advert_parameter').values()][0]
+            if id_mode and not current_parameter_value_id:
+                car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
+
+                current_parameter_value_model = await car_configs_module.CarConfigs.custom_action(current_parameter_name,
+                                                                                               'get_by_name',
+                                                                                                name=current_parameter_value)
+                if current_parameter_value_model:
+                    current_parameter_value_id = current_parameter_value_model.id
+
+        result = current_parameter_name, current_parameter_value
+
+        if id_mode:
+            result = (*result, current_parameter_value_id)
+
+        return result
 
     async def selected_param_identity(self, request: Message | CallbackQuery, state: FSMContext):
         output_moment_flag = False

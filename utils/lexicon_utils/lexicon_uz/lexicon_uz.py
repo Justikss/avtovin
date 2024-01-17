@@ -8,7 +8,7 @@ captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel'
             'dont_write_html_tags': '"&lt; &gt;" belgilarini kiriting taqiqlanadi.',
             'all_users': 'barcha', 'buyers': 'xaridorlar', 'sellers': 'sotuvchilar', 'delete': 'O‘chirish',
             'by_dealership': 'avtosalon', 'by_seller': 'shaxsiy shaxs', 'close': 'Yashirish', 'surname_name_patronymic': 'F.I.Sh.: ', 'add': 'Qo‘shish',
-            'successfully': 'Muvaffaqiyatli'
+            'successfully': 'Muvaffaqiyatli', 'tech_support_entity': '👨🏻‍💻Yordamchi xodim: {SUPPORT_NUMBER}\n'
             }
 ''''''
 
@@ -57,7 +57,7 @@ LEXICON_UZ = {
 'seller_without_tariff_notification': {'message_text': "Sizning tarifingiz sarflandi,\n24 soat o'tgach sizning tovarlar katalogingiz va javoblar tarixingiz tozalanadi, buni oldini olish uchun\nsiz yana bir tarif sotib olishingiz kerak!",
 'buttons': {'tariff_extension': 'Tarifni uzaytirish ✅', 'close_seller_notification_by_redis:lose_tariff': 'Bildirishnomani yashirish.', 'width': 1}},
 'user_in_system': {'message_text': 'Siz tizimdasiz'},
-'choose_language': {'message_text': 'Tilingizni tanlang', 'language_uz': '🇺🇿 Uzb',
+'choose_language': {'message_text': 'Tilingizni tanlang\nВыберите ваш язык', 'language_uz': '🇺🇿 Uzb',
 'language_ru': "🇷🇺 Rus", 'width': 2},
 'hello_text': {'message_text': '<b>Salom, <i>{user_name}</i></b>!\nBizda siz o‘z avtoulovingizni sotishingiz yoki xarid qilishingiz mumkin.\nQuyidagilardan birini tanlang 👇🏼', 'start_sell': 'Sotish 👨🏻‍💼',
 'start_buy': '👨🏻‍💻 Xarid qilish', 'width': 2},
@@ -84,9 +84,9 @@ LEXICON_UZ = {
         'return_main_menu': '◂ Orqaga ▸', 'width': 2},
     'tech_support': {'message_text': 'Harakatingizni tanlang:', 'write_to_support': 'Yozing 💬',
                      'call_to_support': 'Qo‘ng‘iroq qiling 📱', 'width': 2, 'return_main_menu': '◂ Orqaga ▸'},
-    'write_to_support': {'message_text': '{SUPPORT_TELEGRAM}', 'backward:support': '◂ Orqaga ▸', 'width': 1},
+    'write_to_support': {'message_text': "Biz bilan telegram orqali bog'lanishingiz mumkin:", 'backward:support': '◂ Orqaga ▸', 'width': 1},
     'call_to_support': {
-        'message_text': 'Bizga quyidagi raqamlarga qo‘ng‘iroq qilib murojaat qilishingiz mumkin:\n👩🏻‍💻Yordamchi xodim: {SUPPORT_NUMBER}\n👨🏻‍💻Yordamchi xodim: {SUPPORT_NUMBER_2}',
+        'message_text': 'Bizga quyidagi raqamlarga qo‘ng‘iroq qilib murojaat qilishingiz mumkin:\n',
         'backward:support': '◂ Orqaga ▸', 'width': 1},
 
     'search_car': {'message_text': 'Avtomobil turlarini tanlang:', 'choose_state_1': 'Yangi',
@@ -124,8 +124,8 @@ LEXICON_UZ = {
 
     'notification_from_seller_by_buyer_buttons': {'my_sell_feedbacks:': 'Mening sotish bo‘yicha fikrlarimni ko‘rish',
                                                   'close_seller_notification:': 'Xabarni yashirish', 'width': 1},
-'confirm_from_seller': {'message_text': {'feedback_header': '<b>Fikr №X</b>', 'from_user': 'Foydalanuvchi <i>X</i>', 'tendered': '<i>№X</i> raqamli so‘rovga javob yozdi:',
-'contacts': '<b>Kontaktlar:</b>\n<i>N</i>\nP', 'separator': ' ' *10 + '—' * 5}, 'confirm_button': 'Tasdiqlash ✅'},
+'confirm_from_seller': {'message_text': {'feedback_header': '<b>Fikr №{feedback_number}</b>', 'from_user': 'Foydalanuvchi <i>{from_user}</i>', 'tendered': '<i>№{advert_number}</i> raqamli so‘rovga javob yozdi:',
+'contacts': '<b>Kontaktlar:</b>\n<i>{name}</i>\n{phone}', 'separator': ' ' *10 + '—' * 5}, 'confirm_button': 'Tasdiqlash ✅'},
 'backward_name': '◂ Orqaga ▸',
 "seller_haven't_this_car": 'Sizda bunday avtomobil sotilmaydi',
 'separator': '='*40,

@@ -14,6 +14,7 @@ car_advert_requests_module = importlib.import_module('database.data_requests.car
 
 class InputAdvertIdFilter(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext) -> bool | dict:
+        config_module = importlib.import_module('config_data.config')
         ic(str(await state.get_state()))
         ic(InputAdvertIdFilter)
         message_text = message.text.strip()
@@ -24,7 +25,7 @@ class InputAdvertIdFilter(BaseFilter):
             await delete_message(message, last_admin_answer)
 
 
-        if message_text.isdigit():
+        if message_text.isdigit() and len(str(message.text)) < config_module.max_price_len:
             ic()
             advert_model = await car_advert_requests_module\
                 .AdvertRequester.get_where_id(message_text)
