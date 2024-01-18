@@ -25,19 +25,24 @@ class GetDealershipAddress(BaseFilter):
         return result
 
     @staticmethod
-    async def time_endswith_fromatter(time_value):
-        wait_time = str(time_value)
-
-        if wait_time[-1] == '1':
-            endswith = Lexicon_module.SecondsEndswith.one
-        elif 1 < int(wait_time[-1]) <= 4:
-            endswith = Lexicon_module.SecondsEndswith.two_four
+    async def time_endswith_fromatter(request, time_value):
+        redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+        language = await redis_module.redis_data.get_data(
+            key=f'{request.from_user.id}:language'
+        )
+        if language == 'ru' or language is None:
+            wait_time = str(time_value)
+            seconds = 'секунд'
+            if time_value[-1] == '1':
+                seconds += Lexicon_module.SecondsEndswith.one
+            elif 1 < int(wait_time[-1]) <= 4:
+                seconds += Lexicon_module.SecondsEndswith.two_four
+            else:
+                pass
         else:
-            endswith = ''
+            seconds = 'soniya'
 
-        uz = 'soniya'
-
-        return endswith
+        return seconds
 
 
 
@@ -83,7 +88,7 @@ class GetDealershipAddress(BaseFilter):
                 lon = request.location.longitude
                 wait_time = queue.qsize()  # Расчет времени ожидания
                 if int(wait_time) > 3:
-                    seconds_endswith = await GetDealershipAddress.time_endswith_fromatter(wait_time)
+                    seconds_endswith = await GetDealershipAddress.time_endswith_fromatter(request, wait_time)
                     lexicon_part = f'''{Lexicon_module.LEXICON['waiting_request_process'].format(time=wait_time, seconds=seconds_endswith)}.'''
                     await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part)
                     # await request.answer(f"Ваш запрос обрабатывается. Примерное время ожидания: {wait_time} секунд(ы).")

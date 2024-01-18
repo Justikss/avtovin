@@ -58,7 +58,7 @@ async def tariff_edit_lexicon_part_constructor(tariff_model: Tariff, state: FSMC
 async def edit_tariff_by_admin_handler(request: CallbackQuery | Message, state: FSMContext):
     tariffs_requester_module = importlib.import_module('database.data_requests.tariff_requests')
     message_editor_module = importlib.import_module('handlers.message_editor')
-
+    await state.update_data(edit_tariff_mode=True)
     memory_storage = await state.get_data()
     tariff_id = memory_storage.get('current_tariff_view')
     delete_mode = memory_storage.get('admin_incorrect_flag') is True

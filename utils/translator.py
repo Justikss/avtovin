@@ -9,7 +9,7 @@ class ParseTranslator:
 
 
 
-    async def translate(self, text, subkey, from_lang='ru', to_lang='uz', maybe_sorse_uz=False):
+    async def translate(self, text, subkey, from_lang='ru', to_lang='uz', maybe_sorse_uz=False, last_tries=3):
         if not text:
             return None
         if text in ('ДВС', 'IYD'):
@@ -46,9 +46,14 @@ class ParseTranslator:
             status_code = response.status_code
             if status_code == 200:
                 response_data = response.json()
+                logging.debug('TRANSLATE: response_data: %s', response.text)
                 good_text = response_data.get('text')
                 logging.debug('TRANSLATE: Good text: %s', good_text)
-
+                if response_data.get('code') == 'error':
+                    if last_tries:
+                        return await self.translate(text, subkey, from_lang, to_lang, maybe_sorse_uz, last_tries-1)
+                    else:
+                        logging.critical('TRANSLATE: Three tries was not work!!!')
                 if good_text:
                     good_text = good_text[0]
                     if good_text == text and maybe_sorse_uz:

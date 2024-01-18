@@ -1,6 +1,7 @@
 import importlib
 
 from aiogram import Bot, types
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import InputMediaPhoto, InputMediaVideo, InputMediaDocument, InputMediaAudio
 import asyncio
 
@@ -57,8 +58,11 @@ async def process_media_group(request, media_info_list, chat_id, caption, bot, o
     # Отправка фото и видео медиагруппы
     if photo_video_group:
         media_objects = [get_media_object(media_info) for media_info in photo_video_group]
-        media_message = await bot.send_media_group(chat_id=chat_id, media=media_objects)
-        redis_value.extend([message.message_id for message in media_message])
+        try:
+            media_message = await bot.send_media_group(chat_id=chat_id, media=media_objects)
+            redis_value.extend([message.message_id for message in media_message])
+        except TelegramBadRequest:
+            pass
 
     # Отправка аудио и документов отдельно
     for media_info in other_media:

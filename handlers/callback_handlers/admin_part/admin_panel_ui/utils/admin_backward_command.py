@@ -46,6 +46,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_re
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.choose_type import ChooseContactsTypeHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.list import ContactListHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.specific import OutputSpecificContactHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.edit_tariff.edit_tariff_handler import \
+    edit_tariff_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_tariff_data import process_tariff_cost, \
     process_write_tariff_feedbacks_residual, process_write_tariff_cost
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_specific_tariff import \
@@ -136,6 +138,10 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'final_confirm_block_user':
             await input_reason_module.input_ban_reason_handler(callback, state)
+
+        case 'input_tariff_cost' | 'input_tariff_feedbacks' | 'input_tariff_duration_time' | 'input_tariff_name' \
+            if memory_storage.get('edit_tariff_mode'):
+            await edit_tariff_by_admin_handler(callback, state)
 
         case 'input_tariff_cost' | 'check_tariff_info':
             await output_tariffs_for_admin(callback, state)

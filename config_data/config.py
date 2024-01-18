@@ -25,7 +25,8 @@ else:
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 LOCATIONIQ_TOKEN = os.getenv("LOCATIONIQ_TOKEN")
 
-ADMIN_CHAT = os.getenv("ADMIN_CHAT")
+ADMIN_SELLERS_CHAT = os.getenv('ADMIN_SELLERS_CHAT')
+ADMIN_ADVERTS_CHAT = os.getenv('ADMIN_ADVERTS_CHAT')
 
 SUPPORT_NUMBER = os.getenv("SUPPORT_NUMBER")
 SUPPORT_NUMBER_2 = os.getenv("SUPPORT_NUMBER_2")
@@ -51,7 +52,7 @@ message_answer_awaited = 3
 tech_support_tg_link_buttons_width = 3
 
 max_price_len = 20
-max_contact_info_len = 100
+max_contact_info_len = 150
 max_naming_len = 70
 block_user_reason_text_len = {'max': 256, 'min': 3}
 header_message_text = '<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
@@ -69,7 +70,7 @@ user_pagesize_by_admin = 6
 tariffs_pagesize = 6
 top_ten_pagesize = 4
 admin_brand_pagination_pagesize = 6
-faq_seller = '''
+faq_seller_ru = '''
 \n<b>Продажа:</b>
 \nПосле регистрации продавца и подтверждения её от администрации - <b>требуется оформить тариф,
 для того чтобы получать отклики:
@@ -88,7 +89,7 @@ faq_seller = '''
 \n<b>Удалить товар вместе с откликом:</b>
 <i>[Просмотренные отклики] - [Снять с продажи]</i>
 '''
-faq_buyer = '''
+faq_buyer_ru = '''
 <b>Покупка:</b>
 \nПо прохождению регистрации покупателя - вы можете совершать отклики на подходящие вам автомобили.
 \n<b>Поиск машин</b> происходит через цепочку взаимодействия с ботом: 
@@ -108,8 +109,8 @@ header_message_text = safe_dict_module.SafeDict({'ru': header_message_text,
                                 'uz': header_message_text_uz})
 faq = safe_dict_module.SafeDict({'ru': faq,
                 'uz': faq_uz})
-faq_seller = safe_dict_module.SafeDict({'ru': faq_seller,
+faq_seller = safe_dict_module.SafeDict({'ru': faq_seller_ru,
                        'uz': faq_seller_uz})
-faq_buyer = safe_dict_module.SafeDict({'ru': faq_buyer,
+faq_buyer = safe_dict_module.SafeDict({'ru': faq_buyer_ru,
                       'uz': faq_buyer_uz})
 

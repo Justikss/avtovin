@@ -55,7 +55,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             except Exception as ex:
                 delete_query = 'no'
                 traceback.print_exc()
-                logging.critical(f'|||Ошибка при удалении связки параметров(удаление конфигурации авто): {ex}')
+                logging.warning(f'|||Ошибка при удалении связки параметров(удаление конфигурации авто): {ex}')
             if delete_query == 'no':
                 alert_message = Lexicon_module.ADMIN_LEXICON['action_non_actuality']
             else:

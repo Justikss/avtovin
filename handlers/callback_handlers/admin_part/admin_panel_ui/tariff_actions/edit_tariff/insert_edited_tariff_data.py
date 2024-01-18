@@ -12,6 +12,7 @@ Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def insert_tariff_data(callback: CallbackQuery, state: FSMContext):
     tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
+    await state.update_data(edit_tariff_mode=False)
 
     memory_storage = await state.get_data()
     edited_tariff_data = memory_storage.get('edited_tariff_data')

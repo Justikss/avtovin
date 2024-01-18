@@ -2,7 +2,9 @@ import asyncio
 import traceback
 import uuid
 
+import faker
 from aiogram.types import Message
+from faker import Faker
 
 from database.data_requests.car_configurations_requests import mock_values, get_car, get_seller_account, mock_feedbacks
 from database.data_requests.new_car_photo_requests import PhotoRequester
@@ -14,6 +16,7 @@ from database.tables.car_configurations import CarAdvert, CarColor, CarComplecta
 from database.tables.commodity import AdvertPhotos
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_to_admin_view_status import AdvertsToAdminViewStatus
+from database.tables.tech_support_contacts import TechSupports
 
 
 async def insert_phototo(dataa):
@@ -91,6 +94,16 @@ async def set_viewed_status():
     if insetred_data:
         await manager.execute(AdvertsToAdminViewStatus.insert_many(insetred_data))
 
+async def create_ts_contacts():
+    faker = Faker()
+    links = [f'@{faker.name()}' for _ in range(6)]
+    numbers = [faker.phone_number() for _ in range(6)]
+    insert_tss = [{'link': link, 'type': 'telegram'} for link in links]
+    insert_tsss = [{'link': link, 'type': 'number'} for link in numbers]
+    await manager.execute(TechSupports.insert_many(insert_tss))
+    await manager.execute(TechSupports.insert_many(insert_tsss))
+
+
 async def drop_table_handler(message: Message):
     # await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
     # adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
@@ -102,19 +115,28 @@ async def drop_table_handler(message: Message):
     # inserted_cars = await get_car(photos=None, cars=0)
     # await mock_feedbacks(sellers=None, raw_cars=inserted_cars)
     # return
-    #todo тест наколичество технарей: TechSupports
+    # sellers = await get_seller_account()
+
+    # await manager.execute(TechSupports.insert_many(insert_tss))
+    # # return
+    # await mock_values(1)
+    #
+    #
+    # return
+
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
     await mock_values(0)
     sellers = await get_seller_account()
-
     photos = None
     photos = read_photos_by_brand('utils/carss')
-    inserted_cars = await get_car(photos, cars=0)
-    # asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
+    inserted_cars = await get_car(photos, cars=1)
+    asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     type_photos = read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)
     await set_viewed_status()
+
+    await create_ts_contacts()
 
     await message.answer('SUCCESS')

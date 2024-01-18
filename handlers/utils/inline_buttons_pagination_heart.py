@@ -82,7 +82,7 @@ class CachedRequestsView:
         ic(message_text)
         ic(memory_storage.get('message_text') if memory_storage else None)
 
-        if memory_storage:
+        if memory_storage and isinstance(callback, CallbackQuery):
             media_group = await CachedRequestsView.get_media_group(memory_storage, state, callback, delete_mode)
         else:
             media_group = None
@@ -90,7 +90,7 @@ class CachedRequestsView:
                                                         lexicon_part=message_text,
                                                         delete_mode=delete_mode, my_keyboard=keyboard,
                                                         media_group=media_group,
-                                                        save_media_group=callback.data.startswith('inline_buttons_pagination:'))
+                                                        save_media_group=callback.data.startswith('inline_buttons_pagination:') if isinstance(callback, CallbackQuery) else None)
         # await callback.message.edit_reply_markup(reply_markup=keyboard)
         await redis_module.redis_data.set_data(key=redis_key, value=await pagination.to_dict())
         ic()
@@ -132,7 +132,7 @@ class CachedRequestsView:
     async def get_media_group(memory_storage, state, callback, delete_mode):
         media_group = memory_storage.get('media_group_for_inline_pg')
         media_group_in_chat = memory_storage.get('media_group_in_chat')
-        ic(callback.data)
+
         if media_group_in_chat and not callback.data.startswith('inline_buttons_pagination:'):
             await state.update_data(media_group_in_chat=False)
             await delete_media_groups(callback)
@@ -155,6 +155,7 @@ class CachedRequestsView:
         if state:
             current_state = await state.get_state()
             memory_storage = await state.get_data()
+            ic(memory_storage.get('last_buttons'))
             
             if memory_storage.get('width'):
                 width_value = memory_storage.get('width')
@@ -170,10 +171,12 @@ class CachedRequestsView:
             backward_command = lexicon_module.LEXICON['backward_from_buyer_offers']
         elif user_state == 'sell':
             if memory_storage:
-                backward_command = memory_storage.get('backward_command')
+                ic()
+                backward_command = memory_storage.get('last_buttons')
             else:
                 backward_command = None
             if not backward_command:
+                ic()
                 backward_command = lexicon_module.LexiconSellerRequests.keyboard_end_part
 
 
@@ -206,7 +209,7 @@ class CachedRequestsView:
         if current_state:
             if 'ChooseStates' in current_state:
                 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+                ic()
                 # ic(list(current_page.items())[-2:])
                 backward_command = Lexicon_module.LastButtonsInCarpooling.last_buttons
                 dynamic_buttons = memory_storage.get('dynamic_buttons')
@@ -214,6 +217,7 @@ class CachedRequestsView:
         if not backward_command:
             # seller_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
             backward_command = memory_storage.get('last_buttons')
+            ic()
         if memory_storage and memory_storage.get('dynamic_buttons') and dynamic_buttons == 1:
             dynamic_buttons = memory_storage.get('dynamic_buttons')
             ic(backward_command)

@@ -6,7 +6,9 @@ class Pagination:
         self.total_pages = max((len(data) + page_size - 1) // page_size, 1)  # Вычисление общего количества страниц, минимум 1 страница
 
     async def get_page(self, operation: str):
-        print('current_page before operation: ', self.current_page)
+        print('current_page before operation: ', self.current_page, ' ', operation)
+        # if self.current_page < 0:
+        #     self.current_page = 0
 
         if operation == '-':
             self.current_page -= 1

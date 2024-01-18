@@ -73,6 +73,16 @@ class RecommendationParametersBinder:
         )
 
         ic(parameter_recommendations_to_buyer_wire)
+
+
+        await manager.execute(offers_history_module.RecommendedOffers.delete().where(offers_history_module.RecommendedOffers.parameters_id.in_(
+                        offers_history_module\
+                                .RecommendationsToBuyer.select(offers_history_module\
+                                .RecommendationsToBuyer.id).where(offers_history_module\
+                       .RecommendationsToBuyer.id.in_(
+                parameter_recommendations_to_buyer_wire.where(parameter_table.id.in_(parameter_id)
+
+        ))))))
         ic(await manager.execute(offers_history_module\
             .RecommendationsToBuyer.delete().where(
             offers_history_module\
@@ -114,9 +124,9 @@ class RecommendationRequester:
             .RecommendedOffers.select(offers_history_module\
                                       .RecommendedOffers, CarAdvert, offers_history_module\
                                       .RecommendationsToBuyer).join(CarAdvert).switch(offers_history_module\
-                                                                                                                    .RecommendedOffers).join(User).switch(offers_history_module\
-                                                                                                                                                          .RecommendedOffers).join(offers_history_module\
-                                                                                                                                                                                   .RecommendationsToBuyer).where(User.telegram_id == int(buyer_id))
+                                            .RecommendedOffers).join(User).switch(offers_history_module\
+                                  .RecommendedOffers).join(offers_history_module\
+                                                           .RecommendationsToBuyer).where(User.telegram_id == int(buyer_id))
         result = await manager.execute(query)
         if get_brands and result:
             ic()

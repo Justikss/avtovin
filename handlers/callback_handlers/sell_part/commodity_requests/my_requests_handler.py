@@ -26,6 +26,10 @@ async def seller_requests_callback_handler(callback: CallbackQuery, state: FSMCo
 
     await media_group_delete_module.delete_media_groups(request=callback)
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':seller_requests_pagination')
+
+    await message_editor.redis_data.set_data(key = f'{str(callback.from_user.id)}:return_path_after_delete_car',
+                                             value="seller_requests_brand")
+
     ic()
     car_brands = await car_advert_requests_module\
         .AdvertRequester.get_advert_brands_by_seller_id(seller_id=callback.from_user.id)

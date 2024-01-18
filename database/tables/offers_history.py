@@ -51,7 +51,7 @@ class SellerFeedbacksHistory(BaseModel):
 class RecommendedOffers(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')
     advert = ForeignKeyField(CarAdvert, field=CarAdvert.id)
-    # parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
+    parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
 
     class Meta:
         db_table = 'Рекомендации'

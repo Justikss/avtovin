@@ -6,7 +6,8 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from database.data_requests.recomendations_request import RecommendationRequester
-from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter
+from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter, \
+    get_output_string
 
 config_module = importlib.import_module('config_data.config')
 
@@ -49,14 +50,20 @@ async def create_notification_for_admins(callback):
     seller_model = await person_requester_module.PersonRequester.get_user_for_id(user_id=callback.from_user.id, seller=True)
     if seller_model:
         seller_model = seller_model[0]
+        redis_key = f'{str(callback.from_user.id)}:structured_boot_data'
 
-        last_output_boot_config_string = await message_editor.redis_data.get_data(key=str(callback.from_user.id) + ':boot_config')
-        boot_config_string_startswith = f'''{copy(lexicon_module.LexiconCommodityLoader.config_for_admins).format(
+        structured_boot_data = await message_editor.redis_data.get_data(key=redis_key, use_json=True)
+
+        output_string = await get_output_string(mode=None,
+                                                boot_data=structured_boot_data, language='ru')
+
+        boot_config_string_startswith = f'''{copy(lexicon_module.commodity_loader_lexicon_ru['config_for_admins']).format(
             username=callback.from_user.username)}{await get_seller_header_module.get_seller_header(seller=seller_model)}'''
 
-        message_for_admin_chat = last_output_boot_config_string.split('\n')[:-2]
+        message_for_admin_chat = output_string.split('\n')
         message_for_admin_chat[0] = boot_config_string_startswith
         message_for_admin_chat = '\n'.join(message_for_admin_chat)
+        await message_editor.redis_data.delete_key(key=redis_key)
         return message_for_admin_chat
 
 async def create_notification_for_seller(request_number) -> str:
@@ -88,13 +95,13 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     message_for_admin_chat = await create_notification_for_admins(callback)
 
     if not message_for_admin_chat:
-        logging.info(f'{callback.from_user.id} ::: Пытался выложить товар без регистрации.')
+        logging.debug(f'{callback.from_user.id} ::: Пытался выложить товар без регистрации.')
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='try_again_seller_registration',
                                                         delete_mode=True)
         return
 
     if await check_match_adverts_the_sellers(callback, state):
-        logging.info(f'{callback.from_user.id} ::: Попытался выложить товар, который уже имеет на витрине.')
+        logging.debug(f'{callback.from_user.id} ::: Попытался выложить товар, который уже имеет на витрине.')
         return await callback.answer(lexicon_module.LexiconSellerRequests.matched_advert)
 
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
@@ -121,7 +128,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part={'message_text': message_for_admin_chat},
-                                                    send_chat=config_module.ADMIN_CHAT, media_group=photos)
+                                                    send_chat=config_module.ADMIN_ADVERTS_CHAT, media_group=photos)
 
     store_query_in_recommendations = await RecommendationRequester.add_recommendation(advert=commodity_number)
 

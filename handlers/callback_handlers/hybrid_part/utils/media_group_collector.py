@@ -5,6 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto
 
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
+from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
+from states.load_commodity_states import LoadCommodityStates
 
 mediagroups = {}
 user_messages = []
@@ -45,6 +47,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
         pass
     ic()
     ic(state)
+    if not await state.get_state() in (LoadCommodityStates.photo_verification,
+                             AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos):
+        return
     album_id = message.media_group_id
     ic(album_id)
     if album_id:

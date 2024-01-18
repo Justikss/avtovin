@@ -40,6 +40,7 @@ choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions[
 to_statistic_panel = {'admin_backward:to_statistic_panel': 'В меню статистики'}
 
 __STATISTIC_LEXICON = {
+    'stats_is_empty': 'Статистика пуста',
     'stats_loading': 'Производится расчёт статистики...',
     'seller_statistic_view': {
     'message_text': "Продавец: {seller_name}\nДата регистрации: {date_of_registration}\n\nСтатистика за {period}:\nКоличество объявлений: {adverts_count}\nКоличество откликов: {feedbacks_count}",

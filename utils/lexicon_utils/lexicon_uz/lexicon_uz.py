@@ -164,7 +164,7 @@ LEXICON_UZ = {
 'seller_waiting_registration_confirm': {'start_text_legal': '<b>Avtosalon ro‘yxatdan o‘tish so‘rovi:</b>\nManzili:\n{address}\n', 'start_text_natural': '<b>Xususiy sotuvchi ro‘yxatdan o‘tish so‘rovi:</b>\n',
 'legal_body_header': '▬' * 15 + '\n<blockquote>Avtosalon nomi: <i>{dealership_name}</i>\n',
 'natural_body_header': '▬' * 15 + '\n<blockquote>Ism: <i>{name}</i>\nFamiliya: <i>{surname}</i>\nOtasining ismi: <i>{patronymic}</i>\n',
-'body': 'Foydalanuvchi: @{username}\nTelefon raqami: {phone_number}</blockquote>\n' + '▬' * 15},
+'body': 'Telefon raqami: {phone_number}</blockquote>\n' + '▬' * 15},
 
 'success_seller_registration_notice': {'message_text': 'Siz tizimda ro‘yxatdan o‘tdingiz', 'return_main_menu': 'Sotuvchi menyusiga 👨🏻‍💼', 'width': 1},
 
@@ -221,18 +221,16 @@ lexicon_uz = {
     'input_new_price_incorrect_message_text': f'Iltimos, {max_price_len} raqamigacha bo‘lgan butun son qiymatini kiriting.',
     'input_new_price_car_dont_exists': 'Afsuski, avtomobil savdodan olingan.',
     'succes_rewrite_price': 'Narx muvaffaqiyatli o‘zgartirildi',
-    'commodity_output_block': '''
-        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-        <blockquote>Holati: <i>{state}</i>
-        Dvigatel turi: <i>{engine_type}</i>
-        Marka: <i>{brand_name}</i>
-        Model: <i>{model_name}</i>
-        Komplektatsiya: <i>{complectation}</i>
-        Ishlab chiqarilgan yili: <i>{year_of_release}</i>
-        Yurgan masofa: <i>{mileage}</i>
-        Rang: <i>{color}</i></blockquote>
-        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-    ''',
+    'commodity_output_block': '''▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+<blockquote>Holati: <i>{state}</i>
+Dvigatel turi: <i>{engine_type}</i>
+Marka: <i>{brand_name}</i>
+Model: <i>{model_name}</i>
+Komplektatsiya: <i>{complectation}</i>
+Ishlab chiqarilgan yili: <i>{year_of_release}</i>
+Yurgan masofa: <i>{mileage}</i>
+Rang: <i>{color}</i></blockquote>
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬''',
     'output_car_request_header': 'Ariza <i>№{request_number}</i>',
     'commodity_state': 'Holati: <i>{state}</i>',
     'commodity_brand': 'Marka: <i>{brand}</i>',

@@ -28,6 +28,7 @@ async def confirm_delete_tariff_action(callback: CallbackQuery, state: FSMContex
     tariff_id = memory_storage.get('current_tariff_view')
 
     # try:
+    await log_admin_action(callback.from_user.username, 'delete_tariff', f'tariff:{tariff_id}')
     delete_query = await tariff_requests_module.TarifRequester.set_dying_tariff_status(tariff_id)
     #
     # except TariffHasWireError:
@@ -38,7 +39,6 @@ async def confirm_delete_tariff_action(callback: CallbackQuery, state: FSMContex
     if delete_query:
         alert_text = Lexicon_module\
             .ADMIN_LEXICON['tariff_was_successfully_removed']
-        await log_admin_action(callback.from_user.username, 'delete_tariff', f'tariff:{tariff_id}')
     else:
         logging.warning(f'Администратор {callback.from_user.username} неудачно удалил тариф ID: {tariff_id}')
 

@@ -8,7 +8,7 @@ from utils.get_currency_sum_usd import get_valutes
 
 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-async def create_advert_configuration_block(car_state=None, engine_type=None, brand=None, model=None, complectation=None, color=None, sum_price=None, usd_price=None, year_of_realise=None, mileage=None, advert_id=None):
+async def create_advert_configuration_block(car_state=None, engine_type=None, brand=None, model=None, complectation=None, color=None, sum_price=None, usd_price=None, year_of_realise=None, mileage=None, advert_id=None, language=None):
     # configurate_block = f'''{copy(Lexicon.commodity_output_block).replace('SN', car_state).replace('EN', engine_type).replace('BN', brand).replace('MN', model).replace('COMPN', complectation).replace('COLN', color).replace('YV', str(year_of_realise)).replace('MV', str(mileage))}'''
     if advert_id:
         advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
@@ -30,15 +30,17 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
             mileage = advert_model.mileage
             car_state = advert_model.state.name
 
-
-
-
     ic(isinstance(color, CarColor))
     ic(color)
 
+    if language == 'ru':
+        lexicon = lexicon_module\
+                        .lexicon_ru['commodity_output_block']
+    else:
+        lexicon = lexicon_module\
+                             .LexiconSellerRequests.commodity_output_block
 
-    configurate_block = copy(lexicon_module\
-                             .LexiconSellerRequests.commodity_output_block).format(state=car_state, engine_type=engine_type,
+    configurate_block = copy(lexicon).format(state=car_state, engine_type=engine_type,
                                             brand_name=brand, model_name=model,
                                             complectation=complectation, year_of_release=year_of_realise,
                                             mileage=mileage, color=color)

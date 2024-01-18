@@ -63,7 +63,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
         message = request.message
     else:
         message = request
-
+    ic(seller_mode)
     if seller_mode == 'dealership':
         address = memory_storage['dealership_address']
         formatted_load_pattern = {
@@ -100,6 +100,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
             'authorized': authorized_state,
 
         }
+        ic(formatted_load_pattern)
     try_load = await person_requester_module.PersonRequester.store_data(formatted_load_pattern, seller=True)
     if not (isinstance(try_load, tuple) and len(try_load) == 2):
         return True

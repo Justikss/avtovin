@@ -123,7 +123,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                     await callback.message.delete()
                 except:
                     pass
-                await set_language(callback=callback, set_languange=False)
+                await set_language(callback, set_languange=False)
             else:
                 print("LEXICON_CACHA")
                 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')

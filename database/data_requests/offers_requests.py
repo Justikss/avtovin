@@ -27,8 +27,8 @@ class OffersRequester:
             telegram_id = int(telegram_id)
         await manager.execute(ActiveOffers.delete().where(ActiveOffers.buyer_id == telegram_id))
         await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.buyer_id == telegram_id))
-        await manager.execute(RecommendationsToBuyer.delete().where(RecommendationsToBuyer.buyer == telegram_id))
         await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.buyer == telegram_id))
+        await manager.execute(RecommendationsToBuyer.delete().where(RecommendationsToBuyer.buyer == telegram_id))
 
 
 

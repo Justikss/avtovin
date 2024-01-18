@@ -12,18 +12,22 @@ from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromat
 
 
 
-async def get_output_string(mode, boot_data: dict) -> str:
+async def get_output_string(mode, boot_data: dict, language=None) -> str:
     '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    if mode:
+        if mode == 'to_seller':
+            start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_seller)
+        elif mode.startswith('to_admins_from_'):
+            seller_link = mode.split('_')[3]
+            start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).format(username=seller_link)
+    else:
+        start_sub_string = ''
 
-    if mode == 'to_seller':
-        start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_seller)
-    elif mode.startswith('to_admins_from_'):
-        seller_link = mode.split('_')[3]
-        start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).format(username=seller_link)
-
-
-    bottom_layer = f'''\n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
+    if language != 'ru':
+        bottom_layer = f'''\n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
+    else:
+        bottom_layer = ''
 
     top_layer = f'''{start_sub_string}\
 {await create_advert_configuration_block(car_state=boot_data['state'], engine_type=boot_data['engine_type'], 
@@ -31,7 +35,7 @@ async def get_output_string(mode, boot_data: dict) -> str:
                                          complectation=boot_data['complectation'], color=boot_data['color'], 
                                          mileage=boot_data['mileage'], year_of_realise=boot_data['year_of_release'], 
                                          sum_price= boot_data.get('sum_price'),
-                                         usd_price=boot_data.get('dollar_price'))}'''
+                                         usd_price=boot_data.get('dollar_price'), language=language)}'''
     # \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
     #       {copy(Lexicon.commodity_state).replace('X', boot_data['state'])}\
     #       {copy(Lexicon.engine_type).replace('X', boot_data['engine_type'])}\
@@ -126,7 +130,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     output_string = await get_output_string(mode='to_seller',
                                             boot_data=structured_boot_data)
 
-    await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':boot_config', value=output_string)
+    # await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':boot_config', value=output_string)
     ic(output_string)
     # output_string = '\n'.join(output_string.split('\n')[:-2])
     # ic(output_string)
@@ -134,7 +138,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     # output_string += copy(lexicon_module.LexiconCommodityLoader.can_rewrite_config)
     ic(output_string)
 
-    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state, boot_data=structured_boot_data, output_string=output_string)
+    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state,
+                                                                                   boot_data=structured_boot_data,
+                                                                                   output_string=output_string)
     print('lp: ', lexicon_part)
 
     await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity', value=True)

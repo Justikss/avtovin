@@ -23,7 +23,7 @@ class InputAdvertIdFilter(BaseFilter):
 
         if last_admin_answer:
             await delete_message(message, last_admin_answer)
-
+            await state.update_data(last_admin_answer=None)
 
         if message_text.isdigit() and len(str(message.text)) < config_module.max_price_len:
             ic()

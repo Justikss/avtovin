@@ -189,6 +189,15 @@ class AdvertRequester:
         else:
             query = CarAdvert.select()
 
+        if query and buyer_search_mode:
+            if isinstance(buyer_search_mode, str):
+                buyer_search_mode = int(buyer_search_mode)
+
+            query = query.join(ActiveOffers).where(CarAdvert.id.not_in(
+                ActiveOffers.select(CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User).switch(CarAdvert).join(Seller).where(
+                    ((ActiveOffers.buyer_id == buyer_search_mode) & (Seller.telegram_id != buyer_search_mode)))
+            )).switch(CarAdvert)
+
         if seller_id:
             ic()
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
@@ -252,18 +261,18 @@ class AdvertRequester:
             query = query.switch(CarAdvert).join(CarYear).where(CarYear.id == int(year_of_release_id))
             last_table, int_flag = None, None
 
-        if query and buyer_search_mode:
-            if isinstance(buyer_search_mode, str):
-                buyer_search_mode = int(buyer_search_mode)
 
-            query = query.where(CarAdvert.id.not_in(
-                ActiveOffers.select(CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User).where(
-                    ActiveOffers.buyer_id == buyer_search_mode)
-            ))
 
         query = query.distinct()
         if without_actual_filter:
+            query = query.select(CarAdvert)
             result_adverts = list(await manager.execute(query))
+            if without_actual_filter == 'for_deletion':
+                ic(result_adverts)
+                # ic(result_adverts[0].__dict__)
+
+                return result_adverts
+            ic()
         else:
             if (int_flag and not seller_id) and state_id == 2:
                 if int_flag == CarMileage:
@@ -290,14 +299,21 @@ class AdvertRequester:
                 if not seller_id and last_table:
                     query = last_table.select().where(last_table.id.in_(query))
 
+
                 if (seller_id or int_flag):
                     result_adverts = list(await manager.execute(query))
+                    ic(result_adverts)
+                    ic()
 
             if not result_adverts:
                 result_adverts = list(await manager.execute(query))
+                ic(result_adverts)
+                ic()
 
             if seller_id and not last_table:
                 result_adverts = await AdvertRequester.load_related_data_for_advert(result_adverts)
+                ic(result_adverts)
+                ic()
 
         if result_adverts:
             if not isinstance(result_adverts, list):
@@ -305,7 +321,6 @@ class AdvertRequester:
             result_adverts = [advert for advert in result_adverts if advert.id is not None]
 
         ic(result_adverts)
-
         return result_adverts
 
     # @staticmethod

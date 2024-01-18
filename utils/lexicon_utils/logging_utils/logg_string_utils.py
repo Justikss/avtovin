@@ -50,6 +50,7 @@ async def get_user_name(subject):
 
         if not tariff_model:
             tariff_model = await tariff_requester_module.TarifRequester.get_by_id(subject.split(':')[-1])
+            ic(tariff_model)
         if tariff_model:
             name = tariff_model.name
     elif isinstance(subject, dict):

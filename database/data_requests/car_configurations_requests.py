@@ -374,7 +374,7 @@ async def insert_many_with_foregin(table, wire_to_name):
                 for engine, comps in names.items():
                     engine_wire = await translate.translate(engine, 'name')
                     for comp in comps:
-                        ic(wire, comp, engine)
+                        ic(wire, comp, engine, engine_wire)
                         await manager.create(table, name=comp,
                                              model=await manager.get(CarModel.select().where(CarModel.name == wire)),
                                              engine=await manager.get(CarEngine, **engine_wire))

@@ -28,8 +28,8 @@ class DeleteCarRequest:
             key=f'{str(callback.from_user.id)}:seller_requests_pagination', use_json=True)
         ic(pagination_data)
 
-        pagination_data['data'].pop(pagination_data['current_page'] - 1)
-        pagination_data['current_page'] -= 1
+        # pagination_data['data'].pop(pagination_data['current_page'] - 1)
+        # pagination_data['current_page'] -= 1
         ic(pagination_data)
 
         pagination = Pagination(**pagination_data)
@@ -40,7 +40,7 @@ class DeleteCarRequest:
             return False
         ic(len(pagination.data))
 
-        pagination.current_page -= 1
+        # pagination.current_page -= 1
         # ic(pagination_data['data'])
         ic(len(pagination_data['data']) < 1)
         if len(pagination_data['data']) < 1:

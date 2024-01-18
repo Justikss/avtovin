@@ -119,6 +119,7 @@ class PersonRequester:
         try:
             current_table = None
             banned_table = None
+            ic(data)
             if data:
                 user_id = data[0]['telegram_id']
 

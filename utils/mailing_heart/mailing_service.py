@@ -43,10 +43,13 @@ class MailingService:
             ic(mailing.scheduled_time)
             if mailing.scheduled_time > datetime.now():
                 delay = (mailing.scheduled_time - datetime.now()).total_seconds()
+                ic(delay)
                 task = asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))
                 self.mailing_tasks[mailing.id] = task
             else:
                 delay = 1
+                ic(delay)
+                ic(mailing)
                 asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))
 
     async def send_scheduled_message(self, bot: Bot, mailing, delay):

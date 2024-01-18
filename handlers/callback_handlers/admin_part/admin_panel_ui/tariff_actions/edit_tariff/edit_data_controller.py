@@ -11,5 +11,5 @@ async def edit_tariff_data_controller(request: CallbackQuery | Message, state: F
         edit_tariff_data_mode = memory_storage.get('edit_tariff_data')
 
         if edit_tariff_data_mode and isinstance(request, Message):
-            await edit_tariff_by_admin_handler(callback=request, state=state) #Подправить рекуест в обработке
+            await edit_tariff_by_admin_handler(request=request, state=state) #Подправить рекуест в обработке
             return True

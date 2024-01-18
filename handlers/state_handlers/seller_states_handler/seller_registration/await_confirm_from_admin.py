@@ -4,6 +4,7 @@ import time
 import importlib
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
 from handlers.state_handlers.seller_states_handler.seller_registration import utils
 
 
@@ -18,28 +19,25 @@ async def output_for_admin_formater(callback: CallbackQuery):
     if new_seller:
         new_seller = new_seller[0]
         ic(new_seller.phone_number)
-        if not new_seller.authorized:
-            lexicon_part = lexicon_module.LEXICON['seller_waiting_registration_confirm']
-            # user_link = '@' + callback.from_user.username
-            # head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
-            if new_seller.entity == 'legal':
-                # body_string = f'''\n\n{lexicon_middle_part['name']}\n{new_seller.dealship_name}\n\n{lexicon_middle_part['address']}\n{new_seller.dealship_address}'''
-                head_string = f'''{lexicon_part['start_text_legal'].format(address=new_seller.dealship_address)}{lexicon_part['legal_body_header'].format(dealership_name=new_seller.dealship_name)}'''
-            elif new_seller.entity == 'natural':
-                ic(new_seller.name,new_seller.patronymic)
-                head_string = f'''{lexicon_part['start_text_natural']}{lexicon_part['natural_body_header'].format(name=new_seller.name, surname=new_seller.surname, patronymic=str(new_seller.patronymic))}'''
-                head_string = '\n'.join([part for part in head_string.split('\n') if 'None' not in part])
+        lexicon_part = lexicon_module.__LEXICON['seller_waiting_registration_confirm']
+        # user_link = '@' + callback.from_user.username
+        # head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
+        if new_seller.entity == 'legal':
+            # body_string = f'''\n\n{lexicon_middle_part['name']}\n{new_seller.dealship_name}\n\n{lexicon_middle_part['address']}\n{new_seller.dealship_address}'''
+            head_string = f'''{lexicon_part['start_text_legal'].format(address=new_seller.dealship_address)}{lexicon_part['legal_body_header'].format(dealership_name=new_seller.dealship_name)}'''
+        elif new_seller.entity == 'natural':
+            ic(new_seller.name,new_seller.patronymic)
+            head_string = f'''{lexicon_part['start_text_natural']}{lexicon_part['natural_body_header'].format(name=new_seller.name, surname=new_seller.surname, patronymic=str(new_seller.patronymic))}'''
+            head_string = '\n'.join([part for part in head_string.split('\n') if 'None' not in part])
 
-            head_string += f'''{lexicon_part['body'].format(username=callback.from_user.username, phone_number=new_seller.phone_number)}'''
+        head_string += f'''{lexicon_part['body'].format(phone_number=new_seller.phone_number)}'''
 
 
-                # body_string = f'''\n\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
+            # body_string = f'''\n\n{lexicon_middle_part['name'] + new_seller.name}\n{lexicon_middle_part['surname'] + new_seller.surname + patronymic_string}'''
 
-            # result_string = head_string + body_string
-            ic(head_string)
-            return head_string
-        else:
-            await utils.seller_are_registrated_notification(callback=callback)
+        # result_string = head_string + body_string
+        ic(head_string)
+        return head_string
 
 
 async def send_message_to_admins(callback: CallbackQuery):
@@ -54,27 +52,29 @@ async def send_message_to_admins(callback: CallbackQuery):
 
     output_text = await output_for_admin_formater(callback=callback)
 
-    message_for_admins = await callback.message.bot.send_message(chat_id=config_module.ADMIN_CHAT, text=output_text, reply_markup=keyboard)
+    message_for_admins = await callback.message.bot.send_message(chat_id=config_module.ADMIN_SELLERS_CHAT, text=output_text)
 
     await utils.update_non_confirm_seller_registrations(callback=callback, message_for_admins=message_for_admins.message_id)
 
 
-async def seller_await_confirm_by_admin(callback: CallbackQuery, state: FSMContext):
+async def seller_confirm_registration(callback: CallbackQuery, state: FSMContext):
     '''Обработчик подтверждённой(продавцом) регистрации.'''
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     message_editor_module = importlib.import_module('handlers.message_editor')
 
 
-    load_try = await utils.load_seller_in_database(authorized_state=False, state=state, request=callback)
+
+    load_try = await utils.load_seller_in_database(authorized_state=True, state=state, request=callback)
     if load_try:
-        lexicon_code = 'confirm_registration_from_seller'
+        lexicon_code = 'confirm_seller_profile_notification'
         await send_message_to_admins(callback=callback)
+        await seller_main_menu(callback)
 
     else:
         lexicon_code = 'try_again_seller_registration'
+        await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code)
 
     
-    await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code)
     #time.sleep(1)
     await state.clear()
 

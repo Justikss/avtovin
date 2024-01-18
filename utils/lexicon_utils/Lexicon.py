@@ -1,5 +1,6 @@
 from abc import ABC
 
+from config_data.config import faq, faq_buyer_ru, faq_seller_ru
 # from config_data.config import
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import __CATALOG_LEXICON, catalog_captions
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import __ADVERT_PARAMETERS_LEXICON
@@ -9,7 +10,7 @@ from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_action_lexicon_uz im
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_parameters_uz import ADVERT_PARAMETERS_LEXICON_UZ
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.bot_statistic_uz import STATISTIC_LEXICON_UZ, statistic_captions_uz
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.catalog_lexicon_uz import CATALOG_LEXICON_UZ, catalog_captions_uz
-from utils.lexicon_utils.lexicon_uz.lexicon_uz import LEXICON_UZ, faq_seller, faq_buyer, faq, money_valute, \
+from utils.lexicon_utils.lexicon_uz.lexicon_uz import LEXICON_UZ, money_valute, \
     max_price_len, max_contact_info_len, lexicon_uz, captions_uz
 from utils.safe_dict_class import SafeDict
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON
@@ -157,12 +158,12 @@ __LEXICON = {
             'seller_waiting_registration_confirm': {'start_text_legal': '<b>Заявка на регистрацию автосалона:</b>\nПо адресу:\n{address}\n', 'start_text_natural': '<b>Заявка на регистрацию частного продавца:</b>\n',
                                                  'legal_body_header': '▬' * 15 + '\n<blockquote>Название автосалона: <i>{dealership_name}</i>\n',
                                                   'natural_body_header': '▬' * 15 + '\n<blockquote>Имя: <i>{name}</i>\nФамилия: <i>{surname}</i>\nОтчество: <i>{patronymic}</i>\n',
-                                                   'body': 'Пользователь: @{username}\nНомер: {phone_number}</blockquote>\n' + '▬' * 15},
+                                                   'body': 'Номер: {phone_number}</blockquote>\n' + '▬' * 15},
 
             'success_seller_registration_notice': {'message_text': 'Вы зарегистрированы в системе', 'return_main_menu': 'В меню продавца 👨🏻‍💼', 'width': 1},
 
-            'seller_faq': {'message_text': faq_seller, 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
-            'buyer_faq': {'message_text': faq_buyer, 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
+            'seller_faq': {'message_text': faq_seller_ru, 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
+            'buyer_faq': {'message_text': faq_buyer_ru, 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
 
             'seller_requests': {'message_text': 'Раздел работы с заявками\nВыберите ваше действие:', 'create_new_seller_request': '📨 Создать объявление 📨 ', 'my_sell_requests': '💰 Мои объявления 💰', 'my_sell_feedbacks': '🔸 Отклики 🔸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
 
@@ -237,18 +238,16 @@ lexicon_ru = {
     'input_new_price_incorrect_message_text': f'Пожалуйста, укажите целочисленное значение до {max_price_len} цифр.',
     'input_new_price_car_dont_exists': 'К сожалению автомобиль снят с продажи.',
     'succes_rewrite_price': 'Цена успешно изменена',
-    'commodity_output_block': '''
-        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-        <blockquote>Состояние: <i>{state}</i>
-        Тип двигателя: <i>{engine_type}</i>
-        Марка: <i>{brand_name}</i>
-        Модель: <i>{model_name}</i>
-        Комплектация: <i>{complectation}</i>
-        Год выпуска: <i>{year_of_release}</i>
-        Пробег: <i>{mileage}</i>
-        Цвет: <i>{color}</i></blockquote>
-        ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-    ''',
+    'commodity_output_block': '''▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+<blockquote>Состояние: <i>{state}</i>
+Тип двигателя: <i>{engine_type}</i>
+Марка: <i>{brand_name}</i>
+Модель: <i>{model_name}</i>
+Комплектация: <i>{complectation}</i>
+Год выпуска: <i>{year_of_release}</i>
+Пробег: <i>{mileage}</i>
+Цвет: <i>{color}</i></blockquote>
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬''',
     'output_car_request_header': 'Заявка <i>№{request_number}</i>',
     'commodity_state': 'Состояние: <i>{state}</i>',
     # ... И так далее для всех остальных текстов

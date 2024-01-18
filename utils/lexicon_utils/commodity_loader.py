@@ -30,7 +30,7 @@ commodity_loader_lexicon_ru = {
     'config_for_seller': '<b>Ваши конфигурации авто:</b>',
     'can_rewrite_config': 'Возможна перепись полей по нажатию на соответсвующую кнопку',
 
-    'config_for_admins': '<b>Заявка от <i>@{username}</i></b>\n',
+    'config_for_admins': '<b>Заявка</b>\n',
 
     'seller_notification_text': 'Заявка №{request_number} создана!'
 }
@@ -133,16 +133,16 @@ class LexiconCommodityLoader:
         self.input_price = commodity_loader_lexicon['input_price']
         self.price_digital = commodity_loader_lexicon['price_digital']
         self.edit_button_captions = commodity_loader_lexicon['edit_button_captions']
-        load_commodity_state = self.load_commodity_state()
-        load_commodity_engine_type = self.load_commodity_engine_type()
-        load_commodity_brand = self.load_commodity_brand()
-        load_commodity_model = self.load_commodity_model()
-        load_commodity_complectation = self.load_commodity_complectation()
-        load_commodity_year_of_realise = self.load_commodity_year_of_realise()
-        load_commodity_mileage = self.load_commodity_mileage()
-        load_commodity_color = self.load_commodity_color()
-        load_commodity_price = self.load_commodity_price()
-        load_commodity_photo = self.load_commodity_photo()
+        self.load_commodity_state = self.load_commodity_state
+        self.load_commodity_engine_type = self.load_commodity_engine_type
+        self.load_commodity_brand = self.load_commodity_brand
+        self.load_commodity_model = self.load_commodity_model
+        self.load_commodity_complectation = self.load_commodity_complectation
+        self.load_commodity_year_of_realise = self.load_commodity_year_of_realise
+        self.load_commodity_mileage = self.load_commodity_mileage
+        self.load_commodity_color = self.load_commodity_color
+        self.load_commodity_price = self.load_commodity_price
+        self.load_commodity_photo = self.load_commodity_photo
 
         self.edit_photo_caption = commodity_loader_lexicon['edit_photo_caption']
 

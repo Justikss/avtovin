@@ -24,8 +24,9 @@ __LOGGING_LEXICON = {'reset_tariff_action': 'Обнулил тариф прод�
 async def log_admin_action(admin_username, action, subject='', reason=False):
     ic(subject)
     name = await get_user_name(subject)
-    if len(name) == 2:
-        name = f'\n{name[0]}\n{name[1]}'
+    if name:
+        if len(name) == 2:
+            name = f'\n{name[0]}\n{name[1]}'
     if reason:
         if action == 'add_mailing':
             reason = f'''{__LOGGING_LEXICON['in_time']}{reason}'''

@@ -10,15 +10,32 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_d
     incorrect_controller, get_delete_mode
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.insert_new_tariff_data import \
     insert_tariff_data
+from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
+    get_incorrect_flag
+from handlers.utils.delete_message import delete_message
 from states.admin_part_states.tariffs_branch_states import TariffAdminBranchStates
 from utils.get_currency_sum_usd import convertator
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+# incorrect_adapter_module = importlib.import_module('utils.oop_handlers_engineering.update_handlers.base_objects.utils_objects.incorrect_adapter')
+
+async def delete_incorrect_message(request, state):
+    incorrect_flag = await get_incorrect_flag(state)
+    ic(incorrect_flag)
+    # if incorrect_flag:
+    memory_storage = await state.get_data()
+    last_admin_answer = memory_storage.get('last_admin_answer')
+    ic(last_admin_answer)
+    if last_admin_answer:
+        await state.update_data(last_admin_answer=None)
+        # ic(last_admin_answer)
+        await delete_message(request, last_admin_answer)
+
 
 
 async def process_tariff_cost(request: types.Message | types.CallbackQuery, state: FSMContext, incorrect=False):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    await delete_incorrect_message(request, state)
     if isinstance(request, types.CallbackQuery) and request.data[-1].isdigit():
         tariff_id = int(request.data.split(':')[-1])
         await state.update_data(specific_tariff_id=tariff_id)
@@ -38,7 +55,7 @@ async def process_tariff_cost(request: types.Message | types.CallbackQuery, stat
 async def process_write_tariff_cost(request: types.Message | types.CallbackQuery, state: FSMContext, incorrect=False,
                                     price=None, head_valute=None):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    await delete_incorrect_message(request, state)
     if not incorrect:
         if price and head_valute:
             if head_valute == 'usd':
@@ -65,7 +82,7 @@ async def process_write_tariff_cost(request: types.Message | types.CallbackQuery
 # @dp.message_handler(lambda message: message.text.isdigit(), state=TariffAdminBranchStates.write_tariff_feedbacks_residual)
 async def process_write_tariff_feedbacks_residual(request: types.Message | types.CallbackQuery, state: FSMContext, incorrect=False):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    await delete_incorrect_message(request, state)
     if isinstance(request, types.Message) and not incorrect:
         await state.update_data(tariff_feedbacks_residual=int(request.text))
 
@@ -86,6 +103,7 @@ async def process_write_tariff_feedbacks_residual(request: types.Message | types
     )
 
 async def process_write_tariff_time_duration(request: types.Message | types.CallbackQuery, state: FSMContext, incorrect=False):
+
     async def convert_to_days(time_string):
         # Проверка соответствия входной строки формату
         if not re.match(r'^\d+:\d+:\d+$', time_string):
@@ -99,6 +117,9 @@ async def process_write_tariff_time_duration(request: types.Message | types.Call
 
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     memory_storage = await state.get_data()
+    await delete_incorrect_message(request, state)
+    # await incorrect_adapter_module \
+    #     .IncorrectAdapter().try_delete_incorrect_message(request, state)
 
     if not incorrect:
         if isinstance(request, types.Message):

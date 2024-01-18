@@ -31,7 +31,7 @@ class InputTSLinkFilter(BaseFilterObject):
             match contacts_type:
                 case 'telegram':
                     link = message_text
-                    if '@' not in link:
+                    if not link.startswith('@'):
                         incorrect_flag = '@'
                 case 'number':
                     phonenumber = message_text.strip().replace(' ', '')

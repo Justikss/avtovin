@@ -203,17 +203,22 @@ async def start_bot():
 
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
+    #
+    # @dp.message()
+    # async def send_chat_id(message: Message):
+    #     await message.answer(str(message.chat.id))
 
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
 
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"),
-                        F.photo[0].file_unique_id.as_('unique_id'),
-                        or_f(StateFilter(LoadCommodityStates.photo_verification),
-                             StateFilter(AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos)))
+                        F.photo[0].file_unique_id.as_('unique_id'))
 
-    dp.message.register(start_state_boot_new_car_photos_message_handler, F.text, lambda message: message.text.startswith('p:')), StateFilter(default_state)
+    # (dp.message.register(start_state_boot_new_car_photos_message_handler, F.text,
+    #                     lambda message: message.text.startswith('p:')),
+    #                     StateFilter(default_state))
+    #
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
     dp.message.register(save_tariff_handler, Command(commands=['ut']))
 
@@ -228,7 +233,7 @@ async def start_bot():
     dp.message.register(buyer_registration_handlers.finish_check_phone_number,
                         StateFilter(BuyerRegistationStates.finish_check_phone_number), correct_number.CheckInputNumber())
     '''Состояния регистрации продавцов'''
-    dp.callback_query.register(await_confirm_from_admin.seller_await_confirm_by_admin,
+    dp.callback_query.register(await_confirm_from_admin.seller_confirm_registration,
                               F.data == 'confirm_registration_from_seller')
 
     dp.callback_query.register(start_seller_registration_callback_handlers.seller_type_identifier,

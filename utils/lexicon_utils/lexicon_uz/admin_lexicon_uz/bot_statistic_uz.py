@@ -39,6 +39,7 @@ choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions_
 to_statistic_panel = {'admin_backward:to_statistic_panel': 'Statistika menyusiga'}
 
 STATISTIC_LEXICON_UZ = {
+    'stats_is_empty': "Statistik ma'lumotlar bo'sh",
     'stats_loading': 'Statistika hisoblanmoqda...',
     'seller_statistic_view': {
     'message_text': "Sotuvchi: {seller_name}\nRo‘yxatdan o‘tish sanasi: {date_of_registration}\n\n{period} davridagi statistika:\nE’lonlar soni: {adverts_count}\nJavoblar soni: {feedbacks_count}",

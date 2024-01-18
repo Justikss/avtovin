@@ -28,7 +28,10 @@ async def set_car_id_in_redis(callback, output_data_part):
     if isinstance(output_data_part, list):
         output_data_part = output_data_part[0]
     ic(output_data_part)
-    car_id = output_data_part.get('car_id')
+    if output_data_part:
+        car_id = output_data_part.get('car_id')
+    else:
+        return
     if not car_id:
         car_id = output_data_part['message_text'].split('\n')[0].split('№')[-1].split('<')[0]
 
@@ -232,7 +235,7 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
         path_after_delete_car = await message_editor.redis_data.get_data(
             key=f'{str(request.from_user.id)}:return_path_after_delete_car')
 
-        if (not path_after_delete_car or not path_after_delete_car.startswith('seller_requests_brand:')) and (isinstance(request, CallbackQuery)):
+        if (not path_after_delete_car and not path_after_delete_car.startswith('seller_requests_brand:')) and (isinstance(request, CallbackQuery)):
             await message_editor.redis_data.set_data(
                 key=f'{str(request.from_user.id)}:return_path_after_delete_car', value="i'm_sure_delete_feedback")
 

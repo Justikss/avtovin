@@ -8,10 +8,7 @@ async def get_ban_notification_lexicon_part(activity, reason):
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     lexicon_part = lexicon_module.ADMIN_LEXICON['user_ban_notification']
     ic(activity)
-    ic(admin_lexicon_module\
-       .captions)
-    ic(admin_lexicon_module\
-       .captions[activity])
+
     ic(lexicon_part['message_text'])
     message_text = lexicon_part['message_text'].format(activity=admin_lexicon_module\
                                                        .captions[activity], reason=reason)

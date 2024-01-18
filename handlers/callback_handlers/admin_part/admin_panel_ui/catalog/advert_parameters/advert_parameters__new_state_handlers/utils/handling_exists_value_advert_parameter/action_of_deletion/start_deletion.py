@@ -100,7 +100,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
             query.update({parameter_type_key: int(param_id)})
         ic(query)
         advert_parameter_is_used = await car_advert_requests_module\
-            .AdvertRequester.get_advert_by(**query, without_actual_filter=True)
+            .AdvertRequester.get_advert_by(**query, without_actual_filter='for_deletion')
         ic(advert_parameter_is_used)
         return advert_parameter_is_used
 

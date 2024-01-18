@@ -8,6 +8,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_d
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 import importlib
 
+from utils.lexicon_utils.Lexicon import ADVERT_LEXICON
+
 # Импорт модуля редактирования сообщений через importlib
 message_editor_module = importlib.import_module('handlers.message_editor')
 
@@ -29,6 +31,8 @@ async def request_mailing_date_time(request: types.Message | types.CallbackQuery
         return
 
     await state.set_state(MailingStates.choosing_recipients)
-    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect, 'request_mailing_date_time')
+    lexicon_part, reply_to_message = await incorrect_controller(request, state, incorrect,
+                                                                'request_mailing_date_time',
+                                                                current_lexicon=ADVERT_LEXICON)
     await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                            reply_message=reply_to_message, delete_mode=True)

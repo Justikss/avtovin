@@ -26,7 +26,7 @@ commodity_loader_lexicon_uz = {
     'config_for_seller': '<b>Sizning avtomobilingiz konfiguratsiyalari:</b>',
     'can_rewrite_config': 'Tugmalarni bosish orqali maydonlarni qayta yozish mumkin',
 
-    'config_for_admins': '<b><i>@{username}</i>dan ariza</b>\n',
+    'config_for_admins': '<b>Ariza</b>\n',
 
     'seller_notification_text': 'Ariza №{request_number} yaratildi!'
 }
