@@ -20,17 +20,22 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
         ic()
         # async with self.idle_callback_answer(request):
         await self.set_state(state, self.statistic_manager.states.CustomParams.review_process)
-        ic(request.data)
-        if request.data.startswith('custom_demand_param:') or request.data == 'output_current_demand_stats':
-            statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+
+        if isinstance(request, CallbackQuery):
+            if not (request.data.startswith('custom_demand_param:') or request.data == 'output_current_demand_stats'):
+                return
+        elif isinstance(request, Message):
+            pass
+        statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+        if not kwargs.get('test'):
             await self.send_alert_answer(request, statistic_lexicon['stats_loading'])
-            pagination_data = await self.get_pagination_data(request, state)
-            if pagination_data:
-                self.output_methods = [
-                    self.menu_manager.admin_simple_pagination(
-                        pagination_data=pagination_data
-                    )
-                ]
+        pagination_data = await self.get_pagination_data(request, state)
+        if pagination_data:
+            self.output_methods = [
+                self.menu_manager.admin_simple_pagination(
+                    pagination_data=pagination_data
+                )
+            ]
 
     async def get_pagination_data(self, request: Message | CallbackQuery, state: FSMContext):
         memory_storage = await state.get_data()

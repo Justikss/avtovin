@@ -1,4 +1,5 @@
 import asyncio
+import json
 import random
 import traceback
 from asyncio import Queue
@@ -492,7 +493,11 @@ async def mock_feedbacks(sellers, raw_cars):
                 'complectation': car['complectation'],
                 'color': car['color'],
             })
+        serialized_dicts = {json.dumps(d, sort_keys=True) for d in good_cars}
 
+        # Десериализация обратно в словари
+        good_cars = [json.loads(d) for d in serialized_dicts]
+        ic(len(good_cars))
         async with manager.atomic():
             # Вставка данных в AdvertParameters
             await manager.execute(AdvertParameters.insert_many(good_cars))
@@ -682,6 +687,6 @@ async def get_car(photos=None, cars=False):
     # return
 
     if photos:
-        await insert_advert_photos(photos, 0)
+        await insert_advert_photos(photos, insert_carars)
 
     return insert_carars

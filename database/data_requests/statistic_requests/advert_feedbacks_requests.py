@@ -4,7 +4,7 @@ import operator
 from datetime import timedelta, datetime
 from functools import reduce
 
-from peewee import fn, JOIN, SQL
+from peewee import fn, JOIN, SQL, Window
 from peewee_async import Manager
 
 from database.data_requests.utils.raw_sql_handler import get_top_advert_parameters
@@ -79,46 +79,73 @@ class AdvertFeedbackRequester:
                                                              .SellerFeedbacksHistory.id.in_(base_query)))
 
     @staticmethod
-    async def get_top_advert_parameters(top_direction='top', manager=manager):
-        query = (offers_history_module\
-                 .SellerFeedbacksHistory
-                 .select(AdvertParameters,
-                         # AdvertParameters,
-                         # CarComplectation,
-                         # CarModel,
-                         # CarBrand,
-                         # offers_history_module\
-                         # .SellerFeedbacksHistory.seller_id,
-                         fn.COUNT(offers_history_module\
-                                  .SellerFeedbacksHistory.id).alias('count'),
-                         Seller)
-                 .join(Seller, on=(offers_history_module\
-                                   .SellerFeedbacksHistory.seller_id == Seller.telegram_id))
-                 .switch(offers_history_module\
-                         .SellerFeedbacksHistory)
-                 .join(AdvertParameters)
-                 .join(CarComplectation)
-                 .join(CarModel)
-                 .join(CarBrand)
-                 .where(offers_history_module\
-                        .SellerFeedbacksHistory.advert_parameters.is_null(False))
-                 .group_by(AdvertParameters, Seller)
-                 .order_by(fn.COUNT(offers_history_module\
-                                    .SellerFeedbacksHistory.id).desc()))
+    async def get_top_advert_parameters(period, top_direction='top', manager=manager):
+        time_filter, time_filter_sql, time_param = await AdvertFeedbackRequester.get_time_filter(period)
 
-        if top_direction == 'bottom':
-            query = query.order_by(fn.COUNT(offers_history_module\
-                                            .SellerFeedbacksHistory.id))
-        ic(type(manager), isinstance(manager, Manager))
-        if isinstance(manager, Manager):
-            top_10 = list(await manager.execute(query.limit(10)))
-        else:
-            top_10 = list(manager.execute(query.dicts().limit(10)))
+        order_direction = "DESC" if top_direction == "top" else "ASC"
 
-        ic([feedback.count for feedback in top_10])
-        ic(top_10, len(top_10))
+
+
+
+        sql_query = f'''
+WITH FeedbackCounts AS (
+    SELECT 
+        sfh.advert_parameters_id,
+        sfh.seller_id,
+        COUNT(sfh.id) AS feedback_count
+    FROM 
+        SellerFeedbacksHistory sfh
+    WHERE 
+        {time_filter_sql}
+    GROUP BY 
+        sfh.advert_parameters_id, sfh.seller_id
+),
+TotalFeedbacks AS (
+    SELECT
+        advert_parameters_id,
+        SUM(feedback_count) AS total_feedback_count
+    FROM 
+        FeedbackCounts
+    GROUP BY 
+        advert_parameters_id
+),
+MaxFeedbacks AS (
+    SELECT
+        fc.advert_parameters_id,
+        fc.seller_id,
+        fc.feedback_count,
+        tf.total_feedback_count
+    FROM 
+        FeedbackCounts fc
+    JOIN 
+        TotalFeedbacks tf ON fc.advert_parameters_id = tf.advert_parameters_id
+    WHERE 
+        fc.feedback_count = (
+            SELECT MAX(feedback_count)
+            FROM FeedbackCounts
+            WHERE advert_parameters_id = fc.advert_parameters_id
+        )
+)
+SELECT 
+    mfc.advert_parameters_id,
+    mfc.seller_id,
+    mfc.feedback_count,
+    mfc.total_feedback_count AS count
+FROM 
+    MaxFeedbacks mfc
+ORDER BY 
+    mfc.total_feedback_count {order_direction}
+LIMIT 10
+
+    '''
+
+
+        query = offers_history_module.SellerFeedbacksHistory.raw(sql_query, time_param)
+        results = list(await manager.execute(query))
+        ic([feedback.count for feedback in results])
+        ic(results, len(results))
         # ic([model.__dict__ for model in top_10])
-        return top_10
+        return results
 
 
     @staticmethod
@@ -139,95 +166,144 @@ class AdvertFeedbackRequester:
                                                                .SellerFeedbacksHistory.advert_parameters.is_null(False)))
         return await manager.get_or_none(query)
 
+
+    @staticmethod
+    async def statistic_is_exists():
+        return list(await manager.execute(offers_history_module\
+                                          .SellerFeedbacksHistory.select().limit(1)))
+
+    @staticmethod
+    async def get_time_filter(period):
+        current_time = datetime.now()
+        ic(period)
+        # Фильтры для временных периодов
+        if period == 'day':
+            time_filter_peewee = (
+                    offers_history_module.SellerFeedbacksHistory.feedback_time >= current_time - timedelta(
+                days=1))
+            time_filter_sql = "sfh.feedback_time >= %s"
+            time_param = current_time - timedelta(days=1)
+        elif period == 'week':
+            time_filter_peewee = (
+                    offers_history_module.SellerFeedbacksHistory.feedback_time >= current_time - timedelta(
+                weeks=1))
+            time_filter_sql = "sfh.feedback_time >= %s"
+            time_param = current_time - timedelta(weeks=1)
+        elif period == 'month':
+            time_filter_peewee = (
+                    offers_history_module.SellerFeedbacksHistory.feedback_time >= current_time - timedelta(
+                days=30))
+            time_filter_sql = "sfh.feedback_time >= %s"
+            time_param = current_time - timedelta(days=30)
+        elif period == 'year':
+            time_filter_peewee = (
+                    offers_history_module.SellerFeedbacksHistory.feedback_time >= current_time - timedelta(
+                days=365))
+            time_filter_sql = "sfh.feedback_time >= %s"
+            time_param = current_time - timedelta(days=365)
+        elif period in ('general', 'any', 'all'):
+            return None, None, None  # Без временного фильтра
+        else:
+            raise ValueError("Invalid period parameter")
+
+        return time_filter_peewee, time_filter_sql, time_param
+
     @staticmethod
     async def get_statistics_by_params(top_direction, period, engine_id=None, brand_id=None, model_id=None,
                              complectation_id=None, color_id=None, for_output=False):
         ic(engine_id, brand_id, model_id, top_direction, period,
                              complectation_id, color_id)
-        async def get_time_filter():
-            current_time = datetime.now()
 
-            # Фильтры для временных периодов
-            if period == 'day':
-                time_filter = (offers_history_module\
-                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=1))
-            elif period == 'week':
-                time_filter = (offers_history_module\
-                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(weeks=1))
-            elif period == 'month':
-                time_filter = (offers_history_module\
-                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=30))
-            elif period == 'year':
-                time_filter = (offers_history_module\
-                               .SellerFeedbacksHistory.feedback_time >= current_time - timedelta(days=365))
-            elif period in ('general', 'any', 'all'):
-                time_filter = True  # Без временного фильтра
-            else:
-                raise ValueError("Invalid period parameter")
 
-            return time_filter
         ''''''
         # Определяем текущее время
 
-        time_filter = await get_time_filter()
+        time_filter, time_filter_sql, time_param = await AdvertFeedbackRequester.get_time_filter(period)
 
         if for_output:
             conditions = []
+            params = []
             if color_id is not None:
-                conditions.append(CarColor.id == color_id)
+                conditions.append("ccol.id = %s")
+                params.append(color_id)
             if complectation_id is not None:
-                conditions.append(AdvertParameters.complectation_id == complectation_id)
+                conditions.append("cc.id = %s")
+                params.append(complectation_id)
             if model_id is not None:
-                conditions.append(CarModel.id == model_id)
+                conditions.append("cm.id = %s")
+                params.append(model_id)
             if brand_id is not None:
-                conditions.append(CarBrand.id == brand_id)
+                conditions.append("cb.id = %s")
+                params.append(brand_id)
             if engine_id is not None:
-                conditions.append(CarComplectation.engine_id == engine_id)
-            conditions.append(offers_history_module\
-                              .SellerFeedbacksHistory.advert_parameters.is_null(False))
-            conditions.append(time_filter)
+                conditions.append("cc.engine_id = %s")
+                params.append(engine_id)
 
-            combined_conditions = reduce(operator.and_, conditions)
-            ic(combined_conditions)
+            conditions.append(time_filter_sql)
+            params.append(time_param)
 
-            query = (offers_history_module\
-                     .SellerFeedbacksHistory
-                     .select(Seller,
-                             AdvertParameters,
-                             fn.COUNT(offers_history_module\
-                                      .SellerFeedbacksHistory.id).alias('count'),
-                             fn.ARRAY_AGG(offers_history_module\
-                                          .SellerFeedbacksHistory.id).alias('ids'))
-                     .join(AdvertParameters)
-                     .join(CarColor)
-                     .switch(AdvertParameters)
-                     .join(CarComplectation)
-                     .join(CarModel)
-                     .join(CarBrand)
-                     .switch(offers_history_module\
-                             .SellerFeedbacksHistory)
-                     .join(Seller)
-                     .where(combined_conditions)
-                     .group_by(Seller, AdvertParameters))
+            # Формирование условия WHERE в SQL запросе
+            where_clause = " AND ".join(conditions) if conditions else "1=1"
+            order_direction = "DESC" if top_direction == "top" else "ASC"
+            # Сформировать SQL запрос
+            sql_query = f"""
+WITH FeedbackCounts AS (
+    SELECT 
+        sfh.advert_parameters_id,
+        sfh.seller_id,
+        COUNT(sfh.id) AS feedback_count
+    FROM 
+        SellerFeedbacksHistory sfh
+    JOIN AdvertParameters ap ON sfh.advert_parameters_id = ap.id
+    JOIN CarComplectation cc ON ap.complectation_id = cc.id
+    JOIN CarModel cm ON cc.model_id = cm.id
+    JOIN CarBrand cb ON cm.brand_id = cb.id
+    JOIN CarColor ccol ON ap.color_id = ccol.id
+    WHERE 
+        {where_clause}
+    GROUP BY 
+        sfh.advert_parameters_id, sfh.seller_id
+),
+MaxFeedbacks AS (
+    SELECT
+        advert_parameters_id,
+        MAX(feedback_count) AS max_feedback_count
+    FROM 
+        FeedbackCounts
+    GROUP BY 
+        advert_parameters_id
+)
+SELECT 
+    fc.advert_parameters_id,
+    fc.seller_id,
+    mfc.max_feedback_count AS count
+FROM 
+    FeedbackCounts fc
+JOIN 
+    MaxFeedbacks mfc ON fc.advert_parameters_id = mfc.advert_parameters_id
+WHERE 
+    fc.feedback_count = mfc.max_feedback_count
+ORDER BY 
+    fc.feedback_count {order_direction}
+            """
+            ic(sql_query, params)
+            # Выполнение сырого SQL-запроса в Peewee
+            query = offers_history_module.SellerFeedbacksHistory.raw(sql_query, *params)
+            results = list(await manager.execute(query))
+            ic(len(results))
+            ic(results)
+            ic([result.__dict__ for result in results])
+            return results
+            # Получение и обработка результатов
+            results = []
+            for sfh in query.execute():
+                results.append({
+                    'seller_feedbacks_history': sfh,
+                    'count': sfh.count  # Или соответствующий способ доступа к результату подсчета
+                })
 
 
-            # # Основной запрос с добавлением поля count
-            # query = (offers_history_module\
-            # .SellerFeedbacksHistory
-            #          .select(offers_history_module\
-            #          .SellerFeedbacksHistory,
-            #                  fn.COUNT(offers_history_module\
-            #                  .SellerFeedbacksHistory.id).alias('count')
-            #                  ).join(AdvertParameters)
-            #             .join(CarColor)
-            #             .switch(AdvertParameters)
-            #             .join(CarComplectation)
-            #             .join(CarModel)
-            #             .join(CarBrand)
-            #             .where(combined_conditions, time_filter)
-            #             .group_by(offers_history_module\
-            #             .SellerFeedbacksHistory.seller_id, offers_history_module\
-            #             .SellerFeedbacksHistory.advert_parameters_id))
+
 
         # Изменяем логику запроса в зависимости от входных параметров
         elif complectation_id is not None:

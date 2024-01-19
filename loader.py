@@ -442,6 +442,19 @@ async def start_bot():
                                AdminStatusController()
                                )
 
+    @dp.message()
+    async def any_mes(message: Message, state: FSMContext):
+        # stats_period = memory_storage.get('stats_period')
+        # chosen_demand_params = memory_storage.get('chosen_demand_params')
+        # calculate_method = memory_storage.get('calculate_method')
+        await state.clear()
+
+        await state.update_data(stats_period='year')
+        await state.update_data(chosen_demand_params={'engine': 2})
+        await state.update_data(calculate_method='top')
+
+        await OutputStatisticAdvertParamsHandler().callback_handler(message, state, test=True)
+
     '''catalog_action'''
 
     dp.callback_query.register(

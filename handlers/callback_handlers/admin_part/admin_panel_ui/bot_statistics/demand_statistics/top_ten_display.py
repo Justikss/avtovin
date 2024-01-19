@@ -19,8 +19,8 @@ config_module = importlib.import_module('config_data.config')
 class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         set_state = await self.set_state(state, self.statistic_manager.states.display_top_ten)
-        ic()
-        ic(request.data)
+        ic(set_state)
+        # ic(request.data)
         if set_state == 'exists':
             await self.get_selected_params_model(request, state)
         else:
@@ -152,12 +152,15 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
 
     async def construct_models_structure(self, state: FSMContext):
+        memory_storage = await state.get_data()
+        period = memory_storage.get('stats_period')
         models_range = await self.statistic_manager.database_requests.get_top_advert_parameters(
+            period,
             top_direction=await self.get_demand_direction(state)
         )
 
         ic(models_range)
-        if not models_range:
+        if not models_range or not period:
             return False
             # models_range = [self.statistic_manager.empty_button_field]
             # ic(models_range)
