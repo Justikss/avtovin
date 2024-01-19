@@ -130,9 +130,27 @@ SELECT
     mfc.advert_parameters_id,
     mfc.seller_id,
     mfc.feedback_count,
-    mfc.total_feedback_count AS count
+    mfc.total_feedback_count AS count,
+    ap.*,
+    s.*,
+    cc.*,
+    ce.*,
+    cm.*,
+    cb.*
 FROM 
     MaxFeedbacks mfc
+JOIN
+    AdvertParameters ap ON mfc.advert_parameters_id = ap.id
+JOIN 
+    Продавцы s ON mfc.seller_id = s.telegram_id
+JOIN
+    CarComplectation cc ON cc.id = ap.complectation_id
+JOIN
+    CarEngine ce ON ce.id = cc.engine_id
+JOIN
+    CarModel cm ON cm.id = cc.model_id
+JOIN
+    CarBrand cb ON cb.id = cm.brand_id
 ORDER BY 
     mfc.total_feedback_count {order_direction}
 LIMIT 10
@@ -276,11 +294,29 @@ MaxFeedbacks AS (
 SELECT 
     fc.advert_parameters_id,
     fc.seller_id,
-    mfc.max_feedback_count AS count
+    mfc.max_feedback_count AS count,
+    ap.*,
+    s.*,
+    cc.*,
+    ce.*,
+    cm.*,
+    cb.*
 FROM 
     FeedbackCounts fc
 JOIN 
     MaxFeedbacks mfc ON fc.advert_parameters_id = mfc.advert_parameters_id
+JOIN
+    Продавцы s ON fc.seller_id = s.telegram_id
+JOIN
+    AdvertParameters ap ON fc.advert_parameters_id = ap.id
+JOIN
+    CarComplectation cc ON cc.id = ap.complectation_id
+JOIN
+    CarEngine ce ON ce.id = cc.engine_id
+JOIN
+    CarModel cm ON cm.id = cc.model_id
+JOIN
+    CarBrand cb ON cb.id = cm.brand_id
 WHERE 
     fc.feedback_count = mfc.max_feedback_count
 ORDER BY 

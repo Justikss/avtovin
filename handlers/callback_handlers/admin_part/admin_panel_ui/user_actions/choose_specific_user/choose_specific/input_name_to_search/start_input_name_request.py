@@ -65,7 +65,7 @@ async def input_person_name_to_search_request_handler(request: CallbackQuery | M
     await message_editor.redis_data.set_data(f'{request.from_user.id}:seller_registration_mode', value=redis_value)
 
     lexicon_part = await lexicon_part_to_start_input_search_name_constructor(incorrect, redis_value)
-
+    ic(lexicon_part)
     reply_to_message = await incorrect_input_controller(request, state, incorrect)
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='',
                                                     lexicon_part=lexicon_part, reply_message=reply_to_message,

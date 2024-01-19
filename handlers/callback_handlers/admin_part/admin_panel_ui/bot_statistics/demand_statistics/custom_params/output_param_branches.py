@@ -62,9 +62,14 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
         )
         ic(stats_period, calculate_method, models_range)
         if models_range:
+            # person_requests_module = importlib.import_module('database.data_requests.person_requests')
+
             pagination_data = []
             for index, feedback in enumerate(models_range):
-                pagination_data.append(f'{feedback.count}:{feedback.seller_id}:{feedback.advert_parameters}:{index+1}')
+                # advert_parameters = await AdvertParameterManager.get_by_id(feedback.advert_parameters)
+                # seller_model = await person_requests_module.PersonRequester.get_user_for_id(feedback.seller_id,
+                #                                                                             seller=True)
+                pagination_data.append(f'{feedback.count}:{feedback.seller_id.telegram_id}:{feedback.advert_parameters.id}:{index+1}')
             # ic(pagination_data)
             return pagination_data
 
@@ -110,7 +115,7 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
                 )
 
                 await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
-                                                                media_group=media_group, dynamic_buttons=2)
+                                                                media_group=media_group, dynamic_buttons=2, delete_mode=not media_group)
                 return
 
         await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])

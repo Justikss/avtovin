@@ -71,6 +71,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.choose_type i
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.list import ContactListHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.specific import OutputSpecificContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.input_name_to_search.start_input_name_request import \
+    input_person_name_to_search_request_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
@@ -442,21 +444,14 @@ async def start_bot():
                                AdminStatusController()
                                )
 
-    @dp.message()
+    @dp.message(F.text == 'a')
     async def any_mes(message: Message, state: FSMContext):
-        # stats_period = memory_storage.get('stats_period')
-        # chosen_demand_params = memory_storage.get('chosen_demand_params')
-        # calculate_method = memory_storage.get('calculate_method')
-        await state.clear()
+        await state.set_state(SellerReviewStates.natural_entity_search)
+        # await state.update_data(admin_review_user_mode='natural')
+        await input_person_name_to_search_request_handler(message, state)
 
-        await state.update_data(stats_period='year')
-        await state.update_data(chosen_demand_params={'engine': 2})
-        await state.update_data(calculate_method='top')
-
-        await OutputStatisticAdvertParamsHandler().callback_handler(message, state, test=True)
 
     '''catalog_action'''
-
     dp.callback_query.register(
         catalog.car_catalog_review.search_advert_by_id.input_advert_id_for_search.input_advert_id_for_search_admin_handler,
         F.data == 'search_by_id')
@@ -855,9 +850,9 @@ async def start_bot():
     '''Заглушки'''
     dp.callback_query.register(page_conter_plug, F.data == 'page_count')
 
-    @dp.message(Command(commands='m'))
-    async def asdsad(message: Message):
-        await message.answer(str(message.chat.id))
+    # @dp.message(Command(commands='m'))
+    # async def asdsad(message: Message):
+    #     await message.answer(str(message.chat.id))
 
     @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):

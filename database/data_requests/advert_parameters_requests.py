@@ -31,7 +31,7 @@ class AdvertParameterManager:
 
     @staticmethod
     async def get_by_id(params_id):
-        if not isinstance(params_id, int):
+        if isinstance(params_id, str):
             params_id = int(params_id)
 
         return await manager.get_or_none(AdvertParameters, AdvertParameters.id == params_id)

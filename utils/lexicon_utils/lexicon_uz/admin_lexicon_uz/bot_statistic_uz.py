@@ -27,7 +27,9 @@ statistic_captions_uz = {'Day': 'Kun',
                     'top_demand_on': 'Eng ko‘p talab qilingan',
                     'car': 'avto',
                     'individual_stats': 'individual statistika',
-                    'top_10_stats': 'top 10'
+                    'top_10_stats': 'top 10',
+                    'bottom_demand_start': 'past',
+                    'top_demand_start': 'yuqoriroq'
 }
 
 choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions_uz['Day'],
@@ -76,7 +78,7 @@ STATISTIC_LEXICON_UZ = {
 **to_statistic_panel,
 'width': 2
 }},
-'top_ten_message_text':  'Topdagi o‘rni: {top_position}\n{period} davomida javoblar soni: {feedback_count}{parameters}\n\nEng samarali sotuvchi bu mashina:\n<blockquote>{seller_entity}</blockquote>\n' \
+'top_ten_message_text':  'Talabga muvofiq {demand_direction} dan chiqish\nTopdagi o‘rni: {top_position}\n{period} davomida javoblar soni: {feedback_count}{parameters}\n\nEng samarali sotuvchi bu mashina:\n<blockquote>{seller_entity}</blockquote>\n' \
                     + ('▬' * 13) + '\nMashinalar topdagi o‘rniga ko‘ra belgilangan:',
 
 'custom_params_period': {'message_text': '{output_method} talabini hisoblash davri:',

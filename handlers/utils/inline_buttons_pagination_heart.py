@@ -137,6 +137,7 @@ class CachedRequestsView:
             await state.update_data(media_group_in_chat=False)
             await delete_media_groups(callback)
         if media_group:
+            # ic(media_group_for_inline_pg=None)
             await state.update_data(media_group_for_inline_pg=None)
             await state.update_data(media_group_in_chat=True)
 

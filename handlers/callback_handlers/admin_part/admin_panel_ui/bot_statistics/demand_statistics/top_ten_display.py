@@ -10,6 +10,7 @@ from database.tables.offers_history import SellerFeedbacksHistory
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
+from utils.lexicon_utils.Lexicon import statistic_captions
 from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import TopTenDisplay
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -31,6 +32,8 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
         models_range = await self.construct_models_structure(state)
         if not models_range:
             return await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
+
+
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 lexicon_class=await self.construct_lexicon_part(
@@ -118,7 +121,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
     async def construct_lexicon_part(self, state: FSMContext, position, feedback_model, only_message_text=False):
         async def get_seller_entity():
-            seller_entity = await get_seller_name(feedback_model.seller_id, for_admin=True)
+            seller_entity = await get_seller_name(seller_model, for_admin=True)
             if seller_entity:
                 if isinstance(seller_entity, tuple):
                     seller_entity = f'{seller_entity[0]}\n{seller_entity[1]}'
@@ -126,28 +129,41 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
                 return seller_entity
 
         memory_storage = await state.get_data()
-        await self.get_photos_by_params(state, feedback_model.advert_parameters)
-        lexicon_class = deepcopy(TopTenDisplay)
-        params_text = await self.statistic_manager.car_params_card_pattern(advert_id=feedback_model.advert_parameters)
-        ic(params_text)
-        params_text = '\n'.join(params_text.split('\n')[:-1])
-        ic(params_text)
-        ic()
-        ic(hasattr(lexicon_class, 'message_text'))
-        statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+        # if not only_message_text:
+        #     person_requests_module = importlib.import_module('database.data_requests.person_requests')
+        #
+        #     advert_parameters = await AdvertParameterManager.get_by_id(feedback_model.advert_parameters)
+        #     seller_model = await person_requests_module.PersonRequester.get_user_for_id(feedback_model.seller_id, seller=True)
+        # else:
+        calculate_method = memory_storage.get('calculate_method')
+        stats_period = memory_storage.get('stats_period')
+        if all((stats_period, calculate_method)):
+            advert_parameters = feedback_model.advert_parameters
+            seller_model = feedback_model.seller_id
 
-        lexicon_class.message_text = copy(statistic_lexicon['top_ten_message_text']).format(
-            top_position=position,
-            parameters=params_text,
-            period=await self.statistic_manager.ident_period_string(memory_storage.get('stats_period')),
-            feedback_count=feedback_model.count,
-            seller_entity=await get_seller_entity())
+            await self.get_photos_by_params(state, advert_parameters)
+            lexicon_class = deepcopy(TopTenDisplay)
+            params_text = await self.statistic_manager.car_params_card_pattern(advert_id=advert_parameters)
+            ic(params_text)
+            params_text = '\n'.join(params_text.split('\n')[:-1])
+            ic(params_text)
+            ic()
+            ic(hasattr(lexicon_class, 'message_text'))
+            statistic_lexicon = await self.statistic_manager.statistic_lexicon()
 
-        ic(lexicon_class.message_text)
-        ic()
-        if only_message_text:
-            return lexicon_class.message_text
-        return lexicon_class
+            lexicon_class.message_text = copy(statistic_lexicon['top_ten_message_text']).format(
+                top_position=position,
+                parameters=params_text,
+                period=await self.statistic_manager.ident_period_string(stats_period),
+                feedback_count=feedback_model.count,
+                seller_entity=await get_seller_entity(),
+                demand_direction=statistic_captions[f'{calculate_method}_demand_start'])
+
+            ic(lexicon_class.message_text)
+            ic()
+            if only_message_text:
+                return lexicon_class.message_text
+            return lexicon_class
 
 
 

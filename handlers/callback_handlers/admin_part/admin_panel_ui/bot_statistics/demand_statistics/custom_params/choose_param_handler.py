@@ -76,6 +76,8 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
             chosen_params = {**chosen_params, chosen_param_name: chosen_param_id}
             await state.update_data(chosen_demand_params=chosen_params)
 
+        if not chosen_params:
+            chosen_param_name = None
         return chosen_params, chosen_param_name
 
     async def get_models_range(self, state: FSMContext, memory_storage):
@@ -104,7 +106,7 @@ class ChooseParamToDemandStatsHandler(BaseStatisticCallbackHandler):
     async def get_lexicon_class(self, request: Message | CallbackQuery, state: FSMContext, memory_storage, chosen_params, param_to_output):
         period = memory_storage.get('stats_period')
         calculate_method = memory_storage.get('calculate_method')
-        ic(period)
+        ic(period, param_to_output)
         lexicon_class = deepcopy(ChooseCustomParamsToStats)(period, param_to_output, calculate_method,
                                                                            chosen_params)
         ic(lexicon_class)

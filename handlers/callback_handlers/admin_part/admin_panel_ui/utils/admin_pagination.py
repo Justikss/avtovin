@@ -12,6 +12,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.car_catalog_re
     send_advert_review
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.utils.\
     send_mailing_review import send_mailing_review
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.output_specific_buyer import \
+    output_buyer_profile
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.output_specific_seller import \
+    output_specific_seller_profile_handler
 from handlers.utils.pagination_heart import Pagination
 
 redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -52,6 +56,7 @@ class AdminPaginationOutput(Pagination):
 
     async def get_output_data(self, request: CallbackQuery | Message, state: FSMContext, output_data):
         current_state = str(await state.get_state())
+        ic(current_state)
         output_structured_data = []
         for data_part in output_data:
             if current_state.startswith('MailingReviewStates'):
@@ -59,7 +64,8 @@ class AdminPaginationOutput(Pagination):
                 if current_model:
                     current_model = current_model.__dict__
                     output_structured_data.append(current_model)
-            elif current_state == 'StatisticsStates.CustomParams:review_process':
+            elif current_state in ('StatisticsStates.CustomParams:review_process', 'SellerReviewStates:review_state',
+                                   'BuyerReviewStates:review_state'):
                 output_structured_data.append(data_part)
             else:
                 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
@@ -116,6 +122,11 @@ class AdminPaginationOutput(Pagination):
                 await OutputStatisticAdvertParamsHandler().get_output_part(request, state,
                                                                                   admin_pagination_object,
                                                                                   data_to_output, message_editor)
+
+            elif current_state == 'SellerReviewStates:review_state':
+                await output_specific_seller_profile_handler(request, state, data_to_output, pagination=admin_pagination_object)
+            elif current_state == 'BuyerReviewStates:review_state':
+                await output_buyer_profile(request, state, data_to_output, pagination=admin_pagination_object)
                 return True
 
         # return False

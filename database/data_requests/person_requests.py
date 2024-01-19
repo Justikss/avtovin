@@ -54,17 +54,21 @@ class PersonRequester:
         elif seller and not dealership:
             current_table = Seller
         elif seller and dealership:
-            user_model = await manager.get_or_none(Seller, Seller.dealship_name == ' '.join(name))
+            user_model = list(await manager.execute(Seller.select().where(Seller.dealship_name == ' '.join(name))))
             current_table = None
 
         ic(user_model, current_table)
         if not user_model and current_table:
             patronymic = name[2] if len(name) == 3 else None
-            ic(patronymic, len(name))
-            user_model = await manager.get_or_none(current_table, current_table.name == name[1],
-                                                   current_table.surname == name[0],
-                                                   current_table.patronymic == patronymic)
-
+            surname = name[0]
+            name = name[1]
+            ic(f'{surname} {name} {patronymic}')
+            user_model = list(await manager.execute(current_table.select().where(current_table.name == name,
+                                                   current_table.surname == surname,
+                                                   current_table.patronymic == patronymic)))
+        if len(user_model) == 1:
+            user_model = user_model[0]
+        ic(user_model)
         return user_model
 
     @staticmethod
@@ -176,10 +180,9 @@ class PersonRequester:
     @staticmethod
     async def get_user_for_id(user_id, user=False, seller=False):
         '''Асинхронный вывод пользователя по id в бд'''
-        if not isinstance(user_id, int):
+        if  isinstance(user_id, str):
             user_id = int(user_id)
-        if not isinstance(user_id, int):
-            user_id = user_id.telegram_id
+
         if user:
             query = User.select().where(User.telegram_id == user_id)
         elif seller:

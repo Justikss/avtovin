@@ -28,7 +28,9 @@ statistic_captions = {'Day': 'День',
                     'top_demand_on': 'Топ спроса на',
                     'car': 'авто',
                     'individual_stats': 'индивидуальной статистики',
-                    'top_10_stats': 'топ 10'
+                    'top_10_stats': 'топ 10',
+                      'bottom_demand_start': 'низкого',
+                      'top_demand_start': 'высшего'
 }
 
 choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions['Day'],
@@ -78,7 +80,7 @@ __STATISTIC_LEXICON = {
         'width': 2
     }},
 
-    'top_ten_message_text':  'Место в топе: {top_position}\nОткликов за {period}: {feedback_count}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
+    'top_ten_message_text':  'Вывод от самого {demand_direction} по спросу\nМесто в топе: {top_position}\nОткликов за {period}: {feedback_count}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
                         + ('▬' * 13) + '\nМашины подписаны своим местом в топе:',
 
     'custom_params_period': {'message_text': 'Период расчёта {output_method} спроса:',

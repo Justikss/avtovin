@@ -30,7 +30,7 @@ async def delete_deprivation_user_answers(message, state):
 
 async def inputted_name_from_admin_handler(message: Message, state: FSMContext, user_name):
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
-
+    ic(user_name)
     current_state = str(await state.get_state())
 
 
@@ -61,9 +61,9 @@ async def inputted_name_from_admin_handler(message: Message, state: FSMContext, 
     if result_user:
         await state.set_state(good_state_object)
         await delete_deprivation_user_answers(message, state)
-        user_id = str(result_user.telegram_id)
+        # user_id = str(result_user.telegram_id)
 
-        await callable_object(message, state, user_id)
+        await callable_object(message, state, result_user)
 
         # choose_specific_person_by_admin_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
         #
