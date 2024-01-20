@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
 
+from config_data.config import TARIFF_SYSTEM
 from database.data_requests.recomendations_request import RecommendationRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter, \
     get_output_string
@@ -88,7 +89,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
     car_configurations_requests_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
-    if not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
+    if TARIFF_SYSTEM and not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         await callback.answer(lexicon_module.LEXICON['tariff_non_actuallity'], show_alert=True)

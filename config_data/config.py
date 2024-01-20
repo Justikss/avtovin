@@ -7,6 +7,8 @@ from utils.lexicon_utils.lexicon_uz.config_uz import DEFAULT_COMMANDS_UZ, header
     faq_buyer_uz
 # from utils.safe_dict_class import config_module.SafeDict
 
+TARIFF_SYSTEM = False
+
 logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())

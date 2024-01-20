@@ -139,8 +139,14 @@ async def drop_table_handler(message: Message):
     # await mock_values(1)
     #
     #
-    await dop_feedbacks()
-    return
+    # await dop_feedbacks()
+    # type_photos = read_photos_by_brand('utils/type_carss')
+    # await load_type_photos(type_photos)
+    #
+    # photos = read_photos_by_brand('utils/carss')
+    # ic(photos)
+    # inserted_cars = await get_car(photos, cars=0)
+    # return
 
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
@@ -149,8 +155,9 @@ async def drop_table_handler(message: Message):
     sellers = await get_seller_account()
     photos = None
     photos = read_photos_by_brand('utils/carss')
-    inserted_cars = await get_car(photos, cars=1)
+    inserted_cars = await get_car(photos, cars=0)
     asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
+    await dop_feedbacks()
     type_photos = read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)
     await set_viewed_status()

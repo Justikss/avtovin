@@ -7,6 +7,7 @@ from aiogram.types import CallbackQuery
 from icecream import ic
 from peewee import IntegrityError
 
+from config_data.config import TARIFF_SYSTEM
 from database.data_requests.recomendations_request import RecommendationRequester
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
@@ -130,6 +131,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     car_id = callback.data.split(':')[-1]
 
     ic(car_id)
+    seller_have_feedbacks = None
     dying_tariff_status = False
     seller_tariff_run_out = False
     insert_response = True
@@ -149,22 +151,23 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
         seller_model = await person_requester_module.PersonRequester.get_seller_by_advert(car_model)
         ic(seller_model)
         if seller_model:
-            try:
-                seller_have_feedbacks = await tariff_to_seller_binder_module.TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot, check_mode=True)
+            if TARIFF_SYSTEM:
+                try:
+                    seller_have_feedbacks = await tariff_to_seller_binder_module.TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot, check_mode=True)
+                    ic(seller_have_feedbacks)
+                except SellerWithoutTariffException:
+                    traceback.print_exc()
+                    await car_advert_requests_module\
+                        .AdvertRequester.delete_advert_by_id(seller_model)
+                    seller_have_feedbacks = None
+                    insert_response = None
+                    car_model = None
+                ic(cached_data)
+                ic(car_id)
+                cached_data = await cached_requests_module.CachedOrderRequests.get_cache(buyer_id=callback.from_user.id, car_id=car_id)
+                ic(cached_data)
                 ic(seller_have_feedbacks)
-            except SellerWithoutTariffException:
-                traceback.print_exc()
-                await car_advert_requests_module\
-                    .AdvertRequester.delete_advert_by_id(seller_model)
-                seller_have_feedbacks = None
-                insert_response = None
-                car_model = None
-            ic(cached_data)
-            ic(car_id)
-            cached_data = await cached_requests_module.CachedOrderRequests.get_cache(buyer_id=callback.from_user.id, car_id=car_id)
-            ic(cached_data)
-            ic(seller_have_feedbacks)
-            if seller_have_feedbacks:
+            if seller_have_feedbacks or not TARIFF_SYSTEM:
                 if cached_data or is_recommendated_state:
                     ic(cached_data, is_recommendated_state)
                     await cached_requests_module.CachedOrderRequests.remove_cache(buyer_id=callback.from_user.id, car_id=car_id)
@@ -173,7 +176,10 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                     # data_for_seller = await output_for_seller_formater(callback, cached_data)
                     try:
                         pagination_data = await activate_offer_handler(callback, state, car_model=car_model, car_id=car_id, pagination_data=pagination_data)
-                        substract_status = await tariff_to_seller_binder_module.TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot)
+                        if TARIFF_SYSTEM:
+                            substract_status = await tariff_to_seller_binder_module.TariffToSellerBinder.subtract_feedback_and_check_tariff(seller_model, bot=callback.bot)
+                        else:
+                            substract_status = True
                         ic(substract_status)
 
                         if substract_status == 'last_feedback':
