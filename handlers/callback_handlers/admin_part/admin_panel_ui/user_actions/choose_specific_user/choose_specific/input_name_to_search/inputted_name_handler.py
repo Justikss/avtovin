@@ -70,4 +70,5 @@ async def inputted_name_from_admin_handler(message: Message, state: FSMContext, 
         # await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(message, state,
         #                                               first_call=False)
     else:
+        ic(await state.update_data(incorrect_message=message.message_id))
         await input_person_name_to_search_request_handler(message, state, incorrect='(non_exists)')

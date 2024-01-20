@@ -46,7 +46,7 @@ __CATALOG_LEXICON = {
     }},
     'review_specific_advert_catalog': {'message_text': 'Объявление: №{advert_id}\n{seller_entity}:', 'buttons': {
         **pagination_interface,
-        'admin_review_catalog_delete_advert': 'Санкции',
+        'admin_review_catalog_delete_advert': 'Ограничения',
         'admin_backward:review_specific_advert_catalog': captions['backward'],
         **return_main_menu,
         'width': 3

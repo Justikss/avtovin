@@ -25,7 +25,7 @@ class StatisticsOutputMethodHandler(BaseStatisticCallbackHandler):
             ic(request.data)
             await super().process_callback(request, state, **kwargs)
         else:
-            await self.send_alert_answer(request, statistic_lexicon['stats_is_empty'])
+            await self.send_alert_answer(request, statistic_lexicon['stats_is_empty'].format(for_current_period=''))
             return
 
 

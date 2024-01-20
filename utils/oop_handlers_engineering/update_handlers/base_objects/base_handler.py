@@ -20,9 +20,11 @@ class BaseHandler(ABC):
         self.incorrect_manager = IncorrectAdapter()
         self.redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         self.menu_manager = MenuGenerator
+        self.delete_message = delete_message
 
-    async def send_alert_answer(self, request: Message| CallbackQuery, text: str, show_alert=False):
-        await send_message_answer(request, text, show_alert=show_alert)
+    async def send_alert_answer(self, request: Message| CallbackQuery, text: str, show_alert=False, message=False):
+
+        await send_message_answer(request, text, show_alert=show_alert, message=message)
 
     async def set_state(self, state: FSMContext, needed_state: State):
         ic(await state.get_state())

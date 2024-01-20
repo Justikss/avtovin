@@ -95,7 +95,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'choose_custom_params':
             await choose_custom_params_stats_backwarder(callback, state, memory_storage, current_state)
         case 'top_ten_display':
-            await CustomParamsChoosePeriod().callback_handler(callback, state)
+            await CustomParamsChoosePeriod().callback_handler(callback, state, from_backward=True)
         case 'custom_params_period':
             await CalculateDemandMethodHandler().callback_handler(callback, state)
 
@@ -331,4 +331,4 @@ async def choose_custom_params_stats_backwarder(callback: CallbackQuery, state: 
     #
     # if out_flag:
     #     # await state.update_data(chosen_demand_params=None)
-        await CustomParamsChoosePeriod().callback_handler(callback, state)
+        await CustomParamsChoosePeriod().callback_handler(callback, state, from_backward=True)

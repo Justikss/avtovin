@@ -24,7 +24,7 @@ advert_parameters_captions = {
 
 __ADVERT_PARAMETERS_LEXICON = {
     'memory_was_forgotten': 'Сброс к началу',
-    'selected_new_car_params_pattern': '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n{params_data}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n',
+    'selected_new_car_params_pattern': '────────────────────\n<blockquote>{params_data}</blockquote>\n────────────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',
 
     'choose_second_hand_parameter_type': {'message_text': 'Параметры Б/У автомобилей:', 'buttons': {

@@ -24,12 +24,13 @@ statistic_captions_uz = {'Day': 'Kun',
                       'model': advert_parameters_captions_uz['model'],#.lower(),
                       'brand': advert_parameters_captions_uz['brand'],#.lower(),
                       'engine': advert_parameters_captions_uz['engine'],#.lower(),
-                    'top_demand_on': 'Eng ko‘p talab qilingan',
+                    'top_demand_on': '{period} uchun eng yuqori talab',
                     'car': 'avto',
                     'individual_stats': 'individual statistika',
                     'top_10_stats': 'top 10',
                     'bottom_demand_start': 'past',
-                    'top_demand_start': 'yuqoriroq'
+                    'top_demand_start': 'yuqoriroq',
+                    'for_current_period': 'joriy davr uchun'
 }
 
 choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions_uz['Day'],
@@ -40,11 +41,12 @@ choose_period_keyboard = {'select_bot_statistic_period:day': statistic_captions_
 
 to_statistic_panel = {'admin_backward:to_statistic_panel': 'Statistika menyusiga'}
 
+
 STATISTIC_LEXICON_UZ = {
-    'stats_is_empty': "Statistik ma'lumotlar bo'sh",
+    'stats_is_empty': "Statistik {for_current_period} ma'lumotlar bo'sh",
     'stats_loading': 'Statistika hisoblanmoqda...',
     'seller_statistic_view': {
-    'message_text': "Sotuvchi: {seller_name}\nRo‘yxatdan o‘tish sanasi: {date_of_registration}\n\n{period} davridagi statistika:\nE’lonlar soni: {adverts_count}\nJavoblar soni: {feedbacks_count}",
+    'message_text': "Sotuvchi: <i>{seller_name}</i>\nRo‘yxatdan o‘tish sanasi: <i>{date_of_registration}</i>\n{period} davridagi statistika:\n" + (' ' * 9 + '─' * 8) + "\n<blockquote>E’lonlar soni: {adverts_count}\nJavoblar soni: {feedbacks_count}</blockquote>\n" + (' ' * 9 + '─' * 8),
         'buttons': {'select_seller_statistic_period:day': statistic_captions_uz['Day'],
                     'select_seller_statistic_period:week': statistic_captions_uz['Week'],
                     'select_seller_statistic_period:month': statistic_captions_uz['Month'],
@@ -60,8 +62,8 @@ STATISTIC_LEXICON_UZ = {
                                                                'width': 1}
     },
 
-    'general_bot_statistics': {'message_text': '{period} davridagi statistika\n' + ('▬' * 13) + '\n🔸Javoblar: {feedbacks}\n📢 E’lonlar: {adverts}\
-\n🧖‍♂️ Bot foydalanuvchilari: {users}\n🤵🏻‍♂️ Sotuvchilar: {sellers}\n👨🏻‍💻 Xaridorlar: {buyers}', 'buttons': {
+    'general_bot_statistics': {'message_text': '{period} davridagi statistika\n' + (' ' * 17 + '─' * 12) + '\n<blockquote>🔸Javoblar: {feedbacks}\n📢 E’lonlar: {adverts}\
+\n🧖‍♂️ Bot foydalanuvchilari: {users}\n🤵🏻‍♂️ Sotuvchilar: {sellers}\n👨🏻‍💻 Xaridorlar: {buyers}</blockquote>\n' + (' ' * 17 + '─' * 12), 'buttons': {
                     **choose_period_keyboard,
                     'admin_backward:check_bot_statistic_values': captions_uz['backward'],
                     **return_main_menu_uz, 'width': (3, 2, 1, 1)}},

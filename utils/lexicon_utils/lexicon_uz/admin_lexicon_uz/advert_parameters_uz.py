@@ -7,7 +7,7 @@ advert_parameters_captions_uz = {
 
 ADVERT_PARAMETERS_LEXICON_UZ = {
     'memory_was_forgotten': 'Boshidan boshlash',
-    'selected_new_car_params_pattern': '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n{params_data}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n',
+    'selected_new_car_params_pattern': '────────────────────\n<blockquote>{params_data}</blockquote>\n────────────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Tanlangan xususiyat o‘chirib bo‘lmaydi, chunki unga e’lonlar ro‘yxatdan o‘tgan!',
 
     'choose_second_hand_parameter_type': {'message_text': 'B/U avtomobillar parametrlari:', 'buttons': {

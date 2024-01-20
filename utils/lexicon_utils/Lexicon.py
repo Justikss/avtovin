@@ -23,7 +23,8 @@ captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрал
             'all_users': 'всех', 'buyers': 'покупателей', 'sellers': 'продавцов', 'delete': 'Удалить',
             'by_dealership': 'автосалона',
             'by_seller': 'частного лица', 'close': 'Скрыть', 'surname_name_patronymic': 'ФИО: ', 'add': 'Добавить',
-            'successfully': 'Успешно', 'tech_support_entity': '👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER}\n'
+            'successfully': 'Успешно', 'tech_support_entity': '👨🏻‍💻Сотрудник поддержки: {SUPPORT_NUMBER}\n',
+            'supports_pattern': f'''{' ' * 25 + '────────────────'}\n<blockquote>{'{0}'}</blockquote>\n{' ' * 25 + '────────────────'}'''
             }
 
 __LEXICON = {
@@ -156,9 +157,9 @@ __LEXICON = {
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить ✅', 'callback_startswith': 'confirm_new_seller_registration_from:'},
 
             'seller_waiting_registration_confirm': {'start_text_legal': '<b>Заявка на регистрацию автосалона:</b>\nПо адресу:\n{address}\n', 'start_text_natural': '<b>Заявка на регистрацию частного продавца:</b>\n',
-                                                 'legal_body_header': '▬' * 15 + '\n<blockquote>Название автосалона: <i>{dealership_name}</i>\n',
-                                                  'natural_body_header': '▬' * 15 + '\n<blockquote>Имя: <i>{name}</i>\nФамилия: <i>{surname}</i>\nОтчество: <i>{patronymic}</i>\n',
-                                                   'body': 'Номер: {phone_number}</blockquote>\n' + '▬' * 15},
+                                                 'legal_body_header': '─' * 20 + '\n<blockquote>Название автосалона: <i>{dealership_name}</i>\n',
+                                                  'natural_body_header': '─' * 20 + '\n<blockquote>Имя: <i>{name}</i>\nФамилия: <i>{surname}</i>\nОтчество: <i>{patronymic}</i>\n',
+                                                   'body': 'Номер: {phone_number}</blockquote>\n' + '─' * 20},
 
             'success_seller_registration_notice': {'message_text': 'Вы зарегистрированы в системе', 'return_main_menu': 'В меню продавца 👨🏻‍💼', 'width': 1},
 
@@ -238,7 +239,7 @@ lexicon_ru = {
     'input_new_price_incorrect_message_text': f'Пожалуйста, укажите целочисленное значение до {max_price_len} цифр.',
     'input_new_price_car_dont_exists': 'К сожалению автомобиль снят с продажи.',
     'succes_rewrite_price': 'Цена успешно изменена',
-    'commodity_output_block': '''▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+    'commodity_output_block': '''────────────────────
 <blockquote>Состояние: <i>{state}</i>
 Тип двигателя: <i>{engine_type}</i>
 Марка: <i>{brand_name}</i>
@@ -247,7 +248,8 @@ lexicon_ru = {
 Год выпуска: <i>{year_of_release}</i>
 Пробег: <i>{mileage}</i>
 Цвет: <i>{color}</i></blockquote>
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬''',
+────────────────────''',
+
     'output_car_request_header': 'Заявка <i>№{request_number}</i>',
     'commodity_state': 'Состояние: <i>{state}</i>',
     # ... И так далее для всех остальных текстов
@@ -428,7 +430,7 @@ class LexiconSellerRequests:
         # commodity_color = '\nЦвет: <i>X</i>'
         # commodity_price = '\n<b>Стоимость: <i>X</i></b>'
 
-        self.sep = '▬' * 13
+        self.sep = '─' * 16
 
         self.pagination_pagesize = 1
 
@@ -464,7 +466,7 @@ class LexiconSellerProfile:
         self.width = 1
         self.tariff_store_button = {'tariff_extension': class_lexicon['tariff_store_button']}
         self.tarif_expired = class_lexicon['tarif_expired']
-        self.sep = ' ' * 10 + '▬' * 15
+        self.sep = ' ' * 10 + '─' * 20
 
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'
@@ -481,8 +483,8 @@ class LexiconSelectedTariffPreview:
     def __init__(self):
         self.header = class_lexicon['selected_tariff_preview_header']
         self.tariff_block = class_lexicon['tariff_block']
-        self.separator = ' ' * 10 + '▬' * 13
-        self.low_separator = ' ' * 10 + '▬' * 13
+        self.separator = ' ' * 10 + '─' * 16
+        self.low_separator = ' ' * 10 + '─' * 16
         self.buttons = {'start_choose_payment_method': class_lexicon['start_choose_payment_method'],
                        'backward:tariff_preview': class_lexicon['backward_in_carpooling'], 'width': 1}
 

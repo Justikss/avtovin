@@ -11,6 +11,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
 
 class CheckInputName(BaseFilter):
     async def send_incorrect_flag(self, message, state, current_object, incorrect_flag):
+        ic()
+
+        ic(await state.update_data(incorrect_message=message.message_id))
+
         if current_object == input_person_name_to_search_request_handler and incorrect_flag == '(exists)':
             return {'user_name': message.text.strip()}
         else:
@@ -18,7 +22,6 @@ class CheckInputName(BaseFilter):
 
     async def __call__(self, message: Message, state: FSMContext):
         config_module = importlib.import_module('config_data.config')
-
         person_requester_module = importlib.import_module('database.data_requests.person_requests')
         input_full_name_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
 
@@ -51,8 +54,6 @@ class CheckInputName(BaseFilter):
         elif dealership_mode:
             formatted_full_name = full_name
 
-
-
         if not dealership_mode and 1 < len(formatted_full_name) < 4 or dealership_mode and len(formatted_full_name) <= config_module.max_contact_info_len:
             for word in formatted_full_name:
                 if not word.isalpha() and not dealership_mode or dealership_mode and not (word.isalpha() or word.isdigit() or word==' '):
@@ -60,22 +61,26 @@ class CheckInputName(BaseFilter):
                         await chat.Chat.delete_message(self=message.chat, message_id=message_id)
                     except:
                         pass
+                    ic()
                     return await self.send_incorrect_flag(message, state, current_object, '(novalid)')
-            # await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_user_message')
 
-
-            
-            name_is_exists = await person_requester_module.PersonRequester.this_name_is_exists(name=full_name.strip(), user=buyer_use, seller=seller_use)
+            name_is_exists = await person_requester_module.PersonRequester.this_name_is_exists(name=full_name.strip(),
+                                                                                               user=buyer_use,
+                                                                                               seller=seller_use)
             if name_is_exists:
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                ic()
                 return await self.send_incorrect_flag(message, state, current_object, '(exists)')
             else:
+                await state.update_data(incorrect_message=None)
+                ic()
                 return {'user_name': full_name}
         else:
             try:
                 await chat.Chat.delete_message(self=message.chat, message_id=message_id)
             except:
                 pass
+            ic()
             return await self.send_incorrect_flag(message, state, current_object,'(novalid)')
 
             

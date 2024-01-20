@@ -43,7 +43,7 @@ CATALOG_LEXICON_UZ = {
     }},
     'review_specific_advert_catalog': {'message_text': 'E’lon: №{advert_id}\n{seller_entity}:', 'buttons': {
         **pagination_interface,
-        'admin_review_catalog_delete_advert': 'Sanksiyalar',
+        'admin_review_catalog_delete_advert': 'Cheklovlar',
         'admin_backward:review_specific_advert_catalog': captions_uz['backward'],
         **return_main_menu_uz,
         'width': 3

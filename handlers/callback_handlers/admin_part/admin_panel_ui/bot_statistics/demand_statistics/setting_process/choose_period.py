@@ -16,7 +16,8 @@ class CustomParamsChoosePeriod(BaseStatisticCallbackHandler):
         self.output_methods = [
             self.menu_manager.travel_editor(
                 lexicon_part=await self.format_message_text(state),
-                dynamic_buttons=2
+                dynamic_buttons=2,
+                delete_mode=kwargs.get('from_backward')
             )
         ]
 

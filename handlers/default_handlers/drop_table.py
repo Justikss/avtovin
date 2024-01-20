@@ -1,6 +1,8 @@
 import asyncio
 import traceback
 import uuid
+from datetime import timedelta, datetime
+from random import random, randint
 
 import faker
 from aiogram.types import Message
@@ -14,7 +16,9 @@ import os
 
 from database.tables.car_configurations import CarAdvert, CarColor, CarComplectation, CarEngine
 from database.tables.commodity import AdvertPhotos
+from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
+from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.statistic_tables.advert_to_admin_view_status import AdvertsToAdminViewStatus
 from database.tables.tech_support_contacts import TechSupports
 
@@ -103,6 +107,19 @@ async def create_ts_contacts():
     await manager.execute(TechSupports.insert_many(insert_tss))
     await manager.execute(TechSupports.insert_many(insert_tsss))
 
+async def dop_feedbacks():
+    aps = list()
+    for color, complectation in zip(range(1, 10), range(1, 9)):
+        aps.append({'color': color,
+                    'complectation': complectation})
+
+    await manager.execute(AdvertParameters.insert_many(aps))
+    advert_params_end_index = len(aps) + 10
+    sfb = []
+    for ap_id in range(11, advert_params_end_index):
+        sfb.extend([{'seller_id': 902230076, 'advert_parameters': ap_id,
+          'feedback_time': datetime.now() - timedelta(days=randint(150, 365))}])
+    await manager.execute(SellerFeedbacksHistory.insert_many(sfb))
 
 async def drop_table_handler(message: Message):
     # await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
@@ -122,7 +139,8 @@ async def drop_table_handler(message: Message):
     # await mock_values(1)
     #
     #
-    # return
+    await dop_feedbacks()
+    return
 
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')

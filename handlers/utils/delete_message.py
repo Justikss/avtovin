@@ -1,10 +1,16 @@
+import importlib
 import traceback
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, Message
 
 
-async def delete_message(request: CallbackQuery | Message, message_id, chat_id=None):
+async def delete_message(request: CallbackQuery | Message, message_id=None, chat_id=None, from_redis=False):
+    if from_redis:
+        redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
+
+        message_id = await redis_module.redis_data.get_data(
+            key=f'{request.from_user.id}:last_message')
     if not message_id:
         return
     if isinstance(message_id, list):

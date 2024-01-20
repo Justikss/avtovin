@@ -7,6 +7,8 @@ from aiogram.types import Message, CallbackQuery
 from database.data_requests.advert_parameters_requests import AdvertParameterManager
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.tables.offers_history import SellerFeedbacksHistory
+from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_statistics.setting_process.choose_period import \
+    CustomParamsChoosePeriod
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.handle_tools.base_callbackquery_handler import \
     BaseStatisticCallbackHandler
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import get_seller_name
@@ -31,7 +33,14 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
 
         models_range = await self.construct_models_structure(state)
         if not models_range:
-            return await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
+            statistic_lexicon = await self.statistic_manager.statistic_lexicon()
+            ic()
+
+            await self.send_alert_answer(request, statistic_lexicon['stats_is_empty'].format(
+                for_current_period=statistic_captions['for_current_period']
+            ), message=True)
+            await CustomParamsChoosePeriod().callback_handler(request, state)
+            return# await self.send_alert_answer(request, Lexicon_module.LEXICON['non_actiallity'])
 
 
         self.output_methods = [

@@ -41,7 +41,7 @@ async def check_match_adverts_the_sellers(callback, state: FSMContext):
     if match_result:
         return match_result
 
-async def create_notification_for_admins(callback):
+async def create_notification_for_admins(callback, commodity_number):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     get_seller_header_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config')
@@ -58,7 +58,8 @@ async def create_notification_for_admins(callback):
                                                 boot_data=structured_boot_data, language='ru')
 
         boot_config_string_startswith = f'''{copy(lexicon_module.commodity_loader_lexicon_ru['config_for_admins']).format(
-            username=callback.from_user.username)}{await get_seller_header_module.get_seller_header(seller=seller_model)}'''
+            username=callback.from_user.username, 
+            request_id=commodity_number)}{await get_seller_header_module.get_seller_header(seller=seller_model)}'''
 
         message_for_admin_chat = output_string.split('\n')
         message_for_admin_chat[0] = boot_config_string_startswith
@@ -92,9 +93,9 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
 
         await callback.answer(lexicon_module.LEXICON['tariff_non_actuallity'], show_alert=True)
         return
-    message_for_admin_chat = await create_notification_for_admins(callback)
+    person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
-    if not message_for_admin_chat:
+    if not await person_requester_module.PersonRequester.get_user_for_id(callback.from_user.id, seller=True):
         logging.debug(f'{callback.from_user.id} ::: Пытался выложить товар без регистрации.')
         await message_editor.travel_editor.edit_message(request=callback, lexicon_key='try_again_seller_registration',
                                                         delete_mode=True)
@@ -110,6 +111,8 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     ic(boot_data)
     commodity_number = await car_configurations_requests_module\
         .CarConfigs.add_advert(callback.from_user.id, boot_data)
+
+    message_for_admin_chat = await create_notification_for_admins(callback, commodity_number)
 
     notification_string = await create_notification_for_seller(request_number=commodity_number)
     mock_lexicon_part = {'message_text': notification_string}

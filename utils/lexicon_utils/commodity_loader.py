@@ -30,7 +30,7 @@ commodity_loader_lexicon_ru = {
     'config_for_seller': '<b>Ваши конфигурации авто:</b>',
     'can_rewrite_config': 'Возможна перепись полей по нажатию на соответсвующую кнопку',
 
-    'config_for_admins': '<b>Заявка</b>\n',
+    'config_for_admins': '<b>Заявка ID:</b><i>{request_id}</i>\n',
 
     'seller_notification_text': 'Заявка №{request_number} создана!'
 }

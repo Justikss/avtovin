@@ -85,7 +85,7 @@ class AdvertFeedbackRequester:
         order_direction = "DESC" if top_direction == "top" else "ASC"
 
 
-
+        ic(time_filter_sql, order_direction)
 
         sql_query = f'''
 WITH FeedbackCounts AS (
@@ -95,8 +95,7 @@ WITH FeedbackCounts AS (
         COUNT(sfh.id) AS feedback_count
     FROM 
         SellerFeedbacksHistory sfh
-    WHERE 
-        {time_filter_sql}
+{f'WHERE' + ' ' + time_filter_sql if time_filter_sql else ''}
     GROUP BY 
         sfh.advert_parameters_id, sfh.seller_id
 ),
@@ -156,7 +155,6 @@ ORDER BY
 LIMIT 10
 
     '''
-
 
         query = offers_history_module.SellerFeedbacksHistory.raw(sql_query, time_param)
         results = list(await manager.execute(query))
@@ -350,7 +348,7 @@ ORDER BY
                 ((AdvertParameters.complectation_id == complectation_id) & (offers_history_module\
                                                                             .SellerFeedbacksHistory.advert_parameters.is_null(False)) & \
                  (CarModel.id == model_id) & (CarBrand.id == brand_id) & \
-                 (CarComplectation.engine_id == engine_id)), time_filter)\
+                 (CarComplectation.engine_id == engine_id)) & time_filter)\
                 .group_by(CarColor)
         elif model_id is not None:
             query = CarComplectation.select(CarComplectation, fn.COUNT(offers_history_module\
@@ -360,7 +358,7 @@ ORDER BY
                 .where(((CarModel.id == model_id) & (offers_history_module\
                                                      .SellerFeedbacksHistory.advert_parameters.is_null(False)) & \
                         (CarComplectation.engine_id == engine_id) & \
-                        (CarModel.brand_id == brand_id)), time_filter).group_by(CarComplectation)
+                        (CarModel.brand_id == brand_id)) & time_filter).group_by(CarComplectation)
         elif brand_id is not None:
             query = CarModel.select(CarModel, fn.COUNT(offers_history_module\
                                                        .SellerFeedbacksHistory.id).alias('count')).join(
@@ -368,7 +366,7 @@ ORDER BY
                                                               .SellerFeedbacksHistory).switch(CarModel).join(CarBrand)\
                 .where(((CarBrand.id == brand_id) & (offers_history_module\
                                                      .SellerFeedbacksHistory.advert_parameters.is_null(False)) \
-                        & (CarComplectation.engine_id == engine_id)),
+                        & (CarComplectation.engine_id == engine_id)) &
                        time_filter).group_by(CarModel)
         elif engine_id is not None:
             query = CarBrand.select(CarBrand, fn.COUNT(offers_history_module\
@@ -376,15 +374,18 @@ ORDER BY
                 CarComplectation).join(AdvertParameters).join(offers_history_module\
                                                               .SellerFeedbacksHistory).switch(CarComplectation).join(CarEngine)\
                 .where((CarEngine.id == engine_id) & (offers_history_module\
-                                                      .SellerFeedbacksHistory.advert_parameters.is_null(False)),
+                                                      .SellerFeedbacksHistory.advert_parameters.is_null(False)) &
                        time_filter).group_by(CarBrand)
         else:
             query = CarEngine.select(CarEngine, fn.COUNT(offers_history_module\
                                                          .SellerFeedbacksHistory.id).alias('count')).join(
                 CarComplectation).join(AdvertParameters).join(offers_history_module\
-                                                              .SellerFeedbacksHistory).group_by(CarEngine)
+                                                              .SellerFeedbacksHistory).where(
+                                                                                        time_filter
+                                                                                    ).group_by(CarEngine)
 
         # Добавление сортировки
+        print(query)
         if top_direction == 'top':
             query = query.order_by(fn.COUNT(offers_history_module\
                                             .SellerFeedbacksHistory.id).desc())

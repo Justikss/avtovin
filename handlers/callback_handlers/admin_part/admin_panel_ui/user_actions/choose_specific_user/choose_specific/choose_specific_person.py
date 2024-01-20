@@ -7,6 +7,7 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_sp
     choose_seller_category_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
     choose_user_category_by_admin_handler
+from handlers.utils.delete_message import delete_message
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_does_not_exists_handler import send_message_answer
 
@@ -57,9 +58,12 @@ async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Mess
         'handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
     Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+    memory_storage = await state.get_data()
     ic()
     if first_call:
         await state.update_data(admin_review_user_mode=callback.data.split('_')[0])
+
+    await delete_message(callback, ic(memory_storage.get('incorrect_message')))
 
     if delete_redis_pagination_key:
         redis_module = importlib.import_module('utils.redis_for_language')

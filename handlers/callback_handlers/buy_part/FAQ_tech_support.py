@@ -30,13 +30,15 @@ async def call_to_support_callback_handler(callback: CallbackQuery):
 
     lexicon_part = Lexicon_module.LEXICON['call_to_support']
 
+    sub_string = ''
     for support_link in support_links:
         if len(support_links) == 1 and support_link.replace(' ', '').isalpha():
-            sub_string = f'<b>{support_link}</b>'
+            sub_string += f'<b>{support_link}</b>'
         else:
-            sub_string = captions['tech_support_entity'].format(SUPPORT_NUMBER=support_link)
+            sub_string += captions['tech_support_entity'].format(SUPPORT_NUMBER=support_link)
 
-        lexicon_part['message_text'] += sub_string
+    lexicon_part['message_text'] += captions['supports_pattern'].format(sub_string[:-1])
+
 
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 
