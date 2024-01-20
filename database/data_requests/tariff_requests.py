@@ -65,12 +65,15 @@ class TarifRequester:
     @staticmethod
     async def get_by_id(tariff_id):
         '''Асинхронный метод получения тарифа по ID'''
-        if not isinstance(tariff_id, int):
+        ic(tariff_id)
+        if isinstance(tariff_id, str):
             tariff_id = int(tariff_id)
         try:
             tariff = await manager.get(Tariff, ((Tariff.id == tariff_id) & ((Tariff.dying_status == False) | (Tariff.dying_status.is_null(True)))))
         except:
             tariff = None
+        ic(tariff)
+        ic(await manager.get_or_none(Tariff, id=tariff_id))
         return tariff
 
 
@@ -93,22 +96,31 @@ class TarifRequester:
             traceback.print_exc()
             return False
 
+    @staticmethod
+    async def create_tarifs():
+        if not list(await manager.execute(Tariff.select())):
+            insert_tariffs = [{'name': 'BEPUL', 'price': 0, 'duration_time': 90, 'feedback_amount': 999999999999999999,
+                               'simultaneous_announcements': 10},
+                              {'name': 'BEPUL', 'price': 0, 'duration_time': 90, 'feedback_amount': 999999999999999999,
+                               'simultaneous_announcements': 20}]
 
-data = {'name': 'minimum',
-'price': 50,
-'duration_time': '365',
-'feedback_amount': 100}
+            await manager.execute(Tariff.insert_many(insert_tariffs))
 
-data2 = {'name': 'medium',
-'price': 200,
-'duration_time': '365',
-'feedback_amount': 500}
+    @staticmethod
+    async def get_free_tariff(seller_entity):
+        simultaneous_announcements = None
+        match seller_entity:
+            case 'natural':
+                simultaneous_announcements = 10
+            case 'legal':
+                simultaneous_announcements = 20
 
-data3 = {'name': 'maximum',
-'price': 1000,
-'duration_time': '365',
-'feedback_amount': 10000}
-
-# TarifRequester.set_tariff(data)
-# TarifRequester.set_tariff(data3)
-# TarifRequester.set_tariff(data2)
+        if simultaneous_announcements:
+            tariff = await manager.get_or_none(Tariff, name='BEPUL', simultaneous_announcements=simultaneous_announcements)
+            ic(tariff)
+            if not tariff:
+                logging.error('[1/2]Продавцу %s не был найден тариф по simultaneous_announcements - %d',
+                              seller_entity,
+                              simultaneous_announcements)
+            else:
+                return tariff

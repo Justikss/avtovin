@@ -74,7 +74,7 @@ async def load_type_photos(dota):
         traceback.print_exc()
         pass
 
-def read_photos_by_brand(directory):
+async def read_photos_by_brand(directory):
     brand_photos = {}
     # Перебор всех файлов и папок в директории
     for item in os.listdir(directory):
@@ -121,44 +121,41 @@ async def dop_feedbacks():
           'feedback_time': datetime.now() - timedelta(days=randint(150, 365))}])
     await manager.execute(SellerFeedbacksHistory.insert_many(sfb))
 
+async def get_adverts():
+    complectations = await manager.execute(CarComplectation.select())
+    colors = await manager.execute(CarColor.select())
+
+    insert_data = list()
+
+    for index in range(9):
+        if index > 7:
+            index -= 3
+        insert_data.append({
+            'seller': 902230076,
+        'complectation': complectations[0],
+        'state': 1,
+        'sum_price': 5000 * index,
+        'dollar_price': None,
+        'color': colors[index]
+
+        })
+    ic(insert_data)
+    await manager.execute(CarAdvert.insert_many(insert_data))
+
 async def drop_table_handler(message: Message):
-    # await manager.create(Seller, telegram_id=message.from_user.id, dealship_name='Маш Маш', entity='natural', dealship_address='Жонжо 43', authorized=True, phone_number='+79121567898')
-    # adv = await manager.create(CarAdvert, seller=message.from_user.id, complectation=2, state=1, dollar_price=56634, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year=None)
-    # if isinstance(adv, CarAdvert):
-    #     adv = adv.id
-    # await advert_to_admin_view_related_requester.create_relation(adv)
-    #
-    # return
-    # inserted_cars = await get_car(photos=None, cars=0)
-    # await mock_feedbacks(sellers=None, raw_cars=inserted_cars)
-    # return
-    # sellers = await get_seller_account()
-
-    # await manager.execute(TechSupports.insert_many(insert_tss))
-    # # return
-    # await mock_values(1)
-    #
-    #
-    # await dop_feedbacks()
-    # type_photos = read_photos_by_brand('utils/type_carss')
-    # await load_type_photos(type_photos)
-    #
-    # photos = read_photos_by_brand('utils/carss')
-    # ic(photos)
-    # inserted_cars = await get_car(photos, cars=0)
-    # return
-
+    await get_adverts()
+    return
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
     await mock_values(0)
     sellers = await get_seller_account()
     photos = None
-    photos = read_photos_by_brand('utils/carss')
+    photos = await read_photos_by_brand('utils/carss')
     inserted_cars = await get_car(photos, cars=0)
     asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     await dop_feedbacks()
-    type_photos = read_photos_by_brand('utils/type_carss')
+    type_photos = await read_photos_by_brand('utils/type_carss')
     await load_type_photos(type_photos)
     await set_viewed_status()
 

@@ -1,63 +1,54 @@
+import logging
+from datetime import datetime
+
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
+
 
 from utils.chat_cleaner.media_group_messages import delete_media_groups
 from utils.user_notification import try_delete_notification
 from utils.user_registartion_notificator import user_dont_registrated
 
 
-async def create_tarifs():
-    a = importlib.import_module('database.data_requests.tariff_requests')
-    data = {'name': 'minimum',
-            'price': 500000,
-            'duration_time': '365',
-            'feedback_amount': 100}
 
-    data2 = {'name': 'medium',
-             'price': 1000000,
-             'duration_time': '365',
-             'feedback_amount': 500}
-
-    data3 = {'name': 'maximum',
-             'price': 15000000,
-             'duration_time': '365',
-             'feedback_amount': 10000}
-
-    await a.TarifRequester.set_tariff(data)
-    await a.TarifRequester.set_tariff(data3)
-    await a.TarifRequester.set_tariff(data2)
-
-async def get_tariff(callback, normal_status=False):
-    tariff_module = importlib.import_module('database.data_requests.tariff_requests')
+async def try_get_free_tariff(callback, normal_status=False):
     tariff_to_seller_requests_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
+
 
     seller_bind_exists = await tariff_to_seller_requests_module.TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
 
     if not seller_bind_exists:
+        person_requests_module = importlib.import_module('database.data_requests.person_requests')
 
-        tariffs = await tariff_module.TarifRequester.retrieve_all_data()
-        ic(tariffs)
-        if not tariffs:
-            await create_tarifs()
+        seller_model = await person_requests_module.PersonRequester.get_user_for_id(callback.from_user.id, seller=True)
+        if seller_model:
+            seller_model = seller_model[0]
+            if seller_model.data_registration < datetime(2024, 5, 1).date():
+                tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 
+                seller_entity = seller_model.entity
+                tariff = await tariff_requests_module.TarifRequester.get_free_tariff(seller_entity)
+                if not tariff and seller_model:
+                    logging.error('[2/2]Данные продавца: %d, %s',
+                      int(seller_model.telegram_id),
+                        f'{seller_model.dealship_name} {seller_model.dealship_address}' \
+                            if seller_entity == 'legal' \
+                            else f'{seller_model.surname} {seller_model.name} {seller_model.patronymic}')
+                    return
+                boot_data = {'seller': str(callback.from_user.id),
+                        'tariff': tariff
+                        }
+                if not normal_status:
+                    try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=boot_data, bot=callback.bot, seconds=4) #days=1 seconds=5
+                else:
+                    try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=boot_data, bot=callback.bot, seconds=None) #days=1 seconds=5
 
-        data = {'seller': str(callback.from_user.id),
-                'tariff': 'minimum'
-                }
-        if not normal_status:
-            try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=4) #days=1 seconds=5
-        else:
-            try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=data, bot=callback.bot, seconds=None) #days=1 seconds=5
-
-
-        if not try_set_bind:
-            await user_dont_registrated(callback)
 
 
 
 async def seller_main_menu(callback: CallbackQuery, bot=None):
-    await get_tariff(callback, normal_status=True)
+    await try_get_free_tariff(callback, normal_status=True)
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_data = importlib.import_module('utils.redis_for_language')
 

@@ -23,6 +23,7 @@ max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
 
 LEXICON_UZ = {
+            'simultaneous_announcements_was_over': 'Siz bir vaqtning oʻzida chop etilgan reklamalar chegarasidan oshib ketishga harakat qildingiz Sizda allaqachon {advert_count} ta {advert_count} ta reklama bor',
             'you_are_blocked_alert': 'Siz bu faoliyatda bloklanibsiz',
             'sepp': '—',
             'tariff_non_actuallity': 'Tarif sotib olishingiz kerak!',
@@ -204,6 +205,7 @@ LEXICON_UZ = {
 
 
 lexicon_uz = {
+    'infinity_feedbacks_caption': 'cheksiz',
     'offer': '<b>Ilova <i>№{offer_number}</i></b>',
     'backward_in_carpooling': '◂ Orqaga ▸',
     'choose_engine_type_text': 'Dvigatel turini tanlang',

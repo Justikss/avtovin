@@ -113,6 +113,7 @@ __LEXICON = {
                                           'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
             'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.',
                                         'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
+            'simultaneous_announcements_was_over': 'Вы попытались превысить лимит одновременно опубликованных объявлений\nУ вас уже {advert_count} из {advert_count} объявлений.',
             'user_non_registration': {'message_text': 'Ошибка. Ваш аккаунт незарегестрирован\nНажмите /start'},
 
             'notification_from_seller_by_buyer_buttons': {'my_sell_feedbacks:': 'Смотреть отклики', 'close_seller_notification:': 'Скрыть уведомление', 'width': 1},
@@ -221,6 +222,7 @@ captions = SafeDict({'ru': captions,
                      'uz': captions_uz})
 
 lexicon_ru = {
+    'infinity_feedbacks_caption': 'бесконечно',
     'to_offers': 'К заявкам',
     'backward_in_carpooling': '◂ Назад ▸',
     'choose_engine_type_text': 'Выберите тип двигателя',
@@ -467,6 +469,7 @@ class LexiconSellerProfile:
         self.tariff_store_button = {'tariff_extension': class_lexicon['tariff_store_button']}
         self.tarif_expired = class_lexicon['tarif_expired']
         self.sep = ' ' * 10 + '─' * 20
+        self.infinity_feedbacks_caption = class_lexicon['infinity_feedbacks_caption']
 
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'

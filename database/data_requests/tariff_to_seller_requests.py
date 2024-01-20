@@ -5,6 +5,7 @@ import datetime
 
 from peewee import DoesNotExist, IntegrityError
 
+from database.data_requests.car_advert_requests import AdvertRequester
 from database.data_requests.dying_tariff import DyingTariffRequester
 from database.tables.seller import Seller
 from database.tables.tariff import Tariff, TariffsToSellers
@@ -71,6 +72,23 @@ class TariffToSellerBinder:
 
         return feedbacks
 
+    @staticmethod
+    async def check_simultaneous_announcements_residue(seller_id):
+        if isinstance(seller_id, str):
+            seller_id = int(seller_id)
+        seller_to_tariff = list(await manager.execute(TariffsToSellers.select(TariffsToSellers, Tariff, Seller).join(Tariff).switch(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller_id)))
+        sellers_adverts = await AdvertRequester.get_advert_by_seller(seller_id)
+        if seller_to_tariff:
+            simultaneous_announcements_residual = seller_to_tariff[0].tariff.simultaneous_announcements
+            ic(len(sellers_adverts), simultaneous_announcements_residual)
+            ic(not len(sellers_adverts) < simultaneous_announcements_residual)
+            if simultaneous_announcements_residual:
+                if not len(sellers_adverts) < simultaneous_announcements_residual:
+                    return simultaneous_announcements_residual
+
+            return True
+        else:
+            raise SellerWithoutTariffException()
 
     @staticmethod
     async def subtract_feedback_and_check_tariff(seller_telegram_id, bot, check_mode=False):
@@ -159,7 +177,8 @@ class TariffToSellerBinder:
                 data['seller'] = await person_requester.PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
                 data['seller'] = data['seller'][0] if data['seller'] else None
                 if tariff:
-                    if tariff.isalpha():
+                    ic(tariff)
+                    if str(tariff).isalpha():
                         tariff = await manager.get(Tariff, Tariff.name == tariff)
                     else:
                         tariff = await tariff_requests_module.TarifRequester.get_by_id(tariff)

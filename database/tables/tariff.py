@@ -1,6 +1,6 @@
 import datetime
 
-from peewee import CharField, ForeignKeyField, DateTimeField, BigIntegerField, BooleanField
+from peewee import CharField, ForeignKeyField, DateTimeField, BigIntegerField, BooleanField, IntegerField
 
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
@@ -12,6 +12,7 @@ class Tariff(BaseModel):
     price = BigIntegerField()
     duration_time = BigIntegerField() # days
     feedback_amount = BigIntegerField()
+    simultaneous_announcements = IntegerField(null=True)
     dying_status = BooleanField(null=True)
 
     class Meta:

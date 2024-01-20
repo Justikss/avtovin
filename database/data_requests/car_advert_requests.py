@@ -189,7 +189,7 @@ class AdvertRequester:
         else:
             query = CarAdvert.select()
 
-        if query and buyer_search_mode:
+        if (query and buyer_search_mode) and str(buyer_search_mode):
             if isinstance(buyer_search_mode, str):
                 buyer_search_mode = int(buyer_search_mode)
 

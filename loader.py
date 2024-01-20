@@ -9,6 +9,7 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from icecream import ic
 
+from database.data_requests.tariff_requests import TarifRequester
 from database.data_requests.utils.drop_tables import drop_tables_except_one
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
@@ -95,7 +96,6 @@ from handlers.custom_filters.admin_filters.ts_contacts_filters.input_link_filter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
 from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
-from handlers.default_handlers.admin_part_default_handlers.save_seller_tariff import save_tariff_handler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.default_handlers.help import bot_help
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
@@ -108,8 +108,7 @@ from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.d
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     CheckFeedbacksHandler
 from handlers.custom_handlers.lost_photos_handler import lost_photos_handler
-from handlers.default_handlers.admin_part_default_handlers.boot_new_car_photos import \
-    start_state_boot_new_car_photos_message_handler
+
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_controller import \
     BuyerPaginationVector
 from handlers.state_handlers.seller_states_handler.load_new_car.edit_boot_data import edit_boot_car_data_handler
@@ -193,7 +192,7 @@ async def start_bot():
 
     dp.message.register(bot_help, Command(commands=['free_tariff']))
 
-
+    await TarifRequester.create_tarifs()
     await mailing_service.schedule_mailing(bot)
 
     asyncio.create_task(fetch_currency_rate())
@@ -222,7 +221,7 @@ async def start_bot():
     #                     StateFilter(default_state))
     #
     dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
-    dp.message.register(save_tariff_handler, Command(commands=['ut']))
+    # dp.message.register(save_tariff_handler, Command(commands=['ut']))
 
     '''обработка Сообщений'''
     dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))

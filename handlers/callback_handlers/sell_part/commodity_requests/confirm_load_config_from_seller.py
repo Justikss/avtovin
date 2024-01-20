@@ -9,6 +9,7 @@ from config_data.config import TARIFF_SYSTEM
 from database.data_requests.recomendations_request import RecommendationRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter, \
     get_output_string
+from utils.custom_exceptions.database_exceptions import SellerWithoutTariffException
 
 config_module = importlib.import_module('config_data.config')
 
@@ -89,11 +90,27 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
     car_configurations_requests_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
-    if TARIFF_SYSTEM and not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
-        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    seller_without_tariff = False
 
-        await callback.answer(lexicon_module.LEXICON['tariff_non_actuallity'], show_alert=True)
-        return
+    try:
+        residue_of_simultaneous_announcements = await tariff_to_seller_binder_module.TariffToSellerBinder.check_simultaneous_announcements_residue(callback.from_user.id)
+        ic(residue_of_simultaneous_announcements)
+        if not isinstance(residue_of_simultaneous_announcements, bool):
+            ic(residue_of_simultaneous_announcements-1)
+            return await callback.answer(lexicon_module.LEXICON['simultaneous_announcements_was_over'].format(
+                advert_count=residue_of_simultaneous_announcements
+            ), show_alert=True)
+
+    except SellerWithoutTariffException:
+        seller_without_tariff = True
+
+    if TARIFF_SYSTEM and not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
+        seller_without_tariff = True
+
+    if seller_without_tariff:
+        return await callback.answer(lexicon_module.LEXICON['tariff_non_actuallity'], show_alert=True)
+
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
 
     if not await person_requester_module.PersonRequester.get_user_for_id(callback.from_user.id, seller=True):

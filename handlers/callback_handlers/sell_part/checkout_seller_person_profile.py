@@ -51,6 +51,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
     tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     ic()
+
     if not user_id and callback:
         user_id = callback.from_user.id
     elif isinstance(user_id, str):
@@ -96,11 +97,12 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
         if seller_tariff_model.end_date_time < datetime.now():
             output_string += f'\n\n{lexicon_module.LexiconSellerProfile.tarif_expired}'
         else:
+            sellers_feedbacks = seller_tariff_model.residual_feedback
             output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
             output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.format(
                 tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
-                feedbacks_remaining=seller_tariff_model.residual_feedback))
+                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 99999999999999 else lexicon_module.LexiconSellerProfile.infinity_feedbacks_caption))
             tariff_exists = True
         ic(output_string)
     if not get_part:

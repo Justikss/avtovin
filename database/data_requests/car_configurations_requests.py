@@ -544,11 +544,11 @@ async def get_car_adverts_by_brand_and_color(brand_id, color):
     ))
 
 async def insert_advert_photos(new_car_photos, params):
-    await manager.connect()
+    # await manager.connect()
     try:
         advert_photo_data_list = []
         photo_base = []
-
+        ic(insert_carars)
         for brand_id, photos in new_car_photos.items():
             # Получаем все объявления для данного бренда
             if params:
@@ -557,7 +557,7 @@ async def insert_advert_photos(new_car_photos, params):
                 current_table = CarAdvert
             matching_adverts = await manager.execute(
                 current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table)\
-                    .join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == brand_id)
+                    .join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand_id))
             )
             ic(brand_id, len(matching_adverts))
             # Подготовка данных для массовой вставки
@@ -685,7 +685,7 @@ async def get_car(photos=None, cars=False):
     #     await manager.execute(insert_photo_query)
 
     # return
-
+    ic(photos, insert_carars)
     if photos:
         await insert_advert_photos(photos, insert_carars)
 
