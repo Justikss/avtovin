@@ -79,14 +79,6 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
             await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
                                                     value=message.message_id)
 
-            # await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
-                #                                         value=message.message_id)
-            #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-
-
-            #await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':current_user_message', value=message.message_id)
-
-            # await state.update_data(last_user_answer=message.message_id)
             await state.update_data(incorrect_answer=False)
         else:
             try:

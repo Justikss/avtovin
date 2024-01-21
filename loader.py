@@ -3,14 +3,12 @@ import importlib
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
-from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from icecream import ic
 
 from database.data_requests.tariff_requests import TarifRequester
-from database.data_requests.utils.drop_tables import drop_tables_except_one
 from database.db_connect import create_tables
 from handlers.callback_handlers.admin_part import admin_panel_ui
 from handlers.callback_handlers.admin_part.admin_panel_ui import user_actions, tariff_actions, catalog
@@ -129,6 +127,7 @@ from states.seller_feedbacks_states import SellerFeedbacks
 from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.mailing_heart.mailing_service import mailing_service
+from utils.middleware.exceptions_handler.middleware import ErrorHandler
 from utils.middleware.language import LanguageMiddleware
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 from utils.middleware.messages_dupe_defender import ThrottlingMiddleware
@@ -181,7 +180,6 @@ async def start_bot():
     bot = Bot(token=config_module.BOT_TOKEN, parse_mode='HTML')
     redis = Redis(host='localhost')
     storage = RedisStorage(redis=redis)
-
     dp = Dispatcher(storage=storage)
 
     # admin_router = Router()
@@ -195,15 +193,19 @@ async def start_bot():
     await TarifRequester.create_tarifs()
     await mailing_service.schedule_mailing(bot)
 
+
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
     asyncio.create_task(GetDealershipAddress.process_queue())
 
+    dp.callback_query.middleware(ErrorHandler())
     dp.callback_query.middleware(LanguageMiddleware())
-    dp.message.middleware(LanguageMiddleware())
-
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
+
+    dp.message.middleware(ErrorHandler())
+    dp.message.middleware(LanguageMiddleware())
+
     #
     # @dp.message()
     # async def send_chat_id(message: Message):

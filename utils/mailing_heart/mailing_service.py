@@ -7,7 +7,6 @@ from typing import List, Tuple, Optional
 from aiogram import Bot
 from peewee import IntegrityError
 
-from utils.mailing_heart.send_mailing_to_user import send_mailing
 
 mailing_requests_module = importlib.import_module('database.data_requests.mailing_requests')
 
@@ -62,6 +61,8 @@ class MailingService:
             return
         recipients = await self.get_recipients(mailing.recipients_type)
         if recipients:
+            from utils.mailing_heart.send_mailing_to_user import send_mailing
+
             recipients, users_recipient = recipients
             buyer_recipient, seller_recipient = users_recipient
             mailing_data = dict()

@@ -22,7 +22,7 @@ async def unpack_lexicon_to_start_using(callback, string_user_id):
             lexicon_part = admin_lexicon_part
     user_name = callback.from_user.username
     user_name = '' if not user_name else user_name
-    message_text = lexicon_part['message_text'].format(user_name=user_name)
+    message_text = lexicon_part['message_text'].format(user_name=f', {user_name}' if user_name else '')
     ic(lexicon_part)
     keyboard = await InlineCreator.create_markup(lexicon_part)
 

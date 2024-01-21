@@ -11,7 +11,6 @@ from states.seller_feedbacks_states import SellerFeedbacks
 from utils.custom_exceptions.database_exceptions import UserExistsError, CarExistsError
 from utils.get_currency_sum_usd import get_valutes
 from utils.get_username import get_username
-from utils.user_notification import delete_notification_for_seller
 
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -76,6 +75,8 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
     async def my_feedbacks_callback_handler(callback: CallbackQuery, state: FSMContext, delete_media_group_mode=False):
         message_editor_module = importlib.import_module('handlers.message_editor')
         if ':' in callback.data:
+            from utils.user_notification import delete_notification_for_seller
+
             await delete_notification_for_seller(callback)
 
         await message_editor_module.travel_editor.edit_message(request=callback, delete_mode=True,

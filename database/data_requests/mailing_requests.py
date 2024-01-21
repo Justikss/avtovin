@@ -4,7 +4,6 @@ from database.db_connect import manager
 from database.tables.mailing import Mailing, ViewedMailing
 from database.tables.seller import Seller
 from database.tables.user import User
-from utils.mailing_heart.mailing_service import mailing_service
 
 
 async def get_mailings_by_viewed_status(status, get_ids=False):
@@ -71,6 +70,8 @@ async def delete_mailing_action(mailing):
         if data_to_delete:
             await manager.execute(ViewedMailing.delete().where(ViewedMailing.mailing_id == mailing))
     else:
+        from utils.mailing_heart.mailing_service import mailing_service
+
         await mailing_service.cancel_mailing(mailing)
     await manager.execute(Mailing.delete().where(Mailing.id == mailing))
 

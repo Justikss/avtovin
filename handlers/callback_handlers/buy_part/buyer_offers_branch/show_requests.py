@@ -94,6 +94,7 @@ async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):
     else:
         state_object = None
         non_exists_alert_text = None
+    ic(offers)
     if offers:
         advert_ids = []
         for offer in offers:
@@ -102,7 +103,10 @@ async def output_buyer_offers(callback: CallbackQuery, state: FSMContext):
             else:
                 advert_id = offer.car_id.id
 
-        advert_ids.append(advert_id)
+            ic(advert_id)
+            advert_ids.append(advert_id)
+            ic(advert_ids)
+
     elif adverts:
         advert_ids = [advert.id for advert in adverts]
 

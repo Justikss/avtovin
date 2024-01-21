@@ -14,8 +14,6 @@ from handlers.custom_filters.message_is_photo import MessageIsPhoto
 from handlers.callback_handlers.sell_part.seller_main_menu import delete_media_groups
 from utils.chat_header_controller import header_controller
 
-
-
 async def bot_start(message: Message, state: FSMContext):
     travel_editor = importlib.import_module('handlers.message_editor')
 

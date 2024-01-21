@@ -16,7 +16,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_us
     backward_from_user_profile_review
 from utils.custom_exceptions.database_exceptions import AdminDoesNotExistsError, UserNonExistsError
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
-from utils.user_notification import send_notification
 
 
 
@@ -51,6 +50,8 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
         ban_query = await BannedRequester.set_ban(callback, user_id, reason=block_reason,
                                                   user=user, seller=seller)
         if ban_query:
+            from utils.user_notification import send_notification
+
             user_mode = 'seller' if seller else 'buyer'
             await callback.answer(Lexicon_module.ADMIN_LEXICON['user_block_success'])
             await wipe_user_chat_history(callback, state, user_id, user=user, seller=seller)

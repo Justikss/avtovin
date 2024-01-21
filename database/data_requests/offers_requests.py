@@ -18,6 +18,8 @@ from database.db_connect import manager
 
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
+async def to_int(value):
+    return int(value) if isinstance(value, str) else value
 
 
 class OffersRequester:
@@ -121,9 +123,17 @@ class OffersRequester:
         return updated
 
     @staticmethod
-    async def delete_offer(offer_id):
+    async def delete_offer(offer_id=None, advert_id=None, buyer_id=None):
         '''Асинхронный метод удаления предложения'''
-        delete_query = ActiveOffers.delete().where(ActiveOffers.id == offer_id)
+        if offer_id:
+            offer_id = await to_int(offer_id)
+            delete_query = ActiveOffers.delete().where(ActiveOffers.id == offer_id)
+        elif advert_id and buyer_id:
+            advert_id = await to_int(advert_id)
+            buyer_id = await to_int(buyer_id)
+            delete_query = ActiveOffers.delete().where(ActiveOffers.id.in_(ActiveOffers.select(ActiveOffers.id).where((ActiveOffers.car_id == advert_id) & (ActiveOffers.buyer_id == buyer_id))))
+        else:
+            return
         deleted = await manager.execute(delete_query)
         return deleted
 

@@ -14,7 +14,7 @@ config_module = importlib.import_module('config_data.config')
 async def send_message_answer(request: Message | CallbackQuery, text: str, sleep_time=None, show_alert=False,
                               message=False):
     await delete_message(request, from_redis=True)
-
+    ic(type(request))
     if isinstance(request, Message) or message:
         if message and isinstance(request, CallbackQuery):
             request = request.message
@@ -37,5 +37,6 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
         await delete_message(request, alert_message.message_id)
 
     elif isinstance(request, CallbackQuery):
+        ic(text)
         ic()
-        await request.answer(text, show_alert=show_alert)
+        ic(await request.answer(text, show_alert=show_alert))

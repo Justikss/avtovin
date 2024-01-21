@@ -118,7 +118,8 @@ async def output_seller_profile(callback: CallbackQuery):
 
     message_text = await seller_profile_card_constructor(callback=callback)
 
-    tariff_button = lexicon_module.LexiconSellerProfile.tariff_extension_button if lexicon_module.LexiconSellerProfile.tariff_prefix.split('>')[1].split(':')[0] in message_text else lexicon_module.LexiconSellerProfile.tariff_store_button
+    tariff_button = {}
+    # tariff_button = lexicon_module.LexiconSellerProfile.tariff_extension_button if lexicon_module.LexiconSellerProfile.tariff_prefix.split('>')[1].split(':')[0] in message_text else lexicon_module.LexiconSellerProfile.tariff_store_button
     lexicon_part = {'message_text': message_text,
                     'buttons': {**tariff_button, **lexicon_module.LEXICON['return_main_menu_button'], 'width': lexicon_module.LexiconSellerProfile.width}}
 

@@ -32,4 +32,5 @@ async def delete_message(request: CallbackQuery | Message, message_id=None, chat
         ic(delete_query)
     except TelegramBadRequest:
         pass
+        pass
 

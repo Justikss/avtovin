@@ -250,7 +250,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
     async def clear_exists_new_branch_status_flags(self, state: FSMContext, parameter_name, memory_storage):
         param_which_startswith_add_branch = memory_storage.get('add_new_branch_status')
-
+        ic(parameter_name)
+        ic()
         if param_which_startswith_add_branch in (parameter_name, 'state', 'engine'):
             await state.update_data(add_new_branch_status=False)
 

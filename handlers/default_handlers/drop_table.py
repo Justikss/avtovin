@@ -143,7 +143,12 @@ async def get_adverts():
     await manager.execute(CarAdvert.insert_many(insert_data))
 
 async def drop_table_handler(message: Message):
-    await get_adverts()
+    # await get_adverts()
+    await mock_values(0)
+    photos = await read_photos_by_brand('utils/carss')
+    inserted_cars = await get_car(photos, cars=0)
+    type_photos = await read_photos_by_brand('utils/type_carss')
+    await load_type_photos(type_photos)
     return
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')

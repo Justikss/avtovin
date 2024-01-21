@@ -210,7 +210,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'choose_specific_advert_parameter_value' | 'await_input_new_parameter_value' \
             if memory_storage.get('params_type_flag') == 'new' and memory_storage.get('add_new_branch_status'):
-            await backward_in_advert_parameters_interface(current_state, callback, state)
+            await backward_in_advert_parameters_interface(current_state, callback, state, memory_storage)
 
         case 'choose_specific_advert_parameter_value' | 'review_params_branch' | 'review_params_branch_to_load' | 'confirmation_add_value_process':
             await backward_in_advert_parameters_interface(current_state, callback, state)
@@ -238,10 +238,17 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
 
 
-async def backward_in_advert_parameters_interface(current_state, callback, state):
+async def backward_in_advert_parameters_interface(current_state, callback, state, memory_storage=None):
     current_parameters_to_output = None
     next_parameters_to_output = None
     delete_mode = False
+    if memory_storage:
+        if memory_storage.get('add_new_branch_status'):
+            if not memory_storage.get('selected_parameters'):
+                await state.update_data(add_new_branch_status=None)
+                await state.update_data(next_params_output='engine')
+                await OutputSpecificAdvertParameters().callback_handler(callback, state, delete_mode=delete_mode)  #
+                return
     ic(current_state)
     parameters = ['state', 'engine', 'brand', 'model', 'complectation', 'color']
     match current_state:

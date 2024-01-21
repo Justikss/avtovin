@@ -14,8 +14,10 @@ Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
 async def delete_mailing_messages_pack(callback, messages_to_delete):
+    from handlers.callback_handlers.admin_part.accept_registration_request_button import ignore_exceptions
     for chat_id, message_ids in messages_to_delete.items():
-        await delete_message(callback, chat_id=chat_id, message_id=message_ids)
+        async with ignore_exceptions():
+            await delete_message(callback, chat_id=chat_id, message_id=message_ids)
 
 async def delete_current_mailing_handler(callback: CallbackQuery, state: FSMContext):
     admin_pagination_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination')

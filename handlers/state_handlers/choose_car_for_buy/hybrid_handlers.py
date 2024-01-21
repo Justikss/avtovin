@@ -247,6 +247,7 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
         await callback.message.delete()
     except:
         pass
+    ic(formatted_config_output)
     pagination = BuyerCarsPagination(data=formatted_config_output, page_size=1, current_page=0)
 
     await pagination.send_page(request=callback, state=state)

@@ -26,12 +26,14 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
         if 'state' in selected_parameters.keys():
             selected_parameters.pop('state')
         ic(selected_parameters)
+        ic()
         exists_model = await self.check_on_exists_adverts_by_parameter(state, selected_parameters)
         if exists_model:
             current_state = str(await state.get_state())
             await self.send_alert_answer(
                 request,
-                Lexicon_module.ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting']
+                Lexicon_module.ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting'],
+                message=True
             )
             ic(current_state)
             match current_state:

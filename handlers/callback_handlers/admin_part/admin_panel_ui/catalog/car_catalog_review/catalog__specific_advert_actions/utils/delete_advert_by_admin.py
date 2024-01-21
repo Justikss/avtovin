@@ -5,11 +5,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
-from utils.user_notification import send_notification
-
 
 
 async def delete_advert_handler(callback: CallbackQuery, state: FSMContext, advert_id, seller_id):
+    from handlers.callback_handlers.admin_part.accept_registration_request_button import ignore_exceptions
     car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
     memory_storage = await state.get_data()
 
@@ -17,8 +16,11 @@ async def delete_advert_handler(callback: CallbackQuery, state: FSMContext, adve
     await log_admin_action(callback.from_user.username, 'close_advert', f'seller:{seller_id}',
                            (deleted_advert, memory_storage.get('reason')))
 
-    await send_notification(callback, user_status='close_advert', chat_id=seller_id,
-                            advert_block_data={'advert_id': advert_id, 'close_reason': memory_storage.get('reason')})
+    async with ignore_exceptions():
+        from utils.user_notification import send_notification
+
+        await send_notification(callback, user_status='close_advert', chat_id=seller_id,
+                                advert_block_data={'advert_id': advert_id, 'close_reason': memory_storage.get('reason')})
 
 
 async def delete_advert_admin_action(callback: CallbackQuery, state: FSMContext, advert_id, seller_id):

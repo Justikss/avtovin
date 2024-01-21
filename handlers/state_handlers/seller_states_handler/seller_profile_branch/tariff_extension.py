@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.user_notification import try_delete_notification
 
 output_choose_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler')
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -29,6 +28,8 @@ async def output_affordable_tariffs(callback, state):
 async def output_affordable_tariffs_handler(callback: CallbackQuery, state: FSMContext):
     '''Обработчик кнопки ПРОДЛИТЬ ТАРИФ
     Предоставляет список всех доступных тарифов'''
+    from utils.user_notification import try_delete_notification
+
     await try_delete_notification(callback, user_status='lose_tariff')
     lexicon_part = await output_affordable_tariffs(callback, state)
     

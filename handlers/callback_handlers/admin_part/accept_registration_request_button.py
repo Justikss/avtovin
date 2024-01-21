@@ -3,7 +3,7 @@ import importlib
 from aiogram.types import CallbackQuery
 
 from handlers.state_handlers.seller_states_handler.seller_registration.await_confirm_from_admin import utils
-from utils.user_notification import send_notification
+from utils.context_managers import ignore_exceptions
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
@@ -27,7 +27,11 @@ async def accept_registraiton(callback: CallbackQuery):
     change_query = await person_requester_module.PersonRequester.change_authorized_state(telegram_id=user_id, boolean=True)
 
     if change_query:
-        await send_notification(callback=callback, user_status='seller', chat_id=user_chat_id)
+        from utils.user_notification import send_notification
+
+        async with ignore_exceptions():
+            await send_notification(callback=callback, user_status='seller', chat_id=user_chat_id)
+
         await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=notification_id)
         await callback.answer()
     elif change_query is False:

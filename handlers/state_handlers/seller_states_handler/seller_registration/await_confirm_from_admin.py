@@ -4,7 +4,6 @@ import time
 import importlib
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from handlers.callback_handlers.sell_part.seller_main_menu import seller_main_menu
 from handlers.state_handlers.seller_states_handler.seller_registration import utils
 
 
@@ -66,9 +65,10 @@ async def seller_confirm_registration(callback: CallbackQuery, state: FSMContext
 
     load_try = await utils.load_seller_in_database(authorized_state=True, state=state, request=callback)
     if load_try:
+        seller_main_menu_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
         lexicon_code = 'confirm_seller_profile_notification'
         await send_message_to_admins(callback=callback)
-        await seller_main_menu(callback)
+        await seller_main_menu_module.seller_main_menu(callback)
 
     else:
         lexicon_code = 'try_again_seller_registration'

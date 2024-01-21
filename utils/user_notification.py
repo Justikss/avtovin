@@ -2,12 +2,14 @@ import importlib
 import traceback
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramServerError
+from aiogram.exceptions import TelegramServerError, TelegramForbiddenError
 from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
 from keyboards.inline.kb_creator import InlineCreator
+
 from utils.lexicon_utils.admin_lexicon.admin_lexicon_utils import get_ban_notification_lexicon_part
 
+context_managers_module = importlib.import_module('utils.context_managers')
 
 async def try_delete_notification(callback: CallbackQuery, user_status: str=None, non_callback_answer_mode=False):
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
@@ -99,17 +101,20 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
     message_text = lexicon_part['message_text']
     keyboard = await InlineCreator.create_markup(input_data=lexicon_part)
     ic(message_text, callback, bot)
+    notification_message = None
     if callback:
         await callback.answer(lexicon_module.LEXICON['success_notification'])
-        notification_message = await callback.message.bot.send_message(chat_id=chat_id, text=message_text,
-                                                reply_markup=keyboard)
+        async with context_managers_module.ignore_exceptions():
+            notification_message = await callback.message.bot.send_message(chat_id=chat_id, text=message_text,
+                                                    reply_markup=keyboard)
 
     elif bot:
-        notification_message = await bot.send_message(chat_id=chat_id, text=message_text, reply_markup=keyboard)
+        async with context_managers_module.ignore_exceptions():
+            notification_message = await bot.send_message(chat_id=chat_id, text=message_text, reply_markup=keyboard)
 
-
-    await redis_module.redis_data.set_data(key=str(chat_id) + redis_sub_key,
-                                            value=notification_message.message_id)
+    if notification_message:
+        await redis_module.redis_data.set_data(key=str(chat_id) + redis_sub_key,
+                                                value=notification_message.message_id)
 
 async def send_notification_for_seller(callback: CallbackQuery, data_for_seller, media_mode=False):
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
@@ -138,8 +143,11 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
                                                               media=media_group)
         except TelegramServerError:
             traceback.print_exc()
-            media_message = await callback.bot.send_media_group(chat_id=seller_id,
-                                                                    media=media_group)
+            async with context_managers_module.ignore_exceptions():
+                media_message = await callback.bot.send_media_group(chat_id=seller_id,
+                                                                        media=media_group)
+        except TelegramForbiddenError:
+            return
 
         for media in media_message:
             active_seller_notifications.append(media.message_id)
@@ -149,17 +157,18 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
 
     lexicon_part = {'message_text': data_for_seller['message_text'],
                     'buttons': lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons']}
+    notification_message_part = None
+    async with context_managers_module.ignore_exceptions():
+        notification_message_part = await callback.bot.send_message(chat_id=seller_id,
+                                                                    text=lexicon_part['message_text'],
+                                                                    reply_markup=await InlineCreator.create_markup(
+                                                                        input_data=lexicon_part['buttons']),
+                                                                    reply_to_message_id=reply_media_message_id)
 
-
-
-    notification_message_part = await callback.bot.send_message(chat_id=seller_id,
-                                                                text=lexicon_part['message_text'],
-                                                                reply_markup=await InlineCreator.create_markup(
-                                                                    input_data=lexicon_part['buttons']),
-                                                                reply_to_message_id=reply_media_message_id)
 
     lexicon_part['buttons'] = {}
-    active_seller_notifications.append(notification_message_part.message_id)
+    if notification_message_part:
+        active_seller_notifications.append(notification_message_part.message_id)
 
 
     for key, value in lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons'].items():
@@ -169,10 +178,11 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
         lexicon_part['buttons'][key] = value
     keyboard = await InlineCreator.create_markup(input_data=lexicon_part['buttons'])
     ic(keyboard)
-    await callback.bot.edit_message_reply_markup(
-        chat_id=seller_id,
-        message_id=notification_message_part.message_id,
-        reply_markup=keyboard)
+    async with context_managers_module.ignore_exceptions():
+        await callback.bot.edit_message_reply_markup(
+            chat_id=seller_id,
+            message_id=notification_message_part.message_id,
+            reply_markup=keyboard)
 
         # await redis_module.redis_data.set_data(key=f'{seller_id}:active_notifications', value=active_seller_notifications)
 

@@ -6,7 +6,7 @@ import importlib
 block_user_reason_text_len = {'max': 256, 'min': 3}
 max_contact_info_len = 100
 return_main_menu_uz = {'return_main_menu': 'Menyuga'}
-captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
+captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
             'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
             'month': 'oy', 'year': 'yil', 'days': 'kunlar', 'feedbacks': 'javoblar',
             'dont_write_html_tags': '"&lt; &gt;" belgilarini kiriting taqiqlanadi.',
@@ -50,7 +50,7 @@ ADMIN_LEXICON_uz = {
 
 'select_seller_category': {'message_text': 'Sotuvchi kategoriyasini tanlang:',
                            'buttons': {'legal_seller_actions': 'Salonlar', 'natural_seller_actions': 'Shaxsiy shaxslar',
-                                       'admin_backward:choose_seller_category': 'Orqaga',
+                                       'admin_backward:choose_seller_category': '◂ Orqaga ▸',
                                        'width': 2}},
 
 'review_seller_card': {'message_header': 'Sotuvchini ko‘rib chiqish:',
@@ -119,7 +119,7 @@ ADMIN_LEXICON_uz = {
     'width': 1})}
 
                                              }
-captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
+captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
             'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
             'month': 'oy', 'year': 'yil', 'days': 'kunlar', 'feedbacks': 'javoblar',
             'dont_write_html_tags': '"&lt; &gt;" belgilarini kiriting taqiqlanadi.',

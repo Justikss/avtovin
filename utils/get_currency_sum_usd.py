@@ -35,11 +35,17 @@ async def convertator(valute, cost):
             return result
 
 
-async def get_valutes(usd, sum_valute, get_string=None):
+async def get_valutes(usd, sum_valute, get_string=None, language=None):
     ic(usd, sum_valute)
     boot_commodity_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+    if language == 'ru':
+        lexicon = copy(lexicon_module.__LEXICON)
+        commodity_loader_lexicon = copy(boot_commodity_lexicon_module.commodity_loader_lexicon_ru)
+    else:
+        lexicon = copy(lexicon_module.LEXICON)
+        commodity_loader_lexicon = boot_commodity_lexicon_module.commodity_loader_lexicon
 
     ic(sum_valute, usd)
     if not usd:
@@ -51,8 +57,8 @@ async def get_valutes(usd, sum_valute, get_string=None):
     if None not in (usd, sum_valute):
         result = (usd, sum_valute)
         if get_string:
-            price_string = f'''{usd}$ {lexicon_module.LEXICON['convertation_sub_string']} {lexicon_module.LEXICON['uzbekistan_valute'].replace('X', sum_valute)}'''
-            block_string = copy(boot_commodity_lexicon_module.LexiconCommodityLoader.price_digital).format(price=price_string)
+            price_string = f'''{usd}$ {lexicon['convertation_sub_string']} {lexicon['uzbekistan_valute'].replace('X', sum_valute)}'''
+            block_string = commodity_loader_lexicon['price_digital'].format(price=price_string)
             if get_string == 'block':
                 return block_string
             else:

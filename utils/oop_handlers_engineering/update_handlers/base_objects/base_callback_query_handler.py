@@ -31,7 +31,8 @@ class BaseCallbackQueryHandler(BaseHandler, ABC):
 
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         # Определить в подклассах
-        if isinstance(request, CallbackQuery):
-            await request.answer()
+        pass
+        # if isinstance(request, CallbackQuery):
+        #     await request.answer()
 
 

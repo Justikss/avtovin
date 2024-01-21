@@ -29,14 +29,6 @@ class GeneralBotStatisticHandler(BaseStatisticCallbackHandler):
 
             await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['information_was_updated'])
 
-    # async def edit_message_text(self, request: Message | CallbackQuery, lexicon_part):
-    #     message_object = await self.message_object(request)
-    #     await request.bot.edit_message_text(chat_id=message_object.chat.id,
-    #                                         message_id=await self.redis_module.redis_data.get_data(
-    #                                             key=f'{request.from_user.id}:last_message',
-    #                                             ),
-    #                                         text=lexicon_part['message_text'])
-    #
 
     async def get_period_status(self, request) -> tuple:
         if request.data == 'general_statistics':

@@ -1,5 +1,5 @@
 return_main_menu_uz = {'return_main_menu': 'Menyuga'}
-captions_uz = {'backward': 'Orqaga', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
+captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
             'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
             'month': 'oy', 'year': 'yil', 'days': 'kunlar', 'feedbacks': 'javoblar',
             'dont_write_html_tags': '"&lt; &gt;" belgilarini kiriting taqiqlanadi.',

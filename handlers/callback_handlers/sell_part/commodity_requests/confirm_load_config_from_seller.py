@@ -5,7 +5,6 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
 
-from config_data.config import TARIFF_SYSTEM
 from database.data_requests.recomendations_request import RecommendationRequester
 from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import data_formatter, \
     get_output_string
@@ -57,11 +56,12 @@ async def create_notification_for_admins(callback, commodity_number):
         structured_boot_data = await message_editor.redis_data.get_data(key=redis_key, use_json=True)
 
         output_string = await get_output_string(mode=None,
-                                                boot_data=structured_boot_data, language='ru')
+                                                boot_data=structured_boot_data, language='ru',
+                                                advert_id=commodity_number)
 
         boot_config_string_startswith = f'''{copy(lexicon_module.commodity_loader_lexicon_ru['config_for_admins']).format(
             username=callback.from_user.username, 
-            request_id=commodity_number)}{await get_seller_header_module.get_seller_header(seller=seller_model)}'''
+            request_id=commodity_number)}{await get_seller_header_module.get_seller_header(seller=seller_model, language='ru')}'''
 
         message_for_admin_chat = output_string.split('\n')
         message_for_admin_chat[0] = boot_config_string_startswith
@@ -105,7 +105,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
     except SellerWithoutTariffException:
         seller_without_tariff = True
 
-    if TARIFF_SYSTEM and not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
+    if not await tariff_to_seller_binder_module.TariffToSellerBinder.tariff_is_actuality(seller_model=callback.from_user.id, bot=callback.bot):
         seller_without_tariff = True
 
     if seller_without_tariff:

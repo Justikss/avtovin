@@ -31,7 +31,12 @@ class StatusControl(BaseFilter):
 
             if isinstance(request, CallbackQuery):
                 await request.answer(Lexicon_module.LEXICON['user_havent_permision'])
-            return await travel_editor.travel_editor.edit_message(lexicon_key='hello_text', request=request,
+            lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+            lexicon_part = lexicon_module.LEXICON['hello_text']
+            user_name = request.from_user.username
+            lexicon_part['message_text'] = lexicon_part['message_text'].format(user_name=f', {user_name}' if user_name else '')
+            return await travel_editor.travel_editor.edit_message(lexicon_key='', lexicon_part='lexicon_part',
+                                                                  request=request,
                                                                   delete_mode=True)
         else:
             return True

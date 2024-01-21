@@ -1,4 +1,5 @@
 import importlib
+from copy import copy
 from typing import Optional, List
 
 from aiogram.fsm.context import FSMContext
@@ -12,10 +13,12 @@ from utils.get_currency_sum_usd import get_valutes
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 offers_history_module = importlib.import_module('database.tables.offers_history')
 
-async def get_seller_header(seller=None, car=None, state=None):
+async def get_seller_header(seller=None, car=None, state=None, language=None):
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
-    message_text = lexicon_module.LEXICON.get('chosen_configuration').get('message_text')
+    if language == 'ru':
+        message_text = copy(lexicon_module.__LEXICON).get('chosen_configuration').get('message_text')
+    else:
+        message_text = lexicon_module.LEXICON.get('chosen_configuration').get('message_text')
     if car:
         seller = car.seller
     seller_number = ''

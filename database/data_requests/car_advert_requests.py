@@ -192,12 +192,12 @@ class AdvertRequester:
         if (query and buyer_search_mode) and str(buyer_search_mode):
             if isinstance(buyer_search_mode, str):
                 buyer_search_mode = int(buyer_search_mode)
-
-            query = query.join(ActiveOffers).where(CarAdvert.id.not_in(
-                ActiveOffers.select(CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User).switch(CarAdvert).join(Seller).where(
-                    ((ActiveOffers.buyer_id == buyer_search_mode) & (Seller.telegram_id != buyer_search_mode)))
-            )).switch(CarAdvert)
-
+            ic(buyer_search_mode)
+            query = query.where((CarAdvert.id.not_in(
+                ActiveOffers.select(CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User).switch(CarAdvert).where(
+                    ((ActiveOffers.buyer_id == buyer_search_mode)))
+            )) & (CarAdvert.id.not_in(CarAdvert.select(CarAdvert.id).where(CarAdvert.seller_id == buyer_search_mode))))
+        #     print(query)
         if seller_id:
             ic()
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))

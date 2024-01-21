@@ -32,7 +32,7 @@ async def rewrite_price_by_seller_handler(request: Union[CallbackQuery, Message]
         delete_mode = True
     price = Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str("{:,}".format(car.sum_price))) if car.sum_price else f'{str("{:,}".format(car.dollar_price))}$'
 
-    lexicon_part['message_text'] = lexicon_part['message_text'].format(currnet_price=price)
+    lexicon_part['message_text'] = lexicon_part['message_text'].format(current_price=price)
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, delete_mode=delete_mode, reply_message=reply_message)
     await state.set_state(RewritePriceBySellerStates.await_input)

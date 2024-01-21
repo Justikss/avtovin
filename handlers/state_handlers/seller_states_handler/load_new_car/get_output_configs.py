@@ -12,7 +12,7 @@ from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromat
 
 
 
-async def get_output_string(mode, boot_data: dict, language=None) -> str:
+async def get_output_string(mode, boot_data: dict = None, language=None, advert_id=None) -> str:
     '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     if mode:
@@ -20,7 +20,7 @@ async def get_output_string(mode, boot_data: dict, language=None) -> str:
             start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_seller)
         elif mode.startswith('to_admins_from_'):
             seller_link = mode.split('_')[3]
-            start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_admins).format(username=seller_link)
+            start_sub_string = copy(lexicon_module.commodity_loader_lexicon_ru['config_for_admins']).format(username=seller_link)
     else:
         start_sub_string = ''
 
@@ -35,21 +35,8 @@ async def get_output_string(mode, boot_data: dict, language=None) -> str:
                                          complectation=boot_data['complectation'], color=boot_data['color'], 
                                          mileage=boot_data['mileage'], year_of_realise=boot_data['year_of_release'], 
                                          sum_price= boot_data.get('sum_price'),
-                                         usd_price=boot_data.get('dollar_price'), language=language)}'''
-    # \n{LEXICON['confirm_from_seller']['message_text']['separator']}\
-    #       {copy(Lexicon.commodity_state).replace('X', boot_data['state'])}\
-    #       {copy(Lexicon.engine_type).replace('X', boot_data['engine_type'])}\
-    #       {copy(Lexicon.commodity_brand).replace('X', boot_data['brand'])}\
-    #       {copy(Lexicon.commodity_model).replace('X', boot_data['model'])}\
-    #       {copy(Lexicon.commodity_complectation).replace('X', boot_data['complectation'])}\
-    #       {copy(Lexicon.commodity_color).replace('X', boot_data['color'])}'''
-    #
-    # is_second_hand = (boot_data['year_of_release'], boot_data['mileage'])
-    # if None not in is_second_hand:
-    #     middle_layer = f'''{copy(Lexicon.commodity_year_of_realise).replace('X', boot_data['year_of_release'])}\
-    #           {copy(Lexicon.commodity_mileage).replace('X', boot_data['mileage'])}'''
-    #     output_load_commodity_config = top_layer + middle_layer + bottom_layer
-    # else:
+                                         usd_price=boot_data.get('dollar_price'), advert_id=advert_id, language=language)}'''
+
     output_load_commodity_config = top_layer + bottom_layer
 
     return output_load_commodity_config
