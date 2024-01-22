@@ -34,7 +34,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 }
             case _:#
                 ic()
-                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'],
+                                             message=True)
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         exists_model = await ActionOfDeletionExistsAdvertParameter().check_on_exists_adverts_by_parameter(
@@ -43,7 +44,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         if exists_model:
             await self.send_alert_answer(
                 request,
-                Lexicon_module.ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting']
+                Lexicon_module.ADVERT_PARAMETERS_LEXICON['this_advert_parameter_dont_can_was_deleting'],
+                message=True
             )
 
         else:
@@ -63,7 +65,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
 
                 asyncio.create_task(self.logging_action(request, 'deleted_param', reason=logg_message))
                 alert_message = admin_lexicon_module.captions['successfully']
-            await self.send_alert_answer(request, alert_message)
+            await self.send_alert_answer(request, alert_message, message=True)
         ic()
         await state.update_data(delete_params_flag=True)
 
@@ -96,7 +98,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                     )
             case _:
                 ic()
-                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
+                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'],
+                                             message=True)
                 return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         return delete_query

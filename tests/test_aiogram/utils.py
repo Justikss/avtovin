@@ -1,3 +1,6 @@
+from aiogram import Dispatcher, Bot
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.base import StorageKey
 from aiogram.types import User, Chat, Message, Update, CallbackQuery, PhotoSize
 import datetime
 
@@ -8,10 +11,11 @@ TEST_USER_CHAT = Chat(id=12, type='private', username=TEST_USER.username, first_
                         last_name=TEST_USER.last_name)
 
 
-def get_message(text:str = None, photo=None):
+def get_message(text:str = None, photo=None, location=None):
     if photo:
         photo = [PhotoSize(file_id='133', file_unique_id='3212', width=x, height=x) for x in range(3)]
-    return Message(chat=TEST_USER_CHAT, message_id=2, text=text, from_user=TEST_USER, date=datetime.datetime.now(), sender_chat=TEST_USER_CHAT, photo=photo)
+    return Message(chat=TEST_USER_CHAT, location=location, message_id=2, text=text, from_user=TEST_USER,
+                   date=datetime.datetime.now(), sender_chat=TEST_USER_CHAT, photo=photo)
     
 def get_callback(data: str):
     message = get_message(text=None)
@@ -19,3 +23,4 @@ def get_callback(data: str):
 
 def get_update(message=None, callback=None):
     return Update(update_id=123, message=message, callback=callback)
+

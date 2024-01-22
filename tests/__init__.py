@@ -1,1 +1,1 @@
-from . import tests_database
+from . import test_aiogram
