@@ -135,3 +135,4 @@ Shop
 
 config_data\.env
 db.db
+tests\.env
