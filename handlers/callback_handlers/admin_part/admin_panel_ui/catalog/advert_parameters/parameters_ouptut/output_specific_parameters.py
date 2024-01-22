@@ -44,7 +44,9 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
         if isinstance(request, CallbackQuery) and \
                 ('_choice_advert_parameters_type_' or (request.data.startswith('admin_backward')\
-                                                       or any(kwarg in request.data for kwarg in ('state', 'rewrite') ) \
+                                                       or any(kwarg in request.data for kwarg in ('state',
+                                                                                                  'rewrite',
+                                                                                                  'delete',) ) \
                                                        or 'new' in request.data))\
                 and 'choose_action_on_specific_adv_parameter' not in request.data:
 
@@ -52,7 +54,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                     'state',
                     'new',
                     'second_hand_choice_advert_parameters_type_',
-                    'confirm_delete_advert_parameter',
+                    'delete',
                     'rewrite'
             ))):
 

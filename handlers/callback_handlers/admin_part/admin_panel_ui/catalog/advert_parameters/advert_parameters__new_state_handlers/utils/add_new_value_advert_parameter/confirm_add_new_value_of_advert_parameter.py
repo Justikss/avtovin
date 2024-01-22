@@ -39,7 +39,7 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
             admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
             output_specific_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
 
-            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'])
+            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'], message=True)
             ic(insert_query)
             ic()
             await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#

@@ -20,12 +20,13 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
         if insert_query:
             admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
-            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'])
+            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'], message=True)
             await choose_catalog_action_admin_handler(request, state)
         else:
             Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-            await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['action_non_actuality'])
+            await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['action_non_actuality'],
+                                         message=True)
 
     # async def update_branch_photos(self, state: FSMContext):
     #     memory_storage = await state.get_data()

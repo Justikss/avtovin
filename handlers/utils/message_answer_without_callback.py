@@ -30,7 +30,7 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
         text = f'<blockquote><b>{copy(text)}</b></blockquote>'
         alert_message = await request.bot.send_message(chat_id=request.chat.id, text=text)
         ic(alert_message)
-        for time_point in range(3, 0, -1):
+        for time_point in range(config_module.message_answer_awaited, 0, -1):
             await alert_message.edit_text(text=f'{text}{time_point}...')
             await asyncio.sleep(config_module.message_answer_awaited / 3)
 

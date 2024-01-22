@@ -31,6 +31,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_
     TopTenByDemandDisplayHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.general_statistics.general_statistic import \
     GeneralBotStatisticHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
+    AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
     NewCarStateParameters
 
@@ -51,6 +53,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
+    OutputSpecificAdvertParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirm import \
     ConfirmAddNewContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirmation import \
@@ -447,9 +451,12 @@ async def start_bot():
 
     @dp.message(F.text == 'a')
     async def any_mes(message: Message, state: FSMContext):
-        await state.set_state(SellerReviewStates.natural_entity_search)
-        # await state.update_data(admin_review_user_mode='natural')
-        await input_person_name_to_search_request_handler(message, state)
+        #
+        #
+        # await state.update_data(next_params_output='engine')
+        # await state.update_data(params_type_flag='new')
+        # await state.update_data(selected_parameters={'brand': 2, 'engine': 1, 'state': 1})
+        await AdvertParametersChooseCarState().callback_handler(message, state)
 
 
     '''catalog_action'''

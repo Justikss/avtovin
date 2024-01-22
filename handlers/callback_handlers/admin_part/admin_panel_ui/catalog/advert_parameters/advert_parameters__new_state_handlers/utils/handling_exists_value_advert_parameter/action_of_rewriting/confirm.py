@@ -38,7 +38,7 @@ class ConfirmRewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
                                            )
             current_parameter_dicted = {current_parameter: current_new_parameter_value}
             await state.update_data(current_advert_parameter=current_parameter_dicted)
-            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'])
+            await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'], message=True)
 
             params_state_type_flag = memory_storage.get('params_type_flag')
 

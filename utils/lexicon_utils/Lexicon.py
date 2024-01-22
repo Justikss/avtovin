@@ -28,6 +28,7 @@ captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрал
             }
 
 __LEXICON = {
+            'address_was_not_found': 'Адрес не найден',
             # 'seller_cant_see_offer': 'К сожалению, продавец не сможет увидеть вашей заявки.'
             'cant_buy_yourself': 'Вы не можете купить товар у самого себя',
             'you_are_blocked_alert': 'Вы заблокированы в данной деятельности',

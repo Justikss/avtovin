@@ -23,6 +23,7 @@ max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
 
 LEXICON_UZ = {
+            'address_was_not_found': 'Manzil topilmadi',
             'cant_buy_yourself': "Siz mahsulotni o'zingizdan sotib olmaysiz",
             'simultaneous_announcements_was_over': 'Siz bir vaqtning oʻzida chop etilgan reklamalar chegarasidan oshib ketishga harakat qildingiz Sizda allaqachon {advert_count} ta {advert_count} ta reklama bor',
             'you_are_blocked_alert': 'Siz bu faoliyatda bloklanibsiz',

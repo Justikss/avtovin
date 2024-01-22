@@ -36,15 +36,15 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
                 message=True
             )
             ic(current_state)
-            match current_state:
-                case 'AdminAdvertParametersStates:start_delete_action':
-                    output_specific_parameters_module = importlib.import_module(
-                        'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
-
-                    ic()
-                    await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#
-                case _:#
-                    pass
+            # match current_state:
+            #     case 'AdminAdvertParametersStates:start_delete_action':
+            output_specific_parameters_module = importlib.import_module(
+                'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+            #
+            #         ic()
+            await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#
+                # case _:#
+                #     pass
             return
 
         else:
