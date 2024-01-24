@@ -8,6 +8,8 @@ from typing import List, Union
 import importlib
 
 from database.tables.car_configurations import CarAdvert
+from handlers.callback_handlers.sell_part.commodity_requests.commodity_requests_handler import \
+    commodity_reqests_by_seller
 from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.my_feedbacks_button import \
     CheckFeedbacksHandler
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
@@ -135,7 +137,10 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
         ic(seller_requests_pagination.current_page)
     if not output_data_part:
         output_data_part = await seller_requests_pagination.get_page(operation='+')
-
+        if not output_data_part:
+            from handlers.utils.message_answer_without_callback import send_message_answer
+            await send_message_answer(request, Lexicon_module.LEXICON['non_actiallity'])
+            return await commodity_reqests_by_seller(request, state)
     commodity_card_messages_id = []
     output_part = None
     commodity_card_message = None

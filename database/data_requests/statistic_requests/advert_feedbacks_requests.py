@@ -11,12 +11,20 @@ from database.data_requests.utils.raw_sql_handler import get_top_advert_paramete
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarState, CarColor, CarMileage, \
     CarYear, CarBrand, CarEngine
+from database.tables.offers_history import SellerFeedbacksHistory
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 
 offers_history_module = importlib.import_module('database.tables.offers_history')
 
 class AdvertFeedbackRequester:
+    @staticmethod
+    async def delete_by_seller_id(seller_id):
+        if isinstance(seller_id, str):
+            seller_id = int(seller_id)
+
+        await manager.execute(SellerFeedbacksHistory.delete().where(SellerFeedbacksHistory.seller_id == seller_id))
+
     @staticmethod
     async def get_or_create_by_parameters(color_id, complectation_id, only_get=False):
         ic(color_id, complectation_id)

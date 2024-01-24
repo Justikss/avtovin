@@ -12,12 +12,6 @@ class BuyerPaginationVector:
     async def buyer_pagination(callback: CallbackQuery, state: FSMContext):
         redis_module = importlib.import_module('utils.redis_for_language')
         pagination_vector = callback.data.split(':')[-1]
-        # user_id = str(callback.from_user.id)
-
-        # pagination_stopper = await redis_module.redis_data.get_data(key=f'{user_id}:pagination_stopper')
-        #
-        # if not pagination_stopper:
-        #     await redis_module.redis_data.set_data(key=f'{user_id}:pagination_stopper', value=True)
 
         dicted_data = await redis_module.redis_data.get_data(key=f'{str(callback.from_user.id)}:buyer_cars_pagination',
                                                              use_json=True)

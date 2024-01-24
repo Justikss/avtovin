@@ -101,8 +101,8 @@ __LEXICON = {
             'chosen_configuration': {
                 'message_text': {'phone_number': '\nМобильный телефон: ',
                                 'your_configs': '<b>Предложения по вашему запросу:</b>',
-                                 'from_seller': 'От Продавца: \n<i>{seller_name}</i>',
-                                 'from_dealership': 'От Автосалона: \n<i>{dealership_name}</i>\nПо Адресу: <i>{dealership_address}</i>',
+                                 'from_seller': '<b>От Продавца: </b>\n<i>{seller_name}</i>',
+                                 'from_dealership': '<b>От Автосалона: </b>\n<i>{dealership_name}</i>\nПо Адресу: <i>{dealership_address}</i>',
                                  'car_state': 'Состояние: <i>X</i>',
                                  'engine_type': 'Тип двигателя: <i>X</i>',
                                  'model': 'Модель: <i>X</i>',

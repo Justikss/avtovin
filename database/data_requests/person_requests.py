@@ -6,6 +6,7 @@ from typing import Union, List
 from peewee import IntegrityError, DoesNotExist
 
 from database.data_requests.offers_requests import OffersRequester
+from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
 from database.tables.user import User, BannedUser
 from database.db_connect import manager
@@ -106,6 +107,9 @@ class PersonRequester:
                 if user:
                     await OffersRequester.delete_all_buyer_history(telegram_id)
                 elif seller:
+                    await OffersRequester.delete_seller_offers(telegram_id)
+                    await AdvertFeedbackRequester.delete_by_seller_id(telegram_id)
+
                     await car_advert_requests_module\
                         .AdvertRequester.delete_advert_by_id(telegram_id)
                     await TariffToSellerBinder.remove_bind(telegram_id)

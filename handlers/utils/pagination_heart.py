@@ -3,13 +3,15 @@ class Pagination:
         self.data = data
         self.page_size = page_size
         self.current_page = current_page
+
         self.total_pages = max((len(data) + page_size - 1) // page_size, 1)  # Вычисление общего количества страниц, минимум 1 страница
 
     async def get_page(self, operation: str):
         print('current_page before operation: ', self.current_page, ' ', operation)
         # if self.current_page < 0:
         #     self.current_page = 0
-
+        if self.total_pages == self.current_page and self.total_pages == 1:
+            return False
         if operation == '-':
             self.current_page -= 1
         elif operation == '+':

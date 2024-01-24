@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.tables.car_configurations import CarEngine
+from handlers.callback_handlers.hybrid_part import return_main_menu
 
 # from database.data_requests.offers_requests import CachedOrderRequests
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pagination_system.pagination_system_for_buyer import \
@@ -12,6 +13,7 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_cars_pag
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_choose_handler import output_choose
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.output_chosen_search_config import get_cars_data_pack
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.states_cacher import cache_state
+from handlers.utils.message_answer_without_callback import send_message_answer
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import create_lexicon_part
@@ -248,6 +250,12 @@ async def search_config_output_handler(callback: CallbackQuery, state: FSMContex
     except:
         pass
     ic(formatted_config_output)
+    if not formatted_config_output:
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        await send_message_answer(callback, Lexicon_module.LEXICON['non_actiallity'])
+        await return_main_menu.return_main_menu_callback_handler(callback, state)
+        return
+
     pagination = BuyerCarsPagination(data=formatted_config_output, page_size=1, current_page=0)
 
     await pagination.send_page(request=callback, state=state)

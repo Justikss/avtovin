@@ -37,7 +37,11 @@ __ADMIN_LEXICON = {
 
 Команды доступные любым админам:
 
-/alist - <i>Список админов</i>''', 'buttons': {'return_main_menu': 'В меню', 'width': 1}
+/alist - <i>Список админов</i>
+
+/unban s @username - <i>Разбанить продавца</i>
+/unban b @username - <i>Разбанить покупателя</i>
+/unban @username - <i>Разбанить и покупателя и продавца</i>''', 'buttons': {'return_main_menu': 'В меню', 'width': 1}
         },
     'close_admin_list': 'В меню',
     'admin_list_header': 'Администраторы:\nUsername   Красный статус',
@@ -169,8 +173,8 @@ admin_class_mini_lexicon_ru = {
     'ban_user_message_text_head': '<b>Блокировка {entity}</b>:\nВведите вашу причину:',
     'select_tariff_message_text_exists': 'Вы действительно хотите\nобновить тариф на {tariff_name}',
     'select_tariff_message_text_non_exists': 'Вы действительно хотите\nустановить тариф {tariff_name}',
-    'select_tariff_message_text_startswith': 'Тариф для {name}:\n',
-    'choose_tariff_message_text': 'Тариф для {name}\nВыберите новый тариф:',
+    'select_tariff_message_text_startswith': '<b>Тариф для {name}:</b>\n',
+    'choose_tariff_message_text': '<b>Тариф для {name}</b>\nВыберите новый тариф:',
     'review_seller_tariff_message_header_legal': '<b>Тариф салона {name}:</b>',
     'review_seller_tariff_message_header_natural': '<b>Тариф частного продавца {name}:</b>',
     'tariff_not_exists': '<blockquote>Тариф отсутствует</blockquote>',

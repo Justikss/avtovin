@@ -100,3 +100,4 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                     case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
                         await new_car_state_parameters_module\
                             .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups)
+

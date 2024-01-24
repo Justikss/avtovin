@@ -10,6 +10,19 @@ from utils.custom_exceptions.database_exceptions import UserNonExistsError, Admi
 
 class BannedRequester:
     @staticmethod
+    async def retrieve_all_banned_ids():
+        sellers = list(await manager.execute(BannedSeller.select()))
+        users = list(await manager.execute(BannedUser.select()))
+        users.extend(sellers)
+        result = set()
+        for user in users:
+            result.add(user.telegram_id)
+
+        return result
+
+
+
+    @staticmethod
     async def user_is_blocked(telegram_id, seller=False, user=False):
         if not isinstance(telegram_id, int):
             telegram_id = int(telegram_id)
@@ -67,4 +80,24 @@ class BannedRequester:
         except:
             traceback.print_exc()
             raise UserNonExistsError()
+
+    @staticmethod
+    async def remove_ban(user_id, seller=False, user=False):
+        if isinstance(user_id, str):
+            user_id = int(user_id)
+
+
+        if seller and user:
+            for condition in (True, False):
+                ic(condition)
+                await BannedRequester.remove_ban(user_id, seller=condition, user=not condition)
+            return True
+        elif seller:
+            current_table = BannedSeller
+        elif user:
+            current_table = BannedUser
+        else:
+            return
+        ic(current_table)
+        return await manager.execute(current_table.delete().where(current_table.telegram_id == user_id))
 

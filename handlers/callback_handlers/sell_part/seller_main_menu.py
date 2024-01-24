@@ -28,7 +28,9 @@ async def try_get_free_tariff(callback, normal_status=False):
                 tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 
                 seller_entity = seller_model.entity
+                ic(seller_entity)
                 tariff = await tariff_requests_module.TarifRequester.get_free_tariff(seller_entity)
+                ic(tariff)
                 if not tariff and seller_model:
                     logging.error('[2/2]Данные продавца: %d, %s',
                       int(seller_model.telegram_id),

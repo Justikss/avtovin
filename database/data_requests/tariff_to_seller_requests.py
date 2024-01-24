@@ -81,10 +81,11 @@ class TariffToSellerBinder:
         if seller_to_tariff:
             simultaneous_announcements_residual = seller_to_tariff[0].tariff.simultaneous_announcements
             ic(len(sellers_adverts), simultaneous_announcements_residual)
-            ic(not len(sellers_adverts) < simultaneous_announcements_residual)
             if simultaneous_announcements_residual:
-                if not len(sellers_adverts) < simultaneous_announcements_residual:
-                    return simultaneous_announcements_residual
+                ic(not len(sellers_adverts) < simultaneous_announcements_residual)
+                if simultaneous_announcements_residual:
+                    if not len(sellers_adverts) < simultaneous_announcements_residual:
+                        return simultaneous_announcements_residual
 
             return True
         else:

@@ -106,6 +106,7 @@ from handlers.custom_handlers.admin_administrating.del_red_admin import DelRedAd
 from handlers.custom_handlers.admin_administrating.help import AdminHelpHandler
 from handlers.custom_handlers.admin_administrating.set_admin import SetAdminHandler
 from handlers.custom_handlers.admin_administrating.set_red_admin import SetRedAdminHandler
+from handlers.custom_handlers.admin_administrating.unban_person import UnbanPersonAdminHandler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.default_handlers.help import bot_help
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
@@ -216,7 +217,7 @@ async def start_bot():
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
 
-    dp.message.middleware(MessageThrottlingMiddleware())
+    # dp.message.middleware(MessageThrottlingMiddleware())
     dp.message.middleware(ErrorHandler())
     dp.message.middleware(LanguageMiddleware())
     #
@@ -558,6 +559,9 @@ async def start_bot():
                         Command(commands=['alist'], ignore_case=True), ThrottlingFilter())
     dp.message.register(AdminHelpHandler(filters=AdminStatusController()).message_handler,
                         Command(commands=['ahelp'], ignore_case=True), ThrottlingFilter())
+    dp.message.register(UnbanPersonAdminHandler(filters=AdminStatusController()).message_handler,
+                        Command(commands=['unban'], ignore_case=True), ThrottlingFilter())
+
     '''advert_parameters'''
     dp.callback_query.register(catalog.advert_parameters.advert_parameters__choose_state\
                                .AdvertParametersChooseCarState().callback_handler,

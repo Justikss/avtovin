@@ -205,7 +205,7 @@ class CachedRequestsView:
             # ic(max_text_width)
             # if max_text_width > 14:
             #     width_value = 1
-        width = ({width_value: len(current_page)}, 3, 1, 1)
+            width = ({width_value: len(current_page)}, 3, 1, 1)
 
         if current_state:
             if 'ChooseStates' in current_state:

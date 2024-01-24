@@ -22,5 +22,5 @@ def get_callback(data: str):
     return CallbackQuery(id='123', from_user=TEST_USER, chat_instance='non', message=message, data=data)
 
 def get_update(message=None, callback=None):
-    return Update(update_id=123, message=message, callback=callback)
+    return Update(update_id=123, message=message, callback_query=callback)
 

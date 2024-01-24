@@ -101,8 +101,8 @@ async def set_viewed_status():
 
 async def create_ts_contacts():
     faker = Faker()
-    links = [f'@{faker.name()}' for _ in range(6)]
-    numbers = [faker.phone_number() for _ in range(6)]
+    links = [f'@{faker.name()}' for _ in range(20)]
+    numbers = [faker.phone_number() for _ in range(20)]
     insert_tss = [{'link': link, 'type': 'telegram'} for link in links]
     insert_tsss = [{'link': link, 'type': 'number'} for link in numbers]
     await manager.execute(TechSupports.insert_many(insert_tss))
@@ -145,8 +145,9 @@ async def get_adverts():
 
 async def drop_table_handler(message: Message):
     # await manager.create(Admin, telegram_id=902230076)
+    await create_ts_contacts()
     #
-    # return
+    return
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()

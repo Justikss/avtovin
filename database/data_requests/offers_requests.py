@@ -24,8 +24,14 @@ async def to_int(value):
 
 class OffersRequester:
     @staticmethod
+    async def delete_seller_offers(telegram_id):
+        if isinstance(telegram_id, str):
+            telegram_id = int(telegram_id)
+
+        await manager.execute(ActiveOffers.delete().where(ActiveOffers.seller_id == telegram_id))
+    @staticmethod
     async def delete_all_buyer_history(telegram_id):
-        if not isinstance(telegram_id, int):
+        if isinstance(telegram_id, str):
             telegram_id = int(telegram_id)
         await manager.execute(ActiveOffers.delete().where(ActiveOffers.buyer_id == telegram_id))
         await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.buyer_id == telegram_id))
@@ -37,7 +43,7 @@ class OffersRequester:
 
     @staticmethod
     async def get_by_offer_id(offer_id):
-        if not isinstance(offer_id, int):
+        if isinstance(offer_id, str):
             offer_id = int(offer_id)
         try:
             result = await manager.get((ActiveOffers

@@ -107,8 +107,8 @@ LEXICON_UZ = {
     'chosen_configuration': {
         'message_text': {'phone_number': '\nMobil telefon: ',
                          'your_configs': '<b>Sizning so‘rovingiz bo‘yicha takliflar:</b>',
-                         'from_seller': 'Sotuvchidan: \n<i>{seller_name}</i>',
-                         'from_dealership': 'Avtosalondan: \n<i>{dealership_name}</i>\nManzili: <i>{dealership_address}</i>',
+                         'from_seller': '<b>Sotuvchidan: </b>\n<i>{seller_name}</i>',
+                         'from_dealership': '<b>Avtosalondan: </b>\n<i>{dealership_name}</i>\nManzili: <i>{dealership_address}</i>',
                          'car_state': 'Holati: <i>X</i>',
                          'engine_type': 'Dvigatel turi: <i>X</i>',
                          'model': 'Model: <i>X</i>',

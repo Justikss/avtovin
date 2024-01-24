@@ -108,6 +108,7 @@ class TarifRequester:
 
     @staticmethod
     async def get_free_tariff(seller_entity):
+        ic(seller_entity == 'natural', seller_entity == 'legal')
         simultaneous_announcements = None
         match seller_entity:
             case 'natural':

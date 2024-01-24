@@ -1,6 +1,7 @@
 from typing import List
 
 from database.data_requests.admin_requests import AdminManager
+from database.data_requests.banned_person_requests import BannedRequester
 from utils.get_username import get_username
 
 from utils.lexicon_utils.Lexicon import ADMIN_LEXICON
@@ -21,24 +22,40 @@ class BaseAdminCommandHandler(BaseMessageHandler):
         self.admin_lexicon = ADMIN_LEXICON
         super().__init__(output_methods, filters)
 
-    async def get_user_id(self, request):
-        user_info = request.text.split()[-1]
+    async def get_user_id(self, request, banned=False):
+        user_name = request.text.split()[-1]
+        telegram_id = None
+        ic(user_name)
+        ic(banned)
+        if user_name.startswith('@'):
+            if not banned:
+                from database.data_requests.person_requests import PersonRequester
 
-        if '@' in user_info:
-            # user_info = await self.get_user_id_by_username(request, user_info)
+                telegram_ids = await PersonRequester.get_all_unique_user_ids()
+                telegram_id = await self.get_telegram_id_from_massive(request, telegram_ids, user_name)
+                ic(telegram_ids)
 
-            from database.data_requests.person_requests import PersonRequester
-            telegram_ids = await PersonRequester.get_all_unique_user_ids()
-            ic(telegram_ids)
-            for telegram_id in telegram_ids:
-                username = await get_username(request.bot, telegram_id)
-                ic(username)
-                if f'@{username}' == user_info:
-                    user_info = telegram_id
-                    break
-        ic(user_info)
-        return user_info
+            elif banned or not user_name:
+                telegram_ids = await BannedRequester.retrieve_all_banned_ids()
+                ic(telegram_ids)
+                telegram_id = await self.get_telegram_id_from_massive(request, telegram_ids, user_name)
 
+        ic(telegram_id)
+        if not str(telegram_id).isdigit():
+            return False
+        return telegram_id
+
+    async def get_telegram_id_from_massive(self, request, telegram_ids, user_info):
+        tg_id = None
+        for telegram_id in telegram_ids:
+            username = await get_username(request.bot, telegram_id)
+            ic(username)
+            ic(f'@{username}' == user_info)
+            if f'@{username}' == user_info:
+                tg_id = telegram_id
+                break
+
+        return tg_id
 
     async def query_state_callback(self, request, query):
         if query:
