@@ -154,7 +154,10 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             lexicon_class = deepcopy(TopTenDisplay)
             params_text = await self.statistic_manager.car_params_card_pattern(advert_id=advert_parameters)
             ic(params_text)
-            params_text = '\n'.join(params_text.split('\n')[:-1])
+            params_text = params_text.split('\n')
+            params_text[-1] = Lexicon_module.low_sep
+            ic(params_text)
+            params_text = '\n'.join(params_text)
             ic(params_text)
             ic()
             ic(hasattr(lexicon_class, 'message_text'))

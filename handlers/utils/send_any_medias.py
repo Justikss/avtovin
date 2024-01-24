@@ -29,12 +29,13 @@ async def send_media(request: types.Message | types.CallbackQuery | Bot, media_i
         media_info = media_info_list[0]
         media_info['caption'] = caption
         media_message = await send_single_media(bot, chat_id, media_info)
-        redis_value = [media_message.message_id]
-        if not other_chat_flag:
-            await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
-        else:
-            pass
-        return redis_value
+        if media_message:
+            redis_value = [media_message.message_id]
+            if not other_chat_flag:
+                await redis_data_module.redis_data.set_data(key=f'{request.from_user.id}:last_media_group', value=redis_value)
+            else:
+                pass
+            return redis_value
 
 
 
@@ -135,4 +136,7 @@ async def send_single_media(bot: Bot, chat_id: int, media_info, caption=None):
         raise ValueError("Unsupported media type")
 
     if callable_object:
-        return await callable_object(chat_id, file_id, caption=caption)
+        from utils.context_managers import ignore_exceptions
+
+        async with ignore_exceptions():
+            return await callable_object(chat_id, file_id, caption=caption)

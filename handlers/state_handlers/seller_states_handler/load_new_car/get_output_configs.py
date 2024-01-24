@@ -138,7 +138,6 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
                                                     delete_mode=delete_mode,
                                                     seller_boot=True, bot=bot)
 
-    if isinstance(request, CallbackQuery):
-        await request.answer()
+
     ic(memory_storage.get('color_for_load'))
     await state.set_state(LoadCommodityStates.load_config_output)

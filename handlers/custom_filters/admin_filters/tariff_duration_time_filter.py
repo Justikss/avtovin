@@ -20,9 +20,17 @@ class TimeDurationFilter(BaseFilter):
         last_admin_answer = memory_storage.get('last_admin_answer')
         if last_admin_answer:
             await delete_message(message, last_admin_answer)
-        if not result:
+        if (not result) or (await self.input_is_null(message.text)):
             await incorrect(state, message.message_id)
             await process_write_tariff_feedbacks_residual(message, state, incorrect=True)
         else:
             await delete_message(message, message.message_id)
             return result
+
+    async def input_is_null(self, text):
+        clear_time = text.replace(':', ' ').split()
+        for time_part in clear_time:
+            for number in time_part:
+                if number != '0':
+                    return False
+        return True

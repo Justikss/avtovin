@@ -291,8 +291,12 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     else:
         await state.update_data(incorrect_flag=True)
         reply_mode = True
+        if incorrect == '$':
+            Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-        lexicon_part.message_text = base_lexicon_module.LEXICON['message_not_digit']
+            lexicon_part.message_text = f'''{lexicon_part.message_text}\n{Lexicon_module.class_lexicon['incorrect_price_$']}'''
+        else:
+            lexicon_part.message_text = base_lexicon_module.LEXICON['message_not_digit']
 
     if not isinstance(lexicon_part, dict):
         await lexicon_part.initializate(request, state)
@@ -306,8 +310,6 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                     reply_mode=reply_mode, seller_boot=True, bot=bot, delete_mode=True)
 
-    if isinstance(request, CallbackQuery):
-        await request.answer()
 
     await state.set_state(LoadCommodityStates.input_to_load_photo)
 
@@ -406,6 +408,5 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,  bot=bot, delete_mode=delete_mode)
     await state.update_data(rewrite_state_flag=None)
 
-    if isinstance(request, CallbackQuery):
-        await request.answer()
+
     await state.set_state(LoadCommodityStates.photo_verification)

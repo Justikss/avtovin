@@ -35,5 +35,4 @@ async def input_reason_to_close_advert_admin_handler(request: CallbackQuery| Mes
                                                     lexicon_part=lexicon_part, reply_message=reply_mode,
                                                     delete_mode=bool(reply_mode) is True)
 
-    if isinstance(request, CallbackQuery):
-        await request.answer()
+

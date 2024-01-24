@@ -6,7 +6,12 @@ from aiogram.types import CallbackQuery, Message
 
 
 async def delete_message(request: CallbackQuery | Message, message_id=None, chat_id=None, from_redis=False):
+
     if from_redis:
+        from handlers.custom_filters.message_is_photo import MessageIsPhoto
+        await MessageIsPhoto().chat_cleaner(trash_redis_keys=(':media_group', ':last_message'),
+                                            message=request if isinstance(request, Message) else request.message)
+
         redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
         message_id = await redis_module.redis_data.get_data(

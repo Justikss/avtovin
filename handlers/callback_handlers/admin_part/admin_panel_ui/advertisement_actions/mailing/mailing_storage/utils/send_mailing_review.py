@@ -16,6 +16,7 @@ async def send_mailing_review(request, state, admin_pagination_object, data_to_o
     output_data = data_to_output[0]['__data__']
     lexicon_part = Lexicon_module.ADVERT_LEXICON['send_mailing_review']
     lexicon_part['message_text'] = lexicon_part['message_text'].format(
+        mailing_text=f'''<blockquote>{output_data['text']}</blockquote>\n''' if not output_data.get('media') else '',
         mailing_recipients=admin_lexicon_module.captions[output_data['recipients_type']],
         mailing_date=str(output_data['scheduled_time']).split()[0],
         mailing_time=str(output_data['scheduled_time']).split()[-1]

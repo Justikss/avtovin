@@ -16,7 +16,7 @@ class DigitFilter(BaseFilter):
 
         config_module = importlib.import_module('config_data.config')
 
-        is_correct = message.text.isdigit() and len(str(message.text)) < config_module.max_price_len
+        is_correct = message.text.isdigit() and len(str(message.text)) < config_module.max_price_len and message.text[0] != '0'
 
 
 

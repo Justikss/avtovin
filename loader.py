@@ -92,12 +92,19 @@ from handlers.custom_filters.admin_filters.mailing_filters.datetime_input_filter
 from handlers.custom_filters.admin_filters.digit_input_filter import DigitFilter
 from handlers.custom_filters.admin_filters.mailing_filters.input_media_filter import MediaFilter
 from handlers.custom_filters.admin_filters.mailing_filters.mailing_text_filter import MailingTextFilter
+from handlers.custom_filters.admin_filters.red_admin_status import RedAdminStatus
 from handlers.custom_filters.admin_filters.search_advert_by_id_filter import InputAdvertIdFilter
 from handlers.custom_filters.admin_filters.tariff_duration_time_filter import TimeDurationFilter
 from handlers.custom_filters.admin_filters.ts_contacts_filters.input_link_filter import InputTSLinkFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
 from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
+from handlers.custom_handlers.admin_administrating.admin_list import AdminListHandler
+from handlers.custom_handlers.admin_administrating.del_admin import DelAdminHandler
+from handlers.custom_handlers.admin_administrating.del_red_admin import DelRedAdminHandler
+from handlers.custom_handlers.admin_administrating.help import AdminHelpHandler
+from handlers.custom_handlers.admin_administrating.set_admin import SetAdminHandler
+from handlers.custom_handlers.admin_administrating.set_red_admin import SetRedAdminHandler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.default_handlers.help import bot_help
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
@@ -407,6 +414,40 @@ async def start_bot():
     dp.callback_query.register(ChooseStatisticTypeHandler().callback_handler,
                                F.data == 'admin_button_bot_statistics')
 
+    '''tech-support contacts'''
+    dp.callback_query.register(ChooseContactsTypeHandler().callback_handler,
+                               F.data == 'admin_button_contacts'),
+    dp.callback_query.register(ContactListHandler().callback_handler,
+                               lambda callback: callback.data.startswith('ts_contact_type:'))
+    dp.callback_query.register(OutputSpecificContactHandler().callback_handler,
+                               lambda callback: callback.data.startswith('review_ts_contact:'),
+                               StateFilter(TechSupportStates.review))
+
+    dp.callback_query.register(StartAddNewContactHandler().callback_handler,
+                               StateFilter(TechSupportStates.review),
+                               F.data.in_(('add_ts_contact', 'rewrite_ts_contact_link')))
+    dp.message.register(ConfirmationAddNewContactHandler(filters=InputTSLinkFilter()).message_handler,
+                        StateFilter(TechSupportStates.add_new))
+    dp.callback_query.register(ConfirmAddNewContactHandler().callback_handler,
+                               F.data == 'confirm_add_ts_contact',
+                               StateFilter(TechSupportStates.review))
+
+    dp.callback_query.register(ConfirmationDeleteTSContactHandler().callback_handler,
+                               F.data == 'delete_ts_contact',
+                               StateFilter(TechSupportStates.review))
+    dp.callback_query.register(ConfirmDeleteTSContactHandler().callback_handler,
+                               F.data == 'confirm_delete_contact',
+                               StateFilter(TechSupportStates.delete_exists))
+
+    dp.callback_query.register(StartRewriteExistsTSContact().callback_handler,
+                               F.data.in_(('edit_ts_contact', 'rewrite_rewriting_ts_contact')),
+                               StateFilter(TechSupportStates.review))
+    dp.message.register(ConfirmationRewriteExistsTSContact(filters=InputTSLinkFilter()).message_handler,
+                        StateFilter(TechSupportStates.rewrite_exists))
+    dp.callback_query.register(ConfirmRewriteExistsTSContact().callback_handler,
+                               F.data == 'confirm_rewrite_ts_contact',
+                               StateFilter(TechSupportStates.review))
+
     '''bot statistics'''
     dp.callback_query.register(GeneralBotStatisticHandler().callback_handler,
                                or_f(and_f(StateFilter(StatisticsStates.general_bot_statistic),
@@ -449,14 +490,14 @@ async def start_bot():
                                AdminStatusController()
                                )
 
-    @dp.message(F.text == 'a')
-    async def any_mes(message: Message, state: FSMContext):
-        #
-        #
-        # await state.update_data(next_params_output='engine')
-        # await state.update_data(params_type_flag='new')
-        # await state.update_data(selected_parameters={'brand': 2, 'engine': 1, 'state': 1})
-        await AdvertParametersChooseCarState().callback_handler(message, state)
+    # @dp.message(F.text == 'a')
+    # async def any_mes(message: Message, state: FSMContext):
+    #     #
+    #     #
+    #     # await state.update_data(next_params_output='engine')
+    #     # await state.update_data(params_type_flag='new')
+    #     # await state.update_data(selected_parameters={'brand': 2, 'engine': 1, 'state': 1})
+    #     await AdvertParametersChooseCarState().callback_handler(message, state)
 
 
     '''catalog_action'''
@@ -494,6 +535,19 @@ async def start_bot():
         lambda callback: callback.data.startswith('catalog_review__confirm_'),
         AdminStatusController())
 
+    '''admin_commands'''
+    dp.message.register(DelAdminHandler(filters=RedAdminStatus()).message_handler,
+                        Command(commands=['del']))
+    dp.message.register(DelRedAdminHandler(filters=RedAdminStatus()).message_handler,
+                        Command(commands=['rdel']))
+    dp.message.register(SetAdminHandler(filters=RedAdminStatus()).message_handler,
+                        Command(commands=['add']))
+    dp.message.register(SetRedAdminHandler(filters=RedAdminStatus()).message_handler,
+                        Command(commands=['radd']))
+    dp.message.register(AdminListHandler(filters=AdminStatusController()).message_handler,
+                        Command(commands=['alist']))
+    dp.message.register(AdminHelpHandler(filters=AdminStatusController()).message_handler,
+                        Command(commands=['ahelp']))
     '''advert_parameters'''
     dp.callback_query.register(catalog.advert_parameters.advert_parameters__choose_state\
                                .AdvertParametersChooseCarState().callback_handler,
@@ -570,39 +624,7 @@ async def start_bot():
                                F.data == 'confirm_load_new_params_branch',
                                AdminStatusController())
 
-    '''tech-support contacts'''
-    dp.callback_query.register(ChooseContactsTypeHandler().callback_handler,
-                               F.data == 'admin_button_contacts'),
-    dp.callback_query.register(ContactListHandler().callback_handler,
-                               lambda callback: callback.data.startswith('ts_contact_type:'))
-    dp.callback_query.register(OutputSpecificContactHandler().callback_handler,
-                               lambda callback: callback.data.startswith('review_ts_contact:'),
-                               StateFilter(TechSupportStates.review))
 
-    dp.callback_query.register(StartAddNewContactHandler().callback_handler,
-                               StateFilter(TechSupportStates.review),
-                               F.data.in_(('add_ts_contact', 'rewrite_ts_contact_link')))
-    dp.message.register(ConfirmationAddNewContactHandler(filters=InputTSLinkFilter()).message_handler,
-                        StateFilter(TechSupportStates.add_new))
-    dp.callback_query.register(ConfirmAddNewContactHandler().callback_handler,
-                               F.data == 'confirm_add_ts_contact',
-                               StateFilter(TechSupportStates.review))
-
-    dp.callback_query.register(ConfirmationDeleteTSContactHandler().callback_handler,
-                               F.data == 'delete_ts_contact',
-                               StateFilter(TechSupportStates.review))
-    dp.callback_query.register(ConfirmDeleteTSContactHandler().callback_handler,
-                               F.data == 'confirm_delete_contact',
-                               StateFilter(TechSupportStates.delete_exists))
-
-    dp.callback_query.register(StartRewriteExistsTSContact().callback_handler,
-                               F.data.in_(('edit_ts_contact', 'rewrite_rewriting_ts_contact')),
-                               StateFilter(TechSupportStates.review))
-    dp.message.register(ConfirmationRewriteExistsTSContact(filters=InputTSLinkFilter()).message_handler,
-                        StateFilter(TechSupportStates.rewrite_exists))
-    dp.callback_query.register(ConfirmRewriteExistsTSContact().callback_handler,
-                               F.data == 'confirm_rewrite_ts_contact',
-                               StateFilter(TechSupportStates.review))
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.ChooseMailingAction().callback_handler
 ,
@@ -862,7 +884,7 @@ async def start_bot():
     # async def asdsad(message: Message):
     #     await message.answer(str(message.chat.id))
 
-    @dp.callback_query()
+    # @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
 
       await callback.message.answer('Пролёт ' + callback.data + '\n' + str(await state.get_state()))

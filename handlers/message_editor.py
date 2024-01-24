@@ -32,7 +32,6 @@ class TravelEditor:
 
             if isinstance(request, CallbackQuery):
                 message_object = request.message
-                await request.answer()
             else:
                 message_object = request
 
@@ -70,7 +69,8 @@ class TravelEditor:
                     media_message_id = reply_message
                 elif media_message_id:
                     media_message_id = media_message_id[0]
-
+            ic(lexicon_part)
+            # ic(lexicon_part.get('width') or lexicon_part.get('buttons'))
 
             if not my_keyboard:
                 if button_texts:
@@ -78,6 +78,7 @@ class TravelEditor:
                                                                  button_texts=button_texts, callback_sign=callback_sign, dynamic_buttons=dynamic_buttons)
                 elif lexicon_part.get('width') or lexicon_part.get('buttons'):
                     keyboard = await InlineCreator.create_markup(lexicon_part, dynamic_buttons=dynamic_buttons)
+                    ic(keyboard)
             else:
                 keyboard = my_keyboard
 
@@ -97,6 +98,7 @@ class TravelEditor:
                     ic('reply_mode2')
                     new_message = await message_object.reply(text=message_text, reply_markup=keyboard)
                 elif not media_group:
+                    ic(keyboard, message_text)
                     ic('NOreply_mode2')
                     try:
                         new_message = await message_object.answer(text=message_text, reply_to_message_id=media_message_id, reply_markup=keyboard)
@@ -217,6 +219,8 @@ class TravelEditor:
                         await delete_message(request, chat_id=send_chat_id, message_id=last_message_id)
 
                 ic('load_photos editor2??: ', media_group)
+                ic(reply_mode, keyboard)
+                ic(not reply_mode and keyboard and not media_group)
                 if not reply_mode and keyboard and not media_group:
                     ic('if not reply_mode and keyboard')
                     ic(send_chat_id, media_message_id, message_text, keyboard)

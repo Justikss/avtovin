@@ -25,7 +25,7 @@ statistic_captions = {'Day': 'День',
                       'model': advert_parameters_captions['model'],#.lower(),
                       'brand': advert_parameters_captions['brand'],#.lower(),
                       'engine': advert_parameters_captions['engine'],#.lower(),
-                    'top_demand_on': 'Топ спроса за {period}',
+                    'top_demand_on': '<b>Топ спроса за {period}</b>',
                     'car': 'авто',
                     'individual_stats': 'индивидуальной статистики',
                     'top_10_stats': 'топ 10',
@@ -46,7 +46,7 @@ __STATISTIC_LEXICON = {
     'stats_is_empty': 'Статистика {for_current_period} пуста',
     'stats_loading': 'Производится расчёт статистики...',
     'seller_statistic_view': {
-    'message_text': "Продавец: <i>{seller_name}</i>\nДата регистрации: <i>{date_of_registration}</i>\nСтатистика за {period}:\n" + (' ' * 13 + '─' * 12) + "\n<blockquote>Количество объявлений: {adverts_count}\nКоличество откликов: {feedbacks_count}</blockquote>\n" + (' ' * 13 + '─' * 12),
+    'message_text': "<b>Статистика за {period}:</b>\n" + (' ' * 13 + '─' * 8) + "\nПродавец: <i>{seller_name}</i>\nДата регистрации: <i>{date_of_registration}</i>\nКоличество объявлений: {adverts_count}\nКоличество откликов: {feedbacks_count}\n" + (' ' * 13 + '─' * 12),
         'buttons': {'select_seller_statistic_period:day': statistic_captions['Day'],
                     'select_seller_statistic_period:week': statistic_captions['Week'],
                     'select_seller_statistic_period:month': statistic_captions['Month'],
@@ -56,35 +56,35 @@ __STATISTIC_LEXICON = {
                     **return_main_menu, 'width': (3, 2, 1, 1)}},
 
     'choose_statistic_type': {
-        'message_text': 'Тип статистики по боту:', 'buttons': {'general_statistics': 'Общая статистика',
-                                                               'demand_for_cars': 'Спрос на авто',
+        'message_text': '<b>Выберите тип статистики по боту:</b>', 'buttons': {'general_statistics': '📊 Общая статистика',
+                                                               'demand_for_cars': '📉 Спрос на авто',
                                                                **return_main_menu,
                                                                'width': 1}
     },
 
-    'general_bot_statistics': {'message_text': 'Статистика за {period}\n' + (' ' * 17 + '─' * 12) + '\n<blockquote>🔸Откликов: {feedbacks}\n📢 Объявлений: {adverts}\
-\n🧖‍♂️ Пользователей в боте: {users}\n🤵🏻‍♂️ Продавцов: {sellers}\n👨🏻‍💻 Покупателей: {buyers}</blockquote>\n' + (' ' * 17 + '─' * 12), 'buttons': {
+    'general_bot_statistics': {'message_text': '<b>Статистика за {period}</b>\n' + (' ' * 17 + '─' * 8) + '\n<blockquote>🔸Откликов: {feedbacks}\n📢 Объявлений: {adverts}\
+\n🧖‍♂️ Пользователей в боте: {users}\n🤵🏻‍♂️ Продавцов: {sellers}\n👨🏻‍💻 Покупателей: {buyers}</blockquote>\n' + (' ' * 17 + '─' * 8), 'buttons': {
                     **choose_period_keyboard,
                     'admin_backward:check_bot_statistic_values': captions['backward'],
                     **return_main_menu, 'width': (3, 2, 1, 1)}},
 
-    'choose_statistics_output_method': {'message_text': 'Выберите метод вывода статистики:', 'buttons': {
-        'output_method:top_ten': 'Топ 10', 'output_method:individual': 'Индивидуально',
-        'admin_backward:statistics_output_method': captions['backward'],
+    'choose_statistics_output_method': {'message_text': '<b>Выберите метод вывода статистики:</b>', 'buttons': {
+        'output_method:top_ten': 'Топ 10  👑', 'output_method:individual': '🧑🏽‍🦱 Индивидуально',
+        #'admin_backward:statistics_output_method': captions['backward'],
         **to_statistic_panel,
         'width': 2
     }},
-    'choose_method_of_calculating': {'message_text': 'Выберите метод расчёта статистики спроса:', 'buttons': {
-        'calculate_method:top': 'Высший спрос', 'calculate_method:bottom': 'Низший спрос',
+    'choose_method_of_calculating': {'message_text': '<b>Выберите метод расчёта статистики спроса:</b>', 'buttons': {
+        'calculate_method:top': 'Высший спрос 📈', 'calculate_method:bottom': '📉 Низший спрос',
         'admin_backward:method_of_calculate': captions['backward'],
         **to_statistic_panel,
         'width': 2
     }},
 
-    'top_ten_message_text':  'Вывод от самого {demand_direction} по спросу\nМесто в топе: {top_position}\nОткликов за {period}: {feedback_count}{parameters}\n\nСамый продуктивный продавец этой машины:\n<blockquote>{seller_entity}</blockquote>\n' \
-                        + ('▬' * 13) + '\nМашины подписаны своим местом в топе:',
+    'top_ten_message_text':  '<b>Вывод от самого {demand_direction} по спросу</b>\nМесто в топе: {top_position}\nОткликов за {period}: {feedback_count}{parameters}\n<b>Самый продуктивный продавец этой машины:</b>\n<blockquote>{seller_entity}</blockquote>\n' \
+                        + ('─' * 15) + '\n<b>Машины подписаны своим местом в топе:</b>',
 
-    'custom_params_period': {'message_text': 'Период расчёта {output_method} спроса:',
+    'custom_params_period': {'message_text': '<b>Период расчёта {output_method} спроса:</b>',
                              'buttons': {
                                  **choose_period_keyboard,
                                  'admin_backward:custom_params_period': captions['backward'],
@@ -103,7 +103,7 @@ __STATISTIC_LEXICON = {
 statistic_class_lexicon_ru = {
     'select_custom_params_process_message_text': 'Топ спроса на {object_entity}\nза {period}\nСписок по убыванию от самой {popular_state} {param_type}:',
     'output_current_top_buttons': 'Вывести текущий топ',
-    'choose_custom_params_to_stats_message_text': '{header}Выберите нужное место из топа;\nСписок {demand_order} спроса;\n{param}:',
+    'choose_custom_params_to_stats_message_text': '{header}\nСписок {demand_order} спроса;\n<b>Выберите параметр: {param}:</b>',
     'backward': '◂ Назад ▸',
     'to_statistic_panel': 'В меню статистики',
     'by_more': 'по увеличению',
@@ -114,7 +114,7 @@ statistic_class_lexicon_ru = {
 statistic_class_lexicon_uz = {
     'select_custom_params_process_message_text': '{object_entity} bo‘yicha eng ko‘p talab\n{period} davomida\n{param_type} bo‘yicha kamayish tartibida ro‘yxatlanadi:',
     'output_current_top_buttons': 'Joriy topni chiqarish',
-    'choose_custom_params_to_stats_message_text': '{header}Topdan kerakli joyini tanlang;\nTalabning {demand_order} tartibidagi ro‘yxati;\n{param}:',
+    'choose_custom_params_to_stats_message_text': '{header}\nTalabning {demand_order} tartibidagi ro‘yxati;\n<b>Variantni tanlang: {param}:</b>',
     'backward': '◂ Orqaga ▸',
     'to_statistic_panel': 'Statistika menyusida',
     'by_more': "o'sish bilan",

@@ -17,7 +17,7 @@ class StatisticsOutputMethodHandler(BaseStatisticCallbackHandler):
             self.output_methods = [
                 self.menu_manager.travel_editor(
                     lexicon_part=statistic_lexicon['choose_statistics_output_method'],
-                    dynamic_buttons=2
+                    dynamic_buttons=1
 
                 )
             ]

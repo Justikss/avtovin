@@ -24,13 +24,16 @@ async def get_mailing_by_id(mailing_id):
 
 
 async def update_mailing_status(mailing):
-    await manager.execute(Mailing.update(is_sent=True).where(Mailing == mailing))
+    await manager.execute(Mailing.update(is_sent=True).where(Mailing.id == mailing))
 
 async def view_mailing_action(telegram_ids_to_messages, mailing, user=False, seller=False):
     if isinstance(mailing, Mailing):
         mailing = mailing.id
     elif not isinstance(mailing, int):
         mailing = int(mailing)
+    ic(mailing)
+    await update_mailing_status(mailing)
+
     insertable_data = []
     ic(telegram_ids_to_messages, mailing, user, seller)
     for telegram_id, messages in telegram_ids_to_messages.items():
@@ -43,7 +46,7 @@ async def view_mailing_action(telegram_ids_to_messages, mailing, user=False, sel
             'seller': seller
         })
     if insertable_data:
-        ic(insertable_data)
+        ic(mailing, insertable_data)
         return await manager.execute(ViewedMailing.insert_many(insertable_data))
 
 

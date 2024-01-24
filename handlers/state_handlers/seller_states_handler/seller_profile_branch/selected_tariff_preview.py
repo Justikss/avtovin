@@ -19,12 +19,15 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
     ic(tariff_model.name)
     lexicon_class = copy(Lexicon_module.LexiconSelectedTariffPreview)
-    price = f'''{await convertator('sum', tariff_model.price)}$ {Lexicon_module.LEXICON['convertation_sub_string']} {Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
+    if not tariff_model.price:
+        price = '0'
+    else:
+        price = f'''{await convertator('sum', tariff_model.price)}$ {Lexicon_module.LEXICON['convertation_sub_string']} {Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
     tariff_view_card = f'''\
         {lexicon_class.header}\n\
 {lexicon_class.separator}\
 {lexicon_class.tariff_block.format(tariff_name=tariff_model.name, days_remaining=tariff_model.duration_time, 
-                                   feedbacks_remaining=tariff_model.feedback_amount)}\
+                                   feedbacks_remaining=tariff_model.feedback_amount if tariff_model.feedback_amount < 999999 else Lexicon_module.LexiconSellerProfile.infinity_feedbacks_caption)}\
 {lexicon_class.separator}{class_lexicon['tariff_price'].format(tariff_price=price) if display_price else ''}'''
 
     if by_admin:

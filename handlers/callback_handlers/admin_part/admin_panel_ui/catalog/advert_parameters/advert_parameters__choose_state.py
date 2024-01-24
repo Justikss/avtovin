@@ -14,6 +14,8 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_handler im
 
 class AdvertParametersChooseCarState(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        ic()
+        ic(type(request))
         config_module = importlib.import_module('config_data.config')
         car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
         await self.set_state(state, AdminAdvertParametersStates.review_process)

@@ -13,7 +13,11 @@ from handlers.utils.delete_message import delete_message
 
 class BaseFilterObject(BaseFilter, ABC):
     def __init__(self):
+        from handlers.utils.message_answer_without_callback import send_message_answer
+
         self.redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+        self.delete_message = delete_message
+        self.alert_answer = send_message_answer
     async def __call__(self, request: Message | CallbackQuery, state: FSMContext,
                        incorrect_flag=None, message_input_request_handler=None) -> bool:
         '''До наследования функционала определить:

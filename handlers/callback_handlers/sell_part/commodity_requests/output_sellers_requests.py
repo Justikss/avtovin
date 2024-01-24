@@ -242,8 +242,6 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
         await state.set_state(SellerRequestsState.application_review)
 
         await output_sellers_commodity_page(request, pagination_data=chosen_commodities, state=state, current_page=current_page)
-        if isinstance(request, CallbackQuery):
-            await request.answer()
 
         return True
     else:

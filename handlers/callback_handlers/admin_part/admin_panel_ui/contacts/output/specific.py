@@ -12,13 +12,14 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 class OutputSpecificContactHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         await self.set_state(state, TechSupportStates.review)
-
+        await self.incorrect_manager.try_delete_incorrect_message(request, state)
         lexicon_part = await self.construct_lexicon_part(request, state)
         if lexicon_part:
             self.output_methods = [
                 self.menu_manager.travel_editor(
                     lexicon_part=lexicon_part,
-                    dynamic_buttons=2
+                    dynamic_buttons=2,
+                    delete_mode=True
                 )
             ]
 
@@ -37,6 +38,7 @@ class OutputSpecificContactHandler(BaseCallbackQueryHandler):
             contact_model = await TechSupportsManager.get_specific(contact_id)
             if contact_model:
                 lexicon_part['message_text'] = lexicon_part['message_text'].format(
+                    contact_type=ADMIN_CONTACTS[f'contact_type_{contact_model.type}'],
                     contact_entity=ADMIN_CONTACTS[contact_model.type], contact=contact_model.link)
                 return lexicon_part
 

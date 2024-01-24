@@ -19,13 +19,14 @@ async def add_message_id_in_inline_markup(lexicon_part, message_id):
 
 async def send_mailing(bot: Bot, media_group, caption, chat_id):
     from utils.context_managers import ignore_exceptions
-
-    if media_group:
-        async with ignore_exceptions():
+    message_ids = []
+    async with ignore_exceptions():
+        if media_group:
             message_ids = await send_media(bot, media_group, chat_id=chat_id, caption=caption)
-    else:
-        message_ids = []
-
+        else:
+            message = await bot.send_message(chat_id=chat_id, text=caption)
+            message_ids = [message.message_id]
+    ic(caption, message_ids)
     if message_ids:
         result = {chat_id: message_ids}
         return result

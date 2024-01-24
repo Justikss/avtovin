@@ -60,20 +60,22 @@ class MailingService:
             # Обработка отмены задачи
             return
         recipients = await self.get_recipients(mailing.recipients_type)
+        ic(mailing, recipients)
         if recipients:
             from utils.mailing_heart.send_mailing_to_user import send_mailing
 
             recipients, users_recipient = recipients
             buyer_recipient, seller_recipient = users_recipient
             mailing_data = dict()
+            ic(recipients, users_recipient, buyer_recipient, seller_recipient)
             for recipient_id in recipients:
                 chat_id_to_message_ids = await send_mailing(bot, mailing.media, mailing.text, recipient_id)
                 if chat_id_to_message_ids:
                     mailing_data.update(chat_id_to_message_ids)
 
-            await mailing_requests_module.update_mailing_status(mailing)
+            ic(mailing, mailing_data)
+
             if mailing_data:
-                ic(mailing_data)
                 try:
                     await mailing_requests_module.view_mailing_action(mailing_data, mailing,
                                                                       buyer_recipient, seller_recipient)

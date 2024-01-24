@@ -18,6 +18,7 @@ class BaseMessageHandler(BaseHandler, ABC):
     def __init__(self,
                  output_methods: List[AdminPaginationInit | InlinePaginationInit | TravelMessageEditorInit] = None,
                  filters=None):
+        ic(filters)
         self.filters: List[BaseFilter] = self.unpack_filters(filters)
         super().__init__(output_methods)
 

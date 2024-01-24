@@ -20,15 +20,17 @@ class PriceIsDigit(BaseFilter):
         redis_key_user_message = str(message.from_user.id) + ':last_seller_message'
         redis_key_bot_message = str(message.from_user.id) + ':last_message'
         message_text = copy(message.text)
-
+        incorrect_flag = False
         if '$' in message_text:
             ic()
+            if message_text.count('$') > 1:
+                incorrect_flag = '$'
             message_text = message_text.replace('$', ' ').strip()
             dollar_cost = True
             ic(message_text)
         else:
             dollar_cost = False
-        if message_text.isdigit() and len(str(message_text)) < config_module.max_price_len:
+        if message_text.isdigit() and len(str(message_text)) < config_module.max_price_len and not incorrect_flag:
             ic(message.text.isdigit())
             car_price = int(message_text)
             await delete_message(message, chat_id=message.chat.id, message_id=message.message_id)
@@ -42,6 +44,8 @@ class PriceIsDigit(BaseFilter):
             await state.update_data(head_valute=head_valute)
             return {'price': car_price, 'head_valute': head_valute}
         else:
+            if not incorrect_flag:
+                incorrect_flag = True
             last_seller_message = await redis_module.redis_data.get_data(key=redis_key_user_message)
             last_bot_message = await redis_module.redis_data.get_data(key=redis_key_bot_message)
 
@@ -59,10 +63,10 @@ class PriceIsDigit(BaseFilter):
 
             if str(current_state).startswith('TariffAdminBranchStates'):
                 await state.update_data(admin_incorrect_flag=True)
-                await process_tariff_cost(message, state, incorrect=True)
+                await process_tariff_cost(message, state, incorrect=incorrect_flag)
 
             elif str(current_state) == 'RewritePriceBySellerStates:await_input':
-                await rewrite_price_by_seller_handler(message, state, incorrect=True)
+                await rewrite_price_by_seller_handler(message, state, incorrect=incorrect_flag)
 
             else:
-                await input_price_to_load(request=message, state=state, incorrect=True)
+                await input_price_to_load(request=message, state=state, incorrect=incorrect_flag)

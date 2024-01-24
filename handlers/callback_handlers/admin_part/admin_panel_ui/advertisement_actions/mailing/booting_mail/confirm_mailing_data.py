@@ -25,6 +25,10 @@ async def confirm_boot_mailing_handler(callback: CallbackQuery, state: FSMContex
     mailing_text = memory_storage.get('mailing_text')
     media_group = memory_storage.get('mailing_media')
     mailing_datetime = memory_storage['mailing_datetime']
+    if all(elem is None for elem in (media_group, mailing_text)):
+        await callback.answer(Lexicon_module.ADVERT_LEXICON['successfully_boot_mail_message'])
+        await ChooseMailingAction().callback_handler(callback, state)
+        return
 
     mailing_datetime = datetime.strptime(mailing_datetime[:-3], config_module\
                                          .MODIFIED_MAILING_DATETIME_FORMAT)

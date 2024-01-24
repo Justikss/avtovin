@@ -7,6 +7,8 @@ from utils.lexicon_utils.lexicon_uz.config_uz import DEFAULT_COMMANDS_UZ, header
     faq_buyer_uz
 # from utils.safe_dict_class import config_module.SafeDict
 
+TEST_MOMENT = True
+
 logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
@@ -51,6 +53,7 @@ geolocation_cahce_expire = 3600
 message_answer_awaited = 2
 tech_support_tg_link_buttons_width = 3
 
+mailing_text_max_len = 270
 max_price_len = 20
 max_contact_info_len = 150
 max_naming_len = 70

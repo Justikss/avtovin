@@ -102,7 +102,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'method_of_calculate':
             await StatisticsOutputMethodHandler().callback_handler(callback, state)
 
-        case 'check_bot_statistic_values' | 'to_statistic_panel' | 'statistics_output_method':
+        case 'check_bot_statistic_values' | 'to_statistic_panel': #| 'statistics_output_method':
             await ChooseStatisticTypeHandler().callback_handler(callback, state)
 
         case 'seller_list_to_admin':

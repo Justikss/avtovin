@@ -14,6 +14,7 @@ from database.data_requests.utils.drop_tables import drop_tables_except_one
 from database.db_connect import create_tables, manager
 import os
 
+from database.tables.admin import Admin
 from database.tables.car_configurations import CarAdvert, CarColor, CarComplectation, CarEngine
 from database.tables.commodity import AdvertPhotos
 from database.tables.offers_history import SellerFeedbacksHistory
@@ -143,13 +144,9 @@ async def get_adverts():
     await manager.execute(CarAdvert.insert_many(insert_data))
 
 async def drop_table_handler(message: Message):
-    # await get_adverts()
-    await mock_values(0)
-    photos = await read_photos_by_brand('utils/carss')
-    inserted_cars = await get_car(photos, cars=0)
-    type_photos = await read_photos_by_brand('utils/type_carss')
-    await load_type_photos(type_photos)
-    return
+    # await manager.create(Admin, telegram_id=902230076)
+    #
+    # return
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()

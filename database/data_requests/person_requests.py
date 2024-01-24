@@ -10,10 +10,28 @@ from database.data_requests.tariff_to_seller_requests import TariffToSellerBinde
 from database.tables.user import User, BannedUser
 from database.db_connect import manager
 from database.tables.seller import Seller, BannedSeller
+from utils.get_username import get_username
 
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
 class PersonRequester:
+    @staticmethod
+    async def get_all_unique_user_ids():
+        sellers = list(await manager.execute(Seller.select(Seller.telegram_id)))
+        users = list(await manager.execute(User.select(User.telegram_id)))
+        users.extend(sellers)
+        result = set()
+        for user in users:
+            result.add(user.telegram_id)
+
+        return result
+    # @staticmethod
+    # async def get_by_username(bot, username):
+    #     for table in (Seller, User):
+    #         user = await manager.get_or_none(table, await get_username(bot, table.telegram_id) == username)
+    #         if user:
+    #             return user
+
     @staticmethod
     async def retrieve_all_ids(user=False, seller=False):
         tables = None

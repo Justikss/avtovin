@@ -1,6 +1,6 @@
 # from utils.lexicon_utils.admin_lexicon.admin_lexicon import pagination_interface
 # from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.admin_lexicon_uz import captions_uz, return_main_menu_uz
-
+mailing_text_max_len = 270
 return_main_menu_uz = {'return_main_menu': 'Menyuga'}
 captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
             'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
@@ -22,9 +22,9 @@ ADVERT_LEXICON_UZ = {
     'unsuccessfull_boot_mail_message': 'Yuklashda muvaffaqiyatsiz urinish',
     'successfully_boot_mail_message': 'Siz muvaffaqiyatli yuborishni yukladingiz!',
     'edit_mailing_data_alert': 'Kiritilgan ma’lumotlarni mos punkt tugmasini bosish orqali o‘zgartirishingiz mumkin.\n',
-    'choose_advert_action': {'message_text': 'Harakatni tanlang: ',
-                             'buttons': {'mailing_action': 'Yuborish', **return_main_menu_uz, 'width': 1}},
-    'choose_mailing_action': {'message_text': 'Yuborish\nHarakatni tanlang:',
+    'choose_advert_action': {'message_text': '<b>Harakatni tanlang: </b>',
+                             'buttons': {'mailing_action': '📄 Yuborish', **return_main_menu_uz, 'width': 1}},
+    'choose_mailing_action': {'message_text': '<b>Siz pochta menyusidasiz<b>\nHarakatni tanlang:',
                               'buttons': {
                                   'mailing_storage': 'Yuklangan yuborishlar',
                                   'create_new_mailing': 'Yangi yuborish',
@@ -32,32 +32,33 @@ ADVERT_LEXICON_UZ = {
                               'width': 1
                               }},
     'enter_mailing_text': {
-            'message_text': 'Yuborish matnini kiriting: ',
+            'message_text': '<b>Yuborish matnini kiriting:</b>',
             'buttons': {
                 'empty_mailing_text': 'Matnsiz',
                 'admin_backward:input_mailing_data': captions_uz['cancel'],
                 'width': 1
             }},
+    'enter_mailing_text(incorrect)': f'<b>Matn uzunligi {mailing_text_max_len-20} belgidan oshmasligi kerak</b>\n',
     'request_mailing_date_time': {
-        'message_text': 'Yuborish sanasini va vaqtini kiriting\nformatda KK-OY-YIL SS:MM',
+        'message_text': '<b>Yuborish sanasini va vaqtini kiriting</b>\nFormat: <b>KK-OY-YIL SS:MM</b>',
         'buttons': {'admin_backward:input_mailing_data': captions_uz['cancel'], 'width': 1}},
     'request_mailing_date_time(incorrect)': 'Noto‘g‘ri format. Iltimos, sanani va vaqtni kiriting\nformatda KK-OY-YIL SS:MM',
     'request_mailing_date_time(time)': 'Kiritilgan vaqt o‘tib ketgan,\nqayta kiriting\nformatda KK-OY-YIL SS:MM',
 
-    'enter_mailing_media': {'message_text': 'Yuborish uchun media yuboring:\n<blockquote>Ko‘rsatma:\nBir vaqtda yuklash mumkin:\nVideo + foto (birga);\nAudio va hujjat - alohida;</blockquote>',
+    'enter_mailing_media': {'message_text': '<b>Yuborish uchun media yuboring:</b>\n<blockquote>Ko‘rsatma:\nBir vaqtda yuklash mumkin:\nVideo + foto (birga);\nAudio va hujjat - alohida;</blockquote>',
                             'buttons': {'mailing_without_media': 'Mediasiz',
                                         'admin_backward:input_mailing_data': captions_uz['cancel'], 'width': 1}},
     'edit_mailing_media_buttons': {'mailing_without_media': 'Mediasiz',
                                    'add_other_media': 'Yangi turdagi media qo‘shish',
                                     'admin_backward:input_mailing_data': captions_uz['cancel'], 'width': 1},
 
-    'enter_mailing_recipients': {'message_text': "Yuborish oluvchilarini tanlang: ",
+    'enter_mailing_recipients': {'message_text': "<b>Yuborish oluvchilarini tanlang:</b>",
 'buttons': {'enter_mailing_recipients:sellers': 'Sotuvchilar',
 'enter_mailing_recipients:buyers': 'Xaridorlar',
 'enter_mailing_recipients:all_users': 'Barchaga',
 'admin_backward:input_mailing_data': captions_uz['cancel'],
 'width': 1}},
-'review_inputted_data': {'message_text': '{mailing_recipients} uchun yuborish\nJo‘natish vaqti: {mailing_date} soat {mailing_time}\n<b>Shuningdek, "Media" bo‘limini tahrirlashda boshqa media-fayllarni qo‘shishingiz mumkin</b>',
+'review_inputted_data': {'message_text': "────────\n<b>{mailing_recipients} uchun yuborish</b>\nJo‘natish vaqti: <b>{mailing_date} soat {mailing_time}</b>\n────────\n<b>'Media' ni tahrirlashda siz boshqa media fayllarni qo'shishingiz mumkin</b>",
 'buttons': {'confirm_mailing_action': captions_uz['confirm'],
 'edit_mailing_data': 'O‘zgartirish',
 'admin_backward:input_mailing_data': captions_uz['cancel'],
@@ -83,7 +84,7 @@ ADVERT_LEXICON_UZ = {
                                    }},
 
 
-'send_mailing_review': {'message_text': '{mailing_recipients} uchun yuborish\nJo‘natish vaqti: {mailing_date} soat {mailing_time}',
+'send_mailing_review': {'message_text': '{mailing_text}{mailing_recipients} uchun yuborish\nJo‘natish vaqti: {mailing_date} soat {mailing_time}',
                         'buttons': {**pagination_interface,
     'delete_current_mailing': 'O‘chirish', 'admin_backward:review_mailings': captions_uz['backward'], 'width': 3
 }}

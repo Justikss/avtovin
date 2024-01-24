@@ -38,7 +38,7 @@ async def lexicon_part_to_start_input_search_name_constructor(incorrect, redis_v
 
 async def input_person_name_to_search_request_handler(request: CallbackQuery | Message, state: FSMContext, incorrect=None):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-
+    ic(incorrect)
     current_state = str(await state.get_state())
     ic(current_state, incorrect)
     memory_storage = await state.get_data()

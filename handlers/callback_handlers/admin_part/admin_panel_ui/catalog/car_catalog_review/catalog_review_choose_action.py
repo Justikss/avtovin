@@ -18,5 +18,4 @@ async def choose_review_catalog_type_admin_handler(callback: CallbackQuery, stat
                                                     lexicon_part=Lexicon_module\
                                                     .CATALOG_LEXICON['car_catalog_review_choose_category'],
                                                     dynamic_buttons=2, delete_mode=True)
-    if isinstance(callback, CallbackQuery):
-        await callback.answer()
+

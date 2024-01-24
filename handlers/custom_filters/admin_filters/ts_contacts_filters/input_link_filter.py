@@ -33,6 +33,8 @@ class InputTSLinkFilter(BaseFilterObject):
                     link = message_text
                     if not link.startswith('@'):
                         incorrect_flag = '@'
+                    elif link.count('@') > 1:
+                        incorrect_flag = '@@'
                 case 'number':
                     phonenumber = message_text.strip().replace(' ', '')
                     link = await CheckInputNumber().format_and_validate_phone_number(phonenumber)

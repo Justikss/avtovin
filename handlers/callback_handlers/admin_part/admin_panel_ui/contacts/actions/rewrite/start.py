@@ -35,8 +35,10 @@ class StartRewriteExistsTSContact(BaseCallbackQueryHandler):
                 lexicon_key = 'start_rewrite_exists_contact'
                 lexicon_part = ADMIN_CONTACTS[lexicon_key]
                 if incorrect:
-                    lexicon_part['message_text'] = ADMIN_CONTACTS[f'{lexicon_key}:{incorrect}']
+                    incorrect_key = 'add_new_contact'
+                    lexicon_part['message_text'] += ADMIN_CONTACTS[f'{incorrect_key}:{incorrect}']
                 lexicon_part['message_text'] = lexicon_part['message_text'].format(
+                    contact_type=ADMIN_CONTACTS[f'contact_type_{contact_entity}'],
                     entity=ADMIN_CONTACTS[contact_entity],
                     cur_link=contact_model.link,
                     link=ADMIN_CONTACTS[f'link_name:{contact_entity}'])

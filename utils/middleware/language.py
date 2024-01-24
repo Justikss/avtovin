@@ -19,6 +19,7 @@ from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_p
     advert_parameters_captions, AdvertParametersChooseState
 from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import statistic_class_lexicon, TopTenDisplay, \
     SelectCustomParamsProcess
+from utils.lexicon_utils.admin_lexicon.contacts_lexicon import ADMIN_CONTACTS, OutputTSContacts
 from utils.lexicon_utils.commodity_loader import commodity_loader_lexicon, LexiconCommodityLoader, BaseBootButtons
 
 # ic.disable()
@@ -37,7 +38,7 @@ class LanguageMiddleware(BaseMiddleware):
                            statistic_class_lexicon,
                            catalog_captions,
                            statistic_captions,
-                           class_lexicon, attribute_language_manager]
+                           class_lexicon, attribute_language_manager, ADMIN_CONTACTS]
         self.lexicon_objects_to_classes = {
             (class_lexicon): [LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection,
                             LexiconSelectedTariffPreview, LexiconChoicePaymentSystem, LexiconCreateInvoice,
@@ -53,6 +54,7 @@ class LanguageMiddleware(BaseMiddleware):
             (advert_params_class_lexicon, advert_parameters_captions): [AdvertParametersChooseState],
 
             (statistic_class_lexicon): [SelectCustomParamsProcess, TopTenDisplay],
+            (ADMIN_CONTACTS): [OutputTSContacts]
         }
 
     async def __call__(

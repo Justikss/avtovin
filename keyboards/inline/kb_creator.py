@@ -145,7 +145,13 @@ class InlineCreator:
     @staticmethod
     async def cleaning_html_in_captions(buttons):
         good_lexicon_part_buttons = {}
+        ic(buttons)
         for key, value in buttons.items():
+            if not value:
+                value = '0'
+            if key == 'edit_tariff_feedbacks_residual' and value.startswith('999999'):
+                from utils.lexicon_utils.Lexicon import class_lexicon
+                value = class_lexicon['infinity_feedbacks_caption']
             if not isinstance(value, int) and any(symbol in value for symbol in ('&lt;', '&gt;')):
                 value = value.replace('&lt;', '<').replace('&gt;', '>')
             ic(key, value)

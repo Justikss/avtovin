@@ -15,15 +15,11 @@ async def send_mailing_review(callback, state, lexicon_part, media_group):
     memory_storage = await state.get_data()
     ic(memory_storage)
     if media_group:
-        # second_lexicon_part = copy(lexicon_part)
-        # lexicon_part['message_text'] = '\n'.join(lexicon_part['message_text'].split('\n')[:-1])
-        # ic(media_group)
         mailing_messages = await send_media(callback, media_group, caption=memory_storage.get('mailing_text'))
-        #
-        # lexicon_part = second_lexicon_part
-        # lexicon_part['message_text'] = ''.join(second_lexicon_part['message_text'].split('\n')[-1])
         save_media_group = True
     else:
+        if memory_storage.get('mailing_text'):
+            lexicon_part['message_text'] = f'''<blockquote>{memory_storage.get('mailing_text')}</blockquote>\n{lexicon_part['message_text']}'''
         mailing_messages = None
         save_media_group = False
 

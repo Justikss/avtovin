@@ -16,14 +16,14 @@ pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{
 return_main_menu = {'return_main_menu': 'В меню'}
 
 catalog_captions = {'catalog_review__make_block': 'блокировку', 'to_block': 'блокировки', 'to_delete': 'удаления',
-                    'catalog_review__make_delete': 'удаление объявления', 'advert': 'Объявление: №{advert_id}\n',
+                    'catalog_review__make_delete': 'удаление объявления', 'advert': '<b>Объявление: №{advert_id}\n</b>',
                     'inactive_advert_or_seller': 'Объявление или продавец неактивен',
                     'advert_successfully_closed': 'Автомобиль успешно снят с продажи!',
                     'empty': 'Раздел оказался пуст'
                     }
 
 __CATALOG_LEXICON = {
-    'search_advert_by_id_await_input': {'message_text': 'Введите ID искомого объявления: ',
+    'search_advert_by_id_await_input': {'message_text': '<b>Введите ID искомого объявления: </b>',
                                         'buttons': {
                                             'admin_backward:await_input_id_to_search_advert': captions['backward'],
                                             **return_main_menu,
@@ -31,13 +31,13 @@ __CATALOG_LEXICON = {
     }},
     'search_advert_by_id_await_input(digit)': 'Ожидается ввод целочисленного значения для поиска объявления по ID:',
     'search_advert_by_id_await_input(not_exists)': 'Введённый ID объявления не существует.\nМожете ввести другой:',
-    'start_catalog_menu': {'message_text': 'Каталог\nВыберите действие:', 'buttons': {
-        'admin_catalog__advert_parameters': 'Параметры авто',
-        'admin_catalog__car_catalog_review': 'Каталог авто',
+    'start_catalog_menu': {'message_text': '<b>Вы перешли в каталог</b>\nВыберите ваше действие:', 'buttons': {
+        'admin_catalog__advert_parameters': '⚙️ Параметры авто',
+        'admin_catalog__car_catalog_review': '📋 Каталог авто',
         **return_main_menu,
         'width': 1
     }},
-    'car_catalog_review_choose_category': {'message_text': 'Выберите тип просматриваемых объявлений:', 'buttons': {
+    'car_catalog_review_choose_category': {'message_text': '<b>Выберите тип просматриваемых объявлений:</b>', 'buttons': {
         'car_catalog_review__new': 'Новые',
         'car_catalog_review__viewed': 'Просмотренные',
         'search_by_id': 'Поиск по ID',
@@ -51,7 +51,7 @@ __CATALOG_LEXICON = {
         **return_main_menu,
         'width': 3
     }},
-    'catalog__choose_specific_advert_action': {'message_text': 'Выберите конкретное действие:', 'buttons': {
+    'catalog__choose_specific_advert_action': {'message_text': '<b>Выберите тип нужного ограничения:</b>', 'buttons': {
         'catalog_action__delete_advert': 'Удалить объявление',
         'catalog_action__block_seller': 'Заблокировать продавца',
         'admin_backward:catalog__choose_specific_advert_action': captions['backward'],
@@ -76,7 +76,7 @@ __CATALOG_LEXICON = {
 
 
 catalog_mini_lexicon_ru = {
-    'admin_review_catalog_choose_car_brand_message_text': 'Выберите марку машины для просмотра:'
+    'admin_review_catalog_choose_car_brand_message_text': '<b>Выберите марку машины для просмотра:</b>'
 }
 
 

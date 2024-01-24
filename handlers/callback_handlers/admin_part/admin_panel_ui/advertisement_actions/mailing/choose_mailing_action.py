@@ -15,7 +15,7 @@ Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 class ChooseMailingAction(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         await self.incorrect_manager.try_delete_incorrect_message(request, state)
-        #     await IncorrectAdapter().try_delete_incorrect_message(callback, state)
+            # await IncorrectAdapter().try_delete_incorrect_message(callback, state)
         if await state.get_state():
             await state.clear()
         lexicon_part = Lexicon_module.ADVERT_LEXICON['choose_mailing_action']

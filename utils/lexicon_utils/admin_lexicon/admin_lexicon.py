@@ -22,6 +22,29 @@ _captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбра�
 
 
 __ADMIN_LEXICON = {
+    'admin_help': {
+            'message_text': '''<b>Терминология</b>:
+Красный админ - Администратор высшего уровня.
+Команды доступные красным админам:
+
+/add @usermame - <i>Добавить админа.</i> 
+
+/radd  @usermame - <i>Добавить красного админа.</i> 
+
+/del @usermame - <i>Снять админа(Даже красного).</i>
+
+/rdel  @usermame - <i>Понизить красного админа до обычного</i>
+
+Команды доступные любым админам:
+
+/alist - <i>Список админов</i>''', 'buttons': {'return_main_menu': 'В меню', 'width': 1}
+        },
+    'close_admin_list': 'В меню',
+    'admin_list_header': 'Администраторы:\nUsername   Красный статус',
+    'admin_list_part': '\n{username} | {red_status}',
+    'successfully': 'Успешно',
+    'unsuccessfully': 'Неуспешно',
+    'admin_not_is_red': 'Вы не являетесь красным администратором',
     'admin_panel_button_caption': '🔑 Админ Панель',
     'user_havent_admin_permission': 'Вы не администратор',
     'users_category_non_exists': 'Пользователи данной категории не зарегистрированы.',
@@ -40,32 +63,32 @@ __ADMIN_LEXICON = {
     'successfully_edit_action': 'Успешно редактировано!',
     'incorrect_input_block_reason': f'''Ваша причина должна содержать от {config_module.block_user_reason_text_len['min']} до {config_module.block_user_reason_text_len['max']} символов, включительно!\nТекущая длина (без учёта пробелов):\n''',
 
-    'start_admin_panel': {'message_text': 'Добро пожаловать в админ панель.\nВыберите ваше действие:',
-                          'buttons': {'admin_button_users': 'Пользователи', 'admin_button_tariffs': 'Тарифы',
-                                      'admin_button_catalog': 'Каталог', 'admin_button_advert': 'Реклама',
-                                      'admin_button_bot_statistics': 'Статистика бота',
-                                      'admin_button_contacts': 'Контакты',
+    'start_admin_panel': {'message_text': '<b>Добро пожаловать в админ панель.</b>\nВыберите ваше действие:',
+                          'buttons': {'admin_button_bot_statistics': 'Статистика 📈', 'admin_button_users': '👨🏻‍💻 Пользователи',
+                                      'admin_button_tariffs': 'Тарифы 💳', 'admin_button_contacts': '📝 Контакты',
+                                      'admin_button_catalog': 'Каталог 🗂',
+                                      'admin_button_advert': '🗞 Реклама',
                                       'admin_backward:admin_main_menu': 'Выход',
                                       'width': 2}},
 
-    'select_user_category': {'message_text': 'Выберите категорию пользователей:',
-                             'buttons': {'buyer_category_actions': 'Покупатели',
-                                         'seller_category_actions': 'Продавцы',
+    'select_user_category': {'message_text': '<b>Выберите категорию пользователей:</b>',
+                             'buttons': {'buyer_category_actions': 'Покупатели 👨🏻‍💻',
+                                         'seller_category_actions': '👨🏻‍💼 Продавцы',
                                          **return_main_menu,
                                          'width': 2}},
 
-    'select_seller_category': {'message_text': 'Выберите категорию продавцов:',
-                               'buttons': {'legal_seller_actions': 'Салоны', 'natural_seller_actions': 'Частники',
+    'select_seller_category': {'message_text': '<b>Выберите категорию продавцов:</b>',
+                               'buttons': {'legal_seller_actions': 'Салоны 🚘', 'natural_seller_actions': '👨🏻‍💼 Частники',
                                            'admin_backward:choose_seller_category': '◂ Назад ▸',
                                            'width': 2}},
 
-    'review_seller_card': {'message_header': 'Просмотр продавца:',
+    'review_seller_card': {'message_header': '<b>Информация о продавце:</b>',
                            'buttons': {'tariff_actions_by_admin': 'Тариф', 'user_block_action_by_admin': 'Блокировка',
                                        'select_seller_statistic_period': 'Статистика',
                                        'admin_backward:user_profile_review': _captions['backward'],
                                        **return_main_menu, 'width': 2}},
 
-    'review_buyer_card': {'message_text': 'Просмотр покупателя:\n<blockquote>ФИО: {full_name}\nТелефонны номер: {phone_number}</blockquote>',
+    'review_buyer_card': {'message_text': '<b>Просмотр покупателя:</b>\n<blockquote>ФИО: {full_name}\nТелефонны номер: {phone_number}</blockquote>',
                           'buttons': {'user_block_action_by_admin': 'Блокировка',
                                       'admin_backward:user_profile_review': _captions['backward'],
                                       **return_main_menu, 'width': 1}},
@@ -74,7 +97,7 @@ __ADMIN_LEXICON = {
                                      'buttons': {'confirm_reset_seller_tariff_action': 'Подтвердить',
                                                  'admin_backward:reset_seller_tariff': _captions['cancel'],
                                                  'width': 1}},
-    'final_decision_ban_user': {'message_text': 'Произвести блокировку:\n{user_entity}\nПо причине:\n{reason}',
+    'final_decision_ban_user': {'message_text': '<b>Произвести блокировку:</b>\n{user_entity}\nПо причине:\n{reason}',
                                 'confirm_block_user_by_admin': _captions['confirm'],
                                 'admin_backward:final_confirm_block_user': _captions['backward'],
                                 'admin_backward:review_result_profile_protocol': _captions['cancel'],
@@ -84,41 +107,43 @@ __ADMIN_LEXICON = {
         'message_text': 'ВНИМАНИЕ!\nВаше отношения к {activity} в нашем боте заблокировано навсегда по причине: {reason}',
     'buttons': {'close_ban_notification': _captions['close'], 'width': 1}},
 
-    'input_name_to_search_process': {'message_text': 'Введите имя желаемого пользователя:',
+    'input_name_to_search_process': {'message_text': '<b>Введите ФИО желаемого пользователя:</b>',
                                      'buttons': {'admin_backward:input_name_to_search': _captions['backward'],
                                                  'width': 1}},
 
-    'input_name_to_search_process(novalid)': 'Некорректный ввод имени!\nИмя пользователя должно содержать 2-3 слова в формате "ФИО" и содержать в себе только буквы',
-    'input_name_to_search_process(novalid)dealership': f'Некорректный ввод!\nНазвание автосалона должно быть длинной менее {config_module.max_contact_info_len} символов\nИ состоять только из букв и цифр: ',
-    'input_name_to_search_process(non_exists)': 'Пользователя с таким именем - не найдено',
+    'input_name_to_search_process(novalid)': f'<b>Некорректный ввод ФИО!</b>\nИмя пользователя должно содержать 2-3 слова в формате "ФИО" и содержать в себе не более {config_module.max_contact_info_len} букв.',
+    'input_name_to_search_process(novalid)dealership': f'<b>Некорректный ввод!</b>\nНазвание автосалона должно быть длинной менее {config_module.max_contact_info_len} символов\nИ состоять только из букв и цифр: ',
+    'input_name_to_search_process(non_exists)': '<b>Пользователя с таким ФИО - не найдено</b>',
 
-    'input_tariff_cost': {'message_text': 'Укажите стоимость тарифа:',
+    'add_tariff_sub_text': '<b>Добавление тарифа</b>\n',
+    'rewrite_tariff_sub_text': '<b>Редактирование тарифа</b>\n',
+    'input_tariff_cost': {'message_text': 'Укажите стоимость:',
                           'buttons': {'admin_backward:input_tariff_cost': _captions['backward'], 'width': 1}},
-    'input_tariff_cost(incorrect)': 'Стоимость должна состоять только из цифр\nВозможен ввод со знаком " $ "',
+    'input_tariff_cost(incorrect)': f'<b>Стоимость должна состоять из одного числа(до {config_module.max_price_len} цифр)</b>\nВозможен ввод со знаком " $ "',
 
     'input_tariff_feedbacks': {'message_text': 'Укажите количество откликов:',
                                'buttons': {'admin_backward:input_tariff_feedbacks': _captions['backward'], 'width': 1}},
-    'input_tariff_feedbacks(incorrect)': 'Количество откликов указывается только в целочисленном виде.',
+    'input_tariff_feedbacks(incorrect)': '<b>Количество откликов должно вводиться только в виде целого числа больше нуля.</b>',
 
     'input_tariff_time_duration': {
-        'message_text': 'Введите продолжительность времени тарифа\nВ формате: лет:месяцев:дней\nПример (6 месяцев и 15 дней): 0:6:15',
+        'message_text': 'Введите продолжительность времени\nВ формате: лет:месяцев:дней\nПример (6 месяцев и 15 дней): 0:6:15',
         'buttons': {'admin_backward:input_tariff_duration_time': _captions['backward'],
                     'width': 1}},
-    'input_tariff_time_duration(incorrect)': 'Продолжительность времени тарифа должна вводиться в целочисленном формате: лет:месяцев:дней',
+    'input_tariff_time_duration(incorrect)': '<b>Продолжительность времени тарифа должна быть положительна и вводиться целыми числами в формате: лет:месяцев:дней</b>',
 
-    'input_tariff_name': {'message_text': 'Укажите название нового тарифа в произвольном формате:',
+    'input_tariff_name': {'message_text': '<b>Укажите название в произвольном формате:</b>',
                           'buttons': {'admin_backward:input_tariff_name': _captions['backward'], 'width': 1}},
-    'input_tariff_name(incorrect)': f'''Данное название уже присутствует у другого тарифа\nВведите другое название:''',
+    'input_tariff_name(incorrect)': f'''<b>Данное название уже присутствует у другого тарифа</b>\nВведите другое название:''',
 
 
     'tariff_view_buttons': {'edit_tariff_by_admin': 'Редактировать', 'delete_tariff_by_admin': _captions['delete'],
                             'admin_backward:check_tariff_info': _captions['backward'], 'width': 2},
 
-    'tariff_delete_confirm_action': {'message_text': 'Подтвердите действие удаления тарифа:',
+    'tariff_delete_confirm_action': {'message_text': '<b>Подтвердите действие удаления тарифа:</b>',
                                      'buttons': {'confirm_delete_tariff_by_admin': _captions['delete'],
                                                  'admin_backward:confirm_delete_tariff_action': 'Отменить', 'width': 1}},
 
-    'start_tariff_edit_action': {'message_text': 'Выберите поле для редактирования:',
+    'start_tariff_edit_action': {'message_text': '<b>Выберите поле для редактирования:</b>',
                                  'buttons': ('edit_tariff_name', 'edit_tariff_duration_time',
                                              'edit_tariff_feedbacks_residual', 'edit_tariff_cost',
                                              {'admin_backward:edit_tariff': _captions['backward'],
@@ -137,27 +162,27 @@ captions = safe_dict_module.SafeDict({'ru': _captions,
 
 admin_class_mini_lexicon_ru = {
     'tariff_non_exists_plug_name': 'Тарифов не найдено',
-    'all_tariffs_output_message_text': 'Список тарифов:',
+    'all_tariffs_output_message_text': '<b>Список тарифов:</b>',
     'ban_user_input_reason_dealership': 'автосалона {name}',
     'ban_user_input_reason_seller': 'частного продавца {name}',
     'ban_user_input_reason_buyer': 'покупателя {name}',
-    'ban_user_message_text_head': 'Блокировка {entity}:\nВведите вашу причину:',
+    'ban_user_message_text_head': '<b>Блокировка {entity}</b>:\nВведите вашу причину:',
     'select_tariff_message_text_exists': 'Вы действительно хотите\nобновить тариф на {tariff_name}',
     'select_tariff_message_text_non_exists': 'Вы действительно хотите\nустановить тариф {tariff_name}',
     'select_tariff_message_text_startswith': 'Тариф для {name}:\n',
     'choose_tariff_message_text': 'Тариф для {name}\nВыберите новый тариф:',
-    'review_seller_tariff_message_header_legal': 'Тариф салона {name}:',
-    'review_seller_tariff_message_header_natural': 'Тариф частного продавца {name}:',
+    'review_seller_tariff_message_header_legal': '<b>Тариф салона {name}:</b>',
+    'review_seller_tariff_message_header_natural': '<b>Тариф частного продавца {name}:</b>',
     'tariff_not_exists': '<blockquote>Тариф отсутствует</blockquote>',
-    'user_list_message_text': 'Список покупателей:',
-    'natural_list_message_text': 'Список частных лиц:',
-    'dealership_list_message_text': 'Список салонов:',
+    'user_list_message_text': '<b>Список покупателей:</b>',
+    'natural_list_message_text': '<b>Список частных лиц:</b>',
+    'dealership_list_message_text': '<b>Список салонов:</b>',
 
     'return_to_user': 'Вернуться к пользователю',
     'set': 'Установить',
     'set_tariff': 'Установить тариф',
     'remove_tariff': 'Обнулить тариф',
-    'search_by_name': 'Поиск по имени',
+    'search_by_name': 'Поиск по ФИО',
     'return_main_menu': 'В меню'
 }
 

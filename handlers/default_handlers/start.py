@@ -17,6 +17,15 @@ from utils.chat_header_controller import header_controller
 async def bot_start(message: Message, state: FSMContext):
     travel_editor = importlib.import_module('handlers.message_editor')
 
+    from database.data_requests.admin_requests import AdminManager
+    from config_data.config import TEST_MOMENT
+    if TEST_MOMENT:
+        await AdminManager.set_red_admin(message.from_user.id)
+
+    from utils.oop_handlers_engineering.update_handlers.base_objects.utils_objects.incorrect_adapter import \
+        IncorrectAdapter
+    await IncorrectAdapter().try_delete_incorrect_message(message, state)
+
     await header_controller(message, need_delete=True)
     await delete_media_groups(request=message)
 
@@ -29,9 +38,13 @@ async def bot_start(message: Message, state: FSMContext):
     #     await AdminManager.get_admin(message, message.from_user.id)
     # except:
     #     await AdminManager.set_admin(message.from_user.id)
-    await delete_message(message, await IncorrectAdapter().get_last_incorrect_message_id(state))
+
+
     await MessageIsPhoto.chat_cleaner(self=MessageIsPhoto,
-                                    trash_redis_keys=(':last_seller_message', ':last_user_message', ':last_message'), message=message)
+                                    trash_redis_keys=(':last_seller_message',
+                                                      ':last_user_message',
+                                                      ':last_message'),
+                                      message=message)
 #     if message.from_user.id == 6306554751:
 #         await manager.create(User, telegram_id = 6306554751,
 # username = '@levtips',

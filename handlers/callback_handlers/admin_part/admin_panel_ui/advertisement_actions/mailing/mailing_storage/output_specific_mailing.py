@@ -10,6 +10,7 @@ admin_pagination_module = importlib.import_module('handlers.callback_handlers.ad
 
 async def output_mailings(callback: CallbackQuery, state: FSMContext):
     mailing_ids = None
+    ic(callback.data)
     if callback.data[-1].isdigit():
         viewed_status = int(callback.data.split(':')[-1])
 

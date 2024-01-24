@@ -9,7 +9,7 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             'all_users': 'barcha', 'buyers': 'xaridorlar', 'sellers': 'sotuvchilar', 'delete': 'O‘chirish',
             'by_dealership': 'avtosalon', 'by_seller': 'shaxsiy shaxs', 'close': 'Yashirish', 'surname_name_patronymic': 'F.I.Sh.: ', 'add': 'Qo‘shish',
             'successfully': 'Muvaffaqiyatli', 'tech_support_entity': '👨🏻‍💻Yordamchi xodim: {SUPPORT_NUMBER}\n',
-           'supports_pattern': f'''{' ' * 25 + '────────────────'}\n<blockquote>{'{0}'}</blockquote>\n{' ' * 25 + '────────────────'}'''
+           'supports_pattern': f'''{' ' * 25 + '───────────────'}\n<blockquote>{'{0}'}</blockquote>\n{' ' * 25 + '───────────────'}'''
                }
 ''''''
 
@@ -77,10 +77,10 @@ LEXICON_UZ = {
     'main_menu': {'message_text': 'Xaridor menyusi 👨🏻‍💻\nSizning harakatingizni tanlang:',
                   'buyer_requests': 'Takliflar 📋', 'car_search': '🚘 Avto izlash',
                   'faq': 'Ko‘rsatmalar 💬', 'support': '🌐 Yordam', 'backward:set_language': '◂ Orqaga ▸ ', 'width': 2},
-    'buyer_requests': {'message_text': 'Takliflar ro‘yxati:',
-                       'buttons': {'buyer_cached_offers': '🚫 Tasdiqlanmagan ({non_confirmed}) 🚫',
-                                   'buyer_active_offers': '✅ Tasdiqlangan ({confirmed}) ✅',
-                                   'buyers_recommended_offers': '🔥 Yangi ({new}) 🔥', 'return_main_menu': '🏡 Menyuga 🏡',
+    'buyer_requests': {'message_text': '<b>Takliflar ro‘yxati:</b>',
+                       'buttons': {'buyer_cached_offers': '🚫 Tasdiqlanmagan ({non_confirmed})',
+                                   'buyer_active_offers': '✅ Tasdiqlangan ({confirmed})',
+                                   'buyers_recommended_offers': '🔥 Yangi ({new})', 'return_main_menu': 'Menyuga',
                                    'width': 1}},
     'f_a_q': {
         'message_text': f'Tez-tez so‘raladigan savollarga javoblar: \n\nBotda sotib olish-sotish tizimi bilan tanishish uchun quyidagi tugmalarni tanlang.\n{faq}',
@@ -166,22 +166,22 @@ LEXICON_UZ = {
 'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Tasdiqlash ✅', 'callback_startswith': 'confirm_new_seller_registration_from:'},
 
 'seller_waiting_registration_confirm': {'start_text_legal': '<b>Avtosalon ro‘yxatdan o‘tish so‘rovi:</b>\nManzili:\n{address}\n', 'start_text_natural': '<b>Xususiy sotuvchi ro‘yxatdan o‘tish so‘rovi:</b>\n',
-'legal_body_header': '─' * 20 + '\n<blockquote>Avtosalon nomi: <i>{dealership_name}</i>\n',
-'natural_body_header': '─' * 20 + '\n<blockquote>Ism: <i>{name}</i>\nFamiliya: <i>{surname}</i>\nOtasining ismi: <i>{patronymic}</i>\n',
-'body': 'Telefon raqami: {phone_number}</blockquote>\n' + '─' * 20},
+'legal_body_header': '─' * 8 + '\n<blockquote>Avtosalon nomi: <i>{dealership_name}</i>\n',
+'natural_body_header': '─' * 8 + '\n<blockquote>Ism: <i>{name}</i>\nFamiliya: <i>{surname}</i>\nOtasining ismi: <i>{patronymic}</i>\n',
+'body': 'Telefon raqami: {phone_number}</blockquote>\n' + '─' * 8},
 
 'success_seller_registration_notice': {'message_text': 'Siz tizimda ro‘yxatdan o‘tdingiz', 'return_main_menu': 'Sotuvchi menyusiga 👨🏻‍💼', 'width': 1},
 
 'seller_faq': {'message_text': faq_seller, 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
 'buyer_faq': {'message_text': faq_buyer, 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
 
-'seller_requests': {'message_text': 'Arizalar bilan ishlash bo‘limi\nHarakatingizni tanlang:', 'create_new_seller_request': '📨 E’lon yaratish 📨 ', 'my_sell_requests': '💰 Mening e’lonlarim 💰', 'my_sell_feedbacks': '🔸 Javoblar 🔸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
+'seller_requests': {'message_text': '<b>Arizalar bilan ishlash bo‘limi</b>\nHarakatingizni tanlang:', 'create_new_seller_request': '📨 E’lon yaratish', 'my_sell_requests': '💰 Mening e’lonlarim', 'my_sell_feedbacks': '🔸 Javoblar', 'return_main_menu': 'Menyuga', 'width': 1},
 
 'confirm_load_config_from_seller_button': {'confirm_load_config_from_seller': '✓ Tasdiqlash ✓', 'edit_boot_car_data': '⚙️ O‘zgartirish ⚙️', 'return_main_menu': '🏡 Menyuga 🏡',
                                            'width': 1},
 'seller_load_notification_button': {'return_main_menu': '🏡 Menyuga 🏡'},
 
-'message_not_digit': f'Summa faqat raqamlardan iborat bo‘lishi kerak, {max_price_len} gacha miqdorda',
+'message_not_digit': f'<b>Miqdor faqat bitta raqamdan iborat boʻlishi kerak, uzunligi {max_price_len} tagacha</b>',
 'message_not_photo': 'Fotografiyani biriktiring\n(chatning chap tomonidagi skrepka belgisini bosing)\nTelegramda yuborishda siqilishni bekor qilmang',
 
 'seller_start_delete_request': {'message_text': 'O‘chiriladigan arizaning raqamini kiriting', 'buttons': {'backward:seller_start_delete_request': '◂ Orqaga ▸', 'width': 1}},
@@ -207,7 +207,7 @@ LEXICON_UZ = {
 
 
 lexicon_uz = {
-
+    'incorrect_price_$': '<b>Narxda bittadan ortiq “$” belgisi bo‘lmasligi kerak</b>',
     'infinity_feedbacks_caption': 'cheksiz',
     'offer': '<b>Ilova <i>№{offer_number}</i></b>',
     'backward_in_carpooling': '◂ Orqaga ▸',
@@ -224,10 +224,10 @@ lexicon_uz = {
     'matched_advert': 'Sizning katalogingizda allaqachon shu kabi e‘lon mavjud, qayta joylashtira olmaysiz!',
     'select_brand_message_text': 'Avtomobil markasini tanlang',
     'input_new_price': 'Yangi narxni kiriting.\nHozirgi narx: {current_price}',
-    'input_new_price_incorrect_message_text': f'Iltimos, {max_price_len} raqamigacha bo‘lgan butun son qiymatini kiriting.',
+    'input_new_price_incorrect_message_text': f'<b>Iltimos, bitta raqamni kiriting, uzunligi {max_price_len} tagacha.</b>',
     'input_new_price_car_dont_exists': 'Afsuski, avtomobil savdodan olingan.',
     'succes_rewrite_price': 'Narx muvaffaqiyatli o‘zgartirildi',
-    'commodity_output_block': '''────────────────────
+    'commodity_output_block': '''───────────────
 <blockquote>Holati: <i>{state}</i>
 Dvigatel turi: <i>{engine_type}</i>
 Marka: <i>{brand_name}</i>
@@ -236,7 +236,7 @@ Komplektatsiya: <i>{complectation}</i>
 Ishlab chiqarilgan yili: <i>{year_of_release}</i>
 Yurgan masofa: <i>{mileage}</i>
 Rang: <i>{color}</i></blockquote>
-────────────────────''',
+───────────────''',
     'output_car_request_header': 'Ariza <i>№{request_number}</i>',
     'commodity_state': 'Holati: <i>{state}</i>',
     'commodity_brand': 'Marka: <i>{brand}</i>',

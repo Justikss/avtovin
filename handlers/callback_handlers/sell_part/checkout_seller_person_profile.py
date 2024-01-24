@@ -102,7 +102,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
             output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.format(
                 tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
-                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 99999999999999 else lexicon_module.LexiconSellerProfile.infinity_feedbacks_caption))
+                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_module.LexiconSellerProfile.infinity_feedbacks_caption))
             tariff_exists = True
         ic(output_string)
     if not get_part:

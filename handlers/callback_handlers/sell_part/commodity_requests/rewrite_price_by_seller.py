@@ -22,11 +22,14 @@ async def rewrite_price_by_seller_handler(request: Union[CallbackQuery, Message]
         .AdvertRequester.get_where_id(request_data['car_id'])
     lexicon_part = copy(Lexicon_module\
                         .LexiconSellerRequests.input_new_price)
-    if incorrect:
-        lexicon_part['message_text'] += copy(Lexicon_module\
-                                             .LexiconSellerRequests.input_new_price_incorrect_message_text)
+    if incorrect == '$':
+      lexicon_part['message_text'] = f'''{lexicon_part['message_text']}\n{Lexicon_module.class_lexicon['incorrect_price_$']}'''
+      delete_mode = True
+      reply_message = request.message_id
+    elif incorrect:
+        lexicon_part['message_text'] += f'''\n{copy(Lexicon_module.LexiconSellerRequests.input_new_price_incorrect_message_text)}'''
         reply_message = request.message_id
-        delete_mode = False
+        delete_mode = True
     else:
         reply_message = None
         delete_mode = True

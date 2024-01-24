@@ -29,8 +29,9 @@ class ConfirmationDeleteTSContactHandler(BaseCallbackQueryHandler):
             if contact_model:
                 lexicon_part = ADMIN_CONTACTS['start_delete_contact']
 
-                lexicon_part['message_text'] = lexicon_part['message_text'].format(entity=ADMIN_CONTACTS[contact_entity],
-                                                                                   link=contact_model.link)
+                lexicon_part['message_text'] = lexicon_part['message_text'].format(
+                    contact_type=ADMIN_CONTACTS[f'contact_type_{contact_model.type}'],
+                    contact_entity=ADMIN_CONTACTS[contact_model.type], contact=contact_model.link)
                 return lexicon_part
 
         if not contact_entity:

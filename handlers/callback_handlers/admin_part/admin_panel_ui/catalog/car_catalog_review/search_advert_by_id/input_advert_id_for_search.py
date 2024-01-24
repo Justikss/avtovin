@@ -20,8 +20,6 @@ async def input_advert_id_for_search_admin_handler(request: CallbackQuery | Mess
                                                     lexicon_part=lexicon_part, delete_mode=True,
                                                     reply_message=reply_mode)
 
-    if isinstance(request, CallbackQuery):
-        await request.answer()
 
 async def get_lexicon_part_in_view_on_incorrect_flag(request, state, incorrect):
     reply_mode = None

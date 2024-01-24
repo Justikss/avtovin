@@ -25,7 +25,10 @@ async def incorrect_controller(request: Message | CallbackQuery, state: FSMConte
             reply_mode = request.message_id
         else:
             reply_mode = None
-        if not lexicon_key == 'enter_mailing_media':
+
+        if incorrect == '$':
+            lexicon_part['message_text'] = f'''{lexicon_part['message_text']}\n{Lexicon_module.class_lexicon['incorrect_price_$']}'''
+        elif not lexicon_key == 'enter_mailing_media':
             if incorrect is True:
                 lexicon_key = f'{lexicon_key}(incorrect)'
             else:
@@ -35,6 +38,13 @@ async def incorrect_controller(request: Message | CallbackQuery, state: FSMConte
             ic(current_lexicon[lexicon_key])
             lexicon_part['message_text'] = current_lexicon[lexicon_key]
             ic(lexicon_part)
+    if lexicon_key in ('input_tariff_cost', 'input_tariff_feedbacks', 'input_tariff_time_duration', 'input_tariff_name'):
+        if not memory_storage.get('edit_tariff_mode'):
+            sub_text = Lexicon_module.ADMIN_LEXICON['add_tariff_sub_text']
+        else:
+            sub_text = Lexicon_module.ADMIN_LEXICON['rewrite_tariff_sub_text']
+
+        lexicon_part['message_text'] = f'''{sub_text}{lexicon_part['message_text']}'''
     return lexicon_part, reply_mode
 
 async def get_delete_mode(state: FSMContext, incorrect):

@@ -17,6 +17,7 @@ return_main_menu = {'return_main_menu': 'В меню'}
 
 
 advert_parameters_captions = {
+    'choose_param': '<b>Выберите {parameter} авто</b>',
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
     'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'from_param_branch': ' из ветки параметров:\n{param_branch}\n',
     'year_of_realise': 'Год выпуска'
@@ -24,7 +25,7 @@ advert_parameters_captions = {
 
 __ADVERT_PARAMETERS_LEXICON = {
     'memory_was_forgotten': 'Сброс к началу',
-    'selected_new_car_params_pattern': '────────────────────\n<blockquote>{params_data}</blockquote>\n────────────────────\n',
+    'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',
 
     'choose_second_hand_parameter_type': {'message_text': 'Параметры Б/У автомобилей:', 'buttons': {
@@ -74,7 +75,7 @@ __ADVERT_PARAMETERS_LEXICON = {
     },
 
     'start_rewrite_exists_parameter': {
-        'message_text': 'Редактирование.\nВведите новое значения для параметра:\n{parameter_type}: {parameter_value}',
+        'message_text': '<b>Редактирование.</b>\n────────\nВведите новое значения для параметра: {parameter_type}.\nТекущий параметр: <b>{parameter_value}</b>\n────────',
         'buttons': {
             'admin_backward:start_rewrite_exists_parameter_value': _captions['backward'],
             'width': 1
@@ -114,14 +115,14 @@ __ADVERT_PARAMETERS_LEXICON = {
 
 # Добавление в русский словарь
 advert_params_class_lexicon_ru = {
-    'car_parameters_message_text': 'Параметры автомобилей.\nВыберите состояние:',
+    'car_parameters_message_text': '<b>Параметры автомобилей.</b>\nВыберите состояние:',
     'rewrite_current_advert_parameter': 'Редактировать',
     'backward': '◂ Назад ▸',
     'delete': 'Удалить',
     'add': 'Добавить',
 
     'return_main_menu': 'В меню',
-    'translate_param_caption': '<blockquote>ВНИМАНИЕ! Русскоязычные названия будут переводиться для пользователей узбекского языка</blockquote>\n'
+    'translate_param_caption': '<blockquote><b>Русскоязычные названия будут переводиться для пользователей узбекского языка автоматически</b></blockquote>\n'
 }
 
 advert_parameters_captions = SafeDict({'ru': advert_parameters_captions,
@@ -141,13 +142,13 @@ class AdvertParametersChooseState:
 
 class AdvertParametersChooseSpecificValue:
     def __init__(self, parameter_name: str, header: str):
-        self.message_text_mileage = f'''{advert_parameters_captions['mileage']}:'''
-        self.message_text_year = f'''{advert_parameters_captions['year_of_realise']}:'''
-        self.message_text_engine = f'''{advert_parameters_captions['engine']}:'''
-        self.message_text_brand = f'''{advert_parameters_captions['brand']}:'''
-        self.message_text_model = f'''{advert_parameters_captions['model']}:'''
-        self.message_text_complectation = f'''{advert_parameters_captions['complectation']}:'''
-        self.message_text_color = f'''{advert_parameters_captions['color']}:'''
+        self.message_text_mileage = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['mileage'])}:'''
+        self.message_text_year = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['year_of_realise'])}:'''
+        self.message_text_engine = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['engine'])}:'''
+        self.message_text_brand = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['brand'])}:'''
+        self.message_text_model = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['model'])}:'''
+        self.message_text_complectation = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['complectation'])}:'''
+        self.message_text_color = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['color'])}:'''
         self.buttons_callback_data_second_hand = 'advert_parameters_specific_value:'
         self.buttons_callback_data_new = 'new_state_parameters:'
         self.dynamic_buttons = 3

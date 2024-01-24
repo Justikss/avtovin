@@ -44,7 +44,10 @@ class ConfirmationRewriteExistsTSContact(BaseMessageHandler):
         if all((contact_id, contact_model, contact_entity, new_link)):
             lexicon_part = ADMIN_CONTACTS['confirmation_rewrite_exist_contact']
             lexicon_part['message_text'] = lexicon_part['message_text'].format(
+                new_link_caption=ADMIN_CONTACTS[f'new_contact_caption_{contact_entity}'],
+                last_contact_caption=ADMIN_CONTACTS[f'last_contact_caption_{contact_entity}'],
                 link=ADMIN_CONTACTS[contact_entity],
+                entity=ADMIN_CONTACTS[contact_entity],
                 cur_link=contact_model.link,
                 new_link=new_link)
             return lexicon_part

@@ -7,7 +7,7 @@ advert_parameters_captions_uz = {
 
 ADVERT_PARAMETERS_LEXICON_UZ = {
     'memory_was_forgotten': 'Boshidan boshlash',
-    'selected_new_car_params_pattern': '────────────────────\n<blockquote>{params_data}</blockquote>\n────────────────────\n',
+    'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Tanlangan xususiyat o‘chirib bo‘lmaydi, chunki unga e’lonlar ro‘yxatdan o‘tgan!',
 
     'choose_second_hand_parameter_type': {'message_text': 'B/U avtomobillar parametrlari:', 'buttons': {
@@ -56,7 +56,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 }
 },
 'start_rewrite_exists_parameter': {
-    'message_text': 'Tahrirlash.\nParametr uchun yangi qiymatni kiriting:\n{parameter_type}: {parameter_value}',
+    'message_text': '<b>Tahrirlash.</b>\n────────\nParametr uchun yangi qiymatni kiriting: {parameter_type}.\nJoriy sozlama: <b>{parameter_value}</b>\n────────',
     'buttons': {
         'admin_backward:start_rewrite_exists_parameter_value': captions_uz['backward'],
         'width': 1
@@ -97,16 +97,17 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 
 # Добавление в узбекский словарь
 advert_params_class_lexicon_uz = {
-    'car_parameters_message_text': 'Avtomobillar parametrlari.\nHolatni tanlang:',
+    'car_parameters_message_text': '<b>Avtomobillar parametrlari.</b>\nHolatni tanlang:',
     'rewrite_current_advert_parameter': 'Tahrirlash',
     'backward': '◂ Orqaga ▸',
     'delete': 'O‘chirish',
     'add': 'Qo‘shish',
     'return_main_menu': 'Menyuda',
-    'translate_param_caption': '<blockquote>DIQQAT! Rus tilidagi sarlavhalar o‘zbek tili foydalanuvchilari uchun tarjima qilinadi.</blockquote>\n'
+    'translate_param_caption': '<blockquote><b>Rus tilidagi sarlavhalar oʻzbek tili foydalanuvchilari uchun avtomatik tarzda tarjima qilinadi</b></blockquote>\n'
 }
 
 advert_params_captions_uz = {
+    'choose_param': '<b>Avtomatik {parameter} ni tanlang</b>',
     'year': 'Yili',
     'mileage': 'Yurgan masofa',
     'color': 'Rang',

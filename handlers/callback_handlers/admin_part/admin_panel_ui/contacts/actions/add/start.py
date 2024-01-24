@@ -29,7 +29,7 @@ class StartAddNewContactHandler(BaseCallbackQueryHandler):
             lexicon_part = ADMIN_CONTACTS['add_new_contact']
             if incorrect:
 
-                lexicon_part['message_text'] = ADMIN_CONTACTS['add_new_contact' + f':{incorrect}']
+                lexicon_part['message_text'] += ADMIN_CONTACTS['add_new_contact' + f':{incorrect}']
 
             lexicon_part['message_text'] = lexicon_part['message_text'].format(
                 link=ADMIN_CONTACTS[f'link_name:{contacts_type}']

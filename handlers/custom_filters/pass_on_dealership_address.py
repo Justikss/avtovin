@@ -18,7 +18,7 @@ class GetDealershipAddress(BaseFilter):
     @staticmethod
     async def format_address(raw_result):
         parts = raw_result.split(', ')
-        if len(parts) >= 3:
+        if len(parts) >= 4:
             house_number = parts[0]
             street = parts[1]
             city = parts[3]

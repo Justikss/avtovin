@@ -37,6 +37,8 @@ async def convertator(valute, cost):
 
 async def get_valutes(usd, sum_valute, get_string=None, language=None):
     ic(usd, sum_valute)
+    if not usd and not sum_valute:
+        return
     boot_commodity_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 

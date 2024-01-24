@@ -9,7 +9,7 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             }
 
 catalog_captions_uz = {'catalog_review__make_block': 'bloklash', 'to_block': 'bloklash', 'to_delete': 'o‘chirish',
-                    'catalog_review__make_delete': 'e’lonni o‘chirish', 'advert': 'E’lon: №{advert_id}\n',
+                    'catalog_review__make_delete': 'e’lonni o‘chirish', 'advert': '<b>E’lon: №{advert_id}\n</b>',
                     'inactive_advert_or_seller': 'E’lon yoki sotuvchi faol emas',
                     'advert_successfully_closed': 'Avtomobil muvaffaqiyatli sotuvdan olib tashlandi!',
                     'empty': 'Bo‘sh'
@@ -20,7 +20,7 @@ pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{
 ''''''
 
 CATALOG_LEXICON_UZ = {
-    'search_advert_by_id_await_input': {'message_text': 'Qidirilayotgan e’lonning ID raqamini kiriting: ',
+    'search_advert_by_id_await_input': {'message_text': '<b>Qidirilayotgan e’lonning ID raqamini kiriting: </b>',
                                         'buttons': {
                                             'admin_backward:await_input_id_to_search_advert': captions_uz['backward'],
                                             **return_main_menu_uz,
@@ -28,13 +28,13 @@ CATALOG_LEXICON_UZ = {
     }},
     'search_advert_by_id_await_input(digit)': 'E’lonni ID raqami orqali qidirish uchun butun son qiymatini kiritish kutilmoqda:',
     'search_advert_by_id_await_input(not_exists)': 'Kiritilgan ID raqamidagi e’lon mavjud emas.\nBoshqa raqamni kiriting:',
-    'start_catalog_menu': {'message_text': 'Katalog\nHarakatingizni tanlang:', 'buttons': {
-        'admin_catalog__advert_parameters': 'Avtomobil parametrlari',
-        'admin_catalog__car_catalog_review': 'Avtomobil katalogi',
+    'start_catalog_menu': {'message_text': '<b>Siz katalogga kirdingiz</b>\nAmalingizni tanlang:', 'buttons': {
+        'admin_catalog__advert_parameters': '⚙️ Avtomobil parametrlari',
+        'admin_catalog__car_catalog_review': '📋 Avtomobil katalogi',
         **return_main_menu_uz,
         'width': 1
     }},
-    'car_catalog_review_choose_category': {'message_text': 'Ko‘rib chiqiladigan e’lonlar turini tanlang:', 'buttons': {
+    'car_catalog_review_choose_category': {'message_text': '<b>Ko‘rib chiqiladigan e’lonlar turini tanlang:</b>', 'buttons': {
         'car_catalog_review__new': 'Yangi',
         'car_catalog_review__viewed': 'Ko‘rilgan',
         'search_by_id': 'ID bo‘yicha qidirish',
@@ -48,7 +48,7 @@ CATALOG_LEXICON_UZ = {
         **return_main_menu_uz,
         'width': 3
     }},
-    'catalog__choose_specific_advert_action': {'message_text': 'Aniq bir harakatni tanlang:', 'buttons': {
+    'catalog__choose_specific_advert_action': {'message_text': "<b>Sizga kerak bo'lgan cheklov turini tanlang:</b>", 'buttons': {
         'catalog_action__delete_advert': 'E’lonni o‘chirish',
         'catalog_action__block_seller': 'Sotuvchini bloklash',
         'admin_backward:catalog__choose_specific_advert_action': captions_uz['backward'],
@@ -70,5 +70,5 @@ CATALOG_LEXICON_UZ = {
                                      'width': 1}}
 
 catalog_mini_lexicon_uz = {
-    'admin_review_catalog_choose_car_brand_message_text': 'Ko‘rib chiqish uchun mashina markasini tanlang:'
+    'admin_review_catalog_choose_car_brand_message_text': '<b>Ko‘rib chiqish uchun mashina markasini tanlang:</b>'
 }

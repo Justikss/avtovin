@@ -35,8 +35,9 @@ class ConfirmationAddNewContactHandler(BaseMessageHandler):
                 contact_link = await CheckInputNumber().format_and_validate_phone_number(raw_contact_link)
 
             lexicon_part = ADMIN_CONTACTS['confirmation_add_contact']
-            lexicon_part['message_text'] = lexicon_part['message_text'].format(entity=contact_type_string,
-                                                                               link=contact_link)
+            lexicon_part['message_text'] = lexicon_part['message_text'].format(
+                contact_type=ADMIN_CONTACTS[f'contact_type_{contact_type}'],
+                contact_entity=ADMIN_CONTACTS[contact_type], contact=contact_link)
 
             await state.update_data(contact_link=contact_link)
             return lexicon_part

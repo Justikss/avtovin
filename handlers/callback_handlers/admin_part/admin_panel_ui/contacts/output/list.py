@@ -13,7 +13,7 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 class ContactListHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         await self.set_state(state, TechSupportStates.review)
-
+        await self.incorrect_manager.try_delete_incorrect_message(request, state)
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 models_range=await self.get_models_range(request, state),

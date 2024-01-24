@@ -26,10 +26,16 @@ async def insert_state_data(request, state, modified_text):
 
 async def request_mailing_media(request: types.Message | types.CallbackQuery,
                                 state: FSMContext, modified_text=None, incorrect=False):
+    from utils.oop_handlers_engineering.update_handlers.base_objects.utils_objects.incorrect_adapter import \
+        IncorrectAdapter
 
     await insert_state_data(request, state, modified_text)
+
+    await IncorrectAdapter().try_delete_incorrect_message(request, state)
+
     if await edit_mailing_data_controller(request, state, incorrect):
         return
+    await state.update_data(admin_incorrect_flag=False)
 
     if isinstance(request, types.CallbackQuery) and request.data == 'add_other_media':
         await state.update_data(add_other_media=True)

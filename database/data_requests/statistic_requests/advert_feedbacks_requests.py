@@ -396,10 +396,10 @@ ORDER BY
         # Выполнение запроса
         results = list(await manager.execute(query))
         ic(results)
-        if isinstance(results[0], offers_history_module\
-                .SellerFeedbacksHistory):
-
-            ic(results[0].ids, results[0].count)
+        # if isinstance(results[0], offers_history_module\
+        #         .SellerFeedbacksHistory):
+        #
+        #     ic(results[0].ids, results[0].count)
 
         return results
 
