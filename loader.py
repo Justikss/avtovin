@@ -98,6 +98,7 @@ from handlers.custom_filters.admin_filters.tariff_duration_time_filter import Ti
 from handlers.custom_filters.admin_filters.ts_contacts_filters.input_link_filter import InputTSLinkFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
+from handlers.custom_filters.throttling import ThrottlingFilter
 from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
 from handlers.custom_handlers.admin_administrating.admin_list import AdminListHandler
 from handlers.custom_handlers.admin_administrating.del_admin import DelAdminHandler
@@ -141,7 +142,8 @@ from utils.mailing_heart.mailing_service import mailing_service
 from utils.middleware.exceptions_handler.middleware import ErrorHandler
 from utils.middleware.language import LanguageMiddleware
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
-from utils.middleware.messages_dupe_defender import ThrottlingMiddleware
+from utils.middleware.callbacks_dupe_defender import ThrottlingMiddleware
+from utils.middleware.messages_dupe_defender import MessageThrottlingMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
 
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
@@ -214,9 +216,9 @@ async def start_bot():
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
 
+    dp.message.middleware(MessageThrottlingMiddleware())
     dp.message.middleware(ErrorHandler())
     dp.message.middleware(LanguageMiddleware())
-
     #
     # @dp.message()
     # async def send_chat_id(message: Message):
@@ -226,18 +228,19 @@ async def start_bot():
                         StateFilter(MailingStates.entering_date_time))
 
     dp.message.register(collect_and_send_mediagroup,
-                        F.photo, F.photo[0].file_id.as_("photo_id"),
-                        F.photo[0].file_unique_id.as_('unique_id'))
+                        F.photo, F.photo[0].file_id.as_("photo_id"), F.photo[0].file_unique_id.as_('unique_id'))
 
     # (dp.message.register(start_state_boot_new_car_photos_message_handler, F.text,
     #                     lambda message: message.text.startswith('p:')),
     #                     StateFilter(default_state))
     #
-    dp.message.register(drop_table_handler, Command(commands=['dt', 'dtc']))
+    dp.message.register(drop_table_handler,
+                        Command(commands=['dt', 'dtc']))
     # dp.message.register(save_tariff_handler, Command(commands=['ut']))
 
     '''обработка Сообщений'''
-    dp.message.register(start.bot_start, Command(commands=["start"], ignore_case=True))
+    dp.message.register(start.bot_start,
+                        Command(commands=["start"], ignore_case=True))
 
     '''Состояния регистрации покупателя'''
     dp.callback_query.register(buyer_registration_handlers.input_full_name,
@@ -430,14 +433,16 @@ async def start_bot():
                         StateFilter(TechSupportStates.add_new))
     dp.callback_query.register(ConfirmAddNewContactHandler().callback_handler,
                                F.data == 'confirm_add_ts_contact',
-                               StateFilter(TechSupportStates.review))
+                               StateFilter(TechSupportStates.review),
+                               AdminStatusController())
 
     dp.callback_query.register(ConfirmationDeleteTSContactHandler().callback_handler,
                                F.data == 'delete_ts_contact',
                                StateFilter(TechSupportStates.review))
     dp.callback_query.register(ConfirmDeleteTSContactHandler().callback_handler,
                                F.data == 'confirm_delete_contact',
-                               StateFilter(TechSupportStates.delete_exists))
+                               StateFilter(TechSupportStates.delete_exists),
+                               AdminStatusController())
 
     dp.callback_query.register(StartRewriteExistsTSContact().callback_handler,
                                F.data.in_(('edit_ts_contact', 'rewrite_rewriting_ts_contact')),
@@ -446,7 +451,8 @@ async def start_bot():
                         StateFilter(TechSupportStates.rewrite_exists))
     dp.callback_query.register(ConfirmRewriteExistsTSContact().callback_handler,
                                F.data == 'confirm_rewrite_ts_contact',
-                               StateFilter(TechSupportStates.review))
+                               StateFilter(TechSupportStates.review),
+                               AdminStatusController())
 
     '''bot statistics'''
     dp.callback_query.register(GeneralBotStatisticHandler().callback_handler,
@@ -537,17 +543,17 @@ async def start_bot():
 
     '''admin_commands'''
     dp.message.register(DelAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['del']))
+                        Command(commands=['del'], ignore_case=True))
     dp.message.register(DelRedAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['rdel']))
+                        Command(commands=['rdel'], ignore_case=True))
     dp.message.register(SetAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['add']))
+                        Command(commands=['add'], ignore_case=True))
     dp.message.register(SetRedAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['radd']))
+                        Command(commands=['radd'], ignore_case=True))
     dp.message.register(AdminListHandler(filters=AdminStatusController()).message_handler,
-                        Command(commands=['alist']))
+                        Command(commands=['alist'], ignore_case=True))
     dp.message.register(AdminHelpHandler(filters=AdminStatusController()).message_handler,
-                        Command(commands=['ahelp']))
+                        Command(commands=['ahelp'], ignore_case=True))
     '''advert_parameters'''
     dp.callback_query.register(catalog.advert_parameters.advert_parameters__choose_state\
                                .AdvertParametersChooseCarState().callback_handler,
@@ -704,6 +710,7 @@ async def start_bot():
                         or_f(StateFilter(SellerReviewStates.natural_entity_search),
                             StateFilter(SellerReviewStates.legal_entity_search),
                             StateFilter(BuyerReviewStates.buyer_entity_search)),
+                        ThrottlingFilter(),
                         correct_name.CheckInputName())
 
     dp.callback_query.register(user_actions.actions_admin_to_user.check_seller_statistic.seller_statistic_output.handle_stats_callback,
