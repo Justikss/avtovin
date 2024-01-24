@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 import importlib
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.start_admin_panel_window import start_admin_menu
+from handlers.default_handlers import start
 
 
 async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMContext):
@@ -21,5 +22,6 @@ async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMC
         await buy_main_module.main_menu(request=callback)
     elif user_state == 'admin':
         await start_admin_menu(callback, state)
-
+    else:
+        await start.bot_start(callback, state)
     await callback.answer()

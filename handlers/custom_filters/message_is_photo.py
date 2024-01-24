@@ -1,6 +1,6 @@
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 import importlib
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_media_group_to_advert.input_media import \
@@ -11,6 +11,8 @@ class MessageIsPhoto(BaseFilter):
     '''Этот фильтр контролирует вхождение фотографии в конечное состояние загрузки товара'''
     async def chat_cleaner(self, trash_redis_keys, message, user_id=None):
         redis_module = importlib.import_module('utils.redis_for_language')
+        if isinstance(message, CallbackQuery):
+            message = message.message
         if not user_id:
             user_id = str(message.from_user.id)
             chat_id = message.chat.id

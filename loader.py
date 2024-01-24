@@ -240,15 +240,17 @@ async def start_bot():
 
     '''обработка Сообщений'''
     dp.message.register(start.bot_start,
-                        Command(commands=["start"], ignore_case=True))
+                        Command(commands=["start"], ignore_case=True), ThrottlingFilter())
 
     '''Состояния регистрации покупателя'''
     dp.callback_query.register(buyer_registration_handlers.input_full_name,
                                StateFilter(BuyerRegistationStates.input_full_name))
     dp.message.register(buyer_registration_handlers.input_phone_number,
-                        StateFilter(BuyerRegistationStates.input_phone_number), correct_name.CheckInputName())
+                        StateFilter(BuyerRegistationStates.input_phone_number), ThrottlingFilter(),
+                        correct_name.CheckInputName())
     dp.message.register(buyer_registration_handlers.finish_check_phone_number,
-                        StateFilter(BuyerRegistationStates.finish_check_phone_number), correct_number.CheckInputNumber())
+                        StateFilter(BuyerRegistationStates.finish_check_phone_number), ThrottlingFilter(),
+                        correct_number.CheckInputNumber())
     '''Состояния регистрации продавцов'''
     dp.callback_query.register(await_confirm_from_admin.seller_confirm_registration,
                               F.data == 'confirm_registration_from_seller')
@@ -257,10 +259,12 @@ async def start_bot():
                                     F.data.in_(('i_am_private_person', 'i_am_car_dealership')))
 
     dp.message.register(seller_registration_handlers.hybrid_input_seller_number,
-                        and_f(StateFilter(HybridSellerRegistrationStates.input_number), correct_name.CheckInputName()))
+                        and_f(StateFilter(HybridSellerRegistrationStates.input_number), ThrottlingFilter(),
+                              correct_name.CheckInputName()))
 
     dp.message.register(seller_registration_handlers.dealership_input_address,
-                        and_f(StateFilter(CarDealerShipRegistrationStates.input_dealship_name), correct_number.CheckInputNumber()))
+                        and_f(StateFilter(CarDealerShipRegistrationStates.input_dealship_name), ThrottlingFilter(),
+                              correct_number.CheckInputNumber()))
 
 
 
@@ -277,7 +281,7 @@ async def start_bot():
                                F.data == 'rewrite_dealership_address'))
     
     dp.message.register(check_your_registration_config.check_your_config,
-                        and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
+                        and_f(StateFilter(HybridSellerRegistrationStates.check_input_data), ThrottlingFilter(),
                         pass_on_dealership_address.GetDealershipAddress()))
 
     '''Пагинация клавиатуры'''
@@ -365,7 +369,7 @@ async def start_bot():
 
     dp.callback_query.register(rewrite_price_by_seller_handler, F.data == 'rewrite_price_by_seller')
     dp.message.register(get_input_to_rewrite_price_by_seller_handler, StateFilter(RewritePriceBySellerStates.await_input),
-                        price_is_digit.PriceIsDigit())
+                        ThrottlingFilter(), price_is_digit.PriceIsDigit())
     '''seller"s feedbacks'''
 
     dp.callback_query.register(CheckFeedbacksHandler.my_feedbacks_callback_handler, lambda callback: callback.data.startswith('my_sell_feedbacks'))
@@ -430,7 +434,7 @@ async def start_bot():
                                StateFilter(TechSupportStates.review),
                                F.data.in_(('add_ts_contact', 'rewrite_ts_contact_link')))
     dp.message.register(ConfirmationAddNewContactHandler(filters=InputTSLinkFilter()).message_handler,
-                        StateFilter(TechSupportStates.add_new))
+                        StateFilter(TechSupportStates.add_new), ThrottlingFilter())
     dp.callback_query.register(ConfirmAddNewContactHandler().callback_handler,
                                F.data == 'confirm_add_ts_contact',
                                StateFilter(TechSupportStates.review),
@@ -448,7 +452,7 @@ async def start_bot():
                                F.data.in_(('edit_ts_contact', 'rewrite_rewriting_ts_contact')),
                                StateFilter(TechSupportStates.review))
     dp.message.register(ConfirmationRewriteExistsTSContact(filters=InputTSLinkFilter()).message_handler,
-                        StateFilter(TechSupportStates.rewrite_exists))
+                        StateFilter(TechSupportStates.rewrite_exists), ThrottlingFilter())
     dp.callback_query.register(ConfirmRewriteExistsTSContact().callback_handler,
                                F.data == 'confirm_rewrite_ts_contact',
                                StateFilter(TechSupportStates.review),
@@ -512,7 +516,7 @@ async def start_bot():
         F.data == 'search_by_id')
     dp.message.register(
         catalog.car_catalog_review.search_advert_by_id.inputted_advert_id_to_search_handler.inputted_advert_id_for_search_admin_handler,
-        StateFilter(AdminCarCatalogSearchByIdStates.await_input_for_admin), InputAdvertIdFilter())
+        StateFilter(AdminCarCatalogSearchByIdStates.await_input_for_admin), ThrottlingFilter(), InputAdvertIdFilter())
 
     dp.callback_query.register(catalog.car_catalog_review.catalog_review_choose_action.choose_review_catalog_type_admin_handler,
                                F.data == 'admin_catalog__car_catalog_review')
@@ -533,7 +537,7 @@ async def start_bot():
     ic()
     dp.message.register(
         catalog.car_catalog_review.catalog__specific_advert_actions.process_confirmation_current_action.confirmation_reason_to_close_advert_admin_handler,
-        StateFilter(AdminCarCatalogReviewStates.await_input_reason_action),
+        StateFilter(AdminCarCatalogReviewStates.await_input_reason_action), ThrottlingFilter(),
         ControlInputUserBlockReason()
     )
     dp.callback_query.register(
@@ -543,17 +547,17 @@ async def start_bot():
 
     '''admin_commands'''
     dp.message.register(DelAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['del'], ignore_case=True))
+                        Command(commands=['del'], ignore_case=True), ThrottlingFilter())
     dp.message.register(DelRedAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['rdel'], ignore_case=True))
+                        Command(commands=['rdel'], ignore_case=True), ThrottlingFilter())
     dp.message.register(SetAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['add'], ignore_case=True))
+                        Command(commands=['add'], ignore_case=True), ThrottlingFilter())
     dp.message.register(SetRedAdminHandler(filters=RedAdminStatus()).message_handler,
-                        Command(commands=['radd'], ignore_case=True))
+                        Command(commands=['radd'], ignore_case=True), ThrottlingFilter())
     dp.message.register(AdminListHandler(filters=AdminStatusController()).message_handler,
-                        Command(commands=['alist'], ignore_case=True))
+                        Command(commands=['alist'], ignore_case=True), ThrottlingFilter())
     dp.message.register(AdminHelpHandler(filters=AdminStatusController()).message_handler,
-                        Command(commands=['ahelp'], ignore_case=True))
+                        Command(commands=['ahelp'], ignore_case=True), ThrottlingFilter())
     '''advert_parameters'''
     dp.callback_query.register(catalog.advert_parameters.advert_parameters__choose_state\
                                .AdvertParametersChooseCarState().callback_handler,
@@ -583,7 +587,8 @@ async def start_bot():
             .add_new_value_advert_parameter.input_confirmation \
             .AddNewValueOfAdvertParameterConfirmationMessageHandler(
             filters=AdvertParameterValueFilter()).message_handler,
-        StateFilter(AdminAdvertParametersStates.start_add_value_process)
+        StateFilter(AdminAdvertParametersStates.start_add_value_process),
+        ThrottlingFilter()
     )
     dp.callback_query.register(
         admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils\
@@ -613,7 +618,7 @@ async def start_bot():
                                F.data == 'rewrite_current_advert_parameter')
     dp.message.register(ConfirmationRewriteExistsAdvertParameterHandler(
                             filters=AdvertParameterValueFilter()).message_handler,
-                        StateFilter(AdminAdvertParametersStates.start_rewrite_exists_parameter))
+                        StateFilter(AdminAdvertParametersStates.start_rewrite_exists_parameter), ThrottlingFilter())
     dp.callback_query.register(ConfirmRewriteExistsAdvertParameterHandler().callback_handler,
                                StateFilter(AdminAdvertParametersStates.confirmation_rewrite_exists_parameter),
                                F.data == 'confirm_rewrite_existing_advert_parameter',
@@ -652,7 +657,7 @@ async def start_bot():
     dp.message.register(
         mailing.booting_mail.input_mailing_data.input_media.request_mailing_media,
         StateFilter(MailingStates.uploading_media),
-        MailingTextFilter())
+        ThrottlingFilter(), MailingTextFilter())
     dp.callback_query.register(
         mailing.booting_mail.input_mailing_data.input_media.request_mailing_media,
         or_f((F.data == 'empty_mailing_text'),
@@ -661,14 +666,14 @@ async def start_bot():
 
     dp.message.register(
         mailing.booting_mail.input_mailing_data.input_date.request_mailing_date_time,
-        StateFilter(MailingStates.entering_date_time), MediaFilter())
+        StateFilter(MailingStates.entering_date_time), ThrottlingFilter(), MediaFilter())
     dp.callback_query.register(
         mailing.booting_mail.input_mailing_data.input_date.request_mailing_date_time,
         F.data == 'mailing_without_media', StateFilter(MailingStates.entering_date_time))
 
     dp.message.register(
         mailing.booting_mail.input_mailing_data.input_recipients.request_mailing_recipients,
-        StateFilter(MailingStates.choosing_recipients), DateTimeFilter())
+        StateFilter(MailingStates.choosing_recipients), ThrottlingFilter(), DateTimeFilter())
 
     dp.callback_query.register(
         mailing.booting_mail.review_inputted_data.request_review_mailing_data,
@@ -744,16 +749,20 @@ async def start_bot():
 
     'add_tariff'
     dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_cost,
-                        StateFilter(TariffAdminBranchStates.write_tariff_cost), price_is_digit.PriceIsDigit())
+                        StateFilter(TariffAdminBranchStates.write_tariff_cost), ThrottlingFilter(),
+                        price_is_digit.PriceIsDigit())
 
     dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_feedbacks_residual,
-                        StateFilter(TariffAdminBranchStates.write_tariff_feedbacks_residual), DigitFilter())
+                        StateFilter(TariffAdminBranchStates.write_tariff_feedbacks_residual), ThrottlingFilter(),
+                        DigitFilter())
 
     dp.message.register(tariff_actions.input_tariff_data.process_write_tariff_time_duration,
-                        StateFilter(TariffAdminBranchStates.write_tariff_duration_time), TimeDurationFilter())
+                        StateFilter(TariffAdminBranchStates.write_tariff_duration_time), ThrottlingFilter(),
+                        TimeDurationFilter())
 
     dp.message.register(tariff_actions.input_tariff_data.process_tariff_name,
-                        StateFilter(TariffAdminBranchStates.write_tariff_name), UniqueTariffNameFilter(),
+                        StateFilter(TariffAdminBranchStates.write_tariff_name), ThrottlingFilter(),
+                        UniqueTariffNameFilter(),
                         AdminStatusController())
 
 
@@ -779,6 +788,7 @@ async def start_bot():
     dp.callback_query.register(user_ban.start_ban_process_input_reason.input_ban_reason_handler, F.data == 'user_block_action_by_admin')
     dp.message.register(user_ban.awaited_confirm_ban_process.ban_user_final_decision,
                         or_f(StateFilter(SellerReviewStates.review_state), StateFilter(BuyerReviewStates.review_state)),
+                        ThrottlingFilter(),
                         ControlInputUserBlockReason())
     dp.callback_query.register(user_ban.confirm_block_user_action.confirm_user_block_action,
                                F.data == 'confirm_block_user_by_admin', AdminStatusController())
@@ -825,7 +835,8 @@ async def start_bot():
     dp.callback_query.register(load_new_car.hybrid_handlers.input_photo_to_load,
                               F.data == 'rewrite_boot_photo')
     dp.message.register(load_new_car.hybrid_handlers.input_photo_to_load,
-                        (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), price_is_digit.PriceIsDigit())))
+                        (and_f(StateFilter(LoadCommodityStates.input_to_load_photo), ThrottlingFilter(),
+                               price_is_digit.PriceIsDigit())))
 
     '''Состояния загрузки новых машин'''
     dp.callback_query.register(backward_in_boot_car, F.data == 'boot_car_backward')
@@ -871,7 +882,8 @@ async def start_bot():
 
 
     dp.message.register(load_new_car.get_output_configs.output_load_config_for_seller,
-                              StateFilter(LoadCommodityStates.photo_verification), message_is_photo.MessageIsPhoto())
+                              StateFilter(LoadCommodityStates.photo_verification), ThrottlingFilter(),
+                        message_is_photo.MessageIsPhoto())
 
     dp.callback_query.register(edit_boot_car_data_handler,
                                and_f(StateFilter(LoadCommodityStates.load_config_output),

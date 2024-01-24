@@ -35,6 +35,13 @@ faq_buyer_uz = '''
 Avtomobillarni qidirganda taklif etilgan parametrlardan mos keladiganlarini tanlashingiz kerak, natijada sizning so‘ro
 vingiz bo‘yicha avtomobillar ro‘yxatini olasiz.
 \n<b>Ko‘rib chiqilgan, lekin sizning tasdiqlashingizsiz qolgan tovarlar quyidagi bo‘limda joylashadi:</b>
-<i>[Xaridor menyusi] - [Takliflar].</i>
-\nUlar siz tomoningizdan javob yoki dastlabki ko‘rishdan keyin 7 kun o‘tguncha u yerda qoladi.
+<i>[Xaridorlar menyusi] - [Takliflar] - [Tasdiqlanmaganlar].</i>
+Ular sizning javobingizgacha yoki birinchi ko‘rishdan keyin 7 kun o‘tganidan keyin qoladi.
+
+<b>Avto'lar bo‘yicha tavsiyalar</b> sotuvchilarning yangi joylashuvidan keyin paydo bo‘ladi, quyidagi bo‘limda:
+<i>[Xaridorlar menyusi] - [Takliflar] - [Tavsiyalar],</i>
+siz oldin ko‘rgan avtomobillarning tarixiga asoslanadi.
+
+<b>Sizning javoblaringiz</b> sotuvchining sizning javobingizni ko‘rish holati bilan birga kontaktlar va holatni ko‘rsatadi:
+<i>[Xaridorlar menyusi] - [Takliflar] - [Tasdiqlanganlar].</i>
 '''
