@@ -1,3 +1,6 @@
+import logging
+import re
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
@@ -9,8 +12,16 @@ class SetRedAdminHandler(BaseAdminCommandHandler):
     async def process_message(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         # await super().message_handler(request, state, **kwargs)
 
-        query = await self.admin_manager.set_red_admin(
-            await self.get_user_id(request)
-        )
+        user_id = await self.get_user_id(request)
 
-        await self.query_state_callback(request, query)
+        if await self.user_id_not_found_handler(request, user_id):
+            return
+        else:
+            query = await self.admin_manager.set_red_admin(
+                user_id
+            )
+
+            if query:
+                await self.logging_action(request, subject=request.text, action='up_to_red')
+
+            await self.query_state_callback(request, query)

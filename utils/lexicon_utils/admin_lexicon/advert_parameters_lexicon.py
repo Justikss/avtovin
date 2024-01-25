@@ -89,7 +89,7 @@ __ADVERT_PARAMETERS_LEXICON = {
                     'admin_backward:rewrite_exists_advert_param': _captions['backward'],
                     'width': 1}
     },
-    'input_photos_to_load_param_branch': {'message_text': 'Пришлите от 3-5 фотографий автомобиля\nсогласно введённым характеристикам:',
+    'input_photos_to_load_param_branch': {'message_text': 'Пришлите фото автомобиля\n(значок скрепки в левом углу чата)\n\n(!от 5 до 8 экземпляров!)\n\nНе отменяйте сжатие при отправке\nфотографии в телеграм.',
                                           'buttons': {
                                               'admin_backward:await_input_new_parameter_value': _captions['backward'],
                                               'width': 1

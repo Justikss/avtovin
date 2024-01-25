@@ -165,7 +165,7 @@ LEXICON_UZ = {
 
 'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Tasdiqlash ✅', 'callback_startswith': 'confirm_new_seller_registration_from:'},
 
-'seller_waiting_registration_confirm': {'start_text_legal': '<b>Avtosalon ro‘yxatdan o‘tish so‘rovi:</b>\nManzili:\n{address}\n', 'start_text_natural': '<b>Xususiy sotuvchi ro‘yxatdan o‘tish so‘rovi:</b>\n',
+'seller_waiting_registration_confirm': {'start_text_legal': '<b>Avtosalon ro‘yxatdan o‘tish so‘rovi:</b>\n{username}\nManzili:\n{address}\n', 'start_text_natural': '<b>Xususiy sotuvchi ro‘yxatdan o‘tish so‘rovi:</b>\n{username}\n',
 'legal_body_header': '─' * 8 + '\n<blockquote>Avtosalon nomi: <i>{dealership_name}</i>\n',
 'natural_body_header': '─' * 8 + '\n<blockquote>Ism: <i>{name}</i>\nFamiliya: <i>{surname}</i>\nOtasining ismi: <i>{patronymic}</i>\n',
 'body': 'Telefon raqami: {phone_number}</blockquote>\n' + '─' * 8},
@@ -207,6 +207,8 @@ LEXICON_UZ = {
 
 
 lexicon_uz = {
+    'residual_simultaneous_announcements': "\n📗 Qolgan bir vaqtda e'lonlar: <i>{}</i>",
+    'simultaneous_announcements': '\n📗 Bir vaqtning oʻzida maksimal eʼlonlar: <i>{}</i>',
     'incorrect_price_$': '<b>Narxda bittadan ortiq “$” belgisi bo‘lmasligi kerak</b>',
     'infinity_feedbacks_caption': 'cheksiz',
     'offer': '<b>Ilova <i>№{offer_number}</i></b>',

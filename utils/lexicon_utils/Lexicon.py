@@ -160,7 +160,7 @@ __LEXICON = {
 
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить ✅', 'callback_startswith': 'confirm_new_seller_registration_from:'},
 
-            'seller_waiting_registration_confirm': {'start_text_legal': '<b>Заявка на регистрацию автосалона:</b>\nПо адресу:\n{address}\n', 'start_text_natural': '<b>Заявка на регистрацию частного продавца:</b>\n',
+            'seller_waiting_registration_confirm': {'start_text_legal': '<b>Заявка на регистрацию автосалона:</b>\n{username}\nПо адресу:\n{address}\n', 'start_text_natural': '<b>Заявка на регистрацию частного продавца:</b>\n{username}\n',
                                                  'legal_body_header': '─' * 8 + '\n<blockquote>Название автосалона: <i>{dealership_name}</i>\n',
                                                   'natural_body_header': '─' * 8 + '\n<blockquote>Имя: <i>{name}</i>\nФамилия: <i>{surname}</i>\nОтчество: <i>{patronymic}</i>\n',
                                                    'body': 'Номер: {phone_number}</blockquote>\n' + '─' * 8},
@@ -225,6 +225,8 @@ captions = SafeDict({'ru': captions,
                      'uz': captions_uz})
 
 lexicon_ru = {
+    'residual_simultaneous_announcements': '\n📗 Остаток одновременных объявлений: <i>{}</i>',
+    'simultaneous_announcements': '\n📗 Максимум одновременных объявлений: <i>{}</i>',
     'incorrect_price_$': "<b>Стоимость должна содержать не более одного знака ' $ '</b>",
     'infinity_feedbacks_caption': 'бесконечно',
     'to_offers': 'К заявкам',
@@ -279,7 +281,7 @@ lexicon_ru = {
     'dealership_address_prefix': 'Адрес автосалона: <i>{dealership_address}</i>',
     'seller_name_prefix': 'Ваше имя: <i>{seller_name}</i>',
     'phonenumber_prefix': 'Телефонный номер: {phone_number}',
-    'tariff_block': '<blockquote>💰 Тариф: <i>{tariff_name}</i>\n🕰 До окончания подписки: <i>{days_remaining} Дней</i>\n🔸 Откликов: <i>{feedbacks_remaining}</i></blockquote>',
+    'tariff_block': '<blockquote>💰 Тариф: <i>{tariff_name}</i>\n🕰 До окончания подписки: <i>{days_remaining} Дней</i>\n🔸 Откликов: <i>{feedbacks_remaining}</i>{simultaneous_announcements_caption}</blockquote>',
     'tariff_out_date_prefix': '<blockquote>🕰 До окончания подписки: <i>{days_remaining} Дней</i></blockquote>',
     'residual_feedback_prefix': '<blockquote>🔸 Остаток откликов: <i>{feedbacks_remaining}</i></blockquote>',
     'tariff_expired': 'Ваш тариф истёк',
@@ -464,6 +466,7 @@ class LexiconSellerProfile:
         self.phonenumber_prefix = class_lexicon['phonenumber_prefix']
 
         self.tariff_block = class_lexicon['tariff_block']
+        self.simultaneous_announcements_caption = class_lexicon['residual_simultaneous_announcements']
 
         self.tariff_prefix = class_lexicon['tariff_prefix']
         self.tariff_out_date_prefix = class_lexicon['tariff_out_date_prefix']
@@ -490,6 +493,7 @@ class LexiconSelectedTariffPreview:
     def __init__(self):
         self.header = class_lexicon['selected_tariff_preview_header']
         self.tariff_block = class_lexicon['tariff_block']
+        self.simultaneous_announcements_caption = class_lexicon['simultaneous_announcements']
         self.separator = ' ' * 10 + '─' * 8
         self.low_separator = ' ' * 10 + '─' * 8
         self.buttons = {'start_choose_payment_method': class_lexicon['start_choose_payment_method'],

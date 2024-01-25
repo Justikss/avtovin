@@ -14,10 +14,17 @@ from states.load_commodity_states import LoadCommodityStates
 
 
 async def backward_in_boot_car(callback: CallbackQuery, state: FSMContext):
+    message_editor_module = importlib.import_module('handlers.message_editor')
+
     memory_storage = await state.get_data()
     cached_states = memory_storage.get('boot_car_states_cache')
     ic()
     loader_module = importlib.import_module('loader')
+    if await message_editor_module.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity'):
+        from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import \
+            output_load_config_for_seller
+        return await output_load_config_for_seller(callback, state)
+
     if cached_states:
         ic(cached_states)
         cached_states.pop()
@@ -49,6 +56,9 @@ async def backward_in_boot_car(callback: CallbackQuery, state: FSMContext):
         elif state_to_switch == 'LoadCommodityStates:input_to_load_price':
             current_state = LoadCommodityStates.input_to_load_price
             current_function = loader_module.load_new_car.hybrid_handlers.input_price_to_load
+        elif state_to_switch == 'LoadCommodityStates:input_to_load_photo':
+            current_state = LoadCommodityStates.input_to_load_photo
+            current_function = loader_module.load_new_car.hybrid_handlers.input_photo_to_load
 
         elif state_to_switch == 'LoadCommodityStates:input_to_load_year':
             current_state = LoadCommodityStates.input_to_load_year

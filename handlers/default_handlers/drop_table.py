@@ -18,10 +18,11 @@ from database.tables.admin import Admin
 from database.tables.car_configurations import CarAdvert, CarColor, CarComplectation, CarEngine
 from database.tables.commodity import AdvertPhotos
 from database.tables.offers_history import SellerFeedbacksHistory
-from database.tables.seller import Seller
+from database.tables.seller import Seller, BannedSeller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.statistic_tables.advert_to_admin_view_status import AdvertsToAdminViewStatus
 from database.tables.tech_support_contacts import TechSupports
+from database.tables.user import BannedUser
 
 
 async def insert_phototo(dataa):
@@ -145,13 +146,38 @@ async def get_adverts():
 
 async def drop_table_handler(message: Message):
     # await manager.create(Admin, telegram_id=902230076)
-    await create_ts_contacts()
+    # faker = Faker()
+    #
+    # numbers = [faker.phone_number() for _ in range(20)]
+    # telegram_ids = [faker.random_int() for _ in range(20)]
+    # ic(telegram_ids)
+    # for number, tid in zip(numbers, telegram_ids):
+    #     for table in (BannedUser, BannedSeller):
+    #         try:
+    #             ic(tid)
+    #             await manager.execute(table.create(telegram_id=tid, phone_number=number, reason='1'))
+    #         except:
+    #             traceback.print_exc()
+    #             pass
+    # await message.answer('SUCCESS')
+    #
+    # return
+    telegram_id = message.from_user.id
+    phone_number = '+793933'
+    reason = 'aasdd'
+    for table in (BannedUser, BannedSeller):
+        try:
+            await manager.execute(table.create(telegram_id=telegram_id, phone_number=phone_number, reason=reason))
+        except:
+            pass
+    await message.answer('SUCCESS')
+
     #
     return
     await message.answer('Waiting..')
     await drop_tables_except_one('Фотографии_Новых_Машин')
     await create_tables()
-    await mock_values(0)
+    await mock_values(only_base_params=False)
     sellers = await get_seller_account()
     photos = None
     photos = await read_photos_by_brand('utils/carss')

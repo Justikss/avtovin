@@ -11,10 +11,30 @@ class UnbanPersonAdminHandler(BaseAdminCommandHandler):
         #Тестировать: отсутсвие пользователей для взятия
         #unban s @username
         #unban b @username
+
+        seller, user = await self.identify_entity(request)
+
+        user_id = await self.get_user_id(request, banned=True)
+
+        if await self.user_id_not_found_handler(request, user_id):
+            return
+        else:
+            query = await BannedRequester.remove_ban(user_id, seller, user)
+
+
+            if query:
+                await self.logging_action(request, subject=request.text, action='unban_person')
+
+            await self.query_state_callback(request, query, action_on='unban')
+
+
+    async def identify_entity(self, request):
+        ic(request.text)
+        command_body = request.text[7:]
+        ic(command_body)
+
         seller, user = False, False
 
-        command_body = request.text[request.text.index('/unban ')+1:]
-        ic(command_body)
         if ic(command_body.startswith('s')):
             seller = True
         elif ic(command_body.startswith('b')):
@@ -22,10 +42,5 @@ class UnbanPersonAdminHandler(BaseAdminCommandHandler):
         else:
             user = True
             seller = True
-        user_id = await self.get_user_id(request, banned=True) #настроить поиск по баненым
 
-        query = await BannedRequester.remove_ban(user_id, seller, user)
-        # if query:
-        #     await
-        await self.query_state_callback(request, query)
-
+        return seller, user

@@ -48,8 +48,12 @@ class CachedRequestsView:
                 return await return_main_menu_callback_handler(callback, state)
         if not operation:
             operation = callback.data.split(':')[-1]
-
-        keyboard = await CachedRequestsView.get_keyboard(callback, pagination, operation, state)
+        current_page = await pagination.get_page(operation)
+        if not current_page:
+            if isinstance(callback, CallbackQuery):
+                await callback.answer()
+            return
+        keyboard = await CachedRequestsView.get_keyboard(callback, pagination, current_page, state)
         # ic(await state.get_state())
         try:
             await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state,
@@ -144,7 +148,7 @@ class CachedRequestsView:
         return media_group
 
     @staticmethod
-    async def get_keyboard(callback, pagination, operation, state: Optional[FSMContext]):
+    async def get_keyboard(callback, pagination, current_page, state: Optional[FSMContext]):
         inline_creator_module = importlib.import_module('handlers.callback_handlers.buy_part.language_callback_handler')
         redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -184,7 +188,6 @@ class CachedRequestsView:
         elif user_state == 'admin':
             backward_command = memory_storage.get('backward_command')
 
-        current_page = await pagination.get_page(operation)
 
         page_count_button = lexicon_module.LEXICON['output_inline_brands_pagination']['page_count'].replace('C',
                                                                                              str(pagination.current_page))
@@ -206,7 +209,8 @@ class CachedRequestsView:
             # if max_text_width > 14:
             #     width_value = 1
             width = ({width_value: len(current_page)}, 3, 1, 1)
-
+        else:
+            return
         if current_state:
             if 'ChooseStates' in current_state:
                 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')

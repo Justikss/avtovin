@@ -19,8 +19,10 @@ class AdminManager:
     #     await manager.get_or_none(Admin, await get_username(bot, Admin.telegram_id) == username)
     @staticmethod
     async def set_red_admin(telegram_id):
+
         admin = await manager.get_or_create(Admin, telegram_id=to_int(telegram_id))
         query = await manager.execute(Admin.update(admin_rang=1).where(Admin.telegram_id == admin[0]))
+
         return query
 
     @staticmethod

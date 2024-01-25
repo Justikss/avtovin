@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 from database.data_requests.admin_requests import AdminManager
@@ -39,6 +40,8 @@ class BaseAdminCommandHandler(BaseMessageHandler):
                 telegram_ids = await BannedRequester.retrieve_all_banned_ids()
                 ic(telegram_ids)
                 telegram_id = await self.get_telegram_id_from_massive(request, telegram_ids, user_name)
+                if not telegram_id and banned:
+                    return await self.get_user_id(request)
 
         ic(telegram_id)
         if not str(telegram_id).isdigit():
@@ -46,22 +49,35 @@ class BaseAdminCommandHandler(BaseMessageHandler):
         return telegram_id
 
     async def get_telegram_id_from_massive(self, request, telegram_ids, user_info):
-        tg_id = None
-        for telegram_id in telegram_ids:
-            username = await get_username(request.bot, telegram_id)
-            ic(username)
-            ic(f'@{username}' == user_info)
+        tasks = [get_username(request.bot, telegram_id) for telegram_id in telegram_ids]
+        usernames = await asyncio.gather(*tasks)
+
+        for telegram_id, username in zip(telegram_ids, usernames):
             if f'@{username}' == user_info:
-                tg_id = telegram_id
-                break
+                return telegram_id
+        return None
 
-        return tg_id
+    async def query_state_callback(self, request, query, action_on=None):
+        lexicon_code = None
 
-    async def query_state_callback(self, request, query):
         if query:
             lexicon_code = 'successfully'
         else:
-            lexicon_code = 'unsuccessfully'
+            if action_on:
+                match action_on:
+                    case 'admin':
+                        lexicon_code = 'inputted_user_not_is_admin'
+                    case 'unban':
+                         lexicon_code = 'user_has_not_been_blocked'
+                    case 'set_admin':
+                         lexicon_code = 'inputted_admin_is_exists'
+            if not lexicon_code:
+                lexicon_code = 'unsuccessfully'
         await self.delete_message(request, request.message_id)
         message = self.admin_lexicon[lexicon_code]
         await self.send_alert_answer(request, message)
+
+    async def user_id_not_found_handler(self, request, user_id):
+        if not user_id:
+            await self.send_alert_answer(request, self.admin_lexicon['user_id_not_found'])
+            return True

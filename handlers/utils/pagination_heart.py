@@ -10,6 +10,8 @@ class Pagination:
         print('current_page before operation: ', self.current_page, ' ', operation)
         # if self.current_page < 0:
         #     self.current_page = 0
+        ic(self.total_pages == self.current_page and self.total_pages == 1)
+        ic(self.total_pages, self.current_page)
         if self.total_pages == self.current_page and self.total_pages == 1:
             return False
         if operation == '-':

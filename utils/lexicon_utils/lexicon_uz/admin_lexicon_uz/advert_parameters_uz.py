@@ -70,7 +70,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
                 'admin_backward:rewrite_exists_advert_param': captions_uz['backward'],
                 'width': 1}
 },
-'input_photos_to_load_param_branch': {'message_text': 'Avtomobilning kiritilgan xususiyatlariga mos keladigan 3-5 ta fotosuratni yuboring:',
+'input_photos_to_load_param_branch': {'message_text': 'Avtomobilning suratini yuboring\n(klips ramzini chatning chap burchagida)\n\n(!5 dan 8 gacha namunalar!)\n\nTelegramda surat yuborishda siqishni bekor qilmang.',
                                       'buttons': {
                                           'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
                                           'width': 1

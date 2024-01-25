@@ -1,3 +1,5 @@
+import logging
+
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import time
@@ -19,16 +21,17 @@ async def output_for_admin_formater(callback: CallbackQuery):
         new_seller = new_seller[0]
         ic(new_seller.phone_number)
         lexicon_part = lexicon_module.__LEXICON['seller_waiting_registration_confirm']
-        # user_link = '@' + callback.from_user.username
+        user_link = '@' + callback.from_user.username
         # head_string = lexicon_part['start_text_' + new_seller.entity] + f'''\n{user_link}\n{lexicon_part['phone_number']}\n{new_seller.phone_number}'''
         if new_seller.entity == 'legal':
             # body_string = f'''\n\n{lexicon_middle_part['name']}\n{new_seller.dealship_name}\n\n{lexicon_middle_part['address']}\n{new_seller.dealship_address}'''
-            head_string = f'''{lexicon_part['start_text_legal'].format(address=new_seller.dealship_address)}{lexicon_part['legal_body_header'].format(dealership_name=new_seller.dealship_name)}'''
+            head_string = f'''{lexicon_part['start_text_legal'].format(username=user_link, address=new_seller.dealship_address)}{lexicon_part['legal_body_header'].format(dealership_name=new_seller.dealship_name)}'''
         elif new_seller.entity == 'natural':
             ic(new_seller.name,new_seller.patronymic)
-            head_string = f'''{lexicon_part['start_text_natural']}{lexicon_part['natural_body_header'].format(name=new_seller.name, surname=new_seller.surname, patronymic=str(new_seller.patronymic))}'''
+            head_string = f'''{lexicon_part['start_text_natural'].format(username=user_link)}{lexicon_part['natural_body_header'].format(name=new_seller.name, surname=new_seller.surname, patronymic=str(new_seller.patronymic))}'''
             head_string = '\n'.join([part for part in head_string.split('\n') if 'None' not in part])
-
+        else:
+            logging.error('Не удалось определить entity продавца: %s', new_seller.entity)
         head_string += f'''{lexicon_part['body'].format(phone_number=new_seller.phone_number)}'''
 
 
@@ -45,9 +48,10 @@ async def send_message_to_admins(callback: CallbackQuery):
     config_module = importlib.import_module('config_data.config')
     lexicon_part = lexicon_module.LEXICON['confirm_new_seller_registration_from_admin_button']
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
-    text=lexicon_part['confirm_from_admin'],
-    callback_data= lexicon_part['callback_startswith'] + str(callback.from_user.id))]])
+    '''клавиатура одобрения регистрации в архиве'''
+    # keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
+    # text=lexicon_part['confirm_from_admin'],
+    # callback_data= lexicon_part['callback_startswith'] + str(callback.from_user.id))]])
 
     output_text = await output_for_admin_formater(callback=callback)
 

@@ -18,8 +18,13 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             }
 
 ADMIN_LEXICON_uz = {
+    'inputted_user_not_is_admin': 'Kiritilgan foydalanuvchi administrator emas',
+    'user_has_not_been_blocked': 'Foydalanuvchi bloklanmagan',
+    'inputted_admin_is_exists': "Belgilangan administrator allaqachon o'z lavozimida",
+    'user_id_not_found': "Foydalanuvchi topilmadi. Ehtimol, u hech qachon botda ro'yxatdan o'tmagan.",
     'admin_help': {'message_text': '''<b>Atamalar</b>:
 Qizil admin - Eng yuqori darajali administrator.
+
 Qizil adminlarga mavjud buyruqlar:
 
 /add @username - <i>Admin qo'shish.</i>
@@ -31,6 +36,10 @@ Qizil adminlarga mavjud buyruqlar:
 /rdel @username - <i>Qizil adminni pasaytirish - oddiyga</i>
 
 Har qanday adminlarga mavjud buyruqlar:
+
+/unban s @username - <i>Sotuvchini blokdan chiqarish</i>
+/unban b @username - <i>Xaridorni blokdan chiqarish</i>
+/unban @username - <i>Xaridorni ham, sotuvchini ham blokdan chiqaring</i>
 
 /alist - <i>Adminlar ro'yxati</i>''', 'buttons': {'return_main_menu': 'Menyuga qaytish', 'width': 1}},
     'close_admin_list': 'Menyuda',

@@ -5,6 +5,9 @@ from aiogram.types import CallbackQuery
 import importlib
 from typing import Tuple, Union
 
+from database.tables.tariff import TariffsToSellers
+
+
 # from  import captions
 
 
@@ -44,6 +47,14 @@ async def get_seller_entity(seller_model):
         seller_entity = 'natural'
 
     return  seller_entity
+
+async def get_residual_simultaneous_announcements(tariff_to_seller: TariffsToSellers):
+    from database.data_requests.car_advert_requests import AdvertRequester
+    user_adverts = await AdvertRequester.get_advert_by_seller(tariff_to_seller.seller_id)
+    max_simultaneous_announcements = tariff_to_seller.tariff.simultaneous_announcements
+    result = max_simultaneous_announcements - len(user_adverts)
+    return result
+
 
 async def seller_profile_card_constructor(callback: CallbackQuery = None, user_id=None, get_part=None, for_admin=False) -> tuple | bool:
     '''Метод конструирования выводимой карточки профиля'''
@@ -92,17 +103,21 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
     ic(seller_tariff_model)
 
     if seller_tariff_model and not dying_tariff:
+        lexicon_class = copy(lexicon_module.LexiconSellerProfile)
         if isinstance(seller_tariff_model, list):
             seller_tariff_model = seller_tariff_model[0]
         if seller_tariff_model.end_date_time < datetime.now():
-            output_string += f'\n\n{lexicon_module.LexiconSellerProfile.tarif_expired}'
+            output_string += f'\n\n{lexicon_class.tarif_expired}'
         else:
             sellers_feedbacks = seller_tariff_model.residual_feedback
-            output_string += f'\n{lexicon_module.LexiconSellerProfile.sep}'
+            output_string += f'\n{lexicon_class.sep}'
             days_to_end = seller_tariff_model.end_date_time - datetime.now()
-            output_string += copy(lexicon_module.LexiconSellerProfile.tariff_block.format(
+            output_string += copy(lexicon_class.tariff_block.format(
+                simultaneous_announcements_caption=lexicon_class.simultaneous_announcements_caption.format(
+                    await get_residual_simultaneous_announcements(seller_tariff_model))\
+                    if seller_tariff_model.tariff.simultaneous_announcements else '',
                 tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
-                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_module.LexiconSellerProfile.infinity_feedbacks_caption))
+                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_class.infinity_feedbacks_caption))
             tariff_exists = True
         ic(output_string)
     if not get_part:

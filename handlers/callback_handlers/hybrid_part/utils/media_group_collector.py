@@ -70,7 +70,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             #
             if state_name:
                 if state_name in ('LoadCommodityStates:photo_verification', 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos'):
-                    if not 3 <= len(mediagroups[album_id]) <= 5:
+                    if not 5 <= len(mediagroups[album_id]) <= 8:
 
                         photo_filter = MessageIsPhoto()
                         mediagroups.clear()

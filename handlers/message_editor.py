@@ -10,6 +10,7 @@ from handlers.utils.delete_message import delete_message
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+
 class TravelEditor:
     @staticmethod
     async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False, send_chat=None, my_keyboard=None, need_media_caption=False, save_media_group=False, delete_media_group_mode = False, reply_message=None,
@@ -121,7 +122,7 @@ class TravelEditor:
                             # Определение списка файлов
                             file_list = media_group[album_id] if album_id else media_group
 
-                            file_list = file_list[:5]
+                            file_list = file_list[:8]
                             ic(file_list)
 
                             # Создание объектов для отправки
@@ -151,17 +152,17 @@ class TravelEditor:
 
                         else:
                             if album_id:
-                                if len(media_group) > 5:
-                                    media_group[album_id] = media_group[album_id][:5]
+                                # if len(media_group) > 5:
+                                #     media_group[album_id] = media_group[album_id][:5]
                                 # ic(media_group)
                                 # new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
                                 media_group = media_group[album_id]
-                            else:
-                                if len(media_group) > 5:
-                                    media_group = media_group[:5]
+                            # else:
+                                # if len(media_group) > 5:
+                                #     media_group = media_group[:5]
 
-                            if len(media_group) > 5:
-                                media_group = media_group[:5]
+                            # if len(media_group) > 5:
+                            #     media_group = media_group[:5]
 
                             new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
                             ic('post ', new_album)

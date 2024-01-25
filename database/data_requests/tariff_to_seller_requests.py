@@ -179,10 +179,11 @@ class TariffToSellerBinder:
                 data['seller'] = data['seller'][0] if data['seller'] else None
                 if tariff:
                     ic(tariff)
-                    if str(tariff).isalpha():
-                        tariff = await manager.get(Tariff, Tariff.name == tariff)
-                    else:
-                        tariff = await tariff_requests_module.TarifRequester.get_by_id(tariff)
+                    if not isinstance(tariff, Tariff):
+                        if str(tariff).isalpha():
+                            tariff = await manager.get(Tariff, Tariff.name == tariff)
+                        else:
+                            tariff = await tariff_requests_module.TarifRequester.get_by_id(tariff)
                     now_time = datetime.datetime.now()
                     '''Эта часть только для теста'''
                     if not seconds:

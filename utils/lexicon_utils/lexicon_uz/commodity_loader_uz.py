@@ -21,7 +21,7 @@ commodity_loader_lexicon_uz = {
 
     'edit_button_captions': {'price': 'Narxi {price}', 'year_of_release': 'Ishlab chiqarilgan yili: {year}', 'mileage': 'Yurgan masofa: {mileage} km.'},
     'input_price_text': 'Narxini kiriting:',
-    'input_photo_text': 'Avtomobilning suratini yuboring\n(klips ramzini chatning chap burchagida)\n\n(!3 dan 5 gacha namunalar!)\n\nTelegramda surat yuborishda siqishni bekor qilmang.',
+    'input_photo_text': 'Avtomobilning suratini yuboring\n(klips ramzini chatning chap burchagida)\n\n(!5 dan 8 gacha namunalar!)\n\nTelegramda surat yuborishda siqishni bekor qilmang.',
     'edit_photo_caption': 'Surat',
     'config_for_seller': '<b>Sizning avtomobilingiz konfiguratsiyalari:</b>',
     'can_rewrite_config': 'Tugmalarni bosish orqali maydonlarni qayta yozish mumkin',

@@ -147,6 +147,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
         memory_data = await state.get_data()
         photos = memory_data.get('load_photo')
 
+
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
                                                     lexicon_part={'message_text': message_for_admin_chat},
                                                     send_chat=config_module.ADMIN_ADVERTS_CHAT, media_group=photos)

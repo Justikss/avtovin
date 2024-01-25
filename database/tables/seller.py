@@ -24,3 +24,4 @@ class BannedSeller(BaseModel):
     telegram_id = BigIntegerField(unique=True, primary_key=True)
     phone_number = CharField()
     reason = TextField()
+    block_date = DateField(default=datetime.now().strftime('%d-%m-%Y'))

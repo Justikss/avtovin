@@ -117,13 +117,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     output_string = await get_output_string(mode='to_seller',
                                             boot_data=structured_boot_data)
 
-    # await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':boot_config', value=output_string)
-    ic(output_string)
-    # output_string = '\n'.join(output_string.split('\n')[:-2])
-    # ic(output_string)
+
     output_string = output_string.replace('None', '').strip()
-    # output_string += copy(lexicon_module.LexiconCommodityLoader.can_rewrite_config)
-    ic(output_string)
+
 
     lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state,
                                                                                    boot_data=structured_boot_data,

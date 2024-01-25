@@ -342,7 +342,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
             cached_states = memory_storage.get('boot_car_states_cache')
             if not cached_states:
                 cached_states = []
-            cached_states.append('LoadCommodityStates:input_to_load_price')
+            # cached_states.append('LoadCommodityStates:input_to_load_price')
             await state.update_data(boot_car_states_cache=cached_states)
         memory_storage = await state.get_data()
         if memory_storage.get('incorrect_flag'):

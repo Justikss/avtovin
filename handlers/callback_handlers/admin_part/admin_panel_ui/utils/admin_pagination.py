@@ -100,7 +100,10 @@ class AdminPaginationOutput(Pagination):
         admin_pagination_object = await AdminPaginationOutput.get_pagination_class_object(request)
         if admin_pagination_object:
             page_data = await admin_pagination_object.get_page(operation)
-            data_to_output = await admin_pagination_object.get_output_data(request, state, page_data)
+            if page_data:
+                data_to_output = await admin_pagination_object.get_output_data(request, state, page_data)
+            else:
+                data_to_output = None
 
             dictated_pagination_data = await admin_pagination_object.to_dict()
 

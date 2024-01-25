@@ -13,6 +13,7 @@ from database.data_requests.recomendations_request import RecommendationParamete
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
+from database.data_requests.utils.sort_objects_alphabetically import sort_objects_alphabetically
 from database.db_connect import database, manager
 from database.tables.admin import Admin
 
@@ -29,9 +30,18 @@ from utils.translator import translate
 class CarConfigs:
     @staticmethod
     async def sorted_integer_configs(query, current_table):
-        query = query.order_by(
-            fn.NULLIF(fn.REGEXP_REPLACE(current_table.name, '[^0-9].*$', ''), '').cast('integer'),
-            current_table.name)
+        ic(current_table)
+        if current_table == CarYear:
+            query = query.order_by(
+                # Сортировка по числовой части строки в убывающем порядке
+                fn.NULLIF(fn.REGEXP_REPLACE(current_table.name, '[^0-9].*$', ''), '').cast('integer').desc(),
+                # Сортировка по полному имени в убывающем порядке
+                current_table.name.desc()
+            )
+        else:
+            query = query.order_by(
+                fn.NULLIF(fn.REGEXP_REPLACE(current_table.name, '[^0-9].*$', ''), '').cast('integer'),
+                current_table.name)
         return query
 
     @staticmethod
@@ -42,6 +52,7 @@ class CarConfigs:
     @staticmethod
     async def custom_action(mode, action: str, name=None, model_id=None,
                             first_subject=None, second_subject=None):
+        result = None
         if isinstance(model_id, (list, set)):
             model_id = [int(id_element) for id_element in model_id]
         elif model_id and not isinstance(model_id, int):
@@ -128,20 +139,13 @@ class CarConfigs:
                 ic(map_condition)
                 result = await manager.get_or_create(current_table, **map_condition)
                 result = result[0]
-        ic(result)
+
+        if result and isinstance(result, list) and not current_table in (CarYear, CarMileage):
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
         return result
 
-    # @staticmethod
-    # async def delete_new_car_state_params(mode, model_id, binded_params: dict):
-    #     if mode == 'brand':
-
-
-        #удалить и с фото базы
-
-    # @staticmethod
-    # async def get_colors_by_name(color_name):
-    #     color_models = list(await manager.execute(CarColor.select().where(CarColor.name == color_name)))
-    #     return color_models
 
     @staticmethod
     async def get_by_id(table, model_id):
@@ -178,38 +182,37 @@ class CarConfigs:
         ic(result)
         ic()
         if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
             result = await set_other_color_on_last_position(result, without_other=without_other)
             ic(result)
+
+
+
+            return result
             # if without_other:
             #     ic(result)
             #     result.pop()
             #     ic(result)
             return result
 
-
-    # @staticmethod
-    # async def get_characteristic(year=False, color=False, mileage=False):
-    #     if year:
-    #         current_table = CarYear
-    #     elif color:
-    #         current_table = CarColor
-    #     elif mileage:
-    #         current_table = CarMileage
-    #     else:
-    #         current_table = None
-    #
-    #     if current_table:
-    #         return await manager.execute(current_table.select())
-
-
     @staticmethod
     async def get_all_engines():
-        return list(await manager.execute(CarEngine.select()))
+        result = list(await manager.execute(CarEngine.select()))
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
 
+        return result
     @staticmethod
     async def get_all_states():
-        return list(await manager.execute(CarState.select()))
+        result = list(await manager.execute(CarState.select()))
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
 
+        return result
 
     @staticmethod
     async def get_or_add_color(name):
@@ -242,8 +245,14 @@ class CarConfigs:
 
     @staticmethod
     async def get_brands_by_engine(engine_id):
-        return await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
+        result = await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
                                      .where(CarEngine.id == int(engine_id)))
+
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
+        return result
 
     # Функции для работы с Model
     @staticmethod
@@ -256,10 +265,15 @@ class CarConfigs:
     async def get_models_by_brand_and_engine(brand_id, engine_id=None):
         ic(brand_id, engine_id)
         if engine_id:
-            return list(await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
+            result = list(await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
         else:
-            return list(await manager.execute(CarModel.select().join(CarComplectation).where(CarModel.brand_id == brand_id)))
+            result = list(await manager.execute(CarModel.select().join(CarComplectation).where(CarModel.brand_id == brand_id)))
 
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
+        return result
 
     @staticmethod
     async def add_complectation(model_id, complectation_name):
@@ -270,18 +284,15 @@ class CarConfigs:
     @staticmethod
     async def get_complectations_by_model_and_engine(model_id, engine_id=None):
         if engine_id:
-            return list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).join(CarEngine).where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
+            result = list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).join(CarEngine).where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
         else:
-            return list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).where((CarModel.id == model_id))))
-    # Функции для работы с User
-    @staticmethod
-    async def add_user(username, role):
-        user, created = await database.get_or_create(User, username=username, role=role)
-        return user
+            result = list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).where((CarModel.id == model_id))))
 
-    @staticmethod
-    async def get_all_users():
-        return await manager.execute(User.select())
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
+        return result
 
     # Функции для работы с Listing
     @staticmethod
@@ -389,6 +400,13 @@ async def mock_values(only_base_params):
     engine_names = [('Гибрид', 'Gibrid'), ('Электро', 'Elektro'), ('ДВС', 'IYD')]
     await insert_many(CarEngine, engine_names)
 
+    await insert_many(CarYear,
+                      ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2020',
+                       '2020-2021', '2021-2022', '2022-2023', '2023-2024'])
+    await insert_many(CarMileage,
+                      ['5000-10000', '10000-15000', '15000-20000', '20000-25000', '25000-30000', '30000-35000',
+                       '35000-40000', '40000-45000', '45000-50000', '50000-75000', '75000-100000', '100000+'])
+
     if only_base_params:
         return
 
@@ -397,8 +415,6 @@ async def mock_values(only_base_params):
 
 
     await insert_many(CarColor, ['Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
-    await insert_many(CarYear, ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2022'])
-    await insert_many(CarMileage, ['5000-10000', '10000-15000', '15000-20000', '20000-25000', '25000-30000', '30000-35000', '35000-40000', '40000-45000', '45000-50000', '50000-75000', '75000-100000', '100000+'])
 
     await insert_many_with_foregin(CarModel, {'BYD': ['SONG PLUS CHAMPION', 'CHAZOR'], 'Leapmotor': ['C11'], 'Li Xiang': ['L9', 'L7'], 'Сhevrolet': ['Gentra', 'Nexia 3'],
 

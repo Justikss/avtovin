@@ -4,6 +4,7 @@ from peewee import fn
 from database.data_requests.recomendations_request import RecommendationRequester
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
+from database.data_requests.utils.sort_objects_alphabetically import sort_objects_alphabetically
 
 from database.db_connect import database, manager
 
@@ -129,53 +130,6 @@ class AdvertRequester:
         return await AdvertRequester.load_related_data_for_advert(advert)
 
 
-    # @staticmethod
-    # async def delete_adverts_by_seller(seller):
-    #     await manager.execute(CarAdvert.delete().where(CarAdvert.seller == seller))
-    # @staticmethod
-    # async def get_unique_values(state_id=None, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None, color_id=None, mileage_id=None, year_of_release_id=None):
-    #     # Формирование базового запроса
-    #     int_flag = False
-    #     query = None
-    #     ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id)
-    #     if state_id:
-    #         query = CarEngine.select().join(CarComplectation).join(CarAdvert).where(CarAdvert.state == state_id).order_by(CarEngine.id)
-    #     if engine_type_id:
-    #         query = CarBrand.select().join(CarModel).join(CarComplectation).join(CarAdvert).switch(CarComplectation).where((CarComplectation.engine == engine_type_id) & (CarComplectation.engine.in_(query))).order_by(CarBrand.id)
-    #     if brand_id:
-    #         query = CarModel.select().where((CarModel.brand == brand_id) & (CarModel.brand.in_(query))).order_by(CarModel.id)
-    #     if model_id:
-    #         query = CarComplectation.select().where((CarComplectation.model == model_id) & (CarComplectation.model.in_(query))).order_by(CarComplectation.id)
-    #     if complectation_id:
-    #         query = CarColor.select().join(CarAdvert).where((CarAdvert.complectation == complectation_id) & (CarAdvert.complectation.in_(query))).order_by(CarColor.id)
-    #     if color_id:
-    #         query = CarMileage.select().join(CarAdvert).join(CarComplectation).where((CarAdvert.color == color_id) & (CarAdvert.complectation_id == complectation_id)).distinct()
-    #         int_flag = CarMileage
-    #     if mileage_id:
-    #         query = CarYear.select().join(CarAdvert).join(CarComplectation).where((CarAdvert.mileage == mileage_id) & (CarAdvert.complectation_id == complectation_id)).distinct()
-    #         int_flag = CarYear
-    #     if year_of_release_id:
-    #         query = CarAdvert.select().where((CarAdvert.year == year_of_release_id) & (CarAdvert.year.in_(query)))
-    #
-    #     if int_flag:
-    #         query = (int_flag
-    #         .select(int_flag.id, int_flag.name)
-    #         .join(query, on=(int_flag.id == query.c.id))
-    #         .where(int_flag.id.in_(query))
-    #         .order_by(
-    #             fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer'),
-    #             int_flag.name))
-    #     else:
-    #         query = query.distinct()
-    #
-    #     if query:
-    #
-    #         results = await manager.execute(query)
-    #         return [item for item in results]
-    #     else:
-    #         return []
-    #
-
     @staticmethod
     async def get_advert_by(state_id=None, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
                             color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None,
@@ -290,8 +244,8 @@ class AdvertRequester:
                     .select(int_flag.id, int_flag.name)
                     .join(sub_query_ids, on=(int_flag.id == sub_query_ids.c.year_id))
                     .order_by(
-                        fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer'),
-                        int_flag.name))
+                        fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer').desc(),
+                        int_flag.name.desc()))
                 result_adverts = list(await manager.execute(query))
 
 
@@ -320,84 +274,29 @@ class AdvertRequester:
                 result_adverts = [result_adverts]
             result_adverts = [advert for advert in result_adverts if advert.id is not None]
 
+            if hasattr(result_adverts[0], 'name'):
+                if not result_adverts[0].name.replace('.', '').replace('-', '').isdigit():
+                    result_adverts = await sort_objects_alphabetically(result_adverts)
+
         ic(result_adverts)
+
         return result_adverts
 
-    # @staticmethod
-    # async def get_unique_values(model_class, base_query):
-    #     query = None
-    #
-    #     adverts = await AdvertRequester.load_related_data_for_advert(list(await manager.execute(base_query)))
-    #     if adverts:
-    #         if not isinstance(adverts, list):
-    #             adverts = [adverts]
-    #         advert_ids = [advert.id for advert in adverts]
-    #         ic()
-    #         ic(adverts)
-    #         if model_class == CarEngine:
-    #             query = (CarEngine
-    #                      .select()
-    #                      .join(CarComplectation)
-    #                      .join(CarAdvert)
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarBrand:
-    #             query = (CarBrand
-    #                      .select()
-    #                      .join(CarModel)
-    #                      .join(CarComplectation)
-    #                      .join(CarAdvert)
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarModel:
-    #             query = (CarModel
-    #                      .select()
-    #                      .join(CarComplectation, on=(CarComplectation.model == CarModel.id))
-    #                      .join(CarAdvert, on=(CarAdvert.complectation == CarComplectation.id))
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarColor:
-    #             query = (CarColor
-    #                      .select()
-    #                      .join(CarAdvert, on=(CarAdvert.color == CarColor.id))
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarMileage:
-    #             query = (CarMileage
-    #                      .select()
-    #                      .join(CarAdvert, on=(CarAdvert.mileage == CarMileage.id))
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarYear:
-    #             query = (CarYear
-    #                      .select()
-    #                      .join(CarAdvert, on=(CarAdvert.year == CarYear.id))
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarState:
-    #             query = (CarState
-    #                      .select()
-    #                      .join(CarAdvert, on=(CarAdvert.state == CarState.id))
-    #                      .where(CarAdvert.id.in_(advert_ids))
-    #                      .distinct())
-    #         elif model_class == CarComplectation:
-    #             query = (CarComplectation.select().join(CarAdvert).where(CarAdvert.id.in_(advert_ids)).distinct())
-    #
-    #         result = list(await manager.execute(query))
-    #         if result and model_class == CarColor:
-    #             result = await set_other_color_on_last_position(result)
-    #         return result
-    #     else:
-    #         return False
 
     @staticmethod
     async def get_active_adverts_by_complectation_and_color(complectation, color):
         # Получение активных объявлений
-        return list(await manager.execute(CarAdvert.select().where(
+        result = list(await manager.execute(CarAdvert.select().where(
             (CarAdvert.state == 1) &
             (CarAdvert.complectation == complectation) &
             (CarAdvert.color == color)
         )))
+
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
+        return result
 
     @staticmethod
     async def get_unique_engine_types(current_query):
@@ -408,7 +307,13 @@ class AdvertRequester:
                                      .where(CarComplectation.id.in_(current_query.select(CarComplectation.id)))
                                      .distinct())
 
-        return list(await manager.execute(unique_engine_types_query))
+        result = list(await manager.execute(unique_engine_types_query))
+
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
+        return result
 
     @staticmethod
     async def get_advert_brands_by_seller_id(seller_id):
@@ -425,12 +330,17 @@ class AdvertRequester:
             Seller.telegram_id == seller_id))  # предполагаем, что seller_telegram_id - это ваш идентификатор
 
         # Теперь выполним запрос и получим результат
-        unique_brands = list(await manager.execute(query))
-        return unique_brands
+        result = list(await manager.execute(query))
+        if result:
+            if hasattr(result[0], 'name'):
+                result = await sort_objects_alphabetically(result)
+
+        return result
 
     @staticmethod
     async def get_advert_by_seller(seller_id):
         return list(await manager.execute(CarAdvert.select().where(CarAdvert.seller == seller_id).order_by(CarAdvert.id)))
+
 
     @staticmethod
     async def get_by_seller_id_and_brand(seller_id, brand):

@@ -130,7 +130,6 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     reply_media_message_id = None
     if media_mode:
         media_group = []
-        data_for_seller['album'] = data_for_seller['album'][:5]
         for file_data in data_for_seller['album']:
             if isinstance(file_data, dict):
                 file_data = file_data['id']
