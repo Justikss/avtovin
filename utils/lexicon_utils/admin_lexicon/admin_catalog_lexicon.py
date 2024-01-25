@@ -57,13 +57,13 @@ __CATALOG_LEXICON = {
         'admin_backward:catalog__choose_specific_advert_action': captions['backward'],
         'width': 1
     }},
-    'catalog_close_advert__input_reason': {'message_text': 'Введите причину {acton_subject}:', 'buttons': {
+    'catalog_close_advert__input_reason': {'message_text': '<b>Введите причину {acton_subject}:</b>', 'buttons': {
         'admin_backward:input_reason_to_close_advert': captions['backward'],
         **return_main_menu,
         'width': 1
     }},
     'catalog_close_advert__confirmation_advert_close_action': {
-        'message_text': 'Произвести {action_subject}\n{seller_entity}\n{advert_caption}По причине:\n{action_reason}',
+        'message_text': '<b>Произвести {action_subject}</b>\n{seller_entity}\n{advert_caption}По причине:\n<b>{action_reason}</b>',
         'buttons': {'catalog_review__confirm_close_action': captions['confirm'],
                     'admin_backward:to_catalog_review_adverts': 'Вернуться к объявлениям',
                     'admin_backward:catalog_review_close_action_confirmation': captions['backward'],

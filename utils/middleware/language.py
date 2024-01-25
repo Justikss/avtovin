@@ -16,7 +16,7 @@ from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_mini
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions as second_captions, admin_class_mini_lexicon, \
     ChooseTariff, TariffNonExistsPlug, AllTariffsOutput
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_params_class_lexicon, \
-    advert_parameters_captions, AdvertParametersChooseState
+    advert_parameters_captions
 from utils.lexicon_utils.admin_lexicon.bot_statistics_lexicon import statistic_class_lexicon, TopTenDisplay, \
     SelectCustomParamsProcess
 from utils.lexicon_utils.admin_lexicon.contacts_lexicon import ADMIN_CONTACTS, OutputTSContacts
@@ -51,7 +51,7 @@ class LanguageMiddleware(BaseMiddleware):
 
             (admin_class_mini_lexicon, second_captions): [TariffNonExistsPlug, AllTariffsOutput,
                                                         ChooseTariff],
-            (advert_params_class_lexicon, advert_parameters_captions): [AdvertParametersChooseState],
+            # (advert_params_class_lexicon, advert_parameters_captions): [AdvertParametersChooseState],
 
             (statistic_class_lexicon): [SelectCustomParamsProcess, TopTenDisplay],
             (ADMIN_CONTACTS): [OutputTSContacts]

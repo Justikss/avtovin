@@ -2,6 +2,8 @@ import importlib
 
 from utils.lexicon_utils.lexicon_uz.config_uz import faq_buyer_uz, faq_seller_uz, faq_uz
 
+max_phone_number_len = 25
+
 captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 'cancel': 'Bekor qilish', 'confirm': 'Tasdiqlash',
             'sales': 'sotishlar', 'purchases': 'xaridlar', 'any': 'har doim', 'day': 'kun', 'week': 'hafta',
             'month': 'oy', 'year': 'yil', 'days': 'kunlar', 'feedbacks': 'javoblar',
@@ -70,8 +72,8 @@ LEXICON_UZ = {
 'write_full_name(novalid)': f'Noto‘g‘ri kirish, 2-3 harfli so‘zlar, probel bilan ajratilgan\nUzunligi {max_contact_info_len} belgilargacha bo‘lishi kerak.',
 'write_phone_number': {'message_text': 'Telefon raqamingizni kiriting:',
 'backward:user_registration_number': '◂ Orqaga ▸', 'width': 1},
-'write_phone_number(novalid)': 'Telefon raqami noto‘g‘ri kiritilgan\nRaqamingizni to‘g‘riligini tekshiring\nFaqat raqamlar, bo‘sh joylar va + belgisini qabul qiladi.',
-'write_phone_number(exists)': 'Telefon raqami noto‘g‘ri kiritilgan!\nU allaqachon ro‘yxatdan o‘tgan\nboshqa kutilmoqda',
+'write_phone_number(novalid)': f'<b>Telefon raqami noto‘g‘ri kiritilgan</b>\nRaqamingizni to‘g‘riligini tekshiring\nFaqat raqamlar, bo‘sh joylar va + belgisini qabul qiladi.\nBelgilarning maksimal soni bilan: {max_phone_number_len}.',
+'write_phone_number(exists)': '<b>Telefon raqami noto‘g‘ri kiritilgan!</b>\nU allaqachon ro‘yxatdan o‘tgan\nboshqa kutilmoqda',
     'write_phone_number(banned)': 'Ushbu telefon raqami xaridorlar maydonchasida bloklangan\nIltimos, yangi raqam kiriting:',
     # 'most_answers': {'message_text': 'Tez-tez so‘raladigan savollarga javoblar', 'in_main': 'Menyuda', 'width': 1},
     'main_menu': {'message_text': 'Xaridor menyusi 👨🏻‍💻\nSizning harakatingizni tanlang:',
@@ -147,9 +149,9 @@ LEXICON_UZ = {
 
 'write_seller_phone_number': {'message_text': 'Telefon raqamingizni kiriting:',
                        'backward:seller_registration_number': '◂ Orqaga ▸', 'width': 1},
-'write_seller_phone_number(novalid)': 'Telefon raqami noto‘g‘ri kiritilgan.',
-'write_seller_phone_number(exists)': 'Telefon raqami noto‘g‘ri kiritilgan!\nU allaqachon ro‘yxatdan o‘tgan\nboshqa raqam kutilmoqda',
-'write_seller_phone_number(banned)': 'Ushbu telefon raqami sotuvchilar platformasida bloklangan\nIltimos, yangi raqam kiriting:',
+'write_seller_phone_number(novalid)': f"<b>Telefon raqami noto‘g‘ri kiritilgan.</b>Iltimos, raqamingiz toʻgʻriligini tekshiring\nFaqat raqamlar, boʻshliqlar va '+' belgisi qabul qilinadi.\nMaksimal belgilar soni: {max_phone_number_len}.",
+'write_seller_phone_number(exists)': '<b>Telefon raqami noto‘g‘ri kiritilgan!</b>\nU allaqachon ro‘yxatdan o‘tgan\nboshqa raqam kutilmoqda',
+'write_seller_phone_number(banned)': '<b>Ushbu telefon raqami sotuvchilar platformasida bloklangan</b>\nIltimos, yangi raqam kiriting:',
 
 'write_dealership_address': {'message_text': 'Avtosalon manzilini kiriting\nYoki geolokatsiyangizni yuboring\n(chatning chap tomonidagi skrepka belgisini bosing)', 'backward:seller_registration_dealership_address': '◂ Orqaga ▸', 'width': 1},
 'write_dealership_address(novalid)': {'message_text': f'Xato\nAvtosalon manzili harflarni o‘z ichiga olishi kerak\nva {max_contact_info_len} belgidan kam bo‘lishi kerak', 'backward:seller_registration_dealership_address': '◂ Orqaga ▸', 'width': 1},

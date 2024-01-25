@@ -52,7 +52,7 @@ class MessageIsPhoto(BaseFilter):
         await redis_module.redis_data.set_data(key=redis_key_seller,
                                                 value=message.message_id)
         ic()
-        print('input_photo_to_load')#
+
         current_state = str(await state.get_state())
         match current_state:
             case 'LoadCommodityStates:photo_verification':

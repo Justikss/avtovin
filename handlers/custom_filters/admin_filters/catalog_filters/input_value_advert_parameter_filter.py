@@ -37,21 +37,26 @@ class AdvertParameterValueFilter(BaseFilterObject):
             last_advert_parameter = memory_storage.get('admin_chosen_advert_parameter')
         ic(last_advert_parameter)
 
-        if last_advert_parameter in ('mileage', 'year'):
-            car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
-
-            existing_value = await car_configs_module.CarConfigs.custom_action(last_advert_parameter, 'get_by_name',
-                                                                               name=inputted_value)
+        from config_data.config import max_advert_parameter_name_len
+        from config_data.config import max_integer_for_database
+        if len(inputted_value) > max_advert_parameter_name_len:
+            incorrect_flag = '(len)'
+        elif inputted_value.isdigit() and int(inputted_value) > max_integer_for_database:
+            incorrect_flag = '(int_len)'
         else:
-            existing_value = await self.seek_matched_new_state_param_names(request, state, last_advert_parameter,
-                                                                           inputted_value)
+            if last_advert_parameter in ('mileage', 'year'):
+                car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
-        ic(existing_value)
-        if existing_value:
-            incorrect_flag = '(exists)'
+                existing_value = await car_configs_module.CarConfigs.custom_action(last_advert_parameter, 'get_by_name',
+                                                                                   name=inputted_value)
+            else:
+                existing_value = await self.seek_matched_new_state_param_names(request, state, last_advert_parameter,
+                                                                               inputted_value)
 
-        if not incorrect_flag:
-            incorrect_flag = not len(inputted_value) < config_module.max_naming_len
+            ic(existing_value)
+            if existing_value:
+                incorrect_flag = '(exists)'
+
 
         ic(incorrect_flag)
         return await super().__call__(request, state, incorrect_flag=incorrect_flag,

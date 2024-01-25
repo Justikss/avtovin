@@ -55,8 +55,15 @@ tech_support_tg_link_buttons_width = 3
 
 mailing_text_max_len = 270
 max_price_len = 20
+max_phone_number_len = 25
 max_contact_info_len = 150
+datetime_input_max_len = 16
+duration_time_max_len = 8
+max_feedbacks_len = 18
+max_advert_parameter_name_len = 150
 max_naming_len = 70
+max_integer_for_database = 2147483647
+max_biginteger_for_database = 9223372036854775807
 block_user_reason_text_len = {'max': 256, 'min': 3}
 header_message_text = '<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
 

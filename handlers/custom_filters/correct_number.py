@@ -33,6 +33,9 @@ class CheckInputNumber(BaseFilter):
             seller_use = None
 
         phonenumber = message.text.strip().replace(' ', '')
+        from config_data.config import max_phone_number_len
+        if len(phonenumber) > max_phone_number_len:
+            return await current_method(message, state=state, incorrect='(novalid)')
         country = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':language')
 
         formatted_number = await self.format_and_validate_phone_number(phonenumber)

@@ -1,5 +1,8 @@
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.admin_lexicon_uz import return_main_menu_uz, captions_uz
 
+max_advert_parameter_name_len = 150
+max_integer_for_database = 2147483647
+
 advert_parameters_captions_uz = {
     'year': 'Yil', 'mileage': 'Yurgan masofasi', 'color': 'Rang', 'complectation': 'Komplektatsiya', 'model': 'Model',
     'brand': 'Brend', 'state': 'Holati', 'engine': 'Dvigatel', 'from_param_branch': ' parametrlar filialidan:\n{param_branch}\n'
@@ -10,7 +13,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
     'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Tanlangan xususiyat o‘chirib bo‘lmaydi, chunki unga e’lonlar ro‘yxatdan o‘tgan!',
 
-    'choose_second_hand_parameter_type': {'message_text': 'B/U avtomobillar parametrlari:', 'buttons': {
+    'choose_second_hand_parameter_type': {'message_text': 'Ishlatilgan avtomobillarning parametrlari:', 'buttons': {
         'second_hand_choice_advert_parameters_type_mileage': 'Yurgan masofasi', 'second_hand_choice_advert_parameters_type_year': 'Yil',
         'admin_backward:choose_second_hand_advert_parameters_type': captions_uz['backward'],
         **return_main_menu_uz,
@@ -22,13 +25,15 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
                                                  'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
                                                  'width': 1
                                              }},
+    'start_add_new_advert_parameter_value(int_len)': "Parametr qo'shish\n<b>Kiritilgan raqam {max_integer_for_database} qiymatidan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}".format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(len)': 'Parametr qo‘shish\n<b>Kiritilgan qiymat uzunligi {max_advert_parameter_name_len} harfdan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value_new_state_buttons': {
         'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
         'admin_backward:go_to_choose_params_state': 'Tanlashni boshiga qaytish',
         'width': 1},
 
 
-    'start_add_new_advert_parameter_value(exists)': 'Parametr qo‘shish\nKiritilgan qiymat allaqachon mavjud: {parameter_name}, noyob qiymat kiriting:',
+    'start_add_new_advert_parameter_value(exists)': 'Parametr qo‘shish\n<b>Kiritilgan qiymat allaqachon mavjud: {parameter_name}, noyob qiymat kiriting:</b>',
     # 'start_add_new_advert_parameter_value': '',
 
     'confirmation_add_new_advert_parameter_value': {
@@ -61,9 +66,12 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
         'admin_backward:start_rewrite_exists_parameter_value': captions_uz['backward'],
         'width': 1
     }},
+'start_rewrite_exists_parameter(len)': 'Parametrni tahrirlash: {0}.\n<b>Kiritilgan qiymat uzunligi {1} harfdan oshmasligi kerak.</b>'.format('{parameter_type}', max_advert_parameter_name_len),
 'start_rewrite_exists_parameter(exists)': 'Tahrirlash.\nKiritilgan qiymat allaqachon tanlangan parametrda mavjud: {parameter_type}',
+'start_rewrite_exists_parameter(int_len)': 'Parametrni tahrirlash: {0}.\n<b>Kiritilgan raqam {1} qiymatidan oshmasligi kerak:</b>'.format(
+    '{parameter_type}', max_integer_for_database),
 
-'confirmation_rewrite_exists_parameter': {
+    'confirmation_rewrite_exists_parameter': {
     'message_text': 'Siz rostdan ham parametr qiymatini tahrirlamoqchimisiz: {parameter_type}\nEski: {parameter_old_value}\nYangi: {parameter_new_value} ?',
     'buttons': {'confirm_rewrite_existing_advert_parameter': captions_uz['confirm'],
                 'rewrite_current_advert_parameter': 'Qayta kiriting',
@@ -97,7 +105,11 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 
 # Добавление в узбекский словарь
 advert_params_class_lexicon_uz = {
-    'car_parameters_message_text': '<b>Avtomobillar parametrlari.</b>\nHolatni tanlang:',
+    'car_parameters_start': {'message_text': '<b>Avtomobil parametr turini tanlang:</b>', 'buttons': {
+        "advert_parameters_choose_state:2": "foydl. avtomobillar konfigi", 'advert_parameters_choose_state:1': "Avtomobil qo'shing",
+        'admin_backward:advert_parameters_choose_state': '◂ Orqaga ▸',
+        'return_main_menu': 'Menyuda',
+        'width': 2}},
     'rewrite_current_advert_parameter': 'Tahrirlash',
     'backward': '◂ Orqaga ▸',
     'delete': 'O‘chirish',

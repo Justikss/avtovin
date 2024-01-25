@@ -13,7 +13,14 @@ from handlers.utils.delete_message import delete_message
 class TimeDurationFilter(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext) -> bool:
         # Проверяем, соответствует ли сообщение формату "лет:месяцев:дней"
-        result = bool(re.match(r'^\d+:\d+:\d+$', message.text))
+        from config_data.config import duration_time_max_len
+
+        duration_time = await self.convert_to_days(message.text)
+        from config_data.config import max_biginteger_for_database
+        if int(duration_time) > max_biginteger_for_database:
+            result = None
+        else:
+            result = bool(re.match(r'^\d+:\d+:\d+$', message.text))
         ic(result)
         memory_storage = await state.get_data()
 
@@ -34,3 +41,16 @@ class TimeDurationFilter(BaseFilter):
                 if number != '0':
                     return False
         return True
+
+    @staticmethod
+    async def convert_to_days(time_string):
+        # Проверка соответствия входной строки формату
+        if not re.match(r'^\d+:\d+:\d+$', time_string):
+            return False
+
+        years, months, days = map(int, time_string.split(':'))
+
+        # Предполагаем, что в году 365 дней, а в месяце 30 дней
+        total_days = years * 365 + months * 30 + days
+        return total_days
+

@@ -54,12 +54,13 @@ CATALOG_LEXICON_UZ = {
         'admin_backward:catalog__choose_specific_advert_action': captions_uz['backward'],
         'width': 1
     }},
-    'catalog_close_advert__input_reason': {'message_text': '{acton_subject} uchun sababni kiriting:', 'buttons': {
+    'catalog_close_advert__input_reason': {'message_text': '<b>{acton_subject} uchun sababni kiriting:</b>', 'buttons': {
         'admin_backward:input_reason_to_close_advert': captions_uz['backward'],
         **return_main_menu_uz,
         'width': 1
     }},
-    'catalog_close_advert__confirmation_advert_close_action': { 'message_text': '{action_subject} amalga oshirish\n{seller_entity}\n{advert_caption}Sababi:\n{action_reason}',
+    'catalog_close_advert__confirmation_advert_close_action': {
+        'message_text': '<b>{action_subject} amalga oshirish</b>\n{seller_entity}\n{advert_caption}Sababi:\n<b>{action_reason}</b>',
     'buttons': {'catalog_review__confirm_close_action': captions_uz['confirm'],
                 'admin_backward:to_catalog_review_adverts': 'E’lonlarga qaytish',
                 'admin_backward:catalog_review_close_action_confirmation': captions_uz['backward'],

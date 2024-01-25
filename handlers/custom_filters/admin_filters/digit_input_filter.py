@@ -16,10 +16,9 @@ class DigitFilter(BaseFilter):
 
         config_module = importlib.import_module('config_data.config')
 
-        is_correct = message.text.isdigit() and len(str(message.text)) < config_module.max_price_len and message.text[0] != '0'
-
-
-
+        from config_data.config import max_feedbacks_len
+        is_correct = message.text.isdigit() and len(str(message.text)) < max_feedbacks_len and message.text[0] != '0'
+        ic(is_correct)
         current_state = str(await state.get_state())
         memory_storage = await state.get_data()
         last_admin_answer = memory_storage.get('last_admin_answer')

@@ -60,7 +60,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
 
 
     await state.update_data(cars_state=cars_type)
-
+    ic(cars_type)
     await state.update_data(cars_class=cars_type)
 
     lexicon_class = lexicon_module.ChooseEngineType

@@ -49,7 +49,7 @@ async def choose_review_catalog_brand_admin_handler(callback: CallbackQuery, sta
     brand_models = await advert_to_admin_view_related_requester.retrieve_by_view_status(status=viewed_status, get_brands=True)
     if not brand_models:
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-        await send_message_answer(callback, Lexicon_module.catalog_captions['empty'])
+        await send_message_answer(callback, message=True, text=Lexicon_module.catalog_captions['empty'])
         return await choose_review_catalog_type_admin_handler(callback, state)
     ic(brand_models)
     await output_choose_module.output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,

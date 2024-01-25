@@ -54,7 +54,7 @@ class CheckInputName(BaseFilter):
         elif dealership_mode:
             formatted_full_name = full_name
 
-        if ((not dealership_mode and 1 < len(formatted_full_name) < 4) or (dealership_mode)) and len(formatted_full_name) <= config_module.max_contact_info_len:
+        if ((not dealership_mode and 1 < len(formatted_full_name) < 4) or (dealership_mode)) and len(full_name) <= config_module.max_contact_info_len:
             for word in formatted_full_name:
                 if not word.isalpha() and not dealership_mode or dealership_mode and not (word.isalpha() or word.isdigit() or word==' '):
                     try:

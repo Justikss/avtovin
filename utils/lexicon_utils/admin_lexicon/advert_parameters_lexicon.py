@@ -1,4 +1,4 @@
-
+from config_data.config import max_advert_parameter_name_len, max_integer_for_database
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_parameters_uz import advert_params_class_lexicon_uz, \
     advert_params_captions_uz
 from utils.safe_dict_class import SafeDict
@@ -28,7 +28,7 @@ __ADVERT_PARAMETERS_LEXICON = {
     'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',
 
-    'choose_second_hand_parameter_type': {'message_text': 'Параметры Б/У автомобилей:', 'buttons': {
+    'choose_second_hand_parameter_type': {'message_text': 'Параметры автомобилей с пробегом:', 'buttons': {
         'second_hand_choice_advert_parameters_type_mileage': 'Пробег', 'second_hand_choice_advert_parameters_type_year': 'Год',
         'admin_backward:choose_second_hand_advert_parameters_type': _captions['backward'],
         **return_main_menu,
@@ -45,8 +45,9 @@ __ADVERT_PARAMETERS_LEXICON = {
         'admin_backward:go_to_choose_params_state': 'В начало выборки',
         'width': 1},
 
-
-    'start_add_new_advert_parameter_value(exists)': 'Добавление параметра\nУказанное значение уже присутсвует в конфигурации: {parameter_name}, введите уникальное значение:',
+    'start_add_new_advert_parameter_value(len)': 'Добавление параметра\n<b>Длина введённого значения не должна превышать {max_advert_parameter_name_len} букв</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(int_len)': 'Добавление параметра\n<b>Введённое число не должно превышать значение {max_integer_for_database}</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(exists)': 'Добавление параметра\n<b>Указанное значение уже присутсвует в конфигурации: {parameter_name}, введите уникальное значение</b>',
     # 'start_add_new_advert_parameter_value': '',
 
     'confirmation_add_new_advert_parameter_value': {
@@ -80,6 +81,8 @@ __ADVERT_PARAMETERS_LEXICON = {
             'admin_backward:start_rewrite_exists_parameter_value': _captions['backward'],
             'width': 1
         }},
+    'start_rewrite_exists_parameter(int_len)': 'Редактирование параметра: {0}.\n<b>Введённое число не должно превышать значение {1}:</b>'.format('{parameter_type}', max_integer_for_database),
+    'start_rewrite_exists_parameter(len)': 'Редактирование параметра: {0}.\n<b>Длина введённого значения не должна превышать {1} букв.</b>: '.format('{parameter_type}', max_advert_parameter_name_len),
     'start_rewrite_exists_parameter(exists)': 'Редактирование.\nВведённое значения уже существует на выбранном параметре: {parameter_type}',
 
     'confirmation_rewrite_exists_parameter': {
@@ -115,7 +118,12 @@ __ADVERT_PARAMETERS_LEXICON = {
 
 # Добавление в русский словарь
 advert_params_class_lexicon_ru = {
-    'car_parameters_message_text': '<b>Параметры автомобилей.</b>\nВыберите состояние:',
+    'car_parameters_start': {'message_text': '<b>Выберите тип параметров автомобилей:</b>', 'buttons': {
+        'advert_parameters_choose_state:2': 'Конфигурации Б/У', 'advert_parameters_choose_state:1': 'Добавить авто',
+        'admin_backward:advert_parameters_choose_state': '◂ Назад ▸',
+        'return_main_menu': 'В меню',
+        'width': 2
+    }},
     'rewrite_current_advert_parameter': 'Редактировать',
     'backward': '◂ Назад ▸',
     'delete': 'Удалить',
@@ -130,15 +138,6 @@ advert_parameters_captions = SafeDict({'ru': advert_parameters_captions,
 
 advert_params_class_lexicon = SafeDict({'ru': advert_params_class_lexicon_ru,
                                         'uz': advert_params_class_lexicon_uz})
-
-class AdvertParametersChooseState:
-    def __init__(self):
-        self.message_text = advert_params_class_lexicon['car_parameters_message_text']  # Или lexicon_uz для узбекской версии
-        self.buttons_callback_data = 'advert_parameters_choose_state:'
-        self.dynamic_buttons = 2
-        self.width = 2
-        self.backward_command = {'admin_backward:advert_parameters_choose_state': advert_params_class_lexicon['backward'],
-                            'return_main_menu': advert_params_class_lexicon['return_main_menu']}
 
 class AdvertParametersChooseSpecificValue:
     def __init__(self, parameter_name: str, header: str):
@@ -179,4 +178,4 @@ class AdvertParametersChooseSpecificValue:
             self.backward_command = {**self.buttons_interface, **self.backward_command}
 
 
-AdvertParametersChooseState = AdvertParametersChooseState()
+# AdvertParametersChooseState = AdvertParametersChooseState()

@@ -393,7 +393,7 @@ async def insert_many_with_foregin(table, wire_to_name):
 
 async def mock_values(only_base_params):
     ''' V HEAD PARAMS V '''
-    await insert_many(CarState, [('Новое', 'Yangi'), ('Б/У', 'Б/У')])
+    await insert_many(CarState, [('Новое', 'Yangi'), ('С пробегом', 'Ishlatilgan')])
     await insert_many(CarColor, [('Другой', 'Boshqa')])
     ''' ^ HEAD PARAMS ^ '''
 
@@ -493,11 +493,11 @@ async def get_seller_account(mock_feedbacks=False):
     await manager.create(User, telegram_id=902230076, username='Justion', name='Boris', surname='Борисов', phone_number='+79371567898')
     await manager.create(Admin, telegram_id=902230076)
 
-    justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
-    mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
-    mockselle2 = await manager.create(Seller, telegram_id=912330076, entity='natural', name='Мокнутый', surname='Частюк', patronymic=None, dealship_address=None, authorized=True, phone_number='+79323557898')
+    justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity=' legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
+    # mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
+    # mockselle2 = await manager.create(Seller, telegram_id=912330076, entity='natural', name='Мокнутый', surname='Частюк', patronymic=None, dealship_address=None, authorized=True, phone_number='+79323557898')
 
-    return [justion, mockseller, mockselle2]
+    # return [justion, mockseller, mockselle2]
 
 async def mock_feedbacks(sellers, raw_cars):
     ic(sellers)

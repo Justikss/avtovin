@@ -101,6 +101,8 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
             if not selected_parameters:
                 selected_parameters = {}
             if request.data.startswith('advert_parameters_choose_state:'):
+
+                # await state.update_data(admin_chosen_advert_parameter=False)
                 selected_parameters = {'state': 1}
                 chosen_param = 'state'
                 next_params_output = 'engine'

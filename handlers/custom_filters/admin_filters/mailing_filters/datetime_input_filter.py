@@ -20,18 +20,24 @@ class DateTimeFilter(BaseFilter):
         last_admin_answer = memory_storage.get('last_admin_answer')
         if last_admin_answer:
             await delete_message(message, last_admin_answer)
-
-        try:
-            mailing_datetime = datetime.datetime.strptime(message.text, config_module.MAILING_DATETIME_FORMAT)
-
-            if mailing_datetime < datetime.datetime.now():
-                await incorrect(state, message.message_id)
-                await request_mailing_date_time(message, state, incorrect='(time)')
-                return
-
-            await delete_message(message, message.message_id)
-            return {'mailing_datetime': str(mailing_datetime)}
-        except (ValueError, TypeError):
+        from config_data.config import datetime_input_max_len
+        if len(message.text) > datetime_input_max_len:
             await incorrect(state, message.message_id)
-            # await delete_message(message, message.message_id)
+
             await request_mailing_date_time(message, state, incorrect=True)  # Возвращаем False, если формат некорректен
+            return
+        else:
+            try:
+                mailing_datetime = datetime.datetime.strptime(message.text, config_module.MAILING_DATETIME_FORMAT)
+
+                if mailing_datetime < datetime.datetime.now():
+                    await incorrect(state, message.message_id)
+                    await request_mailing_date_time(message, state, incorrect='(time)')
+                    return
+
+                await delete_message(message, message.message_id)
+                return {'mailing_datetime': str(mailing_datetime)}
+            except (ValueError, TypeError):
+                await incorrect(state, message.message_id)
+                # await delete_message(message, message.message_id)
+                await request_mailing_date_time(message, state, incorrect=True)  # Возвращаем False, если формат некорректен

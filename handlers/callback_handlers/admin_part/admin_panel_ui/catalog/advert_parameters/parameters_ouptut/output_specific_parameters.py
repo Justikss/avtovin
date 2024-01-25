@@ -43,13 +43,14 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         # await self.handling_after_deletion(memory_storage, request)
 
         if isinstance(request, CallbackQuery) and \
-                ('_choice_advert_parameters_type_' or (request.data.startswith('admin_backward')\
-                                                       or any(kwarg in request.data for kwarg in ('state',
-                                                                                                  'rewrite',
-                                                                                                  'delete',) ) \
-                                                       or 'new' in request.data))\
+                ((request.data.startswith('admin_backward')\
+                                   or any(kwarg in request.data for kwarg in ('state',
+                                                                              'rewrite',
+                                                                              'delete',
+                                                                              '_choice_advert_parameters_type_') ) \
+                                    or ('new' in request.data and memory_storage.get('params_type_flag') == 'new')))\
                 and 'choose_action_on_specific_adv_parameter' not in request.data:
-
+            ic()
             if (request.data.startswith(('admin_backward', 'new')) or any(pattern in request.data for pattern in (
                     'state',
                     'new',
@@ -102,6 +103,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         else:
             message_text_header = memory_storage.get('message_text_header')
             parameter_name = memory_storage.get('admin_chosen_advert_parameter')
+            ic()
 
         ic(parameter_name)
         ic(parameters)

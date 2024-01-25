@@ -5,6 +5,7 @@ import importlib
 
 block_user_reason_text_len = {'max': 256, 'min': 3}
 max_contact_info_len = 100
+max_feedbacks_len = 18
 max_price_len = 20
 
 return_main_menu_uz = {'return_main_menu': 'Menyuga'}
@@ -124,17 +125,18 @@ Har qanday adminlarga mavjud buyruqlar:
 
     'input_tariff_feedbacks': {'message_text': "Javoblar sonini ko‘rsating:",
                                'buttons': {'admin_backward:input_tariff_feedbacks': captions_uz['backward'], 'width': 1}},
-    'input_tariff_feedbacks(incorrect)': "<b>Javoblar soni faqat noldan katta butun son sifatida kiritilishi kerak.</b>",
+    'input_tariff_feedbacks(incorrect)': f"<b>Javoblar soni faqat butun son sifatida kiritilishi kerak, uzunligi 0 dan {max_feedbacks_len} gacha.</b>",
 
     'input_tariff_time_duration': {
         'message_text': "Vaqtni kiriting\nFormatda: yillar:oylar:kunlar\nMisol (6 oy va 15 kun): 0:6:15",
         'buttons': {'admin_backward:input_tariff_duration_time': captions_uz['backward'],
                     'width': 1}},
-    'input_tariff_time_duration(incorrect)': "<b>Tarifning davomiyligi ijobiy bo'lishi va butun sonlar formatida kiritilishi kerak: yillar:oylar:kunlar</b>",
+    'input_tariff_time_duration(incorrect)': "<b>Tarifning amal qilish muddati ijobiy va asosli bo'lishi kerak va quyidagi formatda butun sonlar sifatida kiritilishi kerak: yillar:oylar:kunlar</b>",
 
     'input_tariff_name': {'message_text': '<b>Ismni istalgan formatda kiriting:</b>',
                           'buttons': {'admin_backward:input_tariff_name': captions_uz['backward'], 'width': 1}},
-    'input_tariff_name(incorrect)': f'''<b>Ushbu nom boshqa tarifda mavjud\nBoshqa nom kiriting:</b>''',
+    'input_tariff_name(match)': f'''<b>Ushbu nom boshqa tarifda mavjud\nBoshqa nom kiriting:</b>''',
+    'input_tariff_name(len)': f'''<b>Siz maksimal sarlavha uzunligidan oshib ketdingiz - {max_contact_info_len}.</b>\nBoshqa nom kiriting:''',
 
     'tariff_view_buttons': {'edit_tariff_by_admin': 'Tahrirlash', 'delete_tariff_by_admin': captions_uz['delete'],
                             'admin_backward:check_tariff_info': captions_uz['backward'], 'width': 2},

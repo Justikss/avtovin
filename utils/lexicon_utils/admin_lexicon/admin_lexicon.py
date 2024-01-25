@@ -1,5 +1,6 @@
 import importlib
 
+from config_data.config import max_feedbacks_len, max_contact_info_len
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.admin_lexicon_uz import admin_class_mini_lexicon_uz
 from utils.safe_dict_class import SafeDict
 
@@ -133,18 +134,18 @@ __ADMIN_LEXICON = {
 
     'input_tariff_feedbacks': {'message_text': 'Укажите количество откликов:',
                                'buttons': {'admin_backward:input_tariff_feedbacks': _captions['backward'], 'width': 1}},
-    'input_tariff_feedbacks(incorrect)': '<b>Количество откликов должно вводиться только в виде целого числа больше нуля.</b>',
+    'input_tariff_feedbacks(incorrect)': f'<b>Количество откликов должно вводиться только в виде целого числа, длиной от 0 до {max_feedbacks_len} цифр.</b>',
 
     'input_tariff_time_duration': {
         'message_text': 'Введите продолжительность времени\nВ формате: лет:месяцев:дней\nПример (6 месяцев и 15 дней): 0:6:15',
         'buttons': {'admin_backward:input_tariff_duration_time': _captions['backward'],
                     'width': 1}},
-    'input_tariff_time_duration(incorrect)': '<b>Продолжительность времени тарифа должна быть положительна и вводиться целыми числами в формате: лет:месяцев:дней</b>',
+    'input_tariff_time_duration(incorrect)': '<b>Продолжительность времени тарифа должна быть положительна и в пределах разумного и вводиться целыми числами в формате: лет:месяцев:дней</b>',
 
     'input_tariff_name': {'message_text': '<b>Укажите название в произвольном формате:</b>',
                           'buttons': {'admin_backward:input_tariff_name': _captions['backward'], 'width': 1}},
-    'input_tariff_name(incorrect)': f'''<b>Данное название уже присутствует у другого тарифа</b>\nВведите другое название:''',
-
+    'input_tariff_name(match)': f'''<b>Данное название уже присутствует у другого тарифа</b>\nВведите другое название:''',
+    'input_tariff_name(len)': f'''<b>Вы превысили максимальную длину названия - {max_contact_info_len}.</b>\nВведите другое название:''',
 
     'tariff_view_buttons': {'edit_tariff_by_admin': 'Редактировать', 'delete_tariff_by_admin': _captions['delete'],
                             'admin_backward:check_tariff_info': _captions['backward'], 'width': 2},
