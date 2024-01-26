@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from database.tables.user import User
+from states.admin_part_states.users_review_states import BuyerReviewStates
 from utils.get_user_name import get_user_name
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import pagination_interface
 
@@ -13,6 +14,8 @@ async def output_buyer_profile(request: CallbackQuery | Message, state: FSMConte
     message_editor_module = importlib.import_module('handlers.message_editor')
     user_id = None
     memory_storage = await state.get_data()
+
+    await state.set_state(BuyerReviewStates.review_state)
 
     if not user_model:
         if isinstance(request, CallbackQuery):

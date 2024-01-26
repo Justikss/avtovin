@@ -217,7 +217,8 @@ async def start_bot():
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
 
-    # dp.message.middleware(MessageThrottlingMiddleware())
+    dp.message.middleware(MessageThrottlingMiddleware())
+
     dp.message.middleware(ErrorHandler())
     dp.message.middleware(LanguageMiddleware())
     #
@@ -791,7 +792,8 @@ async def start_bot():
     ic()
     dp.callback_query.register(user_ban.start_ban_process_input_reason.input_ban_reason_handler, F.data == 'user_block_action_by_admin')
     dp.message.register(user_ban.awaited_confirm_ban_process.ban_user_final_decision,
-                        or_f(StateFilter(SellerReviewStates.review_state), StateFilter(BuyerReviewStates.review_state)),
+                        or_f(StateFilter(SellerReviewStates.start_input_block_reason),
+                             StateFilter(BuyerReviewStates.start_input_block_reason)),
                         ThrottlingFilter(),
                         ControlInputUserBlockReason())
     dp.callback_query.register(user_ban.confirm_block_user_action.confirm_user_block_action,

@@ -209,6 +209,7 @@ LEXICON_UZ = {
 
 
 lexicon_uz = {
+    'free_cost': 'bepul',
     'residual_simultaneous_announcements': "\n📗 Qolgan bir vaqtda e'lonlar: <i>{}</i>",
     'simultaneous_announcements': '\n📗 Bir vaqtning oʻzida maksimal eʼlonlar: <i>{}</i>',
     'incorrect_price_$': '<b>Narxda bittadan ortiq “$” belgisi bo‘lmasligi kerak</b>',
@@ -270,7 +271,7 @@ Rang: <i>{color}</i></blockquote>
     'tariff_selection_message_text': 'Mavjud barcha tariflar',
     'selected_tariff_preview_header': '<b>Tarif haqida ma‘lumot:</b>',
     'tariff_name': '<blockquote>🪪 <b>Nomi: <i>{tariff_name}</i></b></blockquote>',
-    'tariff_price': '<blockquote>💰 <b>Narxi: <i>{tariff_price}</i></b></blockquote>',
+    'tariff_price': '\n💰 <b>Narxi: <i>{tariff_price}</i></b>',
     'tariff_duration_time': '<blockquote>🕰 Amal qilish muddati: <i>{tariff_duration} kun</i></b></blockquote>',
     'tariff_feedback_amount': '<blockquote>🔸 Murojaatlar limiti: <i>{tariff_feedback_limit}</i></b></blockquote>',
     'choice_payment_system_message_text': 'To‘lov tizimini tanlang',

@@ -218,6 +218,7 @@ class AdvertRequester:
 
 
         query = query.distinct()
+        ic(without_actual_filter, int_flag, seller_id)
         if without_actual_filter:
             query = query.select(CarAdvert)
             result_adverts = list(await manager.execute(query))
@@ -228,6 +229,7 @@ class AdvertRequester:
                 return result_adverts
             ic()
         else:
+            # ic(int_flag)
             if (int_flag and not seller_id) and state_id == 2:
                 if int_flag == CarMileage:
                     sub_query_ids = sub_query.select(CarAdvert.mileage_id).distinct()
@@ -246,7 +248,11 @@ class AdvertRequester:
                     .order_by(
                         fn.NULLIF(fn.REGEXP_REPLACE(int_flag.name, '[^0-9].*$', ''), '').cast('integer').desc(),
                         int_flag.name.desc()))
+                ic()
                 result_adverts = list(await manager.execute(query))
+                ic(result_adverts)
+                if not result_adverts:
+                    return False
 
 
             if not result_adverts:

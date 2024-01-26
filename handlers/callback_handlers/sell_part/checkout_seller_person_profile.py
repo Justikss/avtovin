@@ -117,7 +117,8 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
                     await get_residual_simultaneous_announcements(seller_tariff_model))\
                     if seller_tariff_model.tariff.simultaneous_announcements else '',
                 tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
-                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_class.infinity_feedbacks_caption))
+                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_class.infinity_feedbacks_caption,
+                cost_caption=''))
             tariff_exists = True
         ic(output_string)
     if not get_part:

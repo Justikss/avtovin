@@ -1,4 +1,6 @@
 import importlib
+import re
+from datetime import datetime
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -26,7 +28,7 @@ class AdvertParameterValueFilter(BaseFilterObject):
         ic(str(await state.get_state()))
 
         if isinstance(request, Message):
-            inputted_value = request.text
+            inputted_value = request.text.strip()
         elif await state.get_state() == AdminAdvertParametersStates.confirmation_rewrite_exists_parameter:
             inputted_value = memory_storage.get('current_new_parameter_value')
         else:
@@ -37,12 +39,12 @@ class AdvertParameterValueFilter(BaseFilterObject):
             last_advert_parameter = memory_storage.get('admin_chosen_advert_parameter')
         ic(last_advert_parameter)
 
-        from config_data.config import max_advert_parameter_name_len
-        from config_data.config import max_integer_for_database
-        if len(inputted_value) > max_advert_parameter_name_len:
-            incorrect_flag = '(len)'
-        elif inputted_value.isdigit() and int(inputted_value) > max_integer_for_database:
-            incorrect_flag = '(int_len)'
+        incorrect_flag = await self.used_car_parameters_validator(last_advert_parameter, inputted_value)
+        if not incorrect_flag:
+            from config_data.config import max_advert_parameter_name_len
+            if len(inputted_value) > max_advert_parameter_name_len:
+                incorrect_flag = '(len)'
+
         else:
             if last_advert_parameter in ('mileage', 'year'):
                 car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
@@ -56,12 +58,73 @@ class AdvertParameterValueFilter(BaseFilterObject):
             ic(existing_value)
             if existing_value:
                 incorrect_flag = '(exists)'
-
+        if not incorrect_flag:
+            incorrect_flag = await self.default_parameters_validator(last_advert_parameter, inputted_value)
 
         ic(incorrect_flag)
         return await super().__call__(request, state, incorrect_flag=incorrect_flag,
                                       message_input_request_handler=message_input_request_handler)
 
+    async def default_parameters_validator(self, parameter_name, inputted_value):
+        async def is_valid_input(text):
+            """
+            Проверяет, содержит ли текст только буквы, цифры и/или символы.
+            Текст не должен содержать только символы без букв или цифр и не должен включать эмодзи.
+            """
+            # Паттерн для проверки: должен содержать хотя бы одну букву или цифру
+
+            pattern = re.compile(
+                r'^(?=.*[A-Za-z0-9а-яА-ЯёЁ])[A-Za-z0-9а-яА-ЯёЁ №!\"#$%&\'()*+,\-./:;<=>?@\[\]^_`{|}~]+$')
+
+            return bool(pattern.match(text))
+
+        if parameter_name in ('mileage', 'year'):
+            return
+
+        valid_input = await is_valid_input(inputted_value)
+        ic()
+        ic(valid_input)
+        if not valid_input:
+            incorrect_flag = '(text_symbols)'
+
+            return incorrect_flag
+
+
+    async def used_car_parameters_validator(self, parameter_name, inputted_value):
+        if not parameter_name in ('mileage', 'year'):
+            return
+        incorrect_flag = None
+        from config_data.config import max_integer_for_database
+
+        only_digit_value = inputted_value.replace('-', '').replace('+', '').replace(' ', '').replace('.', '')
+        one_nodigit_type_limit = not any(inputted_value.count(symbol) > 1 for symbol in ('+', '-'))
+        one_symbol_limit = not all(symbol in inputted_value for symbol in ('+', '-'))
+        point_limit = inputted_value.count('.') <= 6
+        valid_number = not inputted_value.startswith(('-', '.', '+'))
+        plus_correct_position = inputted_value.endswith('+') if '+' in inputted_value else True
+        if all((only_digit_value.isdigit(), one_nodigit_type_limit, one_symbol_limit, point_limit, valid_number,
+                plus_correct_position)):
+
+            match parameter_name:
+                case 'mileage':
+                    if int(only_digit_value) > max_integer_for_database:
+                        incorrect_flag = '(int_len)'
+
+                case 'year':
+                    current_year = datetime.now().year
+                    inputted_value_for_deep_validate = inputted_value.replace('+', '').replace('.', '').split('-')
+                    if len(inputted_value) > 9 + inputted_value.count('.'):
+                        incorrect_flag = '(year_len)'
+                    elif any(current_year < int(year_part) if year_part.isdigit() else False\
+                             for year_part in inputted_value_for_deep_validate)\
+                            and not ic(all(len(year_part) == 4 for year_part in inputted_value_for_deep_validate)):
+                        incorrect_flag = '(year_len)'
+
+        else:
+            incorrect_flag = '(symbols)'
+        ic()
+        ic(parameter_name, one_symbol_limit, one_nodigit_type_limit, one_symbol_limit, incorrect_flag)
+        return incorrect_flag
     @staticmethod
     async def get_returning_method(request, state):
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')

@@ -46,10 +46,11 @@ class ErrorHandler(BaseMiddleware):
         username = event.from_user.username
         user_id = event.from_user.id
 
-        logging.error("Произошла ошибка у %s - %d: %s\n%s\n%s\n%s\n" + '-' * 25, username, user_id,
-                      exception, message, await self.format_traceback(traceback.format_exc()), exception.args if exception.args else '')
+        logging.error("Произошла ошибка у %s - %d: %s\n%s\n%s\n%s\n%s\n" + '-' * 25, username, user_id,
+                      traceback.format_stack(),
+                      exception, message, await self.format_traceback(), exception.args if exception.args else '')
 
-    async def format_traceback(self, traceback_instance):
+    async def format_traceback(self):
         tb = traceback.format_exc().splitlines()  # Получаем трассировку стека как список строк
         max_length = max(len(line) for line in tb)  # Находим максимальную длину строки
         formatted_tb = ['| ' + line.ljust(max_length) + ' |' for line in tb]  # Добавляем символы '|' с обеих сторон

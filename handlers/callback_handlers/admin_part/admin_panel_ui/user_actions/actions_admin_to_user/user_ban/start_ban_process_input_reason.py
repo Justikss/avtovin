@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery, Message
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.backward_from_user_output import \
     backward_from_user_profile_review
 from handlers.utils.message_answer_without_callback import send_message_answer
+from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from utils.get_user_name import get_user_name
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -21,8 +22,12 @@ async def get_user_entity(callback: CallbackQuery, state: FSMContext):
 
     if seller:
         user_id = memory_storage.get('current_seller_id')
+        await state.set_state(SellerReviewStates.start_input_block_reason)
+
     elif user:
         user_id = memory_storage.get('current_user_id')
+        await state.set_state(BuyerReviewStates.start_input_block_reason)
+
     else:
         user_id = None
 
@@ -39,7 +44,6 @@ async def get_user_entity(callback: CallbackQuery, state: FSMContext):
 
 async def input_ban_reason_handler(request: CallbackQuery | Message, state: FSMContext, incorrect=False):
     message_editor_module = importlib.import_module('handlers.message_editor')
-
     user_data = await get_user_entity(request, state)
     if user_data:
         admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')

@@ -28,8 +28,9 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
 {lexicon_class.separator}\
 {lexicon_class.tariff_block.format(tariff_name=tariff_model.name, days_remaining=tariff_model.duration_time, 
                                    feedbacks_remaining=tariff_model.feedback_amount if tariff_model.feedback_amount < 999999 else Lexicon_module.LexiconSellerProfile.infinity_feedbacks_caption,
-                                   simultaneous_announcements_caption=lexicon_class.simultaneous_announcements_caption.format(tariff_model.simultaneous_announcements) if tariff_model.simultaneous_announcements else '')}\
-{lexicon_class.separator}{class_lexicon['tariff_price'].format(tariff_price=price) if display_price else ''}'''
+                                   simultaneous_announcements_caption=lexicon_class.simultaneous_announcements_caption.format(tariff_model.simultaneous_announcements) if tariff_model.simultaneous_announcements else '',
+                                    cost_caption=class_lexicon['tariff_price'].format(tariff_price=price if str(price) != '0' else copy(class_lexicon)['free_cost']) if display_price else '')}\
+{lexicon_class.separator}'''
 
     if by_admin:
         buttons = copy(admin_lexicon_module.ChooseTariff.tariff_review_buttons)

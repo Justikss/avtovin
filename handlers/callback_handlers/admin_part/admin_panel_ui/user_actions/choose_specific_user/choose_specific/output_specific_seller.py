@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import seller_profile_card_constructor
+from states.admin_part_states.users_review_states import SellerReviewStates
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import pagination_interface
 
 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -25,6 +26,7 @@ async def output_specific_seller_profile_handler(request: CallbackQuery | Messag
     choose_specific_person_by_admin_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
     seller_id = None
 
+    await state.set_state(SellerReviewStates.review_state)
     memory_storage = await state.get_data()
     if not seller_model:
         if isinstance(request, CallbackQuery):
