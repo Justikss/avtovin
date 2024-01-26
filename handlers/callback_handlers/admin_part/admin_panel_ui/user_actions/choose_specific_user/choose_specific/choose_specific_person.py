@@ -79,10 +79,11 @@ async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Mess
             await callback.answer(alert_text)
         else:
             await send_message_answer(callback, alert_text, 1)
+        ic(current_state)
         if current_state.startswith('BuyerReviewStates'):
             return await choose_user_category_by_admin_handler(callback, state)
         else:
-            await choose_seller_category_by_admin_handler(callback, state)
+            return await choose_seller_category_by_admin_handler(callback, state)
 
     config_module = importlib.import_module('config_data.config')
 

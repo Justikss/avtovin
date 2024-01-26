@@ -6,6 +6,7 @@ from datetime import datetime
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message, CallbackQuery
 
+from config_data.config import anti_spam_duration
 from handlers.utils.delete_message import delete_message
 
 config_module = importlib.import_module('config_data.config')
@@ -43,3 +44,6 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
         ic(text)
         ic()
         ic(await request.answer(text, show_alert=show_alert))
+
+
+    await asyncio.sleep(anti_spam_duration)

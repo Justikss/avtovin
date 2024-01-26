@@ -32,18 +32,15 @@ async def call_to_support_callback_handler(callback: CallbackQuery):
 
     sub_string = ''
     for support_link in support_links:
-        if len(support_links) == 1 and support_link.replace('‘', '').isalpha():
-            ic(support_link)
+        if len(support_links) == 1 and support_link.replace('‘', '').replace(' ', '').isalpha():
             sub_string += support_link
 
         else:
             sub_string += captions['tech_support_entity'].format(SUPPORT_NUMBER=support_link)
-    ic(lexicon_part['message_text'])
     if not empty_flag:
         sub_string = sub_string[:-1]
 
     lexicon_part['message_text'] += captions['supports_pattern'].format(sub_string)
-    ic(lexicon_part['message_text'])
 
     await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part)
 

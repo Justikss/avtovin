@@ -7,7 +7,7 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from config_data.config import spam_block_time, message_answer_awaited
+from config_data.config import spam_block_time, message_answer_awaited, anti_spam_duration
 
 # Глобальные переменные
 global_locks = {}
@@ -20,6 +20,7 @@ long_term_duration = 3600  # Пример: 1 час (3600 секунд)
 global_long_term_user_message_counts = {}
 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+
 async def delete_message(bot, chat_id, message_id):
     try:
         await bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -27,31 +28,29 @@ async def delete_message(bot, chat_id, message_id):
         pass
 
 async def notify_user(bot: Bot, user_id: int, message: str, timer: int, mode: str):
-    # if timer > 2:
-    #     timer -= 1
     last_text_to_send = None
     text = f'<blockquote><b>{copy(message)}</b></blockquote>'
-    if mode == 'start':
-        alert_message = await bot.send_message(chat_id=user_id, text=text.format(time=timer))
-        global_active_notifications[user_id] = alert_message.message_id
-    elif mode == 'end':
-        notification_message = global_active_notifications.get(user_id)
-        if notification_message:
-            await delete_message(bot, user_id, notification_message)
-            alert_message = await bot.send_message(chat_id=user_id, text=text)
 
-            for time_point in range(timer + 1, 0, -1):
-                if '{time}' in text:
-                    text_to_send = text.format(time=time_point)
-                else:
-                    text_to_send = text + str(time_point)
-                if last_text_to_send != text_to_send:
-                    await alert_message.edit_text(text=text_to_send)
-                    last_text_to_send = text_to_send
+    await asyncio.sleep(anti_spam_duration)
+    alert_message = await bot.send_message(chat_id=user_id, text=text)
 
-                await asyncio.sleep(1)
-            await delete_message(bot, user_id, alert_message.message_id)
+    for time_point in range(timer + 1, 0, -1):
+        if '{time}' in text:
+            text_to_send = text.format(time=time_point)
+        else:
+            text_to_send = text + str(time_point)
+        if last_text_to_send != text_to_send:
+            await alert_message.edit_text(text=text_to_send)
+            last_text_to_send = text_to_send
 
+        await asyncio.sleep(1)
+    await delete_message(bot, user_id, alert_message.message_id)
+    del global_blocked_users[user_id]
+    match mode:
+        case 'long':
+            del global_long_term_user_message_counts[user_id]
+        case 'default':
+            del global_user_message_counts[user_id]
 
 async def check_blocked_users(bot):
     while True:
@@ -74,11 +73,16 @@ class ThrottlingFilter(BaseFilter):
 
     async def __call__(self, message: Message, handler):
         user_id = message.from_user.id
-        # if any((message.audio, message.photo, message.video, message.document)):
-        #     return True
+
         # Проверка блокировки пользователя
         if user_id in global_blocked_users:
-            return False
+            if datetime.now() >= global_blocked_users[user_id]:
+                # Время блокировки истекло, разрешаем пользователю отправлять сообщения
+                del global_blocked_users[user_id]
+            else:
+                # Пользователь всё ещё заблокирован
+                await delete_message(message.bot, user_id, message.message_id)
+                return False
 
         # Обновление или инициализация блокировки
         lock = global_locks.setdefault(user_id, asyncio.Lock())
@@ -88,7 +92,7 @@ class ThrottlingFilter(BaseFilter):
             except TelegramBadRequest:
                 pass
             return False
-        ''''''
+
         long_term_count_data = global_long_term_user_message_counts.setdefault(
             user_id, {'count': 0, 'time': datetime.now()}
         )
@@ -100,13 +104,11 @@ class ThrottlingFilter(BaseFilter):
                 global_blocked_users[user_id] = datetime.now() + timedelta(seconds=self.block_duration)
                 await notify_user(message.bot, user_id=user_id,
                                   message=lexicon_module.LEXICON['spam_detected'],
-                                  timer=self.block_duration, mode='start')
+                                  timer=self.block_duration, mode='long')
                 return False
         else:
             long_term_count_data['count'] = 1
             long_term_count_data['time'] = datetime.now()
-        ''''''
-
 
         global_user_message_counts.setdefault(user_id, {'count': 0, 'time': datetime.now()})
         user_message_count = global_user_message_counts[user_id]
@@ -119,7 +121,7 @@ class ThrottlingFilter(BaseFilter):
                 global_blocked_users[user_id] = datetime.now() + timedelta(seconds=self.block_duration)
                 await notify_user(message.bot, user_id=user_id,
                                                message=lexicon_module.LEXICON['spam_detected'],
-                                               timer=self.block_duration, mode='start')
+                                               timer=self.block_duration, mode='default')
                 return False
         else:
             user_message_count['count'] = 1
@@ -127,7 +129,7 @@ class ThrottlingFilter(BaseFilter):
 
         lock = global_locks.setdefault(user_id, asyncio.Lock())
         async with lock:
-            await asyncio.sleep(self.rate_limit)
+            await asyncio.sleep(anti_spam_duration)
             return True
 
 # Пример подключения фильтра

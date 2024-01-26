@@ -53,15 +53,9 @@ class TravelEditor:
                     media_group_message = await redis_data.get_data(key=user_id + ':seller_media_group_messages', use_json=True)
                 ic(media_group_message)
                 if media_group_message:
-                    if isinstance(media_group_message, int):
-                        await delete_message(request, chat_id=send_chat_id, message_id=media_group_message)
-                        ic()
-                        await redis_data.delete_key(key=user_id + ':last_media_group')
-                    else:
-                        for message_id in media_group_message:
-                            await delete_message(request, chat_id=send_chat_id, message_id=message_id)
-                            ic()
-                        await redis_data.delete_key(key=user_id + ':last_media_group')
+                    # if isinstance(media_group_message, int):
+                    await delete_message(request, chat_id=send_chat_id, message_id=media_group_message)
+                    await redis_data.delete_key(key=user_id + ':last_media_group')
 
             media_message_id = None
             if not media_group:
@@ -152,18 +146,7 @@ class TravelEditor:
 
                         else:
                             if album_id:
-                                # if len(media_group) > 5:
-                                #     media_group[album_id] = media_group[album_id][:5]
-                                # ic(media_group)
-                                # new_album = [InputMediaPhoto(media=file_data['id']) for file_data in media_group[album_id]]
                                 media_group = media_group[album_id]
-                            # else:
-                                # if len(media_group) > 5:
-                                #     media_group = media_group[:5]
-
-                            # if len(media_group) > 5:
-                            #     media_group = media_group[:5]
-
                             new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
                             ic('post ', new_album)
                             ic(len(new_album))

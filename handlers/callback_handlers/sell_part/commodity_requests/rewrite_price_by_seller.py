@@ -34,7 +34,7 @@ async def rewrite_price_by_seller_handler(request: Union[CallbackQuery, Message]
         reply_message = None
         delete_mode = True
     if not any((car.sum_price, car.dollar_price)):
-        price = Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', 0)
+        price = Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', '0')
     else:
         price = Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str("{:,}".format(car.sum_price))) if car.sum_price else f'{str("{:,}".format(car.dollar_price))}$'
 

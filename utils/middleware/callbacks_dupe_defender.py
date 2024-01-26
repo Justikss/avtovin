@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+from copy import copy
 from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import Bot, BaseMiddleware
@@ -7,11 +8,14 @@ from aiogram.types import CallbackQuery, Message
 from datetime import datetime, timedelta
 import time
 
-from config_data.config import spam_block_time
+from handlers.custom_filters.throttling import delete_message
+from config_data.config import spam_block_time, anti_spam_duration
+
+lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 class ThrottlingMiddleware(BaseMiddleware):
-    def __init__(self, rate_limit: float = 1, long_term_spam_count: int = 2, long_term_duration: int = 3600,
+    def __init__(self, rate_limit: float = 1, long_term_spam_count: int = 5, long_term_duration: int = 7,
                  block_duration: int = spam_block_time):
         super().__init__()
         self.rate_limit = rate_limit
@@ -22,6 +26,58 @@ class ThrottlingMiddleware(BaseMiddleware):
         self.long_term_activity = {}
         self.user_block_time = {}
         self.locks = {}
+
+
+    async def __call__(
+            self,
+            handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
+            event: CallbackQuery | Message,
+            data: Dict[str, Any]
+    ) -> Any:
+        user_id = event.from_user.id
+        bot = data.get('bot', None)
+
+        if not await self.check_user_block(user_id, bot):
+            return  # Пользователь заблокирован, прекращаем обработку
+
+        current_time = time.time()
+        if not await self.check_rate_limit(user_id, current_time):
+            return  # Слишком быстрое действие, пропускаем обработку
+
+        # Проверка долгосрочного спама и блокировка пользователя при необходимости
+        if not await self.check_long_term_spam(user_id, event.bot):
+            await self.notify_user(bot, user_id)
+            return
+
+        lock = await self.acquire_lock(user_id)
+        async with lock:
+            header_controller_module = importlib.import_module('handlers.default_handlers.start')
+            await asyncio.sleep(anti_spam_duration)
+            await header_controller_module.header_controller(event)
+            return await handler(event, data)
+
+    async def send_notification(self, bot: Bot, user_id: int, message: str, timer: int):
+
+        # if timer > 2:
+        #     timer -= 1
+        last_text_to_send = None
+        text = f'<blockquote><b>{copy(message)}</b></blockquote>'
+
+
+        # await delete_message(bot, user_id, notification_message)
+        alert_message = await bot.send_message(chat_id=user_id, text=text)
+        ic()
+        for time_point in range(timer + 1, 0, -1):
+            if '{time}' in text:
+                text_to_send = text.format(time=time_point)
+            else:
+                text_to_send = text + str(time_point)
+            if last_text_to_send != text_to_send:
+                await alert_message.edit_text(text=text_to_send)
+                last_text_to_send = text_to_send
+
+            await asyncio.sleep(1)
+        await delete_message(bot, user_id, alert_message.message_id)
 
     async def notify_user(self, bot: Bot, user_id: int):
         # Проверка, истекло ли время блокировки
@@ -46,10 +102,7 @@ class ThrottlingMiddleware(BaseMiddleware):
                     f"User {user_id} is still blocked until {block_info['end_time']} (now: {now})")  # Добавлено логгирование
                 return False
             else:
-                try:
-                    await bot.delete_message(user_id, block_info['message'])
-                except Exception as e:
-                    print(f"Error deleting block message: {e}")  # Логгирование ошибки
+                # await delete_message(bot, user_id, block_info['message'])
                 #отключаем ограничения по истечению времени
                 del self.user_block_time[user_id]
                 del self.long_term_activity[user_id]
@@ -77,10 +130,11 @@ class ThrottlingMiddleware(BaseMiddleware):
         if datetime.now() - long_term_data['time'] <= timedelta(seconds=self.long_term_duration):
             long_term_data['count'] += 1
             if long_term_data['count'] >= self.long_term_spam_count:
+
                 self.user_block_time[user_id] = {'start_time': datetime.now(),
                                                  'end_time': datetime.now() + timedelta(seconds=self.block_duration)}
-                await bot.send_message(user_id,
-                                       "Вы отправляете сообщения слишком часто. Пожалуйста, снизьте активность.")
+                ic()
+                await self.send_notification(bot, user_id, lexicon_module.LEXICON['callback_spam_detected'], self.block_duration)
                 return False
         else:
             long_term_data['count'] = 1
@@ -92,28 +146,3 @@ class ThrottlingMiddleware(BaseMiddleware):
             self.locks[user_id] = asyncio.Lock()
         return self.locks[user_id]
 
-    async def __call__(
-            self,
-            handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
-            event: CallbackQuery | Message,
-            data: Dict[str, Any]
-    ) -> Any:
-        user_id = event.from_user.id
-        bot = data.get('bot', None)
-
-        if not await self.check_user_block(user_id, bot):
-            return  # Пользователь заблокирован, прекращаем обработку
-
-        # Проверка долгосрочного спама и блокировка пользователя при необходимости
-        if not await self.check_long_term_spam(user_id, event.bot):
-            await self.notify_user(bot, user_id)
-            return
-
-        lock = await self.acquire_lock(user_id)
-        async with lock:
-            if not await self.check_rate_limit(user_id, time.time()):
-                return
-
-            header_controller_module = importlib.import_module('handlers.default_handlers.start')
-            await header_controller_module.header_controller(event)
-            return await handler(event, data)

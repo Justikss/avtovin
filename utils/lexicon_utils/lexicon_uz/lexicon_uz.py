@@ -25,6 +25,7 @@ max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
 
 LEXICON_UZ = {
+            'callback_spam_detected': 'Tugmani bosishning zararli intensivligi aniqlandi.\n{time} soniyadan keyin bot bilan ishlashni davom ettirishingiz mumkin.',
             'spam_detected': 'Sizdan xabar jo‘natishning zararli intensivligi aniqlandi.\nSiz {time} soniyadan so‘ng chatga qayta yozishingiz mumkin bo‘ladi.',
             'spam_passed': 'Chat bloklandi.\nSiz bot bilan muloqotni davom ettirishingiz mumkin.',
             'address_was_not_found': 'Manzil topilmadi',

@@ -207,7 +207,7 @@ async def start_bot():
     await TarifRequester.create_tarifs()
     await mailing_service.schedule_mailing(bot)
 
-    asyncio.create_task(check_blocked_users(bot))
+    # asyncio.create_task(check_blocked_users(bot))
 
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))

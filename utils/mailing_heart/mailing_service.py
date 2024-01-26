@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import logging
 import traceback
 from datetime import datetime
 from typing import List, Tuple, Optional
@@ -7,6 +8,8 @@ from typing import List, Tuple, Optional
 from aiogram import Bot
 from peewee import IntegrityError
 
+from config_data.config import mailing_interval
+from utils.middleware.exceptions_handler.middleware import ErrorHandler
 
 mailing_requests_module = importlib.import_module('database.data_requests.mailing_requests')
 
@@ -69,9 +72,19 @@ class MailingService:
             mailing_data = dict()
             ic(recipients, users_recipient, buyer_recipient, seller_recipient)
             for recipient_id in recipients:
-                chat_id_to_message_ids = await send_mailing(bot, mailing.media, mailing.text, recipient_id)
-                if chat_id_to_message_ids:
-                    mailing_data.update(chat_id_to_message_ids)
+                try:
+                    chat_id_to_message_ids = await send_mailing(bot, mailing.media, mailing.text, recipient_id)
+                    if chat_id_to_message_ids:
+                        mailing_data.update(chat_id_to_message_ids)
+
+                    await asyncio.sleep(mailing_interval)
+
+                except Exception as e:
+                    trace_back = await ErrorHandler().format_traceback()
+                    logging.error('Ошибка при рассылке по ID %d: %s\n%s\n%s\n%s', recipient_id, e,
+                                  e.message if hasattr(e, 'message') else '',
+                                  e.args if e.args else '',
+                                  trace_back)
 
             ic(mailing, mailing_data)
 

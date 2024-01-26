@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import traceback
 from typing import Union
@@ -5,6 +6,8 @@ from typing import Union
 from aiogram.types import CallbackQuery, Message
 from aiogram.exceptions import TelegramBadRequest
 
+from config_data.config import anti_spam_duration
+from handlers.utils.delete_message import delete_message
 
 config_module = importlib.import_module('config_data.config')
 
@@ -23,7 +26,7 @@ async def header_controller(request: Union[CallbackQuery, Message], need_delete=
     else:
         try:
             if need_delete:
-                await message.chat.bot.delete_message(chat_id=message.chat.id, message_id=header_message_id)
+                await delete_message(message, header_message_id)
                 send_flag = True
 
             await message.chat.bot.edit_message_text(chat_id=message.chat.id, text=f'{header_message_text}.',
@@ -52,8 +55,8 @@ async def header_controller(request: Union[CallbackQuery, Message], need_delete=
 
         redis_key = str(request.from_user.id) + ':last_message'
         last_message_id = await redis_module.redis_data.get_data(redis_key)
-        try:
-            await message.chat.bot.delete_message(chat_id=message.chat.id, message_id=last_message_id)
-        except:
-            pass
+
+        await delete_message(message, last_message_id)
+
+        await asyncio.sleep(anti_spam_duration)
         return True
