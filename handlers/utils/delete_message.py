@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import traceback
 
@@ -5,7 +6,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, Message
 
 
-async def delete_message(request: CallbackQuery | Message, message_id=None, chat_id=None, from_redis=False):
+async def delete_message(request: CallbackQuery | Message, message_id=None, chat_id=None, from_redis=False, bot=None):
 
     if from_redis:
         from handlers.custom_filters.message_is_photo import MessageIsPhoto
@@ -19,9 +20,8 @@ async def delete_message(request: CallbackQuery | Message, message_id=None, chat
     if not message_id:
         return
     if isinstance(message_id, list):
-        for message_id_element in message_id:
-            ic()
-            await delete_message(request, message_id_element, chat_id)
+        tasks = [delete_message(request, message_id_element, chat_id) for message_id_element in message_id]
+        await asyncio.gather(*tasks)
         return
 
     match request:

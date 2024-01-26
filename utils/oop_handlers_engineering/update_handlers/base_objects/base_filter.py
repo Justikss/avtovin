@@ -36,7 +36,7 @@ class BaseFilterObject(BaseFilter, ABC):
         if last_admin_answer:
             await delete_message(request, last_admin_answer)
 
-        if incorrect_flag:
+        if incorrect_flag and message_input_request_handler:
             ic()
             await incorrect(state, message_id)
             await message_input_request_handler(request, state, incorrect=incorrect_flag)

@@ -1,3 +1,5 @@
+import importlib
+
 from aiogram.fsm.context import FSMContext
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
@@ -14,7 +16,7 @@ class IncorrectAdapter:
         last_admin_answer = ic(memory_storage.get('last_admin_answer'))
         return last_admin_answer
 
-    async def get_lexicon_part_in_view_of_incorrect(self, lexicon_key, lexicon_object, incorrect) -> dict:
+    async def get_lexicon_part_in_view_of_incorrect(self, lexicon_key, lexicon_object, incorrect, state: FSMContext) -> dict:
         ic(incorrect)
         ic()
         lexicon_part = lexicon_object[lexicon_key]
@@ -27,6 +29,27 @@ class IncorrectAdapter:
 
             lexicon_part['message_text'] = incorrect_message_text
         ic(lexicon_part)
+
+        memory_storage = await state.get_data()
+        if memory_storage.get('params_type_flag') == 'new':
+            lexicon_part = await self.get_lexicon_part_with_blockquote_of_translating(lexicon_part, state)
+        return lexicon_part
+    async def get_lexicon_part_with_blockquote_of_translating(self, lexicon_part, state):
+        new_car_state_parameters_module = importlib.import_module(
+            'handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler')
+
+        current_parameter_name, current_parameter_value = await new_car_state_parameters_module \
+            .NewCarStateParameters().get_last_selected_param(state)
+        ic(current_parameter_name, current_parameter_value)
+        if current_parameter_name not in ('mileage', 'year', 'color'):
+            parameters = ['state', 'engine', 'brand', 'model', 'complectation', 'color']
+            current_parameter_name = parameters[parameters.index(current_parameter_name) + 1]
+
+            if current_parameter_name in ('complectation', 'color'):
+                from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_params_class_lexicon
+
+                lexicon_part['message_text'] += advert_params_class_lexicon['translate_param_caption']
+
         return lexicon_part
 
     async def try_delete_incorrect_message(self, request, state):

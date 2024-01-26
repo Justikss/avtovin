@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -18,21 +20,26 @@ class MessageIsPhoto(BaseFilter):
             chat_id = message.chat.id
         else:
             chat_id = user_id
+        tasks = []
         for redis_key in trash_redis_keys:
             redis_key = f'{user_id}{redis_key}'
             last_message_id = await redis_module.redis_data.get_data(key=redis_key)
-            ic(last_message_id, redis_key)
             if last_message_id:
                 if not isinstance(last_message_id, int):
                     last_message_id = int(last_message_id)
-                try:
-                    await message.bot.delete_message(chat_id=chat_id, message_id=last_message_id)
-                except:
-                    pass
-
+                ic(last_message_id)
+                tasks.append(MessageIsPhoto().delete_message(message=message, chat_id=chat_id,
+                                                             last_message_id=last_message_id))
                 await redis_module.redis_data.delete_key(key=redis_key)
 
+        await asyncio.gather(*tasks)
 
+
+    async def delete_message(self, message, chat_id, last_message_id):
+        try:
+            await message.bot.delete_message(chat_id=chat_id, message_id=last_message_id)
+        except:
+            pass
 
     async def __call__(self, message: Message, state: FSMContext):
         '''Сама вызывающаяся функция фильтра. Контролирует вхождение фотографии'''

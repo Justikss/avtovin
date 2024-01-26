@@ -41,7 +41,7 @@ class RewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
             .NewCarStateParameters().get_last_selected_param(state)
 
         lexicon_part = await self.incorrect_manager.get_lexicon_part_in_view_of_incorrect(
-            'start_rewrite_exists_parameter', Lexicon_module.ADVERT_PARAMETERS_LEXICON, kwargs.get('incorrect'))
+            'start_rewrite_exists_parameter', Lexicon_module.ADVERT_PARAMETERS_LEXICON, kwargs.get('incorrect'), state)
 
         formatted_kwargs = {}
         if 'parameter_value' in lexicon_part['message_text']:
@@ -50,8 +50,7 @@ class RewriteExistsAdvertParameterHandler(BaseCallbackQueryHandler):
         ic()
         ic(lexicon_part)
         lexicon_part['message_text'] = lexicon_part['message_text'].format(**formatted_kwargs)
-        if current_parameter_name in ('complectation', 'color'):
-            lexicon_part['message_text'] += advert_params_class_lexicon['translate_param_caption']
+
         ic()
         ic(lexicon_part)
         return lexicon_part

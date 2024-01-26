@@ -169,7 +169,10 @@ class CarConfigs:
             table = None
         ic(table, model_id)
         if model_id and table:
-            return await manager.get_or_none(table, table.id == model_id)
+            if isinstance(model_id, str):
+                model_id = int(model_id)
+            if isinstance(model_id, int):
+                return await manager.get_or_none(table, table.id == model_id)
 
     @staticmethod
     async def get_color_by_complectaiton(complectation_id, without_other=False):

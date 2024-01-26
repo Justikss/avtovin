@@ -47,7 +47,7 @@ __ADVERT_PARAMETERS_LEXICON = {
 
     'start_add_new_advert_parameter_value(text_symbols)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите корректное название.\nВы можете вводить: Цифры, буквы, и символы(при наличии цифр или букв):</b>',
     'start_add_new_advert_parameter_value(year_len)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите промежуток, не привышающий текущего года, длиной до 9 символов.\nПример: 2019-2020:</b>',
-    'start_add_new_advert_parameter_value(symbols)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите корректное число, начинающееся с цифр. Дополнительно возможно ввести: один знак плюса(в конце) или тире и до шести точек:</b>',
+    'start_add_new_advert_parameter_value(symbols)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите корректный положительный промежуток, начинающийся с цифр. Дополнительно возможно ввести: один знак плюса(в конце) или тире и до шести точек:</b>',
 
     'start_add_new_advert_parameter_value(len)': 'Добавление параметра\n<b>Длина введённого значения не должна превышать {max_advert_parameter_name_len} букв</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value(int_len)': 'Добавление параметра\n<b>Введённое число не должно превышать значение {max_integer_for_database}</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
@@ -89,7 +89,7 @@ __ADVERT_PARAMETERS_LEXICON = {
 
     'start_rewrite_exists_parameter(text_symbols)': 'Редактирование параметра: {parameter_type}.\n<b>Пожалуйста, введите корректное название.\nВы можете вводить: Цифры, буквы, и символы(при наличии цифр или букв):</b>',
     'start_rewrite_exists_parameter(year_len)': 'Редактирование параметра: {parameter_type}.\n<b>Пожалуйста, введите промежуток, не привышающий текущего года, длиной до 9 символов.\nПример: 2019-2020:</b>',
-    'start_rewrite_exists_parameter(symbols)': 'Редактирование параметра: {parameter_type}.\n<b>Пожалуйста, введите корректное число, начинающееся с цифр. Дополнительно возможно ввести: один знак плюса(в конце) или тире и до шести точек:</b>',
+    'start_rewrite_exists_parameter(symbols)': 'Редактирование параметра: {parameter_type}.\n<b>Пожалуйста, введите корректный положительный промежуток, начинающийся с цифр. Дополнительно возможно ввести: один знак плюса(в конце) или тире и до шести точек:</b>',
 
     'start_rewrite_exists_parameter(int_len)': 'Редактирование параметра: {0}.\n<b>Введённое число не должно превышать значение {1}:</b>'.format('{parameter_type}', max_integer_for_database),
     'start_rewrite_exists_parameter(len)': 'Редактирование параметра: {0}.\n<b>Длина введённого значения не должна превышать {1} букв.</b>: '.format('{parameter_type}', max_advert_parameter_name_len),

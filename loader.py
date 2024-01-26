@@ -98,7 +98,7 @@ from handlers.custom_filters.admin_filters.tariff_duration_time_filter import Ti
 from handlers.custom_filters.admin_filters.ts_contacts_filters.input_link_filter import InputTSLinkFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
-from handlers.custom_filters.throttling import ThrottlingFilter
+from handlers.custom_filters.throttling import ThrottlingFilter, check_blocked_users
 from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
 from handlers.custom_handlers.admin_administrating.admin_list import AdminListHandler
 from handlers.custom_handlers.admin_administrating.del_admin import DelAdminHandler
@@ -207,6 +207,7 @@ async def start_bot():
     await TarifRequester.create_tarifs()
     await mailing_service.schedule_mailing(bot)
 
+    asyncio.create_task(check_blocked_users(bot))
 
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
@@ -217,7 +218,7 @@ async def start_bot():
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
 
-    dp.message.middleware(MessageThrottlingMiddleware())
+    # dp.message.middleware(MessageThrottlingMiddleware(bot))
 
     dp.message.middleware(ErrorHandler())
     dp.message.middleware(LanguageMiddleware())

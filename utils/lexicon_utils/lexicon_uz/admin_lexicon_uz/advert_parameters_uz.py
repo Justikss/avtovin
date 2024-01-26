@@ -25,6 +25,12 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
                                                  'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
                                                  'width': 1
                                              }},
+
+    'start_add_new_advert_parameter_value(text_symbols)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
+    'start_add_new_advert_parameter_value(year_len)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
+    'start_add_new_advert_parameter_value(symbols)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
+
+
     'start_add_new_advert_parameter_value(int_len)': "Parametr qo'shish\n<b>Kiritilgan raqam {max_integer_for_database} qiymatidan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}".format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value(len)': 'Parametr qo‘shish\n<b>Kiritilgan qiymat uzunligi {max_advert_parameter_name_len} harfdan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value_new_state_buttons': {
@@ -66,6 +72,10 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
         'admin_backward:start_rewrite_exists_parameter_value': captions_uz['backward'],
         'width': 1
     }},
+'start_rewrite_exists_parameter(text_symbols)': "Parametrni tahrirlash: {parameter_type}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
+'start_rewrite_exists_parameter(year_len)': "Parametrni tahrirlash: {parameter_type}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
+'start_rewrite_exists_parameter(symbols)': "Parametrni tahrirlash: {parameter_type}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
+
 'start_rewrite_exists_parameter(len)': 'Parametrni tahrirlash: {0}.\n<b>Kiritilgan qiymat uzunligi {1} harfdan oshmasligi kerak.</b>'.format('{parameter_type}', max_advert_parameter_name_len),
 'start_rewrite_exists_parameter(exists)': 'Tahrirlash.\nKiritilgan qiymat allaqachon tanlangan parametrda mavjud: {parameter_type}',
 'start_rewrite_exists_parameter(int_len)': 'Parametrni tahrirlash: {0}.\n<b>Kiritilgan raqam {1} qiymatidan oshmasligi kerak:</b>'.format(

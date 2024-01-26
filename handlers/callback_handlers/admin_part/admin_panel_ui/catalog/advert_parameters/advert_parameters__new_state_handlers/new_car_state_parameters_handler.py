@@ -63,12 +63,12 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
             current_parameter_value_id = selected_parameters[last_param]
             ic(current_parameter_value_id)
             parameter_object = await CarConfigs.get_by_id(current_parameter_name, current_parameter_value_id)
-            current_parameter_value = parameter_object.name
+            current_parameter_value = parameter_object.name if parameter_object else None
         else:
             current_parameter_name = memory_storage.get('admin_chosen_advert_parameter')
             ic(memory_storage.get('current_advert_parameter'))
             param_data = memory_storage.get('current_advert_parameter')
-            if len(param_data) == 2:
+            if param_data and len(param_data) == 2:
                 current_parameter_value = param_data['value']
                 current_parameter_value_id = param_data['id']
             else:

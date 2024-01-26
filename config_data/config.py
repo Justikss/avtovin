@@ -51,6 +51,7 @@ REGISTRATION_DATETIME_FORMAT = '%d-%m-%Y'
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600
 message_answer_awaited = 2
+spam_block_time = 3
 tech_support_tg_link_buttons_width = 3
 
 mailing_text_max_len = 270

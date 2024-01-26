@@ -97,33 +97,45 @@ class AdvertParameterValueFilter(BaseFilterObject):
         from config_data.config import max_integer_for_database
 
         only_digit_value = inputted_value.replace('-', '').replace('+', '').replace(' ', '').replace('.', '')
+        ic(only_digit_value)
         one_nodigit_type_limit = not any(inputted_value.count(symbol) > 1 for symbol in ('+', '-'))
         one_symbol_limit = not all(symbol in inputted_value for symbol in ('+', '-'))
         point_limit = inputted_value.count('.') <= 6
         valid_number = not inputted_value.startswith(('-', '.', '+'))
+        input_value_not_null = not any(value_part.startswith('0') for value_part in only_digit_value)
         plus_correct_position = inputted_value.endswith('+') if '+' in inputted_value else True
         if all((only_digit_value.isdigit(), one_nodigit_type_limit, one_symbol_limit, point_limit, valid_number,
-                plus_correct_position)):
+                plus_correct_position, input_value_not_null)):
+            inputted_value_for_deep_validate = inputted_value.replace('+', '').replace('.', '').split('-')
 
-            match parameter_name:
-                case 'mileage':
-                    if int(only_digit_value) > max_integer_for_database:
-                        incorrect_flag = '(int_len)'
+            if len(inputted_value_for_deep_validate) == 2:
+                if all(value_part.strip().isdigit() for value_part in inputted_value_for_deep_validate):
+                    if not int(inputted_value_for_deep_validate[0]) < int(inputted_value_for_deep_validate[1]):
+                        incorrect_flag = '(symbols)'
 
-                case 'year':
-                    current_year = datetime.now().year
-                    inputted_value_for_deep_validate = inputted_value.replace('+', '').replace('.', '').split('-')
-                    if len(inputted_value) > 9 + inputted_value.count('.'):
-                        incorrect_flag = '(year_len)'
-                    elif any(current_year < int(year_part) if year_part.isdigit() else False\
-                             for year_part in inputted_value_for_deep_validate)\
-                            and not ic(all(len(year_part) == 4 for year_part in inputted_value_for_deep_validate)):
-                        incorrect_flag = '(year_len)'
+            elif not inputted_value.replace('.', '').split('-')[0].endswith('+'):
+                incorrect_flag = '(symbols)'
+
+            if not incorrect_flag:
+                match parameter_name:
+                    case 'mileage':
+                        if int(only_digit_value) > max_integer_for_database:
+                            incorrect_flag = '(int_len)'
+
+                    case 'year':
+                        current_year = datetime.now().year
+                        if len(inputted_value) > 9 + inputted_value.count('.'):
+                            incorrect_flag = '(year_len)'
+                        elif any(current_year < int(year_part) if year_part.isdigit() else False\
+                                 for year_part in inputted_value_for_deep_validate)\
+                                and not ic(all(len(year_part) == 4 for year_part in inputted_value_for_deep_validate)):
+                            incorrect_flag = '(year_len)'
 
         else:
             incorrect_flag = '(symbols)'
         ic()
-        ic(parameter_name, one_symbol_limit, one_nodigit_type_limit, one_symbol_limit, incorrect_flag)
+        ic(parameter_name, one_symbol_limit, one_nodigit_type_limit, one_symbol_limit, incorrect_flag,
+           plus_correct_position, input_value_not_null)
         return incorrect_flag
     @staticmethod
     async def get_returning_method(request, state):

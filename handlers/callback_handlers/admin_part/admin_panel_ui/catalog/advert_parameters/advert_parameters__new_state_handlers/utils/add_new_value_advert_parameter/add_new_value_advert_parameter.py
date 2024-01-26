@@ -36,7 +36,8 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
         lexicon_part = await self.incorrect_manager.get_lexicon_part_in_view_of_incorrect(
                     lexicon_object=Lexicon_module.ADVERT_PARAMETERS_LEXICON,
                     lexicon_key='start_add_new_advert_parameter_value',
-                    incorrect=kwargs.get('incorrect'))
+                    incorrect=kwargs.get('incorrect'),
+        state=state)
         lexicon_part['message_text'] = lexicon_part['message_text'].format(
             parameter_name=advert_parameters_captions[
                 memory_storage.get('admin_chosen_advert_parameter' if memory_storage.get('params_type_flag') != 'new'\
