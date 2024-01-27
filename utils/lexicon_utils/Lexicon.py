@@ -228,6 +228,7 @@ captions = SafeDict({'ru': captions,
                      'uz': captions_uz})
 
 lexicon_ru = {
+    'make_empty_field': 'Пропустить',
     'residual_simultaneous_announcements': '\n📗 Доступые места активных объявлений: <i>{}</i>',
     'simultaneous_announcements': '\n📗 Лимит активных объявлений: <i>{}</i>',
     'incorrect_price_$': "<b>Стоимость должна содержать не более одного знака ' $ '</b>",
@@ -325,6 +326,7 @@ class_lexicon = SafeDict({'ru': lexicon_ru,
 
 
 
+
 class LastButtonsInCarpooling(ABC):
     def __init__(self):
         self.last_buttons = {'backward_in_carpooling': class_lexicon['backward_in_carpooling'],
@@ -334,6 +336,11 @@ class LastButtonsInCarpooling(ABC):
         self.message_text = ''
         self.dynamic_buttons = 2
 
+class BaseOptionalField(LastButtonsInCarpooling, ABC):
+    def __init__(self):
+        super().__init__()
+        self.last_buttons = {'empty_field_carpooling': class_lexicon['make_empty_field'], **self.last_buttons}
+        self.dynamic_buttons = 3
 class ChooseEngineType(LastButtonsInCarpooling):
     def __init__(self):
         super().__init__()
@@ -357,7 +364,7 @@ class ChooseModel(LastButtonsInCarpooling):
         self.buttons_callback_data = 'cars_model_'
         self.last_buttons = None
 
-class ChooseComplectation(LastButtonsInCarpooling):
+class ChooseComplectation(BaseOptionalField):
     def __init__(self):
         super().__init__()
 
@@ -365,7 +372,7 @@ class ChooseComplectation(LastButtonsInCarpooling):
         self.buttons_callback_data = 'cars_complectation_'
         self.last_buttons = None
 
-class ChooseYearOfRelease(LastButtonsInCarpooling):
+class ChooseYearOfRelease(BaseOptionalField):
     def __init__(self):
         super().__init__()
 
@@ -373,7 +380,7 @@ class ChooseYearOfRelease(LastButtonsInCarpooling):
         self.buttons_callback_data = 'cars_year_of_release_'
         self.last_buttons = None
 
-class ChooseMileage(LastButtonsInCarpooling):
+class ChooseMileage(BaseOptionalField):
     def __init__(self):
         super().__init__()
 
@@ -381,7 +388,7 @@ class ChooseMileage(LastButtonsInCarpooling):
         self.buttons_callback_data = 'cars_mileage_'
         self.last_buttons = None
 
-class ChooseColor(LastButtonsInCarpooling):
+class ChooseColor(BaseOptionalField):
     def __init__(self):
         super().__init__()
         self.message_text = class_lexicon['choose_color_text']
@@ -542,3 +549,4 @@ ChooseComplectation = ChooseComplectation()
 ChooseYearOfRelease = ChooseYearOfRelease()
 ChooseMileage = ChooseMileage()
 ChooseColor = ChooseColor()
+BaseOptionalField = BaseOptionalField()

@@ -216,7 +216,13 @@ class CachedRequestsView:
                 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
                 ic()
                 # ic(list(current_page.items())[-2:])
-                backward_command = Lexicon_module.LastButtonsInCarpooling.last_buttons
+                ic(any(state_sub_string in current_state for state_sub_string in ('select_complectation', 'select_color',
+                                                                                  'select_year', 'select_mileage')), current_state)
+                if any(state_sub_string in current_state for state_sub_string in ('select_complectation', 'select_color',
+                                                                                  'select_year', 'select_mileage')):
+                    backward_command = lexicon_module.BaseOptionalField.last_buttons
+                else:
+                    backward_command = Lexicon_module.LastButtonsInCarpooling.last_buttons
                 dynamic_buttons = memory_storage.get('dynamic_buttons')
 
         if not backward_command:

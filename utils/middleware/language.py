@@ -10,7 +10,8 @@ from utils.lexicon_utils.Lexicon import LEXICON, ADVERT_LEXICON, STATISTIC_LEXIC
     CATALOG_LEXICON, ADMIN_LEXICON, statistic_captions, catalog_captions, captions as first_captions, class_lexicon, \
     LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection, LexiconChoicePaymentSystem, \
     LexiconCreateInvoice, LexiconSelectedTariffPreview, LexiconPaymentOperation, LastButtonsInCarpooling, \
-    ChooseEngineType, ChooseBrand, ChooseColor, ChooseMileage, ChooseYearOfRelease, ChooseComplectation, ChooseModel
+    ChooseEngineType, ChooseBrand, ChooseColor, ChooseMileage, ChooseYearOfRelease, ChooseComplectation, ChooseModel, \
+    BaseOptionalField
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import catalog_mini_lexicon, \
     AdminReviewCatalogChooseCarBrand
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import captions as second_captions, admin_class_mini_lexicon, \
@@ -43,7 +44,8 @@ class LanguageMiddleware(BaseMiddleware):
             (class_lexicon): [LexiconSellerRequests, LexiconSellerProfile, LexiconTariffSelection,
                             LexiconSelectedTariffPreview, LexiconChoicePaymentSystem, LexiconCreateInvoice,
                             LexiconPaymentOperation, LastButtonsInCarpooling, ChooseEngineType, ChooseBrand,
-                            ChooseModel, ChooseComplectation, ChooseYearOfRelease, ChooseMileage, ChooseColor],
+                            ChooseModel, ChooseComplectation, ChooseYearOfRelease, ChooseMileage, ChooseColor,
+                              BaseOptionalField],
 
             (commodity_loader_lexicon): [BaseBootButtons, LexiconCommodityLoader],
 

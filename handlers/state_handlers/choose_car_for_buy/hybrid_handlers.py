@@ -173,6 +173,7 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
 
     # button_texts = {car.complectation for car in models_range}
     lexicon_class = lexicon_module.ChooseComplectation
+    ic(lexicon_class.__dict__)
     await output_choose(callback, state, lexicon_class, models_range, config_module\
                         .car_configurations_in_keyboard_page)
     # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
