@@ -20,7 +20,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
         user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_color=user_answer)
     else:
-        user_answer = memory_storage['cars_color']
+        user_answer = memory_storage.get('cars_color')
     models_range = await car_advert_requests_module.AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],
@@ -58,7 +58,7 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
         user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         await state.update_data(cars_mileage=user_answer)
     else:
-        user_answer = memory_storage['cars_mileage']
+        user_answer = memory_storage.get('cars_mileage')
     models_range = await car_advert_requests_module.AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
                                                        brand_id=memory_storage['cars_brand'],
                                                        engine_type_id=memory_storage['cars_engine_type'],

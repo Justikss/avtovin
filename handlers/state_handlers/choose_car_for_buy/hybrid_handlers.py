@@ -197,7 +197,7 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
         delete_mode=False
     else:
         delete_mode=True
-        user_answer = memory_storage['cars_complectation']
+        user_answer = memory_storage.get('cars_complectation')
 
     models_range = await car_advert_requests_module\
         .AdvertRequester.get_advert_by(state_id=memory_storage['cars_state'],
@@ -228,19 +228,20 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
     await callback.answer()
 
-async def search_config_output_handler(callback: CallbackQuery, state: FSMContext):
+async def search_config_output_handler(callback: CallbackQuery, state: FSMContext, first_call=True):
     await cache_state(callback=callback, state=state)
 
-    memory_storage = await state.get_data()
-    user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
-    ic(memory_storage['cars_class'])
-    if int(memory_storage['cars_class']) == 2:
-        await state.update_data(cars_year_of_release=user_answer)
+    if first_call:
+        memory_storage = await state.get_data()
+        user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
+        ic(memory_storage['cars_class'])
+        if int(memory_storage['cars_class']) == 2:
+            await state.update_data(cars_year_of_release=user_answer)
 
 
-    elif int(memory_storage['cars_class']) == 1:
-        ic()
-        await state.update_data(cars_color=user_answer)
+        elif int(memory_storage['cars_class']) == 1:
+            ic()
+            await state.update_data(cars_color=user_answer)
 
     formatted_config_output = await get_cars_data_pack(callback=callback, state=state)
 

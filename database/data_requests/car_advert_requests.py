@@ -50,7 +50,12 @@ class AdvertRequester:
                 return []
 
             related_ids = {getattr(obj, foreign_key_field) for obj in objects if getattr(obj, foreign_key_field)}
-            related_objects = await manager.execute(related_model.select().where(related_model.id.in_(related_ids)))
+            related_ids_tuple = tuple(related_ids)  # Преобразуем список в кортеж для безопасного форматирования
+            raw_sql = f"SELECT * FROM {related_model._meta.table_name} WHERE id IN %s" % (related_ids_tuple,)
+
+            related_objects = await manager.execute(related_model.raw(raw_sql))
+
+            # related_objects = await manager.execute(related_model.select().where(related_model.id.in_(related_ids)))
             related_dict = {related.id: related for related in related_objects}
 
             for obj in objects:
@@ -70,6 +75,8 @@ class AdvertRequester:
             adverts = [offer.car_id for offer in adverts]
 
         ic(adverts)
+        if isinstance(adverts[0], CarAdvert):
+            await async_fetch_related(adverts, Seller, 'seller_id', 'seller')
 
         adverts = await async_fetch_related(adverts, CarComplectation, 'complectation_id', 'complectation')
         await async_fetch_deep_related([advert.complectation for advert in adverts],  CarModel, CarBrand, 'model_id', 'brand_id')
@@ -186,15 +193,17 @@ class AdvertRequester:
         if complectation_id:
             ic()
             # Подразумевается, что предыдущие join уже выполнены
-            complectation_id = int(complectation_id)
-            sub_query = sub_query.switch(CarAdvert).join(CarColor, on=(CarColor.id == CarAdvert.color)).where(CarComplectation.id == complectation_id)
+            sub_query = (sub_query.switch(CarAdvert).join(CarColor, on=(CarColor.id == CarAdvert.color))
+                         .where((CarComplectation.id == int(complectation_id)) if complectation_id != 'null' else True))
             query = sub_query.select(CarColor.id)
             last_table = CarColor
 
         if color_id:
 
             ic()
-            sub_query = sub_query.where(CarColor.id == int(color_id))
+
+            sub_query = sub_query.where((CarColor.id == int(color_id))
+                                        if color_id != 'null' else True)
             if state_id == 2:
                 int_flag = CarMileage
                 query = sub_query.select(CarMileage.id).switch(CarAdvert).join(CarMileage)
@@ -207,12 +216,16 @@ class AdvertRequester:
         if mileage_id:
             int_flag, last_table = CarYear, CarYear
             ic()
-            query = sub_query.switch(CarAdvert).join(CarMileage).where(CarMileage.id == int(mileage_id))
+
+            query = sub_query.switch(CarAdvert).join(CarMileage).where((CarMileage.id == int(mileage_id))
+                                                                       if mileage_id != 'null' else True)
             # query = sub_query.switch(CarAdvert).join(CarYear).select(CarYear)
 
         if year_of_release_id:
             ic()
-            query = query.switch(CarAdvert).join(CarYear).where(CarYear.id == int(year_of_release_id))
+
+            query = query.switch(CarAdvert).join(CarYear).where((CarYear.id == int(year_of_release_id))
+                                                                if year_of_release_id != 'null' else True)
             last_table, int_flag = None, None
 
 

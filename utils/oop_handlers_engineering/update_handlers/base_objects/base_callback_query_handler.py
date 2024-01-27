@@ -20,6 +20,13 @@ class BaseCallbackQueryHandler(BaseHandler, ABC):
         super().__init__(output_methods)
         self.idle_callback_answer = CallbackAnswerManager
 
+    async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        # Определить в подклассах
+        pass
+        # if isinstance(request, CallbackQuery):
+        #     await request.answer()
+
+
     async def callback_handler(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         # Обработка callback
         await self.process_callback(request, state, **kwargs)
@@ -28,11 +35,4 @@ class BaseCallbackQueryHandler(BaseHandler, ABC):
         ic(self.output_methods)
         # Генерация меню
         await self._output_panel(request, state)
-
-    async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        # Определить в подклассах
-        pass
-        # if isinstance(request, CallbackQuery):
-        #     await request.answer()
-
 

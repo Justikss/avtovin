@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import traceback
 
@@ -19,18 +20,25 @@ offers_history_module = importlib.import_module('database.tables.offers_history'
 
 class RecommendationParametersBinder:
     @staticmethod
-    async def store_parameters(buyer_id, color_id, complectation_id):
+    async def store_parameters(buyer_id, color_id, complectation_id, model):
         advert_feedbacks_requests_module = importlib.import_module('database.data_requests.statistic_requests.advert_feedbacks_requests')
 
         try:
-            complectation_id = int(complectation_id)
+            if str(complectation_id).isdigit():
+                complectation_id = int(complectation_id)
             ic(buyer_id, complectation_id, color_id)
             parameters = await advert_feedbacks_requests_module\
                 .AdvertFeedbackRequester.get_or_create_by_parameters(
                 color_id=color_id,
-                complectation_id=complectation_id)
-            select_query = await manager.get_or_create(offers_history_module\
-                                                       .RecommendationsToBuyer, buyer=buyer_id, parameters=parameters)
+                complectation_id=complectation_id,
+                model=model)
+
+            tasks = [manager.get_or_create(offers_history_module\
+                                                       .RecommendationsToBuyer, buyer=buyer_id, parameters=parameter)
+                                            for parameter in parameters]
+            await asyncio.gather(*tasks)
+            # select_query = await manager.get_or_create(offers_history_module\
+            #                                            .RecommendationsToBuyer, buyer=buyer_id, parameters=parameters)
 
 
         except Exception as ex:
@@ -39,21 +47,25 @@ class RecommendationParametersBinder:
             pass
 
     @staticmethod
-    async def get_wire_by_parameters(advert=None, complectation_id=None, color_id=None, seller_id=None):
+    async def get_wire_by_parameters(advert=None, complectation_id=None, color_id=None, seller_id=None, model_id=None):
         advert_feedbacks_requests_module = importlib.import_module('database.data_requests.statistic_requests.advert_feedbacks_requests')
         if advert:
             complectation_id = advert.complectation.id
+            model_id = advert.complectation.model.id
             color_id = advert.color.id
             seller_id = advert.seller.telegram_id
 
         ic(complectation_id, color_id)
         parameters = await advert_feedbacks_requests_module\
-            .AdvertFeedbackRequester.get_or_create_by_parameters(color_id, complectation_id)
+            .AdvertFeedbackRequester.get_or_create_by_parameters(color_id, complectation_id, model_id)
+        if parameters:
+            parameters = [parameter.id for parameter in parameters]
+
         query = (offers_history_module\
                  .RecommendationsToBuyer
                  .select()
                  .join(AdvertParameters)
-                 .where(AdvertParameters.id == parameters.id)
+                 .where(AdvertParameters.id.in_(parameters))
                  .switch(offers_history_module\
                          .RecommendationsToBuyer)
                  .join(User)

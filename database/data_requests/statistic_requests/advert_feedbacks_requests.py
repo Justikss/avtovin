@@ -26,22 +26,30 @@ class AdvertFeedbackRequester:
         await manager.execute(SellerFeedbacksHistory.delete().where(SellerFeedbacksHistory.seller_id == seller_id))
 
     @staticmethod
-    async def get_or_create_by_parameters(color_id, complectation_id, only_get=False):
+    async def get_or_create_by_parameters(color_id, complectation_id, model, only_get=False):
         ic(color_id, complectation_id)
-        if only_get:
-            manager_method = manager.get_or_none
-        else:
-            manager_method = manager.get_or_create
 
-        query = await manager_method(AdvertParameters,
-                                     complectation=complectation_id,
-                                     color=color_id)
+        base_query = AdvertParameters.select().join(CarComplectation)
+        conditions = []
+
+        if complectation_id != 'null':
+            conditions.append((CarComplectation.id == complectation_id))
+
+        elif complectation_id == 'null':
+            conditions.append((CarComplectation.model == model))
+        if color_id != 'null':
+            conditions.append((AdvertParameters.color == color_id))
+        conditions = reduce(lambda a, b: a & b, conditions)
+
+        query = list(await manager.execute(base_query.where(conditions)))
+        # if not query:
+        # query = await manager_method(AdvertParameters,
+        #                              complectation=complectation_id,
+        #                              color=color_id if color_id != 'null' else None)
 
         # if not only_get:
         #     query = query[0]
         #
-        if isinstance(query, tuple):
-            query = query[0]
 
         return query
 

@@ -14,17 +14,17 @@ class UserCarCacheRequester:
         await manager.execute(insert_query)
         return True
 
-    @staticmethod
-    async def get_data_by_buyer_id(buyer_id):
-        '''Асинхронный метод для получения данных кэша автомобилей покупателя по его ID'''
-        query_response = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id)
-        models = await manager.execute(query_response)
-        white_models = [model for model in models if model.datetime_of_deletion > datetime.now()]
-        for model in white_models:
-            if model.datetime_of_deletion <= datetime.now():
-                delete_query = CacheBuyerOffers.delete().where(CacheBuyerOffers.id == model.id)
-                await manager.execute(delete_query)
-        return list(reversed(white_models))
+    # @staticmethod
+    # async def get_data_by_buyer_id(buyer_id):
+    #     '''Асинхронный метод для получения данных кэша автомобилей покупателя по его ID'''
+    #     query_response = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id)
+    #     models = await manager.execute(query_response)
+    #     white_models = [model for model in models if model.datetime_of_deletion > datetime.now()]
+    #     for model in white_models:
+    #         if model.datetime_of_deletion <= datetime.now():
+    #             delete_query = CacheBuyerOffers.delete().where(CacheBuyerOffers.id == model.id)
+    #             await manager.execute(delete_query)
+    #     return list(reversed(white_models))
 
     @staticmethod
     async def delete_cache_element(buyer_id, car_id):

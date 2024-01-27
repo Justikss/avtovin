@@ -64,6 +64,9 @@ async def get_output_string(advert, state=None, callback=None):
         else:
             startswith_text = ''
 
+    from database.data_requests.car_advert_requests import AdvertRequester
+    await AdvertRequester.load_related_data_for_advert(advert)
+
     if advert.mileage:
         mileage = advert.mileage.name
         year_of_realise = advert.year.name
@@ -76,16 +79,16 @@ async def get_output_string(advert, state=None, callback=None):
 
 
 async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_models=None):
-    redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
+    # redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     redis_key = str(callback.from_user.id) + ':cars_type'
-    cars_state = await redis_module.redis_data.get_data(redis_key)
+    # cars_state = await redis_module.redis_data.get_data(redis_key)
 
     lexicon_part = lexicon_module.LEXICON.get('chosen_configuration')
 
-    message_text = lexicon_part.get('message_text')
+#     message_text = lexicon_part.get('message_text')
 
     data_stack = []
     ic()
@@ -105,13 +108,15 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
         complectation = str(memory_storage.get('cars_complectation'))
         ic(car_state)
 
+        if str(complectation).isdigit():
+            complectation = int(complectation)
 
         advert_models = await car_advert_requests_module\
             .AdvertRequester.get_advert_by(state_id=int(car_state),
                                                          engine_type_id=engine_type,
                                                          brand_id=brand,
                                                          model_id=model,
-                                                         complectation_id=int(complectation),
+                                                         complectation_id=complectation,
                                                          color_id=color,
                                                          mileage_id=mileage,
                                                          year_of_release_id=year_of_release,
@@ -128,9 +133,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
         if isinstance(advert_models[0], offers_history_module\
                 .ActiveOffers):
             data_stack = [offer_model.car_id.id for offer_model in advert_models]
-        # elif isinstance(advert_models, int):
-        #     advert_models = await car_advert_requests_module\
-        #     .AdvertRequester.get_where_id(advert_models)
+
     else:
         return False
 
@@ -141,7 +144,8 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
         await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id,
                                                               complectation_id=complectation,
-                                                              color_id=color)
+                                                              color_id=color,
+                                                              model=model)
 
 
     return data_stack

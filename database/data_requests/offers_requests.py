@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import sqlite3
 import traceback
@@ -102,6 +103,12 @@ class OffersRequester:
             buyer_offers = list(await manager.execute(query.order_by(ActiveOffers.id)))
         except:
             buyer_offers = None
+
+        if buyer_offers:
+            from database.data_requests.car_advert_requests import AdvertRequester
+            tasks = [AdvertRequester.load_related_data_for_advert(buyer_offer.car_id) for buyer_offer in buyer_offers]
+            await asyncio.gather(*tasks)
+
         ic(buyer_offers)
         if buyer_offers:
             if get_brands:
@@ -152,7 +159,7 @@ class CachedOrderRequests:
 
 
         car_ids = car_data
-        query = CacheBuyerOffers.select().where(
+        query = CacheBuyerOffers.select(CacheBuyerOffers, CarAdvert).join(CarAdvert).where(
             (CacheBuyerOffers.buyer_id == buyer_id) & (CacheBuyerOffers.car_id.in_(car_ids)))
         select_query = list(await manager.execute(query))
         if exists_offers:
@@ -245,4 +252,9 @@ class CachedOrderRequests:
             delete_query = CacheBuyerOffers.delete().where(
                 CacheBuyerOffers.id.in_([request.id for request in requests_to_remove]))
             await manager.execute(delete_query.order_by(CacheBuyerOffers.id))
-        return [request for request in select_query if request not in requests_to_remove]
+        result = [request for request in select_query if request not in requests_to_remove]
+        from database.data_requests.car_advert_requests import AdvertRequester
+        tasks = [AdvertRequester.load_related_data_for_advert(buyer_offer.car_id) for buyer_offer in result]
+        await asyncio.gather(*tasks)
+        return result
+

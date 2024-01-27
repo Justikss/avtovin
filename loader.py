@@ -109,6 +109,7 @@ from handlers.custom_handlers.admin_administrating.set_red_admin import SetRedAd
 from handlers.custom_handlers.admin_administrating.unban_person import UnbanPersonAdminHandler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.default_handlers.help import bot_help
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.empty_field_handler import EmptyFieldCarpoolingHandler
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
 # from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
@@ -803,6 +804,8 @@ async def start_bot():
 
     '''Состояния поиска машины'''
     '''hybrid'''
+    dp.callback_query.register(EmptyFieldCarpoolingHandler().callback_handler,
+                               F.data == 'empty_field_carpooling')
     dp.callback_query.register(hybrid_handlers.choose_engine_type_handler,
                                and_f(lambda callback: callback.data.startswith('choose_state_'),
                                      StateFilter(HybridChooseStates.select_engine_type)))
@@ -910,7 +913,7 @@ async def start_bot():
     # async def asdsad(message: Message):
     #     await message.answer(str(message.chat.id))
 
-    # @dp.callback_query()
+    @dp.callback_query()
     async def checker(callback: CallbackQuery, state: FSMContext):
 
       await callback.message.answer('Пролёт ' + callback.data + '\n' + str(await state.get_state()))

@@ -31,6 +31,9 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
 
         try:
             car = offer.car_id
+            from database.data_requests.car_advert_requests import AdvertRequester
+            await AdvertRequester.load_related_data_for_advert(car)
+
         except:
             await active_offers_module.OffersRequester.delete_offer(offer_id)
             raise CarExistsError()
