@@ -1,3 +1,4 @@
+import asyncio
 import traceback
 from copy import copy
 
@@ -7,6 +8,7 @@ from aiogram.types import CallbackQuery, InputMediaPhoto, Message, FSInputFile
 from typing import List, Union
 import importlib
 
+from config_data.config import anti_spam_duration
 from database.tables.car_configurations import CarAdvert
 from handlers.callback_handlers.sell_part.commodity_requests.commodity_requests_handler import \
     commodity_reqests_by_seller
@@ -207,7 +209,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
 
     page_monitoring_string = f'{Lexicon_module.LexiconSellerRequests.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]'
     lexicon_part = {'message_text': page_monitoring_string}
-
+    await asyncio.sleep(anti_spam_duration)
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True, reply_message=commodity_card_message, save_media_group=True)
 
 

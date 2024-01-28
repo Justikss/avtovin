@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery
 from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.tables.car_configurations import CarAdvert
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
-from utils.get_currency_sum_usd import get_valutes
+
 
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 offers_history_module = importlib.import_module('database.tables.offers_history')
@@ -78,7 +78,7 @@ async def get_output_string(advert, state=None, callback=None):
     return result_string
 
 
-async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_models=None):
+async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_models=None, cost_filter=None):
     # redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     cached_requests_module = importlib.import_module('database.data_requests.offers_requests')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -120,8 +120,12 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
                                                          color_id=color,
                                                          mileage_id=mileage,
                                                          year_of_release_id=year_of_release,
-                                                         buyer_search_mode=callback.from_user.id
-                                                         )
+                                                         buyer_search_mode=callback.from_user.id,
+                                                         cost_filter=cost_filter)
+        ic(len(advert_models))
+        if advert_models:
+            await collect_usd_price_diapason(advert_models, state)
+
     else:
         first_view_mode = False
     ic()
@@ -150,4 +154,20 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
 
     return data_stack
 
+async def collect_usd_price_diapason(adverts, state):
+    # ic(advert_models[0].__dict__)
+    prices = set()
+    for advert_model in adverts:
+        usd_price = advert_model.dollar_price
+        sum_price = advert_model.sum_price
+        if sum_price and not usd_price:
+            from utils.get_currency_sum_usd import convertator
+            usd_price = await convertator('sum', sum_price)
+        prices.add(usd_price)
 
+    prices = list(prices)
+
+
+    default_costs_diapason_on_buy_search = {'from': min(prices), 'before': max(prices)}
+    await state.update_data(all_usd_prices=prices)
+    await state.update_data(default_costs_diapason_on_buy_search=default_costs_diapason_on_buy_search)

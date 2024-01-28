@@ -75,11 +75,14 @@ class BuyerCarsPagination:
             await self.try_delete_last_media_group(request)
             if page_data.get('album'):
                 delete_mode=False
-                await message_editor.travel_editor.edit_message(request=request, lexicon_key='', media_group=page_data.get('album'), lexicon_part=page_data, need_media_caption=True)
+                await message_editor.travel_editor.edit_message(request=request, lexicon_key='',
+                                                                media_group=page_data.get('album'),
+                                                                lexicon_part=page_data, need_media_caption=True)
             else:
                 delete_mode=True
                 page_footer['message_text'] += page_data['message_text']
-            await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=page_footer, save_media_group=True, my_keyboard=keyboard, delete_mode=delete_mode)
+            await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=page_footer,
+                                                            save_media_group=True, my_keyboard=keyboard, delete_mode=delete_mode)
 
             await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:buyer_cars_pagination',
                                                      value=await self.pagination.to_dict())

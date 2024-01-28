@@ -112,8 +112,9 @@ __LEXICON = {
                                  'brand': 'Марка: <i>X</i>', 'complectation': 'Комплектация: <i>X</i>',
                                  'cost': f'<blockquote><b>Cтоимость: <i>X {money_valute}</i></b></blockquote>', 'mileage': 'Пробег: <i>X</i>', 'year': 'Год: <i>X</i>',
                                  'color': 'Цвет: <i>X</i>'}, 'buyer_car_pagination:-': '←', 'buyer_car_pagination:+': '→',
-                'confirm_buy_settings:': '✓ Подтвердить ✓',
-                'backward_in_carpooling': '⚙️ Изменить ⚙️', 'return_main_menu': '🏡 В меню 🏡', 'width': (2, 1, 1, 1)},
+                'confirm_buy_settings:': '✓ Подтвердить ✓', 'backward_in_carpooling': '⚙️ Изменить ⚙️',
+                'buy_search_price_filter': 'Фильтровать по цене', 'return_main_menu': '🏡 В меню 🏡',
+                'width': (2, 1, 1, 1, 1)},
 
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!\nВам поступит уведомление о её одобрении.',
                                           'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
@@ -189,6 +190,37 @@ __LEXICON = {
 
             'seller___my_feedbacks': {'message_text': 'Мои отклики', 'buttons': {'new_feedbacks': '✓ Новые ✓', 'viewed_feedbacks': '👁 Изученные 👁', 'backward:seller__my_feedbacks': '◂ Назад ▸', 'width': 2}},
             'return_main_menu_button': {'return_main_menu': '🏡 В Меню 🏡'},
+
+            'buyer_price_filter_review': {'message_text': {'default': '<b>Фильтрация по стоимости:</b>\n', 'selected_caption': 'Выбрано:\n',
+                                                     'min_caption': 'От {price}\n', 'max_caption': 'До {price}\n'},
+                                    'buttons': {
+                'buyer_cost_filter:from': 'От', 'buyer_cost_filter:before': 'До',
+                'set_buyer_cost_filter': 'Применить фильтр', 'remove_buyer_cost_filter': 'Отменить фильтр',
+                'width': 2
+            }},
+            'buyer_price_filter_start_input': {'message_text': '<b>Возможный диапазон фильтра стоимости:'
+                                                               '\nОт {min_cost}'
+                                                               '\nДо {max_cost}.</b>'
+                                                               '\nВведите сумму для фильтрации объявлений\n{default_side_name}:',
+                                               'buttons': {
+                                                   'backward:input_request_b_cost_filter': captions['backward'],
+                                                   'width': 1
+                                               }},
+            'buyer_price_filter_input_confirmation': {'message_text': '<b>Добавить в фильтрацию объявлений диапазон цен\n{from_or_before}: {cost}</b>',
+                                                      'buttons': {
+                                                          'confirm_add_buyer_price_filter_part': captions['confirm'],
+                                                          'rewrite_buyer_price_filter': 'Ввести заново',
+                                                          'cancel_buyer_price_filter': captions['cancel'],
+                                                          'width': 1
+                                                      }},
+            'price_incorrect': f'<b>Стоимость должна состоять из одного числа(до {max_price_len} цифр)</b>\nВозможен ввод со знаком " $ "',
+            'price_not_in_range': '<b>Введённая стоимость выходит за приделы текущей выборки.</b>',
+            'nominative_case_cost_side_from': 'Минимальная',
+            'nominative_case_cost_side_before': 'Максимальная',
+            'from_caption': 'От',
+            'before_caption': 'До',
+            'incorrect_nearest_price': '<b>Ваша настройка фильтрации не выбрала ни одного объявления.\nБлижайшая к вашему диапазону стоимость: {nearest_price}</b>',
+            'filter_made_null_list': '',
 
             'retry_now_allert': 'Попробуйте снова',
             'user_havent_permision': 'У вас нет прав',

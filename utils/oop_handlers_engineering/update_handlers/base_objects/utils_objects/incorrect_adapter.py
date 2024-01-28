@@ -1,6 +1,7 @@
 import importlib
 
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.input_data_utils.memory_storage_incorrect_controller import \
     get_incorrect_flag
@@ -11,10 +12,21 @@ class IncorrectAdapter:
     async def get_incorrect_flag(self, state: FSMContext):
         return ic(await get_incorrect_flag(state))
 
-    async def get_last_incorrect_message_id(self, state: FSMContext):
+    async def get_last_incorrect_message_id(self, state: FSMContext, message: Message = None, mode='admin'):
         memory_storage = await state.get_data()
-        last_admin_answer = ic(memory_storage.get('last_admin_answer'))
-        return last_admin_answer
+        last_answer = None
+        match mode:
+            case 'admin':
+                storage_key = 'last_admin_answer'
+                last_answer = ic(memory_storage.get(storage_key))
+            case 'buyer':
+                redis_module = importlib.import_module('utils.redis_for_language')
+                redis_key_user_message = str(message.from_user.id) + ':last_seller_message'
+                last_answer = await redis_module.redis_data.get_data(key=redis_key_user_message)
+                # if last_answer:
+                #     await redis_module.redis_data.delete_key(key=redis_key_user_message)
+
+        return last_answer
 
     async def get_lexicon_part_in_view_of_incorrect(self, lexicon_key, lexicon_object, incorrect, state: FSMContext) -> dict:
         ic(incorrect)

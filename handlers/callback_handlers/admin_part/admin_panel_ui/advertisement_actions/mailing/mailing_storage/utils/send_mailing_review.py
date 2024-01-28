@@ -1,5 +1,7 @@
+import asyncio
 import importlib
 
+from config_data.config import anti_spam_duration
 from handlers.callback_handlers.admin_part.admin_panel_ui.advertisement_actions.mailing.mailing_storage.choose_specific_type import \
     request_choose_mailing_type
 from handlers.utils.message_answer_without_callback import send_message_answer
@@ -30,7 +32,7 @@ async def send_mailing_review(request, state, admin_pagination_object, data_to_o
         reply_mode = mailing_messages[0]
     else:
         reply_mode = None
-
+    await asyncio.sleep(anti_spam_duration)
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='',
                                                     lexicon_part=lexicon_part, save_media_group=True,
                                                     dynamic_buttons=2, delete_mode=True,

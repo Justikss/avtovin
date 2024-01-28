@@ -1,3 +1,5 @@
+from functools import reduce
+
 from peewee import fn
 
 
@@ -20,50 +22,37 @@ from database.tables.user import User
 class AdvertRequester:
     @staticmethod
     async def load_related_data_for_advert(advert):
-        async def async_fetch_deep_related(objects, intermediate_model, final_model, intermediate_field, final_field):
-            if not objects:
-                return []
-
-            intermediate_ids = {getattr(obj, intermediate_field) for obj in objects if getattr(obj, intermediate_field)}
-            intermediate_objects = await manager.execute(
-                intermediate_model.select().where(intermediate_model.id.in_(intermediate_ids)))
-
-            final_ids = {getattr(intermediate_obj, final_field) for intermediate_obj in intermediate_objects if
-                         getattr(intermediate_obj, final_field)}
-            final_objects = await manager.execute(final_model.select().where(final_model.id.in_(final_ids)))
-
-            final_dict = {final_obj.id: final_obj for final_obj in final_objects}
-            intermediate_dict = {intermediate_obj.id: intermediate_obj for intermediate_obj in intermediate_objects}
-
-            for intermediate_obj in intermediate_objects:
-                setattr(intermediate_obj, final_model.__name__.lower(),
-                        final_dict.get(getattr(intermediate_obj, final_field)))
-
-            for obj in objects:
-                setattr(obj, intermediate_model.__name__.lower(),
-                        intermediate_dict.get(getattr(obj, intermediate_field)))
-
-            return objects
-
         async def async_fetch_related(objects, related_model, foreign_key_field, related_field_name):
             if not objects:
                 return []
 
-            related_ids = {getattr(obj, foreign_key_field) for obj in objects if getattr(obj, foreign_key_field)}
-            related_ids_tuple = tuple(related_ids)  # Преобразуем список в кортеж для безопасного форматирования
-            raw_sql = f"SELECT * FROM {related_model._meta.table_name} WHERE id IN %s" % (related_ids_tuple,)
+            related_ids = set()
+            for obj in objects:
+                fk_value = getattr(obj, foreign_key_field, None)
+                if fk_value:
+                    related_ids.add(fk_value)
 
-            related_objects = await manager.execute(related_model.raw(raw_sql))
-
-            # related_objects = await manager.execute(related_model.select().where(related_model.id.in_(related_ids)))
-            related_dict = {related.id: related for related in related_objects}
+            condition = related_model.telegram_id.in_(related_ids) if related_model == Seller else related_model.id.in_(related_ids)
+            related_objects = await manager.execute(related_model.select().where(condition))
+            related_dict = {related.telegram_id: related for related in related_objects} if related_model == Seller else {related.id: related for related in related_objects}
 
             for obj in objects:
-                setattr(obj, related_field_name, related_dict.get(getattr(obj, foreign_key_field)))
+                setattr(obj, related_field_name, related_dict.get(getattr(obj, foreign_key_field, None)))
 
             return objects
-        """"""
-        ic(advert)
+
+        async def async_chain_fetch_related(adverts):
+            for advert in adverts:
+                if advert.complectation:
+                    complectation = advert.complectation
+                    model = await manager.get(CarModel, id=complectation.model_id)
+                    if model:
+                        brand = await manager.get(CarBrand, id=model.brand_id)
+                        model.brand = brand
+                    complectation.model = model
+                    engine = await manager.get(CarEngine, id=complectation.engine_id)
+                    complectation.engine = engine
+
         if not advert:
             return []
         elif not isinstance(advert, list):
@@ -71,22 +60,19 @@ class AdvertRequester:
         else:
             adverts = advert
 
-        if not isinstance(adverts[0], (CarAdvert, AdvertParameters)):
-            adverts = [offer.car_id for offer in adverts]
-
-        ic(adverts)
         if isinstance(adverts[0], CarAdvert):
             await async_fetch_related(adverts, Seller, 'seller_id', 'seller')
 
         adverts = await async_fetch_related(adverts, CarComplectation, 'complectation_id', 'complectation')
-        await async_fetch_deep_related([advert.complectation for advert in adverts],  CarModel, CarBrand, 'model_id', 'brand_id')
-        # await async_fetch_deep_related([advert.complectation for advert in adverts],  CarComplectation, CarEngine, 'complectation', 'engine_id')
-
+        await async_fetch_related(adverts, CarState, 'state_id', 'state')
+        await async_fetch_related(adverts, CarYear, 'year_id', 'year')
+        await async_fetch_related(adverts, CarMileage, 'mileage_id', 'mileage')
         await async_fetch_related(adverts, CarColor, 'color_id', 'color')
-        await async_fetch_related([advert.complectation for advert in adverts], CarEngine, 'engine_id', 'engine ')
 
+        await async_chain_fetch_related(adverts)
 
-        return adverts if not len(adverts) == 1 else adverts[0]
+        return adverts if len(adverts) != 1 else adverts[0]
+
 
     @staticmethod
     async def set_sleep_status(sleep_status: bool, seller_id=None, advert_id=None):
@@ -136,11 +122,36 @@ class AdvertRequester:
         # Загрузка связанных данных
         return await AdvertRequester.load_related_data_for_advert(advert)
 
+    @staticmethod
+    async def cost_filter(cost_filter):
+        ic(cost_filter)
+        conditions = []
+
+        if 'min' in cost_filter:
+            from_sum = cost_filter['min'].get('sum')
+            from_usd = cost_filter['min'].get('usd')
+            conditions.append(
+                ((CarAdvert.sum_price.is_null(False) & (CarAdvert.sum_price >= from_sum)) |
+                 (CarAdvert.dollar_price.is_null(False) & (CarAdvert.dollar_price >= from_usd)))
+            )
+
+        # Условие "до"
+        if 'max' in cost_filter:
+            before_sum = cost_filter['max'].get('sum')
+            before_usd = cost_filter['max'].get('usd')
+            conditions.append(
+                ((CarAdvert.sum_price.is_null(False) & (CarAdvert.sum_price <= before_sum)) |
+                 (CarAdvert.dollar_price.is_null(False) & (CarAdvert.dollar_price <= before_usd)))
+            )
+        ic(conditions)
+        conditions = reduce(lambda a, b: a & b, conditions)
+
+        return conditions
 
     @staticmethod
     async def get_advert_by(state_id=None, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
                             color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None,
-                            without_actual_filter=None, buyer_search_mode=False):
+                            without_actual_filter=None, buyer_search_mode=False, cost_filter=None):
         ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id)
         int_flag = None
         result_adverts = None
@@ -150,7 +161,7 @@ class AdvertRequester:
         else:
             query = CarAdvert.select()
 
-        if (query and buyer_search_mode) and str(buyer_search_mode):
+        if buyer_search_mode and str(buyer_search_mode):
             if isinstance(buyer_search_mode, str):
                 buyer_search_mode = int(buyer_search_mode)
             ic(buyer_search_mode)
@@ -229,6 +240,9 @@ class AdvertRequester:
             last_table, int_flag = None, None
 
 
+        if cost_filter:
+            query = query.where(await AdvertRequester.cost_filter(cost_filter))
+
 
         query = query.distinct()
         ic(without_actual_filter, int_flag, seller_id)
@@ -297,7 +311,7 @@ class AdvertRequester:
                 if not result_adverts[0].name.replace('.', '').replace('-', '').isdigit():
                     result_adverts = await sort_objects_alphabetically(result_adverts)
 
-        ic(result_adverts)
+        ic(len(result_adverts))
 
         return result_adverts
 

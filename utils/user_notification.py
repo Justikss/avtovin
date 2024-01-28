@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import traceback
 
@@ -5,6 +6,7 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramServerError, TelegramForbiddenError
 from aiogram.types import CallbackQuery, InputMediaPhoto, FSInputFile
 
+from config_data.config import anti_spam_duration
 from keyboards.inline.kb_creator import InlineCreator
 
 from utils.lexicon_utils.admin_lexicon.admin_lexicon_utils import get_ban_notification_lexicon_part
@@ -157,6 +159,8 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     lexicon_part = {'message_text': data_for_seller['message_text'],
                     'buttons': lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons']}
     notification_message_part = None
+    if media_message:
+        await asyncio.sleep(anti_spam_duration)
     async with context_managers_module.ignore_exceptions():
         notification_message_part = await callback.bot.send_message(chat_id=seller_id,
                                                                     text=lexicon_part['message_text'],

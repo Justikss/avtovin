@@ -22,14 +22,14 @@ async def convertator(valute, cost):
 
         if valute == 'sum':
             result = cost / sum_to_usd
-            if result >= 1:
-                result = round(result)
-
+            # if result >= 1:
+                #result = round(result)
 
         elif valute == 'usd':
             result = cost * sum_to_usd
 
         if result:
+            result = round(result)
             ic(result)
             # result = "{:,}".format(result)
             return result
@@ -60,8 +60,8 @@ async def get_valutes(usd, sum_valute, get_string=None, language=None):
         result = (usd, sum_valute)
         if get_string:
             price_string = f'''{usd}$ {lexicon['convertation_sub_string']} {lexicon['uzbekistan_valute'].replace('X', sum_valute)}'''
-            block_string = commodity_loader_lexicon['price_digital'].format(price=price_string)
             if get_string == 'block':
+                block_string = commodity_loader_lexicon['price_digital'].format(price=price_string)
                 return block_string
             else:
                 return price_string

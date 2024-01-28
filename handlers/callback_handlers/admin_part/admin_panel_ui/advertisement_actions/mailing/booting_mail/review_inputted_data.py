@@ -1,8 +1,10 @@
+import asyncio
 from copy import copy
 
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 
+from config_data.config import anti_spam_duration
 from handlers.utils.send_any_medias import send_media
 from states.admin_part_states.mailing.mailing_setup_states import MailingStates
 import importlib
@@ -27,6 +29,7 @@ async def send_mailing_review(callback, state, lexicon_part, media_group):
         reply_mode = None
     else:
         reply_mode = mailing_messages[0]
+    await asyncio.sleep(anti_spam_duration)
     await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key='',
                                                            lexicon_part=lexicon_part,
                                                            save_media_group=save_media_group, delete_mode=True,

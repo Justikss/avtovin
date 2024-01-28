@@ -110,9 +110,18 @@ from handlers.custom_handlers.admin_administrating.unban_person import UnbanPers
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.default_handlers.help import bot_help
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.empty_field_handler import EmptyFieldCarpoolingHandler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.choose_diapason_side import \
+    ChooseCarPriceFilterHandler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.close_review_window import \
+    CloseWindowCarPriceFilterHandler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.confirm import \
+    ConfirmInputtedCarPriceFilterValueInputHandler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.confirmation import \
+    ConfirmationCarPriceFilterInputHandler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.start import \
+    StartInputCarPriceFilterStartInputHandler
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
-# from handlers.state_handlers.seller_states_handler.load_new_car import input_other_color
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
 from handlers.callback_handlers.sell_part.commodity_requests.delete_car_request import DeleteCarRequest
 from handlers.callback_handlers.sell_part.commodity_requests.pagination_handlers import SellerRequestPaginationHandlers
@@ -135,6 +144,7 @@ from states.admin_part_states.tech_support_states import TechSupportStates
 from states.admin_part_states.users_review_states import SellerReviewStates, BuyerReviewStates
 from states.buyer_offers_states import CheckNonConfirmRequestsStates, CheckActiveOffersStates, \
     CheckRecommendationsStates
+from states.cost_filter_in_buy_search import BuyerSearchCostFilterStates
 from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from states.seller_feedbacks_states import SellerFeedbacks
@@ -197,9 +207,49 @@ async def start_bot():
     storage = RedisStorage(redis=redis)
     dp = Dispatcher(storage=storage)
 
-    # admin_router = Router()
-    # dp.include_router(admin_router)
-    # await drop_tables_except_one('Фотографии_Новых_Машин')
+    @dp.callback_query(F.data.in_(('start_buy')))
+    async def testor(callback: CallbackQuery, state: FSMContext):
+        from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import search_config_output_handler
+        null = True
+
+        import itertools
+
+        def generate_cases_with_nulls(memory_storage):
+            null_keys = [key for key, value in memory_storage.items() if value == 'null']
+            all_cases = []
+
+            for r in range(len(null_keys) + 1):
+                for keys_to_replace in itertools.combinations(null_keys, r):
+                    case = memory_storage.copy()
+                    for key in keys_to_replace:
+                        # Здесь можно заменить 'null' на конкретное значение, если это необходимо
+                        # Например: case[key] = 'some_specific_value'
+                        case[key] = 'null'  # или любое другое значение, которое вы хотите использовать вместо 'null'
+                    all_cases.append(case)
+
+            return all_cases
+
+        # Пример использования
+        memory_storage = {
+            'cars_brand': 3,
+            'cars_class': '2',
+            'cars_color': 'null',
+            'cars_complectation': 'null',
+            'cars_engine_type': 3,
+            'cars_mileage': 'null',
+            'cars_model': 3,
+            'cars_state': '2',
+            'cars_year_of_release': 'null',
+        }
+
+        # memory_storage = generate_cases_with_nulls(memory_storage)
+        # for case in cases:
+        #     print(case)
+        # for ms in memory_storage[0]:
+        #     ic(ms)
+        await state.set_data(memory_storage)
+        await search_config_output_handler(callback, state, False)
+            # await asyncio.sleep(0.7)
 
     await create_tables()
 
@@ -803,6 +853,26 @@ async def start_bot():
     ic()
 
     '''Состояния поиска машины'''
+    dp.callback_query.register(ChooseCarPriceFilterHandler().callback_handler,
+                               F.data.in_(('buy_search_price_filter', 'cancel_buyer_price_filter')))
+
+    dp.callback_query.register(StartInputCarPriceFilterStartInputHandler().callback_handler,
+                               or_f(and_f(StateFilter(BuyerSearchCostFilterStates.review),
+                                                 lambda callback: callback.data.startswith('buyer_cost_filter:')),
+                                    and_f(StateFilter(BuyerSearchCostFilterStates.confirmation),
+                                          F.data == 'rewrite_buyer_price_filter')))
+
+    dp.message.register(ConfirmationCarPriceFilterInputHandler().message_handler,
+                        StateFilter(BuyerSearchCostFilterStates.awaited_input),
+                        price_is_digit.PriceIsDigit())
+
+    dp.callback_query.register(ConfirmInputtedCarPriceFilterValueInputHandler().callback_handler,
+                               StateFilter(BuyerSearchCostFilterStates.confirmation),
+                               F.data == 'confirm_add_buyer_price_filter_part')
+
+    dp.callback_query.register(CloseWindowCarPriceFilterHandler().callback_handler,
+                               StateFilter(BuyerSearchCostFilterStates.review),
+                               F.data.in_(('set_buyer_cost_filter', 'remove_buyer_cost_filter')))
     '''hybrid'''
     dp.callback_query.register(EmptyFieldCarpoolingHandler().callback_handler,
                                F.data == 'empty_field_carpooling')

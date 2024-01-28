@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import traceback
 from typing import Set
@@ -5,6 +6,7 @@ from typing import Set
 from aiogram.types import chat, CallbackQuery, InputMediaPhoto, InputFile, FSInputFile
 from aiogram.exceptions import TelegramBadRequest, TelegramServerError
 
+from config_data.config import anti_spam_duration
 from handlers.callback_handlers.buy_part.language_callback_handler import InlineCreator, redis_data
 from handlers.utils.delete_message import delete_message
 
@@ -160,6 +162,7 @@ class TravelEditor:
                                 except:
                                     traceback.print_exc()
                             ic(lexicon_part['message_text'])
+                            await asyncio.sleep(anti_spam_duration)
                             new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'],
                                                                  reply_markup=keyboard,
                                                                  reply_to_message_id=new_media_message[0].message_id)

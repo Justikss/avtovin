@@ -8,6 +8,8 @@ from handlers.callback_handlers.sell_part.commodity_requests.sellers_feedbacks.m
     CheckFeedbacksHandler
 from handlers.callback_handlers.buy_part.language_callback_handler import redis_data, set_language
 from handlers.callback_handlers.buy_part.FAQ_tech_support import tech_support_callback_handler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.choose_diapason_side import \
+    ChooseCarPriceFilterHandler
 from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import search_auto_callback_handler
 from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import hybrid_input_seller_number, dealership_input_address
 from handlers.callback_handlers.sell_part.start_seller_registration_callback_handlers import input_seller_name
@@ -60,6 +62,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                 await state.set_state(HybridSellerRegistrationStates.check_input_data)
                 need_method = check_your_config
 
+
             elif mode.startswith('seller_registration_seller_person_name'):
                 await state.clear()
                 callback_method = start_sell_callback_handler
@@ -90,6 +93,8 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             elif callback_method:
                 await callback_method(callback=callback, state=state)
 
+        elif mode.startswith('input_request_b_cost_filter'):
+            await ChooseCarPriceFilterHandler().callback_handler(callback, state)
 
         elif mode == 'support':
             await tech_support_callback_handler(callback=callback)
