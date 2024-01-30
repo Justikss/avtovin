@@ -152,7 +152,8 @@ class AdvertRequester:
     async def get_advert_by(state_id=None, engine_type_id=None, brand_id=None, model_id=None, complectation_id=None,
                             color_id=None, mileage_id=None, year_of_release_id=None, seller_id=None,
                             without_actual_filter=None, buyer_search_mode=False, cost_filter=None):
-        ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id)
+        ic(state_id, engine_type_id, brand_id, model_id, complectation_id, color_id, mileage_id, year_of_release_id, seller_id,
+           without_actual_filter, buyer_search_mode, cost_filter)
         int_flag = None
         result_adverts = None
 

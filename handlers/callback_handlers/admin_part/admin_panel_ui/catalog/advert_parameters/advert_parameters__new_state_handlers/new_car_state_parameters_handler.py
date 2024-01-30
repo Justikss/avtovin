@@ -17,6 +17,8 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
         #в мемори стораж:
         # selected_parameters # инфо выбранного
         # current_new_car_parameter # текущий выборный параметр
+        if await self.plug_handler(request):
+            return
         media_photos = kwargs.get('media_photos')
         ic(media_photos)
         if media_photos:
@@ -28,7 +30,7 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
             start_output_all_branch = await self.selected_param_identity(request, state)
             ic(start_output_all_branch)
 
-            await super().process_callback(request, state, **kwargs)
+            # await super().process_callback(request, state, **kwargs)
             ic(self.output_methods)
             ic()
             if start_output_all_branch:
@@ -43,7 +45,12 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
 
             self.output_methods = [display_view_class]
 
-        await super().process_callback(request, state, **kwargs)
+        # await super().process_callback(request, state, **kwargs)
+
+    async def plug_handler(self, request):
+        if isinstance(request, CallbackQuery) and request.data == 'new_state_parameters:0':
+            await request.answer()
+            return True
 
     async def get_last_selected_param(self, state: FSMContext, id_mode=False):
         memory_storage = await state.get_data()

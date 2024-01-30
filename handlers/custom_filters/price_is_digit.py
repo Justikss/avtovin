@@ -75,7 +75,8 @@ class PriceIsDigit(BaseFilter):
                 await rewrite_price_by_seller_handler(message, state, incorrect=incorrect_flag)
 
             elif current_state.startswith('BuyerSearchCostFilterStates'):
-
+                # redis_key_user_message =
+                await state.update_data(incorrect_flag=True)
                 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.start import \
                     StartInputCarPriceFilterStartInputHandler
                 await StartInputCarPriceFilterStartInputHandler().callback_handler(message, state, incorrect=incorrect_flag)

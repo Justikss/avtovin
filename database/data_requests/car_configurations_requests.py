@@ -496,7 +496,7 @@ async def get_seller_account(mock_feedbacks=False):
     await manager.create(User, telegram_id=902230076, username='Justion', name='Boris', surname='Борисов', phone_number='+79371567898')
     await manager.create(Admin, telegram_id=902230076)
 
-    justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity=' legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
+    justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
     # mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
     # mockselle2 = await manager.create(Seller, telegram_id=912330076, entity='natural', name='Мокнутый', surname='Частюк', patronymic=None, dealship_address=None, authorized=True, phone_number='+79323557898')
 
@@ -563,39 +563,47 @@ async def get_car_adverts_by_brand_and_color(brand_id, color):
         (CarAdvert.color == color) & (CarBrand.id == brand_id)
     ))
 
+
+
 async def insert_advert_photos(new_car_photos, params):
+    async def collect_data(brand_id, photos):
+        async def iteration_on_adverts(advert, photos):
+            for photo_id in photos:
+                advert_photo_data_list.append({
+                    'car_id': advert.id,
+                    'photo_id': photo_id,
+                    'photo_unique_id': str(uuid.uuid4())
+                })
+                if advert.color.id != 1:
+                    photo_base.append({
+                        'admin_id': 902230076,
+                        'car_complectation': advert.complectation.id,
+                        'car_color': advert.color.id,
+                        'photo_id': photo_id,
+                        'photo_unique_id': f'{brand_id}_{uuid.uuid4()}'
+                    })
+        # Получаем все объявления для данного бренда
+        if params:
+            current_table = AdvertParameters
+        else:
+            current_table = CarAdvert
+        matching_adverts = await manager.execute(
+            current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table) \
+                .join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(
+                CarBrand.id == int(brand_id))
+        )
+        ic(brand_id, len(matching_adverts))
+        # Подготовка данных для массовой вставки
+        tasks = [iteration_on_adverts(advert, photos) for advert in matching_adverts]
+        await asyncio.gather(*tasks)
+
     # await manager.connect()
     try:
         advert_photo_data_list = []
         photo_base = []
         ic(insert_carars)
-        for brand_id, photos in new_car_photos.items():
-            # Получаем все объявления для данного бренда
-            if params:
-                current_table = AdvertParameters
-            else:
-                current_table = CarAdvert
-            matching_adverts = await manager.execute(
-                current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table)\
-                    .join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand_id))
-            )
-            ic(brand_id, len(matching_adverts))
-            # Подготовка данных для массовой вставки
-            for advert in matching_adverts:
-                for photo_id in photos:
-                    advert_photo_data_list.append({
-                        'car_id': advert.id,
-                        'photo_id': photo_id,
-                        'photo_unique_id': str(uuid.uuid4())
-                    })
-                    if advert.color.id != 1:
-                        photo_base.append({
-                            'admin_id': 902230076,
-                         'car_complectation': advert.complectation.id,
-                         'car_color': advert.color.id,
-                         'photo_id': photo_id,
-                         'photo_unique_id': f'{brand_id}_{uuid.uuid4()}'
-                        })
+        tasks_two = [collect_data(brand_id, photos) for brand_id, photos in new_car_photos.items()]
+        await asyncio.gather(*tasks_two)
 
         # Массовая вставка данных
         if advert_photo_data_list:

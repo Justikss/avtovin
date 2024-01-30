@@ -16,9 +16,11 @@ from utils.chat_header_controller import header_controller
 
 async def bot_start(message: Message, state: FSMContext):
     travel_editor = importlib.import_module('handlers.message_editor')
-
     from database.data_requests.admin_requests import AdminManager
     from config_data.config import TEST_MOMENT
+    from keyboards.reply.delete_reply_markup import delete_reply_markup
+    await delete_reply_markup(message)
+
     if TEST_MOMENT:
         await AdminManager.set_red_admin(message.from_user.id)
 
@@ -26,7 +28,7 @@ async def bot_start(message: Message, state: FSMContext):
         IncorrectAdapter
     await IncorrectAdapter().try_delete_incorrect_message(message, state)
 
-    await header_controller(message, need_delete=True)
+    # await header_controller(message, need_delete=True)
     await delete_media_groups(request=message)
 
     await state.clear()

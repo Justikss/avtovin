@@ -32,7 +32,7 @@ class RecommendationParametersBinder:
                 color_id=color_id,
                 complectation_id=complectation_id,
                 model=model)
-
+            ic(parameters)
             tasks = [manager.get_or_create(offers_history_module\
                                                        .RecommendationsToBuyer, buyer=buyer_id, parameters=parameter)
                                             for parameter in parameters]

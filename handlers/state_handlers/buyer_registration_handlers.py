@@ -8,6 +8,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message, chat
 from phonenumbers import NumberParseException
 from handlers.callback_handlers.buy_part.main_menu import main_menu
+from keyboards.reply.reply_markup_creator import create_reply_markup
 
 
 class BuyerRegistationStates(StatesGroup):
@@ -55,11 +56,10 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
     if delete_mode:
         last_message_id = await redis_storage.redis_data.get_data(key=str(message.from_user.id) + ':last_message')
         if last_message_id:
-            try:
-                await message.chat.delete_message(message_id=last_message_id)
-                await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_message')
-            except TelegramBadRequest:
-                pass
+
+            from handlers.utils.delete_message import delete_message
+            await delete_message(request, last_message_id)
+            await redis_storage.redis_data.delete_key(key=str(message.from_user.id) + ':last_message')
 
     memory_data = await state.get_data()
     # if message.message_id:
@@ -71,40 +71,32 @@ async def registartion_view_corrector(request: Union[Message, CallbackQuery], st
 
 
     if last_user_answer:
+        from handlers.utils.delete_message import delete_message
         if incorrect_flag:
-            try:
-                await message.chat.delete_message(message_id=last_user_answer)
-            except TelegramBadRequest:
-                pass
+            await delete_message(request, last_user_answer)
+
             await redis_storage.redis_data.set_data(key=str(request.from_user.id) + ':last_user_message',
                                                     value=message.message_id)
 
             await state.update_data(incorrect_answer=False)
         else:
-            try:
-                await message.chat.delete_message(message_id=last_user_answer)
-                await redis_storage.redis_data.delete_key(key=str(request.from_user.id) + ':last_user_message')
 
-            except:
-                try:
-                    await message.chat.delete_message(message_id=message.message_id)
-                except TelegramBadRequest:
-                    pass
-    # elif not incorrect_flag:
+            await delete_message(request, last_user_answer)
 
-
-    # await state.update_data(current_user_answer=message.message_id)
-
-
+            await redis_storage.redis_data.delete_key(key=str(request.from_user.id) + ':last_user_message')
 
 '''ДАЛЬШЕ ОБРАБОТЧИКИ СОСТОЯНИЙ'''
 
 
-async def input_full_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=None):
+async def input_full_name(request: Union[CallbackQuery, Message], state: FSMContext, incorrect=None, from_backward=None):
     await state.update_data(incorrect_answer=False)
     inline_creator = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     redis_storage = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+    # if from_backward:
+    #     from keyboards.reply.delete_reply_markup import delete_reply_markup
+    #     await delete_reply_markup(request)
 
     memory_storage = await state.get_data()
     message_id = await redis_storage.redis_data.get_data(key=str(request.from_user.id) + ':last_message')
@@ -118,10 +110,8 @@ async def input_full_name(request: Union[CallbackQuery, Message], state: FSMCont
     else:
         await state.update_data(incorrect_answer=False)
         #try:
-        try:
-            await chat.Chat.delete_message(self=request.message.chat, message_id=message_id)
-        except:
-            pass
+        from handlers.utils.delete_message import delete_message
+        await delete_message(request, message_id)
 
 
     await state.update_data(last_lexicon_code=None)
@@ -160,10 +150,8 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
 
     lexicon_part = lexicon_module.LEXICON['write_phone_number']
 
-    try:
-        await chat.Chat.delete_message(self=message.chat, message_id=message_id)
-    except:
-        pass
+    from handlers.utils.delete_message import delete_message
+    await delete_message(message, message_id)
 
     if user_name:
         user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
@@ -188,15 +176,18 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
 
     message_text = lexicon_part['message_text']
 
-    keyboard = await inline_creator.InlineCreator.create_markup(lexicon_part)
+    from keyboards.inline.kb_creator import InlineCreator
+    # if isinstance(message, Message):
+    from keyboards.reply.send_reply_markup import send_reply_button_contact
+    await send_reply_button_contact(message)
+    keyboard = await InlineCreator.create_markup(lexicon_part)
+
     if incorrect:
         message_object = await message.reply(text=message_text, reply_markup=keyboard)
         await redis_module.redis_data.set_data(key=str(message.from_user.id) + ':last_user_message',
                                                value=message.message_id)
     else:
         message_object = await message.answer(text=message_text, reply_markup=keyboard)
-
-
 
     user_id = message.from_user.id
     redis_key = str(user_id) + ':last_message'

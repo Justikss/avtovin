@@ -115,6 +115,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 
 # Добавление в узбекский словарь
 advert_params_class_lexicon_uz = {
+    'new_car_state_parameters_caption': "<b>Avtomobil qo'shish</b>\n",
     'car_parameters_start': {'message_text': '<b>Avtomobil parametr turini tanlang:</b>', 'buttons': {
         "advert_parameters_choose_state:2": "foydl. avtomobillar konfigi", 'advert_parameters_choose_state:1': "Avtomobil qo'shing",
         'admin_backward:advert_parameters_choose_state': '◂ Orqaga ▸',

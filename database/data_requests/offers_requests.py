@@ -171,10 +171,11 @@ class CachedOrderRequests:
         data = [{'buyer_id': int(buyer_id), 'car_id': car_part}
                 for car_part in car_data if car_part not in not_unique_models]
 
-
+        ic()
         ic(data)
         if data:
             insert_query = CacheBuyerOffers.insert_many(data)
+            ic(insert_query)
             try:
                 await manager.execute(insert_query)
             except:

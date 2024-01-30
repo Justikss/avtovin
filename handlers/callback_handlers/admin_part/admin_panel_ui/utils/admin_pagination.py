@@ -41,11 +41,15 @@ class AdminPaginationOutput(Pagination):
         user_id = request.from_user.id
 
         admin_pagination_object = await AdminPaginationOutput.get_pagination_class_object(request)
+        ic(admin_pagination_object.data)
         admin_pagination_object.data.pop(admin_pagination_object.current_page-1)
+        ic(admin_pagination_object.data)
+        ic(admin_pagination_object.total_pages)
         if admin_pagination_object.total_pages == 1:
             return False
         admin_pagination_object.total_pages -= 1
-
+        ic(admin_pagination_object.total_pages)
+        ic()
         dictated_pagination_data = await admin_pagination_object.to_dict()
         await redis_module.redis_data.set_data(key=f'{user_id}:admin_pagination',
                                                value=dictated_pagination_data)

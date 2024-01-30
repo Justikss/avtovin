@@ -29,7 +29,9 @@ async def check_your_config(request: Union[CallbackQuery, Message], state: FSMCo
         dealership_address = ' '.join([address_part.capitalize() for address_part in dealership_address.split(' ')])
         await state.update_data(dealership_address=dealership_address)
 
-    await bot.delete_message(chat_id=chat_id, message_id=message_id)
+    from handlers.utils.delete_message import delete_message
+    await delete_message(request, message_id)
+    # await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
     memory_storage = await state.get_data()
     await buyer_registration_module.registartion_view_corrector(request=request, state=state)

@@ -36,21 +36,21 @@ class MessageThrottlingMiddleware(BaseMiddleware):
 
     async def notify_user(self, user_id: int, message: str, timer: int):
         pass
-        # if timer > 2:
-        #     timer -= 1
-        # last_text_to_send = None
-        # text = f'<blockquote><b>{copy(message)}</b></blockquote>'
-        # alert_message = await self.bot.send_message(chat_id=user_id, text=text)
-        # for time_point in range(timer+1, 0, -1):
-        #     if '{time}' in text:
-        #         text_to_send = text.format(time=time_point)
-        #     else:
-        #         text_to_send = text + str(time_point)
-        #     if last_text_to_send != text_to_send:
-        #         await alert_message.edit_text(text=text_to_send)
-        #         last_text_to_send = text_to_send
-        #
-        #     await asyncio.sleep(1)
+        if timer > 2:
+            timer -= 1
+        last_text_to_send = None
+        text = f'<blockquote><b>{copy(message)}</b></blockquote>'
+        alert_message = await self.bot.send_message(chat_id=user_id, text=text)
+        for time_point in range(timer+1, 0, -1):
+            if '{time}' in text:
+                text_to_send = text.format(time=time_point)
+            else:
+                text_to_send = text + str(time_point)
+            if last_text_to_send != text_to_send:
+                await alert_message.edit_text(text=text_to_send)
+                last_text_to_send = text_to_send
+
+            await asyncio.sleep(1)
 
         try:
             await self.bot.delete_message(chat_id=user_id, message_id=alert_message.message_id)

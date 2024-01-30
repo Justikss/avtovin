@@ -10,6 +10,7 @@ import time
 
 from handlers.custom_filters.throttling import delete_message
 from config_data.config import spam_block_time, anti_spam_duration
+from keyboards.reply.send_reply_markup import send_reply_button_contact
 
 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
@@ -50,16 +51,32 @@ class ThrottlingMiddleware(BaseMiddleware):
             return
 
         lock = await self.acquire_lock(user_id)
+        if lock.locked():
+            return False
+
         async with lock:
             header_controller_module = importlib.import_module('handlers.default_handlers.start')
             await asyncio.sleep(anti_spam_duration)
-            await header_controller_module.header_controller(event)
-            return await handler(event, data)
+            print('MWAREHEADER')
+            if await self.chat_header_controller_support(event):
+                await header_controller_module.header_controller(event)
 
+            await handler(event, data)
+            ic('UNLOK')
+            return
+
+    async def chat_header_controller_support(self, event):
+        if isinstance(event, CallbackQuery):
+            if event.data in ('backward:user_registration_number', 'backward:seller_registration_number'):
+                from keyboards.reply.delete_reply_markup import delete_reply_markup
+                await delete_reply_markup(event)
+                return False
+            elif event.data == 'rewrite_seller_number':
+                await send_reply_button_contact(event)
+                return False
+
+        return True
     async def send_notification(self, bot: Bot, user_id: int, message: str, timer: int):
-
-        # if timer > 2:
-        #     timer -= 1
         last_text_to_send = None
         text = f'<blockquote><b>{copy(message)}</b></blockquote>'
 
@@ -67,16 +84,16 @@ class ThrottlingMiddleware(BaseMiddleware):
         # await delete_message(bot, user_id, notification_message)
         alert_message = await bot.send_message(chat_id=user_id, text=text)
         ic()
-        for time_point in range(timer + 1, 0, -1):
-            if '{time}' in text:
-                text_to_send = text.format(time=time_point)
-            else:
-                text_to_send = text + str(time_point)
-            if last_text_to_send != text_to_send:
-                await alert_message.edit_text(text=text_to_send)
-                last_text_to_send = text_to_send
+        # for time_point in range(timer + 1, 0, -1):
+        #     if '{time}' in text:
+        #         text_to_send = text.format(time=time_point)
+        #     else:
+        #         text_to_send = text + str(time_point)
+        #     if last_text_to_send != text_to_send:
+        #         await alert_message.edit_text(text=text_to_send)
+        #         last_text_to_send = text_to_send
 
-            await asyncio.sleep(1)
+        await asyncio.sleep(timer)
         await delete_message(bot, user_id, alert_message.message_id)
 
     async def notify_user(self, bot: Bot, user_id: int):
@@ -142,7 +159,12 @@ class ThrottlingMiddleware(BaseMiddleware):
         return True
 
     async def acquire_lock(self, user_id: int):
+        ic(self.locks, user_id, user_id not in self.locks)
         if user_id not in self.locks:
             self.locks[user_id] = asyncio.Lock()
         return self.locks[user_id]
+
+#
+# asyncioaa = asyncio.Lock()
+# asyncioaa.locked()
 

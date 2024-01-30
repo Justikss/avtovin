@@ -5,7 +5,7 @@ import phonenumbers
 
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, chat
+from aiogram.types import Message, chat, ReplyKeyboardRemove
 
 from database.data_requests.banned_person_requests import BannedRequester
 
@@ -31,8 +31,11 @@ class CheckInputNumber(BaseFilter):
             current_method = input_phone_number_module.input_phone_number
             buyer_use = True
             seller_use = None
-
-        phonenumber = message.text.strip().replace(' ', '')
+        if message.contact:
+            phonenumber = message.contact.phone_number
+        else:
+            phonenumber = message.text
+        phonenumber = phonenumber.strip().replace(' ', '')
         from config_data.config import max_phone_number_len
         if len(phonenumber) > max_phone_number_len:
             return await current_method(message, state=state, incorrect='(novalid)')
@@ -58,7 +61,8 @@ class CheckInputNumber(BaseFilter):
 
 
                 return False
-                
+            from keyboards.reply.delete_reply_markup import delete_reply_markup
+            await delete_reply_markup(message)
             return {'input_number': formatted_number}
 
         else:
@@ -74,7 +78,18 @@ class CheckInputNumber(BaseFilter):
             return False
         
 
-
+    # async def handle_backward_command(self, message: Message, state: FSMContext, buyer_use, seller_use):
+    #     from handlers.utils.delete_message import delete_message
+    #     from keyboards.reply.delete_reply_markup import delete_reply_markup
+    #     await delete_reply_markup(message)
+    #     await delete_message(message, message.message_id)
+    #     if buyer_use:
+    #         from handlers.state_handlers.buyer_registration_handlers import input_full_name
+    #         await input_full_name(message, state)
+    #     elif seller_use:
+    #         from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import \
+    #             input_seller_name
+    #         await input_seller_name(message, state, from_backward_Delete_mode=True)
 
     @staticmethod
     async def format_and_validate_phone_number(phone_number):

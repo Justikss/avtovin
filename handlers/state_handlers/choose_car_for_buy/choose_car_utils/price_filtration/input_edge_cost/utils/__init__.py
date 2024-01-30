@@ -1,1 +1,1 @@
-from . import price_filter_module
+from . import price_filter_module, reset_current_range_side

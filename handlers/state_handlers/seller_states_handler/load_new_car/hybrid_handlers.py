@@ -230,11 +230,17 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
     ic(lexicon_class.last_buttons)
     last_color_value = await config_module\
             .CarConfigs.get_by_id(table='color', model_id=1)
-    await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
-            .CarConfigs.get_color_by_complectaiton(complectation_id=user_answer),
+    colors = await config_module\
+            .CarConfigs.get_color_by_complectaiton(complectation_id=user_answer)
+    if not colors:
+        colors = [last_color_value]
+        need_last_buttons = False
+    else:
+        need_last_buttons = {f'{lexicon_module.LexiconCommodityLoader.load_commodity_color().buttons_callback_data}{str(last_color_value.id)}': last_color_value.name}
+    await output_choose_module.output_choose(callback, state, lexicon_class, colors,
                                         bot_config_module\
                                              .car_configurations_in_keyboard_page,
-                        need_last_buttons={f'{lexicon_module.LexiconCommodityLoader.load_commodity_color().buttons_callback_data}{str(last_color_value.id)}': last_color_value.name})
+                        need_last_buttons=need_last_buttons)
     await callback.answer()
     cars_state = await get_load_car_state(state=state)
 

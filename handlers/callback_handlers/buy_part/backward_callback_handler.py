@@ -121,7 +121,7 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                 buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
 
                 await state.set_state(buyer_registration_handlers_module.BuyerRegistationStates.input_full_name)
-                await buyer_registration_handlers_module.input_full_name(request=callback, state=state)
+                await buyer_registration_handlers_module.input_full_name(request=callback, state=state, from_backward=True)
             elif mode == 'user_registration':
                 await state.clear()
                 try:

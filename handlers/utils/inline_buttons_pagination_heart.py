@@ -211,6 +211,7 @@ class CachedRequestsView:
             width = ({width_value: len(current_page)}, 3, 1, 1)
         else:
             return
+        ic(current_state)
         if current_state:
             if 'ChooseStates' in current_state:
                 Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')

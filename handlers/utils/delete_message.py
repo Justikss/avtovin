@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import logging
 import traceback
 
 from aiogram.exceptions import TelegramBadRequest
@@ -10,7 +11,7 @@ async def delete_message(request: CallbackQuery | Message, message_id=None, chat
 
     if from_redis:
         from handlers.custom_filters.message_is_photo import MessageIsPhoto
-        await MessageIsPhoto().chat_cleaner(trash_redis_keys=(':media_group', ':last_message'),
+        await MessageIsPhoto().chat_cleaner(trash_redis_keys=(':last_message', ':last_media_group'),
                                             message=request if isinstance(request, Message) else request.message)
 
         redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
@@ -19,10 +20,7 @@ async def delete_message(request: CallbackQuery | Message, message_id=None, chat
             key=f'{request.from_user.id}:last_message')
     if not message_id:
         return
-    if isinstance(message_id, list):
-        tasks = [delete_message(request, message_id_element, chat_id) for message_id_element in message_id]
-        await asyncio.gather(*tasks)
-        return
+
 
     match request:
         case CallbackQuery():
@@ -33,9 +31,15 @@ async def delete_message(request: CallbackQuery | Message, message_id=None, chat
     if not chat_id:
         chat_id = message.chat.id
     try:
-        delete_query = await request.bot.delete_message(chat_id=chat_id, message_id=message_id)
-        ic(delete_query)
+        if isinstance(message_id, list):
+            delete_method = request.bot.delete_messages
+            message_id_kwarg = {'message_ids': message_id}
+        else:
+            delete_method = request.bot.delete_message
+            message_id_kwarg = {'message_id': message_id}
+
+        delete_query = await delete_method(chat_id=chat_id, **message_id_kwarg)
+        logging.debug('HEADER: Удаление сообщения %s: %s', str(message_id), str(delete_query))
     except TelegramBadRequest:
-        pass
         pass
 

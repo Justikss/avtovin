@@ -11,7 +11,8 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             'all_users': 'barcha', 'buyers': 'xaridorlar', 'sellers': 'sotuvchilar', 'delete': 'O‘chirish',
             'by_dealership': 'avtosalon', 'by_seller': 'shaxsiy shaxs', 'close': 'Yashirish', 'surname_name_patronymic': 'F.I.Sh.: ', 'add': 'Qo‘shish',
             'successfully': 'Muvaffaqiyatli', 'tech_support_entity': '👨🏻‍💻Yordamchi xodim: {SUPPORT_NUMBER}\n',
-           'supports_pattern': f'''{' ' * 25 + '───────────────'}\n<blockquote>{'{0}'}</blockquote>\n{' ' * 25 + '───────────────'}'''
+           'supports_pattern': f'''{' ' * 25 + '───────────────'}\n<blockquote>{'{0}'}</blockquote>\n{' ' * 25 + '───────────────'}''',
+               'send_phone_number': 'Raqam yuboring'
                }
 ''''''
 
@@ -75,7 +76,7 @@ LEXICON_UZ = {
 'write_full_name(novalid)': f'Noto‘g‘ri kirish, 2-3 harfli so‘zlar, probel bilan ajratilgan\nUzunligi {max_contact_info_len} belgilargacha bo‘lishi kerak.',
 'write_phone_number': {'message_text': 'Telefon raqamingizni kiriting:',
 'backward:user_registration_number': '◂ Orqaga ▸', 'width': 1},
-'write_phone_number(novalid)': f'<b>Telefon raqami noto‘g‘ri kiritilgan</b>\nRaqamingizni to‘g‘riligini tekshiring\nFaqat raqamlar, bo‘sh joylar va + belgisini qabul qiladi.\nBelgilarning maksimal soni bilan: {max_phone_number_len}.',
+'write_phone_number(novalid)': f"<b>Telefon raqami noto‘g‘ri kiritilgan</b>\nRaqamingizni to‘g‘riligini tekshiring\nFaqat raqamlar, bo‘sh joylar va + belgisini qabul qiladi.\nBelgilarning maksimal soni bilan: {max_phone_number_len}.\nRaqamning mumkin bo'lgan hududlari: O'zbekiston yoki Rossiya.",
 'write_phone_number(exists)': '<b>Telefon raqami noto‘g‘ri kiritilgan!</b>\nU allaqachon ro‘yxatdan o‘tgan\nboshqa kutilmoqda',
     'write_phone_number(banned)': 'Ushbu telefon raqami xaridorlar maydonchasida bloklangan\nIltimos, yangi raqam kiriting:',
     # 'most_answers': {'message_text': 'Tez-tez so‘raladigan savollarga javoblar', 'in_main': 'Menyuda', 'width': 1},
@@ -152,14 +153,14 @@ LEXICON_UZ = {
 
 'write_seller_phone_number': {'message_text': 'Telefon raqamingizni kiriting:',
                        'backward:seller_registration_number': '◂ Orqaga ▸', 'width': 1},
-'write_seller_phone_number(novalid)': f"<b>Telefon raqami noto‘g‘ri kiritilgan.</b>Iltimos, raqamingiz toʻgʻriligini tekshiring\nFaqat raqamlar, boʻshliqlar va '+' belgisi qabul qilinadi.\nMaksimal belgilar soni: {max_phone_number_len}.",
+'write_seller_phone_number(novalid)': f"<b>Telefon raqami noto‘g‘ri kiritilgan.</b>Iltimos, raqamingiz toʻgʻriligini tekshiring\nFaqat raqamlar, boʻshliqlar va '+' belgisi qabul qilinadi.\nMaksimal belgilar soni: {max_phone_number_len}.\nRaqamning mumkin bo'lgan hududlari: O'zbekiston yoki Rossiya.",
 'write_seller_phone_number(exists)': '<b>Telefon raqami noto‘g‘ri kiritilgan!</b>\nU allaqachon ro‘yxatdan o‘tgan\nboshqa raqam kutilmoqda',
 'write_seller_phone_number(banned)': '<b>Ushbu telefon raqami sotuvchilar platformasida bloklangan</b>\nIltimos, yangi raqam kiriting:',
 
 'write_dealership_address': {'message_text': 'Avtosalon manzilini kiriting\nYoki geolokatsiyangizni yuboring\n(chatning chap tomonidagi skrepka belgisini bosing)', 'backward:seller_registration_dealership_address': '◂ Orqaga ▸', 'width': 1},
 'write_dealership_address(novalid)': {'message_text': f'Xato\nAvtosalon manzili harflarni o‘z ichiga olishi kerak\nva {max_contact_info_len} belgidan kam bo‘lishi kerak', 'backward:seller_registration_dealership_address': '◂ Orqaga ▸', 'width': 1},
 
-'checking_seller_entered_data': {'message_text': 'Kiritilgan ma’lumotlar to‘g‘rimi?\n(ma’lumotni qayta yozish uchun maydonni bosing)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Tasdiqlash ✅', 'width': 1},
+'checking_seller_entered_data': {'message_text': '<b>Kiritilgan ma’lumotlar to‘g‘rimi?</b>\n(ma’lumotni qayta yozish uchun maydonni bosing)', 'rewrite_seller_name': '', 'rewrite_seller_number': '', 'rewrite_dealership_address': '', 'confirm_registration_from_seller': 'Tasdiqlash ✅', 'width': 1},
 'confirm_registration_from_seller': {'message_text': 'Ro‘yxatdan o‘tish tugallandi\nMa’muriyat tomonidan tasdiqlash xabari kutib turing.', 'start_sell': 'Sotuvchi menyusi 👨🏻‍💼', 'width': 1},
 'try_again_seller_registration': {'message_text': 'Xato.\nBatafsil ma’lumot olish uchun ro‘yxatdan o‘tish jarayonini qayta o‘tib chiqing.', 'return_to_start_seller_registration': 'Ro‘yxatdan qayta o‘tish', 'width': 1},
 
@@ -212,6 +213,7 @@ LEXICON_UZ = {
 
 
 lexicon_uz = {
+    'make_empty_field': 'Oʻtkazib yuborish',
     'free_cost': 'bepul',
     'residual_simultaneous_announcements': "\n📗 Mavjud faol reklama joylari: <i>{}</i>",
     'simultaneous_announcements': '\n📗 Faol reklamalar chegarasi: <i>{}</i>',

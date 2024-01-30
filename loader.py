@@ -4,8 +4,9 @@ import importlib
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.storage.redis import Redis, RedisStorage
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from icecream import ic
 
 from database.data_requests.tariff_requests import TarifRequester
@@ -98,7 +99,7 @@ from handlers.custom_filters.admin_filters.tariff_duration_time_filter import Ti
 from handlers.custom_filters.admin_filters.ts_contacts_filters.input_link_filter import InputTSLinkFilter
 from handlers.custom_filters.admin_filters.unique_tariff_name import UniqueTariffNameFilter
 from handlers.custom_filters.pass_on_dealership_address import GetDealershipAddress
-from handlers.custom_filters.throttling import ThrottlingFilter, check_blocked_users
+from handlers.custom_filters.throttling import ThrottlingFilter
 from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
 from handlers.custom_handlers.admin_administrating.admin_list import AdminListHandler
 from handlers.custom_handlers.admin_administrating.del_admin import DelAdminHandler
@@ -120,6 +121,8 @@ from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtratio
     ConfirmationCarPriceFilterInputHandler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.start import \
     StartInputCarPriceFilterStartInputHandler
+from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.utils.reset_current_range_side import \
+    ResetCurrentRangeSideForBuyer
 from handlers.state_handlers.seller_states_handler.load_new_car.cancel_boot_process_handler import \
     cancel_boot_process_callback_handler
 from handlers.utils.inline_buttons_pagination_heart import CachedRequestsView
@@ -149,6 +152,7 @@ from states.input_rewrited_price_by_seller import RewritePriceBySellerStates
 from states.requests_by_seller import SellerRequestsState
 from states.seller_feedbacks_states import SellerFeedbacks
 from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
+from utils.asyncio_tasks.old_messages_cleaner import check_on_old_messages
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.mailing_heart.mailing_service import mailing_service
 from utils.middleware.exceptions_handler.middleware import ErrorHandler
@@ -207,49 +211,28 @@ async def start_bot():
     storage = RedisStorage(redis=redis)
     dp = Dispatcher(storage=storage)
 
-    @dp.callback_query(F.data.in_(('start_buy')))
+    # @dp.callback_query(F.data.in_(('start_buy')))
     async def testor(callback: CallbackQuery, state: FSMContext):
         from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import search_config_output_handler
-        null = True
-
-        import itertools
-
-        def generate_cases_with_nulls(memory_storage):
-            null_keys = [key for key, value in memory_storage.items() if value == 'null']
-            all_cases = []
-
-            for r in range(len(null_keys) + 1):
-                for keys_to_replace in itertools.combinations(null_keys, r):
-                    case = memory_storage.copy()
-                    for key in keys_to_replace:
-                        # Здесь можно заменить 'null' на конкретное значение, если это необходимо
-                        # Например: case[key] = 'some_specific_value'
-                        case[key] = 'null'  # или любое другое значение, которое вы хотите использовать вместо 'null'
-                    all_cases.append(case)
-
-            return all_cases
-
         # Пример использования
         memory_storage = {
-            'cars_brand': 3,
+            'cars_brand': 2,
             'cars_class': '2',
-            'cars_color': 'null',
-            'cars_complectation': 'null',
-            'cars_engine_type': 3,
-            'cars_mileage': 'null',
-            'cars_model': 3,
+            # 'cars_color': None,
+            # 'cars_complectation': None,
+            'cars_engine_type': 2,
+#             'cars_mileage': None,
+            'cars_model': 8,
             'cars_state': '2',
-            'cars_year_of_release': 'null',
+#             'cars_year_of_release': None,
         }
 
-        # memory_storage = generate_cases_with_nulls(memory_storage)
-        # for case in cases:
-        #     print(case)
-        # for ms in memory_storage[0]:
-        #     ic(ms)
+
         await state.set_data(memory_storage)
-        await search_config_output_handler(callback, state, False)
-            # await asyncio.sleep(0.7)
+        await state.set_state(HybridChooseStates.select_complectation)
+
+        from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import choose_complectation_handler
+        await choose_complectation_handler(callback, state, False)
 
     await create_tables()
 
@@ -259,7 +242,7 @@ async def start_bot():
     await mailing_service.schedule_mailing(bot)
 
     # asyncio.create_task(check_blocked_users(bot))
-
+    asyncio.create_task(check_on_old_messages(bot))
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
     asyncio.create_task(GetDealershipAddress.process_queue())
@@ -873,6 +856,9 @@ async def start_bot():
     dp.callback_query.register(CloseWindowCarPriceFilterHandler().callback_handler,
                                StateFilter(BuyerSearchCostFilterStates.review),
                                F.data.in_(('set_buyer_cost_filter', 'remove_buyer_cost_filter')))
+    dp.callback_query.register(ResetCurrentRangeSideForBuyer().callback_handler,
+                               F.data == 'reset_current_range_side',
+                               StateFilter(BuyerSearchCostFilterStates.awaited_input))
     '''hybrid'''
     dp.callback_query.register(EmptyFieldCarpoolingHandler().callback_handler,
                                F.data == 'empty_field_carpooling')

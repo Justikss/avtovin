@@ -9,6 +9,7 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 
 class ChooseCarPriceFilterHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        await self.incorrect_manager.try_delete_incorrect_message(state=state, request=request, mode='buyer')
         await self.set_state(state, BuyerSearchCostFilterStates.review)
         lexicon_part = await self.construct_lexicon_part(request, state)
         self.output_methods = [

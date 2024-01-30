@@ -113,11 +113,9 @@ class BuyerCarsPagination:
             backward_callback_data = False
 
         button_flag = False
-
+        ic(buttons_lexicon_part)
         correct_buttons = {}
         for key, value in buttons_lexicon_part.items():
-
-
             if backward_callback_data and key == 'backward_in_carpooling':
                 key = backward_callback_data
                 value = lexicon_module.LEXICON['backward_name']
@@ -131,6 +129,9 @@ class BuyerCarsPagination:
                     #     car_id = car_id[1:2]
                     key = key + car_id
                     ic(key)
+            elif key == 'buy_search_price_filter' and current_state not in ('HybridChooseStates:config_output',
+                                                                        'CheckActiveOffersStates:show_from_search_config'):
+                continue
 
             correct_buttons[key] = value
             if key == 'buyer_car_pagination:+':
@@ -140,6 +141,7 @@ class BuyerCarsPagination:
                         correct_buttons[f'confirm_buy_settings:{str(car_id[0])}'] = lexicon_module.LEXICON['chosen_configuration'][
                             'confirm_buy_settings:']
                         button_flag = True
+
 
 
 

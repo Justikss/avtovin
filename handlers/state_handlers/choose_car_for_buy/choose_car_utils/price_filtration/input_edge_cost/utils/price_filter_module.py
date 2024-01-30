@@ -12,7 +12,7 @@ class PriceFilterForBuyerModule:
 
         from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.input_edge_cost.start import \
             StartInputCarPriceFilterStartInputHandler
-        default_cost_diapason = await StartInputCarPriceFilterStartInputHandler().get_diapason_edges(
+        default_cost_diapason, _ = await StartInputCarPriceFilterStartInputHandler().get_diapason_edges(
             await state.get_data()
         )
         inputted_usd_price = await self.inputted_value_handler(currency, inputted_cost)

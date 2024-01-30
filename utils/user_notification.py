@@ -81,7 +81,7 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
         lexicon_part = lexicon_module\
             .CATALOG_LEXICON['close_advert_seller_notification']
         lexicon_part['message_text'] = lexicon_part['message_text'].format(**advert_block_data)
-        redis_sub_key = f'close_advert_notification'
+        redis_sub_key = f':close_advert_notification'
         current_id = chat_id
 
         ic(lexicon_part, redis_sub_key, current_id, advert_block_data)
@@ -127,11 +127,12 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
         .AdvertRequester.get_where_id(data_for_seller['car_id'])
     seller_id = commodity_model.seller.telegram_id
     ic(seller_id)
-
+    media_message = None
     active_seller_notifications = []
     reply_media_message_id = None
     if media_mode:
         media_group = []
+        media_message = None
         for file_data in data_for_seller['album']:
             if isinstance(file_data, dict):
                 file_data = file_data['id']
@@ -158,7 +159,8 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
 
     lexicon_part = {'message_text': data_for_seller['message_text'],
                     'buttons': lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons']}
-    notification_message_part = None
+
+
     if media_message:
         await asyncio.sleep(anti_spam_duration)
     async with context_managers_module.ignore_exceptions():

@@ -42,6 +42,11 @@ class AdvertFeedbackRequester:
         conditions = reduce(lambda a, b: a & b, conditions)
 
         query = list(await manager.execute(base_query.where(conditions)))
+        if not query and 'null' not in (color_id, complectation_id):
+            query = await manager.get_or_create(AdvertParameters,
+                complectation = complectation_id,
+                color = color_id
+            )
         # if not query:
         # query = await manager_method(AdvertParameters,
         #                              complectation=complectation_id,

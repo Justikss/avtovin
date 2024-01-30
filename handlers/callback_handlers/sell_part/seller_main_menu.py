@@ -17,13 +17,15 @@ async def try_get_free_tariff(callback, normal_status=False):
 
 
     seller_bind_exists = await tariff_to_seller_requests_module.TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
-
+    ic(seller_bind_exists)
     if not seller_bind_exists:
         person_requests_module = importlib.import_module('database.data_requests.person_requests')
 
         seller_model = await person_requests_module.PersonRequester.get_user_for_id(callback.from_user.id, seller=True)
+        ic(seller_model)
         if seller_model:
             seller_model = seller_model[0]
+            ic(seller_model.data_registration < datetime(2024, 5, 1).date())
             if seller_model.data_registration < datetime(2024, 5, 1).date():
                 tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 

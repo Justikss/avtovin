@@ -64,7 +64,7 @@ class MailingService:
             return
         recipients = await self.get_recipients(mailing.recipients_type)
         ic(mailing, recipients)
-        if recipients:
+        if isinstance(recipients, tuple) and recipients[0]:
             from utils.mailing_heart.send_mailing_to_user import send_mailing
 
             recipients, users_recipient = recipients
@@ -95,6 +95,9 @@ class MailingService:
                 except IntegrityError:
                     traceback.print_exc()
                     pass
+        else:
+            from database.data_requests.mailing_requests import update_mailing_status
+            await update_mailing_status(mailing)
 
     async def schedule_single_mailing(self, bot: Bot, mailing):
         config_module = importlib.import_module('config_data.config')

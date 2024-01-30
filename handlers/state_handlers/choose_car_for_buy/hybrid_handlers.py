@@ -200,9 +200,13 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
 
 async def search_config_output_handler(callback: CallbackQuery, state: FSMContext, first_call=True, cost_filter=None):
     await cache_state(callback=callback, state=state)
+    if await state.get_state() != HybridChooseStates.config_output:
+        await state.set_state(HybridChooseStates.config_output)
 
     if first_call:
         memory_storage = await state.get_data()
+        if memory_storage.get('buyer_cost_filter_data'):
+            await state.update_data(buyer_cost_filter_data=None)
         user_answer = int(callback.data.split('_')[-1])  # Второе слово - ключевое к значению бд
         ic(memory_storage['cars_class'])
         if int(memory_storage['cars_class']) == 2:

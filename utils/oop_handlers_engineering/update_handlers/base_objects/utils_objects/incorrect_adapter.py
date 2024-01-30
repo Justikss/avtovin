@@ -9,12 +9,13 @@ from handlers.utils.delete_message import delete_message
 
 
 class IncorrectAdapter:
-    async def get_incorrect_flag(self, state: FSMContext):
-        return ic(await get_incorrect_flag(state))
+    async def get_incorrect_flag(self, state: FSMContext, incorrect_flag_name='admin_incorrect_flag'):
+        return ic(await get_incorrect_flag(state, incorrect_flag_name=incorrect_flag_name))
 
     async def get_last_incorrect_message_id(self, state: FSMContext, message: Message = None, mode='admin'):
         memory_storage = await state.get_data()
         last_answer = None
+        ic(mode)
         match mode:
             case 'admin':
                 storage_key = 'last_admin_answer'
@@ -64,7 +65,10 @@ class IncorrectAdapter:
 
         return lexicon_part
 
-    async def try_delete_incorrect_message(self, request, state):
-        if await self.get_incorrect_flag(state):
-            await delete_message(request, await self.get_last_incorrect_message_id(state))
+    async def try_delete_incorrect_message(self, request, state, mode='admin'):
+        ic()
+        ic(mode)
+        if await self.get_incorrect_flag(state, incorrect_flag_name='admin_incorrect_flag' if mode == 'admin'
+                                         else 'incorrect_flag'):
+            await delete_message(request, await self.get_last_incorrect_message_id(state, message=request, mode=mode))
 

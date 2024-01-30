@@ -17,14 +17,11 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
     delete_mode = False
     seller_mode = await redis_module.redis_data.get_data(key=str(request.from_user.id) + ':seller_registration_mode')
 
-
     if not await state.get_state():
         if seller_mode == 'dealership':
             await state.set_state(CarDealerShipRegistrationStates.input_dealship_name)
         elif seller_mode == 'person':
             await state.set_state(PersonSellerRegistrationStates.input_fullname)
-
-  
 
     if not await state.get_state():
         await state.set_state(PersonSellerRegistrationStates.input_fullname)
@@ -44,37 +41,27 @@ async def input_seller_name(request: Union[CallbackQuery, Message], state: FSMCo
             lexicon_code = 'write_full_seller_name' + incorrect
 
         message_reply_mode = True
-
-        delete_last_message_mode = True
-
             
         await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state)
-        
 
         await redis_module.redis_data.set_data(
             key=str(request.from_user.id) + ':last_user_message',
             value=request.message_id)
-
     else:
-
         if seller_mode == 'dealership':
-            
             lexicon_code = 'write_dealership_name'
-
         elif seller_mode == 'person':
             lexicon_code = 'write_full_seller_name'
-            
 
         message_reply_mode = False
-        delete_last_message_mode = False
-
 
     if from_backward_Delete_mode:
+        # from keyboards.reply.delete_reply_markup import delete_reply_markup
+        # await delete_reply_markup(request)
         delete_mode = from_backward_Delete_mode
 
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key=lexicon_code, lexicon_cache=False,
                                                             reply_mode=message_reply_mode, delete_mode=delete_mode)
-
     await state.set_state(HybridSellerRegistrationStates.input_number)
     
 
@@ -85,12 +72,11 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
     buyer_registration_handlers_module = importlib.import_module('handlers.state_handlers.buyer_registration_handlers')
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
     Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+    if isinstance(request, CallbackQuery):
+        ic(request.data)
     if user_name:
         user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
         await state.update_data(seller_name=user_name)
-
-
 
     travel_object = request
     lexicon_part = Lexicon_module\
@@ -120,8 +106,6 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         else:
             delete_mode = True
         await buyer_registration_handlers_module.registartion_view_corrector(request=request, state=state, delete_mode=delete_mode)
-        
-        
 
         await redis_module.redis_data.set_data(
             key=str(request.from_user.id) + ':last_user_message',
@@ -133,28 +117,27 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
             last_user_message = await redis_module.redis_data.get_data(key=redis_key)
         except TelegramBadRequest:
             pass
-        if last_user_message:
-            try:
-                await bot.delete_message(chat_id=message.chat.id, message_id=last_user_message)
-            except:
-                pass
-            await redis_module.redis_data.delete_key(key=redis_key)
-            
-        await bot.delete_message(chat_id=message.chat.id, message_id = message.message_id)
-        lexicon_code = 'write_seller_phone_number'
-        message_reply_mode = False
-        delete_last_message_mode = True
-    
-    if from_backward_Delete_mode:
-        delete_mode = from_backward_Delete_mode
-    else:
-        delete_mode = False
+        from handlers.utils.delete_message import delete_message
 
+        if last_user_message:
+            await delete_message(message, last_user_message)
+
+            await redis_module.redis_data.delete_key(key=redis_key)
+
+        await delete_message(message, message.message_id)
+
+        message_reply_mode = False
+
+
+    from keyboards.reply.send_reply_markup import send_reply_button_contact
+    if isinstance(request, Message):
+        await send_reply_button_contact(message)
 
 
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key='', lexicon_part=lexicon_part,
                                                              reply_mode = message_reply_mode, delete_mode=True)
-    
+
+
     await state.set_state(CarDealerShipRegistrationStates.input_dealship_name)
 
 

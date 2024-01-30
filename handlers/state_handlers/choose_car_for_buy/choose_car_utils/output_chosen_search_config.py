@@ -123,7 +123,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
                                                          buyer_search_mode=callback.from_user.id,
                                                          cost_filter=cost_filter)
         ic(len(advert_models))
-        if advert_models:
+        if advert_models and not cost_filter:
             await collect_usd_price_diapason(advert_models, state)
 
     else:
@@ -143,7 +143,7 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
 
     if not data_stack:
         data_stack = [advert.id for advert in advert_models]
-    ic(data_stack)
+    ic(data_stack, first_view_mode)
     if first_view_mode:
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
         await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id,

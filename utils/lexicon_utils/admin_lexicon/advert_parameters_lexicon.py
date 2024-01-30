@@ -17,6 +17,7 @@ return_main_menu = {'return_main_menu': 'В меню'}
 
 
 advert_parameters_captions = {
+
     'choose_param': '<b>Выберите {parameter} авто</b>',
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
     'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'from_param_branch': ' из ветки параметров:\n{param_branch}\n',
@@ -128,6 +129,7 @@ __ADVERT_PARAMETERS_LEXICON = {
 
 # Добавление в русский словарь
 advert_params_class_lexicon_ru = {
+    'new_car_state_parameters_caption': '<b>Добавление авто</b>\n',
     'car_parameters_start': {'message_text': '<b>Выберите тип параметров автомобилей:</b>', 'buttons': {
         'advert_parameters_choose_state:2': 'Конфигурации Б/У', 'advert_parameters_choose_state:1': 'Добавить авто',
         'admin_backward:advert_parameters_choose_state': '◂ Назад ▸',
@@ -172,7 +174,8 @@ class AdvertParametersChooseSpecificValue:
             'return_main_menu': advert_params_class_lexicon['return_main_menu']}
 
         if parameter_name:
-            self.message_text = f'''{header if header else ''}{getattr(self, f'message_text_{parameter_name}')}'''
+            self.message_text = f'''{advert_params_class_lexicon['new_car_state_parameters_caption']}{header}''' if header else ''
+            self.message_text += getattr(self, f'message_text_{parameter_name}')
 
         if header:
             if parameter_name == 'brand':

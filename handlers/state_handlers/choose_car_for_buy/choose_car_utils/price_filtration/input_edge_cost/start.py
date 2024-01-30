@@ -20,12 +20,12 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
         ]
     async def construct_lexicon_part(self, request, state, incorrect_flag):
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-        memory_storage = await state.get_data()
 
         diapason_side = await self.identify_filter_diapason_side(request, state) # from or before
         lexicon_part = lexicon_module.LEXICON['buyer_price_filter_start_input']
+        memory_storage = await state.get_data()
 
-        default_cost_diapason = await self.get_diapason_edges(memory_storage, diapason_side)
+        default_cost_diapason, buyer_cost_filter_data_flag = await self.get_diapason_edges(memory_storage, diapason_side)
 
         ic(diapason_side, default_cost_diapason)
         lexicon_part['message_text'] = lexicon_part['message_text'].format(
@@ -34,6 +34,15 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
             default_side_name=lexicon_module.LEXICON[f'{diapason_side}_caption']
         )
         lexicon_part = await self.incorrect_case_handler(incorrect_flag, lexicon_part, lexicon_module)
+
+        if buyer_cost_filter_data_flag:
+            selected_diapason_side = memory_storage.get('selected_side_to_input')
+            ic(selected_diapason_side, buyer_cost_filter_data_flag)
+            side_keys = {'from': 'min', 'before': 'max'}
+            if side_keys[selected_diapason_side] in buyer_cost_filter_data_flag:
+                lexicon_part['buttons'] = {**lexicon_module.LEXICON['reset_current_range_side_buttons'],
+                                           **lexicon_part['buttons']}
+
         return lexicon_part
 
     async def incorrect_case_handler(self, incorrect, lexicon_part, lexicon_module):
@@ -47,7 +56,7 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
             case _ if incorrect and incorrect.startswith('nearest_price:'):
                 nearest_price = incorrect.split(':')[-1]
                 sub_string = lexicon_module.LEXICON['incorrect_nearest_price'].format(
-                    nearest_price="{:,}".format(int(nearest_price))
+                    nearest_price=await get_valutes(int(nearest_price), None, get_string=True)
                 )
             case _:
                 sub_string = ''
@@ -62,7 +71,9 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
 
 
         if buyer_cost_filter_data:
+            buyer_cost_filter_data_flag = []
             for key, value in buyer_cost_filter_data.items():
+                buyer_cost_filter_data_flag.append(key)
                 if current_side == key_storage.get(key):
                     continue
                 currency = value['valute']
@@ -72,8 +83,9 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
                         default_cost_diapason[key_storage[key]] = cost
                     case 'sum':
                         default_cost_diapason[key_storage[key]] = await convertator(currency, cost)
-
-        return default_cost_diapason
+        else:
+            buyer_cost_filter_data_flag = None
+        return default_cost_diapason, buyer_cost_filter_data_flag
 
     async def identify_filter_diapason_side(self, request, state):
         selected_side = None

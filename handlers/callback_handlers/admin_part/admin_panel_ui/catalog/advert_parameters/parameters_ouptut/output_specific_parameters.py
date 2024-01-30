@@ -108,22 +108,23 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         ic(parameter_name)
         ic(parameters)
         ic((not parameters) and parameter_name in ('brand', 'mileage', 'year'))
-        if (not parameters) and parameter_name in ('brand', 'mileage', 'year'):
+        # if (not parameters) and parameter_name in ('brand', 'mileage', 'year'):
 
-            if not parameters:
-                if parameter_name in ('mileage', 'year'):
-                    parameters = await car_configs_module \
-                        .CarConfigs.custom_action(mode=parameter_name, action='get_*')
+        if not parameters:
+
+            if parameter_name in ('mileage', 'year'):
+                parameters = await car_configs_module \
+                    .CarConfigs.custom_action(mode=parameter_name, action='get_*')
             if not parameters:
                 class EmptyField:
                     name = Lexicon_module.catalog_captions['empty']
                     id = 0
                 parameters = [EmptyField]
 
-        if not parameters and parameter_name != 'review':
-            await self.send_alert_answer(request,
-                                         Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'])
-            return await AdvertParametersChooseCarState().callback_handler(request, state)
+        # if not parameters and parameter_name != 'review':
+        #     await self.send_alert_answer(request,
+        #                                  Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'], message=True)
+        #     return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         ic(message_text_header)
         ic(parameters)

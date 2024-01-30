@@ -37,12 +37,14 @@ class EmptyFieldCarpoolingHandler(base_callback_query_module.BaseCallbackQueryHa
     async def get_callable_method_name(self, state: FSMContext):
         memory_storage = await state.get_data()
         current_state = str(await state.get_state())
-        cars_state = memory_storage.get('cars_state')
+        cars_state = int(memory_storage.get('cars_state'))
         parameters = ['complectation', 'color', 'mileage', 'year_of_release', 'output']
         callable_method_name = None
+        ic(current_state, cars_state)
+        head_parameter = None
         match current_state:                                       #on used      on new
             case 'SecondHandChooseStates:select_mileage': #color                X
-                if int(cars_state) == 2:
+                if cars_state == 2:
                     callable_method_name = 'mileage'
             case 'HybridChooseStates:select_color' | 'SecondHandChooseStates:select_color': #complect complect
                 callable_method_name = 'color'
@@ -50,9 +52,12 @@ class EmptyFieldCarpoolingHandler(base_callback_query_module.BaseCallbackQueryHa
                 callable_method_name = 'year_of_release'
             case 'HybridChooseStates:config_output': #year                     color
                 callable_method_name = 'output'
+                if cars_state == 1:
+                    head_parameter = 'color'
 
         if callable_method_name:
-            memory_storage[f'cars_{parameters[parameters.index(callable_method_name)-1]}'] = 'null'
+            ic(callable_method_name, head_parameter)
+            memory_storage[f'cars_{parameters[parameters.index(callable_method_name)-1] if not head_parameter else head_parameter}'] = 'null'
             await state.set_data(memory_storage)
         return callable_method_name
     #

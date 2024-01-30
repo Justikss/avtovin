@@ -12,7 +12,7 @@ class Pagination:
         #     self.current_page = 0
         ic(self.total_pages == self.current_page and self.total_pages == 1)
         ic(self.total_pages, self.current_page)
-        if self.total_pages == self.current_page and self.total_pages == 1:
+        if (self.total_pages == self.current_page and self.total_pages == 1) and operation:
             return False
         if operation == '-':
             self.current_page -= 1

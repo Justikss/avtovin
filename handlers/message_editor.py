@@ -131,7 +131,7 @@ class TravelEditor:
                                          for file_data in file_list[1:]]
 
                             new_album.insert(0, caption_photo[0])  # Добавление фото с подписью в начало альбома
-
+                            ic(new_album)
                             try:
                                 new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
                             except TelegramServerError:
