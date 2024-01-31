@@ -59,7 +59,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     await state.update_data(rewrite_state_flag=None)
     await state.update_data(rewrite_brand_mode=False)
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
-    print('cstate: ', cars_state)
+
     if cars_state == 'new':
         new_car_photo_requests_module = importlib.import_module('database.data_requests.new_car_photo_requests')
         output_config_module = importlib.import_module(
@@ -76,7 +76,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
                     'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
                 ic(need_photo_flag, memory_storage.get('load_photo'), media_photos)
                 ic()
-                print('input_photo_to_load')#
+
                 return await input_photo_module.input_photo_to_load(request, state, need_photo_flag=True)#
             # await state.update_data(load_photo=photo_pack)
 
@@ -124,11 +124,11 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state,
                                                                                    boot_data=structured_boot_data,
                                                                                    output_string=output_string)
-    print('lp: ', lexicon_part)
+
 
     await message_editor.redis_data.set_data(key=str(request.from_user.id) + ':can_edit_seller_boot_commodity', value=True)
 
-    print('photo_exist?output: ', structured_boot_data.get('photos'))
+
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
                                                     media_group=structured_boot_data.get('photos'),
                                                     delete_mode=delete_mode,

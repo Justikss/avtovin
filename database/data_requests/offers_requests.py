@@ -18,7 +18,8 @@ from database.tables.user import User
 from database.db_connect import manager
 
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
-
+cache_redis_module = importlib.import_module('utils.redis_for_language')
+cache_redis = cache_redis_module.cache_redis
 async def to_int(value):
     return int(value) if isinstance(value, str) else value
 
@@ -29,7 +30,12 @@ class OffersRequester:
         if isinstance(telegram_id, str):
             telegram_id = int(telegram_id)
 
-        await manager.execute(ActiveOffers.delete().where(ActiveOffers.seller_id == telegram_id))
+        query = ActiveOffers.select(ActiveOffers.id).where(ActiveOffers.seller_id == telegram_id)
+        offers = list(await manager.execute(query))
+        offer_ids = [offer.id for offer in offers]
+        await OffersRequester.delete_offer(offer_id=offer_ids)
+
+    @cache_redis.cache_update_decorator(model=(RecommendedOffers, CacheBuyerOffers, ActiveOffers), mode='by_scan')
     @staticmethod
     async def delete_all_buyer_history(telegram_id):
         if isinstance(telegram_id, str):
@@ -39,7 +45,8 @@ class OffersRequester:
         await manager.execute(RecommendedOffers.delete().where(RecommendedOffers.buyer == telegram_id))
         await manager.execute(RecommendationsToBuyer.delete().where(RecommendationsToBuyer.buyer == telegram_id))
 
-
+        buyers = [telegram_id]
+        return buyers
 
 
     @staticmethod
@@ -74,51 +81,53 @@ class OffersRequester:
             return False
         return select_response if select_response else False
 
+    @cache_redis.cache_update_decorator(model=ActiveOffers, mode='by_scan')
     @staticmethod
     async def set_offer_model(buyer_id, car_id, seller_id):
         '''Асинхронный метод установки модели предложения'''
 
         if not await OffersRequester.get_offer_model(buyer_id, car_id):
             query = ActiveOffers.insert(car_id=car_id, buyer_id=buyer_id, seller_id=seller_id, viewed=False)
-            select_response = await manager.execute(query)
-            if select_response:
+            insert_response = await manager.execute(query)
+            if insert_response:
                 advert_feedbacks_requests_module = importlib.import_module(
                     'database.data_requests.statistic_requests.advert_feedbacks_requests')
 
                 await advert_feedbacks_requests_module\
                     .AdvertFeedbackRequester.write_string(seller_id, car_id)
-            return select_response if select_response else False
+                return [buyer_id]
+            else:
+                return False
+
         else:
             raise BufferError('Такая заявка уже создана')
 
+
+
+    @cache_redis.cache_decorator(model=ActiveOffers, id_key='0:buyer_id')
     @staticmethod
-    async def get_for_buyer_id(buyer_id, brand=None, get_brands=False, car_id=None):
+    async def get_for_buyer_id(buyer_id, brand=None, car_id=None, count=False, get_brands = False):
         '''Асинхронный метод получения открытых предложений для покупателя'''
-        query = ActiveOffers.select(ActiveOffers, CarAdvert).join(CarAdvert).switch(ActiveOffers).join(User).where(ActiveOffers.buyer_id == int(buyer_id))
+        query = (ActiveOffers.select(ActiveOffers, CarAdvert).join(CarAdvert).switch(ActiveOffers).join(User)
+                 .where(ActiveOffers.buyer_id == int(buyer_id)))
+
         if brand:
-            query = query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(CarBrand.id == int(brand))
+            query = (query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
+                     .where(CarBrand.id == int(brand)).order_by(ActiveOffers.id))
         elif car_id:
             query = query.where(ActiveOffers.car_id == int(car_id))
-        try:
-            buyer_offers = list(await manager.execute(query.order_by(ActiveOffers.id)))
-        except:
-            buyer_offers = None
+        elif get_brands:
+            query = (CarBrand.select().where(CarBrand.id.in_(query.select(CarBrand.id)
+                     .switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand))))
+        elif count:
+            return await manager.count(query)
 
-        if buyer_offers:
-            from database.data_requests.car_advert_requests import AdvertRequester
-            tasks = [AdvertRequester.load_related_data_for_advert(buyer_offer.car_id) for buyer_offer in buyer_offers]
-            await asyncio.gather(*tasks)
 
-        ic(buyer_offers)
-        if buyer_offers:
-            if get_brands:
-                ic(get_brands)
-                return {f'load_brand_{request.car_id.complectation.model.brand.id}': request.car_id.complectation.model.brand.name for request in buyer_offers}
-            else:
-                return buyer_offers
-        else:
-            return False
-    ''''''
+
+        buyer_offers = list(await manager.execute(query))
+
+        return buyer_offers
+
 
     @staticmethod
     async def get_by_seller_id(seller_id_value, viewed_value):
@@ -135,22 +144,94 @@ class OffersRequester:
         updated = await manager.execute(update_query)
         return updated
 
+    @cache_redis.cache_update_decorator(model=ActiveOffers, mode='by_scan')
     @staticmethod
     async def delete_offer(offer_id=None, advert_id=None, buyer_id=None):
         '''Асинхронный метод удаления предложения'''
+        ic(offer_id, advert_id, buyer_id)
         if offer_id:
-            offer_id = await to_int(offer_id)
-            delete_query = ActiveOffers.delete().where(ActiveOffers.id == offer_id)
+            if isinstance(offer_id, list):
+                condition = ActiveOffers.id.in_([to_int(id_element) if isinstance(id_element, str) else id_element
+                                                 for id_element in offer_id])
+            else:
+                offer_id = await to_int(offer_id)
+                condition = ActiveOffers.id == offer_id
+
         elif advert_id and buyer_id:
-            advert_id = await to_int(advert_id)
-            buyer_id = await to_int(buyer_id)
-            delete_query = ActiveOffers.delete().where(ActiveOffers.id.in_(ActiveOffers.select(ActiveOffers.id).where((ActiveOffers.car_id == advert_id) & (ActiveOffers.buyer_id == buyer_id))))
+            if isinstance(advert_id, list):
+                condition = ((ActiveOffers.car_id.in_([to_int(id_element) if isinstance(id_element, str) else id_element
+                                                     for id_element in advert_id])) & (ActiveOffers.buyer_id == buyer_id))
+            else:
+                advert_id = await to_int(advert_id)
+                buyer_id = await to_int(buyer_id)
+                condition = ActiveOffers.id.in_(ActiveOffers.select(ActiveOffers.id)
+                                                .where((ActiveOffers.car_id == advert_id) &
+                                                        (ActiveOffers.buyer_id == buyer_id)))
+        elif advert_id:
+            if not isinstance(advert_id, list):
+                advert_id = [advert_id]
+
+            condition = ActiveOffers.car_id.in_([to_int(id_element) if isinstance(id_element, str) else id_element
+                                                     for id_element in advert_id])
+
+
         else:
             return
-        deleted = await manager.execute(delete_query)
-        return deleted
+        ic()
+
+        selected = list(await manager.execute(ActiveOffers.select(ActiveOffers, User).join(User)
+                                              .where(condition)))
+        ic(selected)
+        buyer_ids = list({offer.buyer_id.telegram_id for offer in selected})
+        ic(buyer_ids)
+        await manager.execute(ActiveOffers.delete()
+                            .where(ActiveOffers.id.in_(selected)))
+        return buyer_ids
 
 class CachedOrderRequests:
+    @staticmethod
+    async def get_by_advert_and_seller(advert_id, seller_id):
+        if not isinstance(advert_id, list):
+            advert_id = [advert_id]
+        query = (CacheBuyerOffers.select(CacheBuyerOffers, User, CarAdvert).join(CarAdvert).join(Seller).switch(CacheBuyerOffers).join(User)
+                 .where((CarAdvert.id.in_(advert_id)) & (CarAdvert.seller == seller_id)))
+        result = list(await manager.execute(query))
+        return result
+
+    @cache_redis.cache_decorator(model=CacheBuyerOffers, id_key='0:buyer_id')
+    @staticmethod
+    async def get_cache(buyer_id, brand=None, car_id=None, count=False, get_brands=False):
+        '''Асинхронный метод получения кэша'''
+        if buyer_id:
+            query = CacheBuyerOffers.select(CacheBuyerOffers, CarAdvert, User).join(CarAdvert).switch(CacheBuyerOffers).join(User).where(
+                User.telegram_id == buyer_id)
+
+            if count or get_brands:
+                query = query.where(CacheBuyerOffers.datetime_of_deletion > datetime.now())
+            if count:
+                return await manager.count(query)
+            elif get_brands:
+                query = (CarBrand.select().where(CarBrand.id.in_(query.select(CarBrand.id)
+                         .switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand))))
+            else:
+                query = query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
+
+            ic(brand, buyer_id, car_id)
+            if car_id:
+                query = query.where(CarAdvert.id == car_id)
+            if brand and not car_id:
+                query = (query.where(CarBrand.id == int(brand)))
+
+            result = list(await manager.execute(query))
+            if not get_brands:
+                result = await CachedOrderRequests.check_overtime_requests(result)
+                from database.data_requests.car_advert_requests import AdvertRequester
+                tasks = [AdvertRequester.load_related_data_for_advert(offer.car_id) for offer in result]
+                await asyncio.gather(*tasks)
+
+            return result if result else False
+
+    @cache_redis.cache_update_decorator(model=CacheBuyerOffers, mode='by_scan')
     @staticmethod
     async def set_cache(buyer_id: Union[str, int], car_data):
         '''Асинхронный метод установки кэша'''
@@ -178,84 +259,56 @@ class CachedOrderRequests:
             ic(insert_query)
             try:
                 await manager.execute(insert_query)
+                buyer_id = [buyer_id]
+                return buyer_id
             except:
-                traceback.print_exc()
+                # traceback.print_exc()
                 pass
-        return True
-
-    @staticmethod
-    async def get_offer_brands(buyer_id):
-        '''Асинхронный метод получения кэшированных брендов'''
-        query = CacheBuyerOffers.select().where(CacheBuyerOffers.buyer_id == buyer_id)
-        select_query = list(await manager.execute(query))
-        if select_query:
-            ic(select_query)
-            select_query = await CachedOrderRequests.check_overtime_requests(select_query)
-            try:
-                result = {f'load_brand_{request.car_id.complectation.model.brand.id}': request.car_id.complectation.model.brand.name for request in select_query}
-                return result
-            except DoesNotExist:
-                for offer in select_query:
-                    ic(offer, offer.id)
-                    await CachedOrderRequests.remove_cache(offer_model=offer)
-                    return set()
-        else:
-            return set()
-
-    @staticmethod
-    async def get_cache(buyer_id, brand=None, car_id=None):
-        '''Асинхронный метод получения кэша'''
-        if buyer_id:
-            query = CacheBuyerOffers.select(CacheBuyerOffers, CarAdvert).join(CarAdvert).switch(CacheBuyerOffers).join(User).where(
-                User.telegram_id == buyer_id)
 
 
-            ic(brand, buyer_id, car_id)
-            if car_id:
-                query = query.where(CarAdvert.id == car_id)
-            if brand and not car_id:
-                query = (query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
-                         .where(CarBrand.id == int(brand)))
-
-            select_query = list(await manager.execute(query))
-            ic(select_query)
-            result = await CachedOrderRequests.check_overtime_requests(select_query)
-            ic(result)
-            if brand:
-                result = [offer.car_id for offer in result]
-            ic(result)
-            return result if result else False
-            # if brand:
-            #     result = [request.car_id for request in select_query if request.car_id.brand == brand]
-            #     return result
 
 
+
+    @cache_redis.cache_update_decorator(model=CacheBuyerOffers, mode='by_scan')
     @staticmethod
     async def remove_cache(buyer_id=None, car_id=None, offer_model=None):
         '''Асинхронный метод удаления кэша'''
         delete_query = None
+        buyers = []
+        ic(car_id, buyer_id, offer_model)
         if offer_model:
+            if isinstance(offer_model, list):
+                delete_condition = CacheBuyerOffers.id.in_(offer_model)
+            else:
+                delete_condition = CacheBuyerOffers == offer_model
+                offer_model = [offer_model]
+            buyers = list({offer_model_element.buyer_id.telegram_id for offer_model_element in offer_model})
+
+            ic(buyers)
+            ic(offer_model[0].buyer_id)
             ic()
-            delete_query = CacheBuyerOffers.delete().where(CacheBuyerOffers == offer_model)
+            delete_query = CacheBuyerOffers.delete().where(delete_condition)
         elif buyer_id and car_id:
+            ic()
+            ic(buyers)
+            buyers = [buyer_id]
             delete_query = CacheBuyerOffers.delete().where(
                 (CacheBuyerOffers.buyer_id == int(buyer_id)) & (CacheBuyerOffers.car_id == int(car_id)))
             ic(delete_query)
+        else:
+            return
+        delete_response = await manager.execute(delete_query)
+        if delete_response:
+            return buyers
 
-        if await manager.execute(delete_query):
-            return True
 
     @staticmethod
     async def check_overtime_requests(select_query):
         '''Асинхронная проверка запросов на превышение времени'''
         requests_to_remove = [request for request in select_query if request.datetime_of_deletion < datetime.now()]
         if requests_to_remove:
-            delete_query = CacheBuyerOffers.delete().where(
-                CacheBuyerOffers.id.in_([request.id for request in requests_to_remove]))
-            await manager.execute(delete_query.order_by(CacheBuyerOffers.id))
+            await CachedOrderRequests.remove_cache(offer_model=requests_to_remove)
         result = [request for request in select_query if request not in requests_to_remove]
-        from database.data_requests.car_advert_requests import AdvertRequester
-        tasks = [AdvertRequester.load_related_data_for_advert(buyer_offer.car_id) for buyer_offer in result]
-        await asyncio.gather(*tasks)
+
         return result
 

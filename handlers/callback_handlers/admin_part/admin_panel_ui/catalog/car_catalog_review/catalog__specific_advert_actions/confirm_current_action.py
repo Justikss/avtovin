@@ -18,7 +18,7 @@ async def confirm_specific_advert_action_admin_handler(callback: CallbackQuery, 
     action = memory_storage.get('advert_action_subject')
     current_advert_id = memory_storage.get('current_catalog_advert_id')
     current_seller_id = memory_storage.get('user_id')
-    advert_model = await car_advert_requests_module.AdvertRequester.get_where_id(current_advert_id)
+    advert_model = await car_advert_requests_module.AdvertRequester.get_where_id(advert_id=current_advert_id)
     ic(action, current_seller_id, current_advert_id, advert_model, memory_storage)
     if advert_model:
         if action == 'delete':

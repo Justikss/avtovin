@@ -59,7 +59,7 @@ async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
 
     if isinstance(advert_id, int | str):
         advert = await car_advert_requests_module\
-            .AdvertRequester.get_where_id(advert_id)
+            .AdvertRequester.get_where_id(advert_id=advert_id)
         ic()
         ic(advert)
         if not advert:
@@ -177,12 +177,13 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
                     commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
                                                                           media=media_group)
                 except TelegramServerError:
-                    traceback.print_exc()
+                    # traceback.print_exc()
                     try:
                         commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
                                                                                          media=media_group)
                     except:
-                        traceback.print_exc()
+                        pass
+                        # traceback.print_exc()
 
                 for message in commodity_card_message:
                     commodity_card_messages_id.append(message.message_id)

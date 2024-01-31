@@ -77,14 +77,14 @@ class TariffToSellerBinder:
         if isinstance(seller_id, str):
             seller_id = int(seller_id)
         seller_to_tariff = list(await manager.execute(TariffsToSellers.select(TariffsToSellers, Tariff, Seller).join(Tariff).switch(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller_id)))
-        sellers_adverts = await AdvertRequester.get_advert_by_seller(seller_id)
+        sellers_adverts = await AdvertRequester.get_advert_by_seller(seller_id, count=True)
         if seller_to_tariff:
             simultaneous_announcements_residual = seller_to_tariff[0].tariff.simultaneous_announcements
-            ic(len(sellers_adverts), simultaneous_announcements_residual)
+            ic(sellers_adverts, simultaneous_announcements_residual)
             if simultaneous_announcements_residual:
-                ic(not len(sellers_adverts) < simultaneous_announcements_residual)
+                ic(not sellers_adverts < simultaneous_announcements_residual)
                 if simultaneous_announcements_residual:
-                    if not len(sellers_adverts) < simultaneous_announcements_residual:
+                    if not sellers_adverts < simultaneous_announcements_residual:
                         return simultaneous_announcements_residual
 
             return True

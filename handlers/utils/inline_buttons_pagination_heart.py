@@ -49,6 +49,7 @@ class CachedRequestsView:
         if not operation:
             operation = callback.data.split(':')[-1]
         current_page = await pagination.get_page(operation)
+        ic(current_page)
         if not current_page:
             if isinstance(callback, CallbackQuery):
                 await callback.answer()
@@ -59,7 +60,7 @@ class CachedRequestsView:
             await CachedRequestsView.send_message_with_keyboard(callback, keyboard, pagination, redis_key, state=state,
                                                                 delete_mode=delete_mode)
         except Exception as ex:
-            traceback.print_exc()
+            # traceback.print_exc()
             ic(keyboard, pagination, redis_key)
             ic(ex)
             pass

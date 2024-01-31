@@ -99,7 +99,7 @@ __ADMIN_LEXICON = {
                                        'admin_backward:user_profile_review': _captions['backward'],
                                        **return_main_menu, 'width': 2}},
 
-    'review_buyer_card': {'message_text': '<b>Просмотр покупателя:</b>\n<blockquote>ФИО: {full_name}\nТелефонны номер: {phone_number}</blockquote>',
+    'review_buyer_card': {'message_text': '<b>Просмотр покупателя:</b>\n<blockquote>ФИО: {full_name}\nТелефонный номер: {phone_number}</blockquote>',
                           'buttons': {'user_block_action_by_admin': 'Блокировка',
                                       'admin_backward:user_profile_review': _captions['backward'],
                                       **return_main_menu, 'width': 1}},

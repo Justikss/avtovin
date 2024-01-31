@@ -30,7 +30,7 @@ async def delete_message(bot, chat_id, message_id):
         pass
 
 class ThrottlingFilter(BaseFilter):
-    rate_limit = 1
+    rate_limit = 1.4
     spam_detection_count = 2
     block_duration = spam_block_time
     long_term_spam_block_time = long_term_spam_block_time

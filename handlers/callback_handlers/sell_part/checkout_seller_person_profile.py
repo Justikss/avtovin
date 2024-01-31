@@ -50,9 +50,10 @@ async def get_seller_entity(seller_model):
 
 async def get_residual_simultaneous_announcements(tariff_to_seller: TariffsToSellers):
     from database.data_requests.car_advert_requests import AdvertRequester
-    user_adverts = await AdvertRequester.get_advert_by_seller(tariff_to_seller.seller_id)
+    user_adverts_count = await AdvertRequester.get_advert_by_seller(tariff_to_seller.seller_id, count=True)
     max_simultaneous_announcements = tariff_to_seller.tariff.simultaneous_announcements
-    result = max_simultaneous_announcements - len(user_adverts)
+    result = max_simultaneous_announcements - user_adverts_count
+    result = result if result >= 0 else 0
     return result
 
 

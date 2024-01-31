@@ -17,7 +17,7 @@ async def start_buy(callback: CallbackQuery, state: FSMContext):
     if user_from_db:
         await callback.answer(Lexicon_module.LEXICON['user_in_system']['message_text'])
         await buyer_registration_handlers_module.main_menu(request=callback)
-    elif not user_ban:
+    elif user_ban == 'no':
         await callback.answer()
         await state.clear()
         await state.set_state(buyer_registration_handlers_module.BuyerRegistationStates.input_full_name)

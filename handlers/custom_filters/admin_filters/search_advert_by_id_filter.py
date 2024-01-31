@@ -28,7 +28,7 @@ class InputAdvertIdFilter(BaseFilter):
         if message_text.isdigit() and len(str(message.text)) < config_module.max_price_len:
             ic()
             advert_model = await car_advert_requests_module\
-                .AdvertRequester.get_where_id(message_text)
+                .AdvertRequester.get_where_id(advert_id=message_text)
             if advert_model:
                 ic()
                 await delete_message(message, message.message_id)

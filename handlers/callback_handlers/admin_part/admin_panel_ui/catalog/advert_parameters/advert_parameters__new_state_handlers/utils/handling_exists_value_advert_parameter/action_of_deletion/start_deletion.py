@@ -65,12 +65,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
                 from_param_branch=from_param_branch,
                 parameter_type_to_parameter_value=parameter_type_to_parameter_value
             )
-            # parameter_value_name = memory_storage.get('current_advert_parameter')['value']
-            #
-            # lexicon_part['message_text'] = lexicon_part['message_text'].format(
-            #     parameter_type=advert_parameters_captions[parameter_type_name],
-            #     parameter_value=parameter_value_name
-            # )
+
             self.output_methods = [
                 TravelMessageEditorInit(
                     lexicon_part=lexicon_part,

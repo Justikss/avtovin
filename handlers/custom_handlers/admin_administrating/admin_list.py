@@ -29,7 +29,6 @@ class AdminListHandler(BaseAdminCommandHandler):
             for username, red_status in body_data.items():
                 username = username.ljust(max_username_len, ' ')
                 part = f'\n{username} | {red_status}'
-                print(part)
                 table_text += part
 
         table_text = f'```{table_text}```'

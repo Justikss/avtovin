@@ -1,3 +1,4 @@
+import importlib
 from functools import reduce
 
 from peewee import fn
@@ -17,7 +18,9 @@ from database.tables.offers_history import CacheBuyerOffers, ActiveOffers
 from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
-
+# from utils.redis_for_language import cache_redis
+cache_redis_module = importlib.import_module('utils.redis_for_language')
+cache_redis = cache_redis_module.cache_redis
 
 class AdvertRequester:
     @staticmethod
@@ -59,7 +62,7 @@ class AdvertRequester:
             adverts = [advert]
         else:
             adverts = advert
-
+        ic(type(adverts[0]), isinstance(adverts[0], CarAdvert))
         if isinstance(adverts[0], CarAdvert):
             await async_fetch_related(adverts, Seller, 'seller_id', 'seller')
 
@@ -74,13 +77,16 @@ class AdvertRequester:
         return adverts if len(adverts) != 1 else adverts[0]
 
 
+    @cache_redis.cache_update_decorator(model=CarAdvert, id_key=None)
     @staticmethod
     async def set_sleep_status(sleep_status: bool, seller_id=None, advert_id=None):
         adverts = await AdvertRequester.get_advert_by_seller(seller_id)
         if adverts:
             adverts = [advert.id for advert in adverts]
             await manager.execute(CarAdvert.update(sleep_status=sleep_status).where(CarAdvert.id.in_(adverts)))
+            return adverts
 
+    @cache_redis.cache_update_decorator(model=CarAdvert, id_key='0:advert_id')
     @staticmethod
     async def update_price(advert_id, new_price, head_valute):
         try:
@@ -98,6 +104,7 @@ class AdvertRequester:
             ic(ex)
             return False
 
+    @cache_redis.cache_decorator(model=CarAdvert, id_key='0:advert_id')
     @staticmethod
     async def get_where_id(advert_id: str | int | list):
         '''Получение моделей с определённым параметром id'''
@@ -115,12 +122,15 @@ class AdvertRequester:
 
             base_query = CarAdvert.select().where(CarAdvert.id == advert_id)
 
+        base_query = base_query.where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+
         try:
             advert = await manager.get(base_query)
         except:
             return None
         # Загрузка связанных данных
-        return await AdvertRequester.load_related_data_for_advert(advert)
+        advert = await AdvertRequester.load_related_data_for_advert(advert)
+        return advert
 
     @staticmethod
     async def cost_filter(cost_filter):
@@ -170,7 +180,7 @@ class AdvertRequester:
                 ActiveOffers.select(CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User).switch(CarAdvert).where(
                     ((ActiveOffers.buyer_id == buyer_search_mode)))
             )) & (CarAdvert.id.not_in(CarAdvert.select(CarAdvert.id).where(CarAdvert.seller_id == buyer_search_mode))))
-        #     print(query)
+
         if seller_id:
             ic()
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
@@ -317,37 +327,6 @@ class AdvertRequester:
         return result_adverts
 
 
-    @staticmethod
-    async def get_active_adverts_by_complectation_and_color(complectation, color):
-        # Получение активных объявлений
-        result = list(await manager.execute(CarAdvert.select().where(
-            (CarAdvert.state == 1) &
-            (CarAdvert.complectation == complectation) &
-            (CarAdvert.color == color)
-        )))
-
-        if result:
-            if hasattr(result[0], 'name'):
-                result = await sort_objects_alphabetically(result)
-
-        return result
-
-    @staticmethod
-    async def get_unique_engine_types(current_query):
-        # Подзапрос для получения уникальных типов двигателей
-        unique_engine_types_query = (CarEngine
-                                     .select()
-                                     .join(CarComplectation)
-                                     .where(CarComplectation.id.in_(current_query.select(CarComplectation.id)))
-                                     .distinct())
-
-        result = list(await manager.execute(unique_engine_types_query))
-
-        if result:
-            if hasattr(result[0], 'name'):
-                result = await sort_objects_alphabetically(result)
-
-        return result
 
     @staticmethod
     async def get_advert_brands_by_seller_id(seller_id):
@@ -372,9 +351,16 @@ class AdvertRequester:
         return result
 
     @staticmethod
-    async def get_advert_by_seller(seller_id):
-        return list(await manager.execute(CarAdvert.select().where(CarAdvert.seller == seller_id).order_by(CarAdvert.id)))
+    async def get_advert_by_seller(seller_id, count=False):
+        if isinstance(seller_id, str):
+            seller_id = int(seller_id)
+        query = CarAdvert.select(CarAdvert.id).where(CarAdvert.seller == seller_id).order_by(CarAdvert.id)
+        if count:
+            result = await manager.count(query)
+        else:
+            result = list(await manager.execute(query))
 
+        return result
 
     @staticmethod
     async def get_by_seller_id_and_brand(seller_id, brand):
@@ -411,41 +397,46 @@ class AdvertRequester:
 
     @staticmethod
     async def remove_user_view_to_advert(seller_id, advert_id):
+        from database.data_requests.offers_requests import CachedOrderRequests
+        from database.data_requests.offers_requests import OffersRequester
+
         ic(advert_id)
         if not isinstance(advert_id, list):
             advert_id = [advert_id]
         advert_id = [advert.id if isinstance(advert, CarAdvert) else advert for advert in advert_id]
         ic(advert_id)
-        car_advert_subquery = CarAdvert.select().where((CarAdvert.id.in_(advert_id)) & (CarAdvert.seller == seller_id))
 
-        await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
+        requests_to_remove = await CachedOrderRequests.get_by_advert_and_seller(advert_id=advert_id, seller_id=seller_id)
+        await CachedOrderRequests.remove_cache(offer_model=requests_to_remove)
+        await OffersRequester.delete_offer(advert_id=advert_id)
+        # await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
         await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
 
-        return car_advert_subquery
+        # return car_advert_subquery
 
+    @cache_redis.cache_update_decorator(model=CarAdvert, id_key='1:advert_id')
     @staticmethod
     async def delete_advert_by_id(seller_id, advert_id=None):
         if isinstance(seller_id, str):
             seller_id = int(seller_id)
 
         if not advert_id:
+
             adverts = await AdvertRequester.get_advert_by_seller(seller_id)
+            result = [advert.id for advert in adverts]
+            # car_advert_subquery = CarAdvert.select(CarAdvert.id).where(CarAdvert.seller == seller_id)
+
         else:
             adverts = [advert_id]
+            result = [advert_id]
+#             car_advert_subquery = CarAdvert.select(CarAdvert.id).where((CarAdvert.id == advert_id) & (CarAdvert.seller == seller_id))
+
         ic(adverts, seller_id)
-        result = []
-        # for advert_id in adverts:
-        #     if not isinstance(advert_id, int):
-        #         advert_id = advert_id.id
-        car_advert_subquery = await AdvertRequester.remove_user_view_to_advert(seller_id, adverts)
-        # await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
-        # await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
-        # await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
-        await manager.execute(ActiveOffers.delete().where(ActiveOffers.car_id.in_(car_advert_subquery)))
-        await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(car_advert_subquery)))
+
+        await AdvertRequester.remove_user_view_to_advert(seller_id, adverts)
+        await manager.execute(AdvertPhotos.delete().where(AdvertPhotos.car_id.in_(adverts)))
         await advert_to_admin_view_related_requester.delete_relation(adverts)
-        if len(adverts) == 1:
-            result = await manager.get_or_none(CarAdvert, CarAdvert.id == adverts[0])
-        await manager.execute(CarAdvert.delete().where((CarAdvert.id.in_(car_advert_subquery)) & (CarAdvert.seller == seller_id)))
-        if result:
-            return result
+
+        await manager.execute(CarAdvert.delete().where((CarAdvert.id.in_(adverts)) & (CarAdvert.seller == seller_id)))
+
+        return result

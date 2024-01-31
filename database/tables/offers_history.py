@@ -2,7 +2,7 @@ import importlib
 from datetime import datetime, timedelta
 
 from database.db_connect import BaseModel
-from peewee import ForeignKeyField, BooleanField, DateTimeField, CompositeKey, DateField
+from peewee import ForeignKeyField, BooleanField, DateTimeField, CompositeKey, DateField, AutoField
 
 from database.tables.car_configurations import CarAdvert, CarState, CarComplectation, CarEngine, CarMileage, CarColor, CarYear
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
@@ -25,6 +25,7 @@ class ActiveOffers(BaseModel):
 
 class CacheBuyerOffers(BaseModel):
     '''Кэширование неподтверждённых заявок'''
+    id = AutoField(primary_key=True)
     buyer_id = ForeignKeyField(User, field=User.telegram_id, backref='cached_offers')
     car_id = ForeignKeyField(CarAdvert, field=CarAdvert.id, backref='cached_offers')
     # car_brand = CharField()
@@ -32,7 +33,9 @@ class CacheBuyerOffers(BaseModel):
 
     class Meta:
         db_table = 'Кэш_Открытых_Заявок'
-        primary_key = CompositeKey('buyer_id', 'car_id')
+        indexes = (
+            (('buyer_id', 'car_id'), True),  # Создание уникального индекса для пары buyer и advert
+        )
 
 
 class RecommendationsToBuyer(BaseModel):
@@ -49,13 +52,16 @@ class SellerFeedbacksHistory(BaseModel):
     feedback_time = DateField(default=datetime.now().strftime('%d-%m-%Y'))
 
 class RecommendedOffers(BaseModel):
+    id = AutoField(primary_key=True)
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')
     advert = ForeignKeyField(CarAdvert, field=CarAdvert.id)
     parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
 
     class Meta:
         db_table = 'Рекомендации'
-        primary_key = CompositeKey('buyer', 'advert')
+        indexes = (
+            (('buyer', 'advert'), True),  # Создание уникального индекса для пары buyer и advert
+        )
 
 
 #

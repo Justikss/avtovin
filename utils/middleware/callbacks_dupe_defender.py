@@ -57,12 +57,10 @@ class ThrottlingMiddleware(BaseMiddleware):
         async with lock:
             header_controller_module = importlib.import_module('handlers.default_handlers.start')
             await asyncio.sleep(anti_spam_duration)
-            print('MWAREHEADER')
             if await self.chat_header_controller_support(event):
                 await header_controller_module.header_controller(event)
 
             await handler(event, data)
-            ic('UNLOK')
             return
 
     async def chat_header_controller_support(self, event):
@@ -80,18 +78,8 @@ class ThrottlingMiddleware(BaseMiddleware):
         last_text_to_send = None
         text = f'<blockquote><b>{copy(message)}</b></blockquote>'
 
-
-        # await delete_message(bot, user_id, notification_message)
         alert_message = await bot.send_message(chat_id=user_id, text=text)
         ic()
-        # for time_point in range(timer + 1, 0, -1):
-        #     if '{time}' in text:
-        #         text_to_send = text.format(time=time_point)
-        #     else:
-        #         text_to_send = text + str(time_point)
-        #     if last_text_to_send != text_to_send:
-        #         await alert_message.edit_text(text=text_to_send)
-        #         last_text_to_send = text_to_send
 
         await asyncio.sleep(timer)
         await delete_message(bot, user_id, alert_message.message_id)
@@ -115,15 +103,15 @@ class ThrottlingMiddleware(BaseMiddleware):
             ic(block_info['end_time'])
             now = datetime.now()
             if now < block_info['end_time']:
-                print(
-                    f"User {user_id} is still blocked until {block_info['end_time']} (now: {now})")  # Добавлено логгирование
+                # print(
+                #     f"User {user_id} is still blocked until {block_info['end_time']} (now: {now})")  # Добавлено логгирование
                 return False
             else:
                 # await delete_message(bot, user_id, block_info['message'])
                 #отключаем ограничения по истечению времени
                 del self.user_block_time[user_id]
                 del self.long_term_activity[user_id]
-                print(f"Block for user {user_id} has been lifted")  # Добавлено логгирование
+                # print(f"Block for user {user_id} has been lifted")  # Добавлено логгирование
         return True
 
     async def check_rate_limit(self, user_id: int, current_time: float) -> bool:
@@ -163,8 +151,4 @@ class ThrottlingMiddleware(BaseMiddleware):
         if user_id not in self.locks:
             self.locks[user_id] = asyncio.Lock()
         return self.locks[user_id]
-
-#
-# asyncioaa = asyncio.Lock()
-# asyncioaa.locked()
 

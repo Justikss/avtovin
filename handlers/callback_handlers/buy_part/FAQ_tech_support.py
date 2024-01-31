@@ -1,8 +1,8 @@
 import importlib
 
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import CallbackQuery
 
-from config_data.config import SUPPORT_NUMBER_2, SUPPORT_NUMBER, SUPPORT_TELEGRAM
+
 from database.data_requests.tech_supports import TechSupportsManager
 from keyboards.inline.kb_creator_with_urls import createinlinekeyboard
 from utils.lexicon_utils.Lexicon import catalog_captions, captions

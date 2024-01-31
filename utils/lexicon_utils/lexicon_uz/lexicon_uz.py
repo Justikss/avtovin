@@ -122,7 +122,7 @@ LEXICON_UZ = {
                          'cost': f'<blockquote><b>Narxi: <i>X {money_valute}</i></b></blockquote>',
                          'mileage': 'Yurgan masofasi: <i>X</i>', 'year': 'Yili: <i>X</i>',
                          'color': 'Rangi: <i>X</i>'}, 'buyer_car_pagination:-': '←', 'buyer_car_pagination:+': '→',
-        'confirm_buy_settings:': '✓ Tasdiqlash ✓',
+        'confirm_buy_settings:': '✓ Tasdiqlash ✓', 'buy_search_price_filter': "♻️ Narx bo'yicha filtrlash ♻",
         'backward_in_carpooling': '⚙️ O‘zgartirish ⚙️', 'return_main_menu': '🏡 Menyuga 🏡', 'width': (2, 1, 1, 1)},
 
     'confirm_buy_configuration': {
@@ -197,17 +197,63 @@ LEXICON_UZ = {
 
 'seller___my_feedbacks': {'message_text': 'Mening javoblarim', 'buttons': {'new_feedbacks': '✓ Yangi ✓', 'viewed_feedbacks': '👁 Ko‘rib chiqilgan 👁', 'backward:seller__my_feedbacks': '◂ Orqaga ▸', 'width': 2}},
 'return_main_menu_button': {'return_main_menu': '🏡 Menyuga 🏡'},
-'retry_now_allert': 'Yana urinib ko‘ring',
-'user_havent_permision': 'Sizda huquq yo‘q',
-'seller_without_tariff': 'Sizda hisobda javoblar yo‘q',
-'seller_tarriff_expired': 'Sizning tarifingiz eskirgan',
-'non_actiallity': 'Dolzarb emas',
-'successfully': 'Muvaffaqiyatli',
-'seller_does_have_this_car': 'Sizda bunday mashina sotilmaydi',
-'convertation_sub_string': '~',
-'uzbekistan_valute': 'X sum',
-'other_caption': 'Boshqa',
-'color_caption': 'Rang'
+  "buyer_price_filter_review": {
+    "message_text": {
+      "default": "<b>Narxni saralash:</b>\n",
+      "selected_caption": "Tanlangan:\n",
+      "min_caption": "{price} dan\n",
+      "max_caption": "{price} gacha\n"
+    },
+    "buttons": {
+      "buyer_cost_filter:from": "Dan",
+      "buyer_cost_filter:before": "Gacha",
+      "set_buyer_cost_filter": "Filtrlarni qo'llash",
+      "remove_buyer_cost_filter": "Filtrlarni bekor qilish",
+      "width": 2
+    }
+  },
+  "buyer_price_filter_start_input": {
+    "message_text": "<b>Narx filtri mumkin bo'lgan diapazoni:</b>\n<blockquote>Dan <i>{min_cost}</i>\nGacha <i>{max_cost}</i></blockquote>\n<b>E'lonlarni filtrlash uchun {default_side_name} summani kiriting:</b>",
+    "buttons": {
+      "backward:input_request_b_cost_filter": "Orqaga",
+      "width": 1
+    }
+  },
+  "buyer_price_filter_input_confirmation": {
+    "message_text": "<b>E'lonlarni filtrlashda narx diapazonini qo'shish\n{from_or_before}: {cost}</b>",
+    "buttons": {
+      "confirm_add_buyer_price_filter_part": "Tasdiqlash",
+      "rewrite_buyer_price_filter": "Qayta kiriting",
+      "cancel_buyer_price_filter": "Bekor qilish",
+      "width": 1
+    }
+  },
+  "reset_current_range_side_buttons": {
+    "reset_current_range_side": "Tozalash"
+  },
+  'cost_filter_non_actiallity': 'Joriy reklamalar bitta narxga ega.\nBunday holatda filtrlash foydasiz.',
+  "price_incorrect": f"<b>Narx faqat bitta sonni o'z ichiga olishi kerak (to {max_price_len} raqamgacha)</b>\n' $ ' belgisi bilan kiritish mumkin",
+  "price_not_in_range": "<b>Kiritilgan narx joriy tanlov doirasidan tashqarida.</b>",
+  "nominative_case_cost_side_from": "Minimal",
+  "nominative_case_cost_side_before": "Maksimal",
+  "accusative_case_lower_caption_side_before": "maksimal",
+  "accusative_case_lower_caption_side_from": "minimal",
+  "from_caption": "Dan",
+  "before_caption": "Gacha",
+  "incorrect_nearest_price": "<b>Sizning filtringiz bironta ham e'lonni tanlamadi.\nSizning diapazoningizga eng yaqin narx:\n{nearest_price}</b>",
+  "filter_made_null_list": ""
+    ,
+    'retry_now_allert': 'Yana urinib ko‘ring',
+    'user_havent_permision': 'Sizda huquq yo‘q',
+    'seller_without_tariff': 'Sizda hisobda javoblar yo‘q',
+    'seller_tarriff_expired': 'Sizning tarifingiz eskirgan',
+    'non_actiallity': 'Dolzarb emas',
+    'successfully': 'Muvaffaqiyatli',
+    'seller_does_have_this_car': 'Sizda bunday mashina sotilmaydi',
+    'convertation_sub_string': '~',
+    'uzbekistan_valute': 'X sum',
+    'other_caption': 'Boshqa',
+    'color_caption': 'Rang'
 
 }
 
@@ -296,7 +342,7 @@ Rang: <i>{color}</i></blockquote>
     'deal_fell_through': 'Bitim amalga oshmadi',
     'page_view_separator': 'Sahifa: ',
     'tariff_prefix': '<blockquote>💰 Tarif: <i>X</i></blockquote>',
-    'tarif_expired': 'Sizning tarifingiz tugagan',
+    'tarif_expired': '<blockquote>Sizning tarifingiz tugagan</blockquote>',
     'start_choose_payment_method': 'To‘lov usulini tanlang',
     'to_offers': 'Ilovalar uchun'
 }

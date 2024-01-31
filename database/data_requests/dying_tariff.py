@@ -51,23 +51,24 @@ class DyingTariffRequester:
             ic(tariff_model)
             tariff_model = await tariff_binder_module.TariffToSellerBinder.get_by_seller_id(seller)
 
-
-
         ic(seller)
         ic(tariff_model)
         await car_advert_requests_module.AdvertRequester.set_sleep_status(True, seller)
+        ic(bot)
         if bot:
             await send_notification_about_lose_tariff(seller_id=seller, bot=bot)
         ic(tariff_model)
         ic(seller)
-        try:
-            dying_tariff = await manager.get(DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller.telegram_id))
-        except:
-            dying_tariff = None
+
+
+        dying_tariff = list(await manager.execute(DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == seller)))
+
         if not dying_tariff:
             dying_tariff = await manager.create(DyingTariffs, tariff_wire=tariff_model)
         ic(dying_tariff)
         if dying_tariff:
+            if isinstance(dying_tariff, list):
+                dying_tariff = dying_tariff[0]
             car_adverts = await car_advert_requests_module.AdvertRequester.get_advert_by_seller(seller)
             ic(car_adverts)
             if car_adverts:

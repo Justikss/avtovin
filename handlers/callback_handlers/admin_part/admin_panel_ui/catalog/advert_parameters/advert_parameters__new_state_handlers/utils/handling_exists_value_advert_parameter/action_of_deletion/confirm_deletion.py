@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from database.data_requests.new_car_photo_requests import PhotoRequester
+from database.tables.car_configurations import CarComplectation, CarModel, CarBrand
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
     AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.start_deletion import \
@@ -56,7 +57,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 ic()
             except Exception as ex:
                 delete_query = 'no'
-                traceback.print_exc()
+                # traceback.print_exc()
                 logging.warning(f'|||Ошибка при удалении связки параметров(удаление конфигурации авто): {ex}')
             if delete_query == 'no':
                 alert_message = Lexicon_module.ADMIN_LEXICON['action_non_actuality']
@@ -121,23 +122,16 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 elif current_param == 'complectation':
                     complectations = await car_configs_module\
                         .CarConfigs.get_complectations_by_model_and_engine(selected_data['model'])
-                    # complectations_by_engine = await car_configs_module\
-                    # .CarConfigs.get_complectations_by_model_and_engine(selected_data['model'],
-                    #                                                                                    selected_data['engine'])
+
                     ic(complectations)
-                    # if sorted({complectation.id for complectation in complectations}) \
-                    #         == sorted({complectation_by_engine.id for complectation_by_engine in complectations_by_engine}):
+
                     if len(complectations) <= 1:
                         dependencies['model'] = {selected_data['model']}
                         await delete_low_params('model')
                 elif current_param == 'model':
                     models = await car_configs_module\
                         .CarConfigs.get_models_by_brand_and_engine(selected_data['brand'])
-                    models_by_brand = await car_configs_module\
-                        .CarConfigs.get_models_by_brand_and_engine(selected_data['brand'],
-                                                                                      selected_data['engine'])
-                    # if sorted({model.id for model in models}) \
-                    #         == sorted({model_by_brand.id for model_by_brand in models_by_brand}):
+
                     if len(models) <= 1:
                         if 'model' not in dependencies.keys():
                             dependencies['model'] = {selected_data['model']}
@@ -145,7 +139,6 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                             dependencies['brand'] = {selected_data['brand']}
 
             if 'color' in selected_data:
-                # dependencies['color'] = {selected_data['color']}
                 photos = await PhotoRequester.find_photos_by_complectation_and_color(selected_data['complectation'],
                                                                                      selected_data['color'])
                 await delete_low_params('color')
@@ -229,4 +222,40 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         # photo_dependencies = await find_photo_dependencies(data_to_delete)
         # ic(photo_dependencies)
         delete_query = await delete_data(params_to_delete, photo_dependencies)
+
+        param_to_clear_cache = await seek_head_param_in_selecteds_where_it_is_not_dependencies(selected_params, params_to_delete)
+
         return delete_query
+
+
+async def seek_head_param_in_selecteds_where_it_is_not_dependencies(selected_data, params_to_delete):
+    head_param = None
+    if 'complectation' in selected_data:
+        head_param = 'complectation'
+    elif 'model' in selected_data:
+        head_param = 'model'
+    elif 'brand' in selected_data:
+        head_param = 'brand'
+
+    if head_param and head_param in params_to_delete.keys():
+        head_param = None
+    elif head_param:
+        match head_param:
+            case 'complectation':
+                head_param = CarComplectation
+            case 'model':
+                head_param = CarModel
+            case 'brand':
+                head_param = CarBrand
+
+    if head_param:
+        cache_redis_module = importlib.import_module('utils.redis_for_language')
+        cache_redis = cache_redis_module.cache_redis
+
+        @cache_redis.cache_update_decorator(model='car_config', id_key='1:action')
+        async def clear_cache_initializating(head_param, action):
+            return head_param
+        
+        await clear_cache_initializating(head_param, action='delete')
+    return head_param
+

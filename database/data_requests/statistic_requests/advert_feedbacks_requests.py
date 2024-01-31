@@ -47,6 +47,8 @@ class AdvertFeedbackRequester:
                 complectation = complectation_id,
                 color = color_id
             )
+            ic(query)
+            query = query[0]
         # if not query:
         # query = await manager_method(AdvertParameters,
         #                              complectation=complectation_id,
@@ -72,7 +74,7 @@ class AdvertFeedbackRequester:
         if not isinstance(advert, CarAdvert):
             if isinstance(advert, str):
                 advert = int(advert)
-            advert = await car_advert_requests_module.AdvertRequester.get_where_id(advert)
+            advert = await car_advert_requests_module.AdvertRequester.get_where_id(advert_id=advert)
 
         parameters = await AdvertFeedbackRequester.extract_parameters(advert)
         await manager.execute(offers_history_module\
@@ -406,7 +408,7 @@ ORDER BY
                                                                                     ).group_by(CarEngine)
 
         # Добавление сортировки
-        print(query)
+
         if top_direction == 'top':
             query = query.order_by(fn.COUNT(offers_history_module\
                                             .SellerFeedbacksHistory.id).desc())

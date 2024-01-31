@@ -1,0 +1,1 @@
+from . import delete_all_messages

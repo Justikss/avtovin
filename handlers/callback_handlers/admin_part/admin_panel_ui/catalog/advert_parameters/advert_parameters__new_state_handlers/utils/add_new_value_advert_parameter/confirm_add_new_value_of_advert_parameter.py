@@ -13,6 +13,7 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         memory_storage = await state.get_data()
         insert_query = None
+        param_kwarg = None
         match memory_storage.get('params_type_flag'):
 
             case 'new':

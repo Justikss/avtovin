@@ -124,7 +124,7 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                 offer_ids = [offer.id for offer in seller_offers]
             # unpacked_output_data = await CheckFeedbacksHandler.make_unpacked_data_for_seller_output(callback, viewed)
         except UserExistsError:
-            traceback.print_exc()
+            # traceback.print_exc()
             error_flag = UserExistsError
 
         except CarExistsError:

@@ -25,7 +25,7 @@ async def start_sell_callback_handler(callback: CallbackQuery, state: FSMContext
         elif seller_is_authorized:
             await callback.answer(text=lexicon_module.LEXICON['user_in_system']['message_text'])
             await seller_main_menu(callback=callback)
-    elif not user_ban:
+    elif user_ban == 'no':
         lexicon_code = 'who_is_seller'
         await message_editor_module.travel_editor.edit_message(request=callback, lexicon_key=lexicon_code, delete_mode=True)
     else:

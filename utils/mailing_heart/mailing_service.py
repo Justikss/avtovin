@@ -2,21 +2,60 @@ import asyncio
 import importlib
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Tuple, Optional
 
+import aiocron
 from aiogram import Bot
 from peewee import IntegrityError
 
 from config_data.config import mailing_interval
+from database.tables.mailing import Mailing
+# from utils.asyncio_tasks.invalid_tariffs_deleter import loader_module
 from utils.middleware.exceptions_handler.middleware import ErrorHandler
 
 mailing_requests_module = importlib.import_module('database.data_requests.mailing_requests')
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 
 class MailingService:
     def __init__(self):
         self.mailing_tasks = {}
+        self.cancelled_tasks = set()
+        aiocron.crontab('0 0 * * *', func=self.cleanup_cancelled_tasks)
 
+    @staticmethod
+    def end_time_control(end_time):
+        two_minutes_future_time = datetime.now() + timedelta(minutes=2)
+        if end_time <= two_minutes_future_time:
+            end_time = two_minutes_future_time
+        return end_time
+
+    async def schedule_mailing(self, bot: Bot):
+        mailings = await mailing_requests_module.get_mailings_by_viewed_status(False)
+        ic(mailings)
+        for mailing in mailings:
+            send_time = self.end_time_control(mailing.scheduled_time)
+            if send_time > datetime.now():
+                # Упрощенно, без конвертации в cron-формат для примера
+                task_id = str(mailing.id)
+                self.mailing_tasks[task_id] = mailing.scheduled_time
+                aiocron.crontab('*/1 * * * *', func=self.send_scheduled_message_wrapper, args=(bot, mailing.id, task_id))
+
+    async def send_scheduled_message_wrapper(self, bot: Bot, mailing, task_id):
+        ic(task_id, self.cancelled_tasks)
+        if task_id in self.cancelled_tasks:
+            logging.debug(f"Задача {task_id} отменена.")
+            return
+        ic()
+        await self.send_scheduled_message(bot, mailing)
+
+    async def cancel_mailing(self, mailing_id, from_deleting=False):
+        task_id = str(mailing_id)
+        self.cancelled_tasks.add(task_id)
+        if not from_deleting:
+            await mailing_requests_module.delete_mailing_action(mailing_id)
+        logging.debug(f"Запланировано отменить задачу {task_id}.")
     async def get_recipients(self, recipients_type: str) -> Tuple[Optional[List[int]], Tuple[bool, bool]]:
         """
         Возвращает список идентификаторов пользователей для рассылки.
@@ -38,30 +77,25 @@ class MailingService:
 
         return user_ids, (get_users, get_sellers)
 
-    async def schedule_mailing(self, bot: Bot):
-        mailings = await mailing_requests_module.get_mailings_by_viewed_status(False)
-        ic(mailings)
-        for mailing in mailings:
-            ic(mailing.scheduled_time)
-            if mailing.scheduled_time > datetime.now():
-                delay = (mailing.scheduled_time - datetime.now()).total_seconds()
-                ic(delay)
-                task = asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))
-                self.mailing_tasks[mailing.id] = task
-            else:
-                delay = 1
-                ic(delay)
-                ic(mailing)
-                asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))
 
-    async def send_scheduled_message(self, bot: Bot, mailing, delay):
+    def schedule_single_mailing(self, bot: Bot, mailing):
+        scheduled_time = datetime.strptime(str(mailing.scheduled_time)[:-3], "%Y-%m-%d %H:%M")
 
-        try:
-            await asyncio.sleep(delay)
-            # Отправка сообщения
-        except asyncio.CancelledError:
-            # Обработка отмены задачи
-            return
+        if scheduled_time > datetime.now():
+            scheduled_time = self.end_time_control(scheduled_time)
+            cron_string = scheduled_time.strftime('%M %H %d %m *')
+            aiocron.crontab(cron_string, func=self.send_scheduled_message, args=(bot, mailing.id))
+        else:
+            asyncio.create_task(self.send_scheduled_message(bot, mailing.id))
+
+
+    async def send_scheduled_message(self, bot: Bot, mailing):
+        ic()
+        ic(mailing)
+        if not isinstance(mailing, Mailing):
+            mailing = await mailing_requests_module.get_mailing_by_id(mailing)
+            if not mailing:
+                return
         recipients = await self.get_recipients(mailing.recipients_type)
         ic(mailing, recipients)
         if isinstance(recipients, tuple) and recipients[0]:
@@ -93,25 +127,19 @@ class MailingService:
                     await mailing_requests_module.view_mailing_action(mailing_data, mailing,
                                                                       buyer_recipient, seller_recipient)
                 except IntegrityError:
-                    traceback.print_exc()
+                    # traceback.print_exc()
                     pass
         else:
-            from database.data_requests.mailing_requests import update_mailing_status
-            await update_mailing_status(mailing)
+            # from database.data_requests.mailing_requests import update_mailing_status
+            # await update_mailing_status(mailing)
+            await self.cancel_mailing(mailing.id)
+            return
 
-    async def schedule_single_mailing(self, bot: Bot, mailing):
-        config_module = importlib.import_module('config_data.config')
-
-        delay = (datetime.strptime(str(mailing.scheduled_time)[:-3], config_module\
-                                   .MODIFIED_MAILING_DATETIME_FORMAT) - datetime.now()).total_seconds()
-        if delay > 0:
-            task = asyncio.create_task(self.send_scheduled_message(bot, mailing, delay))
-            self.mailing_tasks[mailing.id] = task
-
-    async def cancel_mailing(self, mailing_id):
-        task = self.mailing_tasks.get(mailing_id)
-        if task:
-            task.cancel()
-            del self.mailing_tasks[mailing_id]  # Удаление задачи из словаря
+    async def cleanup_cancelled_tasks(self):
+        current_time = datetime.now()
+        to_remove = {task_id for task_id in self.cancelled_tasks if self.mailing_tasks[task_id] < current_time}
+        for task_id in to_remove:
+            self.cancelled_tasks.remove(task_id)
+            logging.debug(f"Очищен отменённый таск: {task_id}")
 
 mailing_service = MailingService()

@@ -19,7 +19,7 @@ async def rewrite_price_by_seller_handler(request: Union[CallbackQuery, Message]
     request_data  = await message_editor.redis_data.get_data(
         key=f'{str(request.from_user.id)}:seller_request_data', use_json=True)
     car = await car_advert_requests_module\
-        .AdvertRequester.get_where_id(request_data['car_id'])
+        .AdvertRequester.get_where_id(advert_id=request_data['car_id'])
     lexicon_part = copy(Lexicon_module\
                         .LexiconSellerRequests.input_new_price)
     if incorrect == '$':

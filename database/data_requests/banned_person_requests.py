@@ -1,4 +1,5 @@
 import importlib
+import logging
 import traceback
 
 from database.data_requests.admin_requests import AdminManager
@@ -7,6 +8,8 @@ from database.tables.seller import Seller, BannedSeller
 from database.tables.user import User, BannedUser
 from utils.custom_exceptions.database_exceptions import UserNonExistsError, AdminDoesNotExistsError
 
+cache_redis_module = importlib.import_module('utils.redis_for_language')
+cache_user_status = cache_redis_module.cache_user_status
 
 class BannedRequester:
     @staticmethod
@@ -22,8 +25,10 @@ class BannedRequester:
 
 
 
+    @cache_user_status.user_status_cache_decorator(model='ban')
     @staticmethod
     async def user_is_blocked(telegram_id, seller=False, user=False):
+        logging.debug('IN USER IS BLOCK CHECK DATABASE METHOD')
         if not isinstance(telegram_id, int):
             telegram_id = int(telegram_id)
 
@@ -35,6 +40,11 @@ class BannedRequester:
             return False
 
         banned_user = await manager.get_or_none(ban_table, ban_table.telegram_id == telegram_id)
+        if banned_user:
+            banned_user = 'yes'
+        else:
+            banned_user = 'no'
+        ic(banned_user)
         return banned_user
 
     @staticmethod
@@ -50,6 +60,7 @@ class BannedRequester:
 
         return banned_model
 
+    @cache_user_status.user_status_cache_update_decorator(model='ban')
     @staticmethod
     async def set_ban(request, telegram_id, reason, seller=False, user=False):
         person_requester_module = importlib.import_module('database.data_requests.person_requests')
@@ -78,9 +89,9 @@ class BannedRequester:
             ic(insert_query, ban_table, user_model)
             return user_model
         except:
-            traceback.print_exc()
             raise UserNonExistsError()
 
+    @cache_user_status.user_status_cache_update_decorator(model='ban')
     @staticmethod
     async def remove_ban(user_id, seller=False, user=False):
         if isinstance(user_id, str):

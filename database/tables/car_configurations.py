@@ -116,3 +116,5 @@ class CarAdvert(BaseModel):
     post_datetime = DateTimeField(default=datetime.now().strftime('%d-%m-%Y'))
 
 
+    # def __str__(self):
+    #     return self.__class__.__name__

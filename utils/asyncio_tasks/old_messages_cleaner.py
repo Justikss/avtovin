@@ -13,9 +13,11 @@ class DeleteOldRedisKeys:
     def __init__(self):
         self.redis_base = redis_module.redis_data
 
-    async def __call__(self):
-        user_keys, user_id_to_message_id = await self.redis_base._find_users_with_expired_keys()
-        data_to_chat_cleaning = await self.redis_base._delete_keys_for_users_without_active_keys(user_keys, user_id_to_message_id)
+    async def __call__(self, expired_mode=True):
+        user_keys, user_id_to_message_id = await self.redis_base._find_users_with_expired_keys(expired_mode=expired_mode)
+        data_to_chat_cleaning = await self.redis_base._delete_keys_for_users_without_active_keys(user_keys,
+                                                                                                 user_id_to_message_id,
+                                                                                                 expired_mode=expired_mode)
         return data_to_chat_cleaning
 
 

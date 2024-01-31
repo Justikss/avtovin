@@ -14,7 +14,6 @@ class SellerRequestsPagination(ABC):
         seller_requests_pagination = await redis_module.redis_data.get_data(
             key=user_id + ':seller_requests_pagination', use_json=True)
         if seller_requests_pagination and seller_requests_pagination != 'null':
-            print(seller_requests_pagination)
             seller_requests_pagination = pagination_module.Pagination(**seller_requests_pagination)
 
             if seller_requests_pagination.current_page == 0:

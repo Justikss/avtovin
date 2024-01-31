@@ -79,9 +79,9 @@ class LanguageMiddleware(BaseMiddleware):
                     await redis_module.redis_data.set_data(key=redis_key, value=redis_value)
                     language = redis_value
 
-        if not language:
-            # ic()
-            language = await redis_module.redis_data.get_data(key=f'{redis_key}')
+        # if not language:
+        #     # ic()
+        #     language = await redis_module.redis_data.get_data(key=f'{redis_key}')
         # ic(language)
         if language:
 

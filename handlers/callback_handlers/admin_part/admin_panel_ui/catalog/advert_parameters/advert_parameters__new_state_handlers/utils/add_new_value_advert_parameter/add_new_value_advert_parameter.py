@@ -33,6 +33,7 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
 
     async def lexicon_part_formatting(self, request, state, **kwargs):
         memory_storage = await state.get_data()
+        ic(memory_storage, str(await state.get_state()))
         lexicon_part = await self.incorrect_manager.get_lexicon_part_in_view_of_incorrect(
                     lexicon_object=Lexicon_module.ADVERT_PARAMETERS_LEXICON,
                     lexicon_key='start_add_new_advert_parameter_value',

@@ -18,7 +18,7 @@ async def confirmation_close_advert_lexicon_part_modification(message: Message, 
     action = memory_storage.get('advert_action_subject')
     current_advert_id = memory_storage.get('current_catalog_advert_id')
 
-    advert_model = await car_advert_requests_module.AdvertRequester.get_where_id(current_advert_id)
+    advert_model = await car_advert_requests_module.AdvertRequester.get_where_id(advert_id=current_advert_id)
     ic(advert_model, current_advert_id, action, memory_storage)
     if advert_model:
         seller_entity = await get_seller_name(advert_model.seller, for_admin=True)

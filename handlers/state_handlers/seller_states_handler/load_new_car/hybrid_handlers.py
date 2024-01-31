@@ -21,11 +21,8 @@ async def get_load_car_state(state: FSMContext):
     memory_data = await state.get_data()
     cars_state = memory_data.get('state_for_load')
 
-
-
     if cars_state == 2:
         return 'second_hand'
-
     elif cars_state == 1:
         return 'new'
 
@@ -48,7 +45,9 @@ async def input_state_to_load(callback: CallbackQuery, state: FSMContext, bot=No
                                              buttons_captions=await config_module\
             .CarConfigs.get_all_states(), need_width=True)
     ic(lexicon_part)
-    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, delete_mode=delete_mode, dynamic_buttons=lexicon_class.dynamic_buttons)
+    await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part,
+                                                    bot=bot, delete_mode=delete_mode,
+                                                    dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_engine_type)
@@ -108,11 +107,6 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
                         bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False)
 
-    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, state=state,
-    #                                          buttons_captions=await config_module\
-    #                                          .CarConfigs.get_brands_by_engine(engine_for_load), request=callback)
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
-
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_model)
 
@@ -148,11 +142,6 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
                                 brand_for_load, engine_for_load),
                                 bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False)
-    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, state=state,
-    #                                          buttons_captions=await config_module\
-    #                                          .CarConfigs.get_models_by_brand_and_engine(
-    #                                              brand_for_load, engine_for_load), request=callback)
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_complectation)
@@ -187,12 +176,6 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
             .CarConfigs.get_complectations_by_model_and_engine(
         model_for_load, engine_for_load), bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False)
-    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, state=state,
-    #                                          buttons_captions=await config_module\
-    #                                          .CarConfigs.get_complectations_by_model_and_engine(
-    #                                              model_for_load, engine_for_load), request=callback)
-    # ic(lexicon_part)
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, bot=bot, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await state.set_state(LoadCommodityStates.input_to_load_color)
     await callback.answer()
@@ -343,6 +326,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         key=str(request.from_user.id) + ':can_edit_seller_boot_commodity')
 
     memory_storage = await state.get_data()
+    ic(memory_storage)
     if not incorrect:
         if not there_data_update:
             cached_states = memory_storage.get('boot_car_states_cache')

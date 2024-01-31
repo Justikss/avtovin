@@ -25,7 +25,6 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
     'sum_price': memory_storage.get('sum_price'),
     'dollar_price': memory_storage.get('dollar_price'),
     'photos': memory_storage.get('load_photo')}
-    ic(sub_data)
     await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:boot_advert_ids_kwargs', value=sub_data)
     
     result_data = dict()
@@ -43,8 +42,12 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
                     if str(value) in ('0', 'None', 'False') and key == 'color':
                         value = Lexicon_module\
                             .LEXICON['other_caption']
-                    else:
+                    elif hasattr(value, 'name'):
                         value = value.name
+                    else:
+
+                        raise(f'None moment {value}')
+                        continue
 
 
                 ic(key, value)

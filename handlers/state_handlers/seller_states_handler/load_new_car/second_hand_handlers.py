@@ -32,11 +32,6 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
                                              .CarConfigs.custom_action('year', 'get_*'),
                         config_module.car_configurations_in_keyboard_page, need_last_buttons=False)
 
-    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
-    #                                          buttons_captions=await car_configurations_requests_module\
-    #                                          .CarConfigs.get_characteristic(year=True))
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=lexicon_class.dynamic_buttons)
-
     await callback.answer()
     await state.set_state(LoadCommodityStates.input_to_load_mileage)
 
@@ -57,10 +52,6 @@ async def input_mileage_to_load(callback: CallbackQuery, state: FSMContext):
     await output_choose_module.output_choose(callback, state, lexicon_class, await car_configurations_requests_module\
                                              .CarConfigs.custom_action('mileage', 'get_*'),
                         config_module.car_configurations_in_keyboard_page, need_last_buttons=False)
-    # lexicon_part = await create_lexicon_part(lexicon_part_abc=lexicon_class, request=callback, state=state,
-    #                                          buttons_captions=await car_configurations_requests_module\
-    #                                          .CarConfigs.get_characteristic(mileage=True))
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='', lexicon_part=lexicon_part, dynamic_buttons=lexicon_class.dynamic_buttons)
 
     await callback.answer()
     # await state.set_state(LoadCommodityStates.input_to_load_color)

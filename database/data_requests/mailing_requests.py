@@ -18,7 +18,7 @@ async def create_mailing(text, media, scheduled_time, recipients_type):
     return mailing
 
 async def get_mailing_by_id(mailing_id):
-    if not isinstance(mailing_id, int):
+    if isinstance(mailing_id, str):
         mailing_id = int(mailing_id)
     return await manager.get_or_none(Mailing, Mailing.id == mailing_id)
 
@@ -74,8 +74,8 @@ async def delete_mailing_action(mailing):
             await manager.execute(ViewedMailing.delete().where(ViewedMailing.mailing_id == mailing))
     else:
         from utils.mailing_heart.mailing_service import mailing_service
-
-        await mailing_service.cancel_mailing(mailing)
+    #
+        await mailing_service.cancel_mailing(mailing, from_deleting=True)
     await manager.execute(Mailing.delete().where(Mailing.id == mailing))
 
     if data_to_delete:

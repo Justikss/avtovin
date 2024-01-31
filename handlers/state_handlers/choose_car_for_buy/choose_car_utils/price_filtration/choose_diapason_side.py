@@ -7,8 +7,13 @@ from states.cost_filter_in_buy_search import BuyerSearchCostFilterStates
 from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_query_handler import \
     BaseCallbackQueryHandler
 
+lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+
 class ChooseCarPriceFilterHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
+        if await self.price_is_only_case_handler(request, state):
+            return
         await self.incorrect_manager.try_delete_incorrect_message(state=state, request=request, mode='buyer')
         await self.set_state(state, BuyerSearchCostFilterStates.review)
         lexicon_part = await self.construct_lexicon_part(request, state)
@@ -20,8 +25,14 @@ class ChooseCarPriceFilterHandler(BaseCallbackQueryHandler):
             )
         ]
 
+    async def price_is_only_case_handler(self, request, state):
+        memory_storage = await state.get_data()
+        default_cost_diapason = memory_storage.get('default_costs_diapason_on_buy_search') #keys from / before
+        if default_cost_diapason['from'] == default_cost_diapason['before']:
+            await request.answer(lexicon_module.LEXICON['cost_filter_non_actiallity'], show_alert=True)
+            return True
+
     async def construct_lexicon_part(self, request, state):
-        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         memory_storage = await state.get_data()
         price_diapason = memory_storage.get('buyer_cost_filter_data')

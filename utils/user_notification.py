@@ -114,6 +114,7 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
         async with context_managers_module.ignore_exceptions():
             notification_message = await bot.send_message(chat_id=chat_id, text=message_text, reply_markup=keyboard)
 
+    ic(notification_message)
     if notification_message:
         await redis_module.redis_data.set_data(key=str(chat_id) + redis_sub_key,
                                                 value=notification_message.message_id)
@@ -124,7 +125,7 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
     commodity_model = await car_advert_requests_module\
-        .AdvertRequester.get_where_id(data_for_seller['car_id'])
+        .AdvertRequester.get_where_id(advert_id=data_for_seller['car_id'])
     seller_id = commodity_model.seller.telegram_id
     ic(seller_id)
     media_message = None
@@ -144,7 +145,7 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
             media_message = await callback.bot.send_media_group(chat_id=seller_id,
                                                               media=media_group)
         except TelegramServerError:
-            traceback.print_exc()
+            # traceback.print_exc()
             async with context_managers_module.ignore_exceptions():
                 media_message = await callback.bot.send_media_group(chat_id=seller_id,
                                                                         media=media_group)
@@ -173,12 +174,14 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
 
     lexicon_part['buttons'] = {}
     if notification_message_part:
-        active_seller_notifications.append(notification_message_part.message_id)
-
+        head_message_id = notification_message_part.message_id
+        active_seller_notifications.append(head_message_id)
+    else:
+        head_message_id = ''
 
     for key, value in lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons'].items():
         if key in ('close_seller_notification:', 'my_sell_feedbacks:'):
-            key = key + '-'.join([str(media_message_id) for media_message_id in active_seller_notifications])
+            key = key + str(head_message_id)
 
         lexicon_part['buttons'][key] = value
     keyboard = await InlineCreator.create_markup(input_data=lexicon_part['buttons'])
@@ -188,16 +191,29 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
             chat_id=seller_id,
             message_id=notification_message_part.message_id,
             reply_markup=keyboard)
-
-        # await redis_module.redis_data.set_data(key=f'{seller_id}:active_notifications', value=active_seller_notifications)
+    ic(lexicon_part['buttons'], active_seller_notifications)
+    await redis_module.redis_data.set_data(key=f'{seller_id}:{head_message_id}:active_notifications',
+                                           value=active_seller_notifications)
 
 
 async def delete_notification_for_seller(callback: CallbackQuery):
+    redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
 
-    messages_to_delete = callback.data.split(':')[-1].split('-')
+    ic(callback.data)
+    head_notification_message_id = callback.data.split(':')[-1]
+    redis_key = f'{callback.from_user.id}:{head_notification_message_id}:active_notifications'
 
-    for message_id in messages_to_delete:
+    messages_to_delete = await redis_module.redis_data.get_data(
+        key=redis_key,
+        use_json=True)
+    ic(messages_to_delete)
+
+
+    if messages_to_delete:
         try:
-            await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=int(message_id))
+            await callback.bot.delete_messages(chat_id=callback.message.chat.id, message_ids=messages_to_delete)
         except:
+            traceback.print_exc()
             pass
+
+    await redis_module.redis_data.delete_key(redis_key)

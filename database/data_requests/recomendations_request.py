@@ -2,21 +2,20 @@ import asyncio
 import importlib
 import traceback
 
-from peewee import JOIN
+from peewee import JOIN, IntegrityError
 
 from database.data_requests.advert_parameters_requests import AdvertParameterManager
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarState, CarEngine, CarColor, CarMileage, \
     CarYear, CarModel, CarBrand
-from database.tables.offers_history import SellerFeedbacksHistory
-# from database.tables.offers_history import offers_history_module\
-#     .RecommendedOffers, offers_history_module\
-#     .RecommendationsToBuyer
+from database.tables.offers_history import SellerFeedbacksHistory, RecommendedOffers
+
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
 
 offers_history_module = importlib.import_module('database.tables.offers_history')
-
+cache_redis_module = importlib.import_module('utils.redis_for_language')
+cache_redis = cache_redis_module.cache_redis
 
 class RecommendationParametersBinder:
     @staticmethod
@@ -32,18 +31,23 @@ class RecommendationParametersBinder:
                 color_id=color_id,
                 complectation_id=complectation_id,
                 model=model)
+            if not isinstance(parameters, list):
+                parameters = [parameters]
             ic(parameters)
             tasks = [manager.get_or_create(offers_history_module\
                                                        .RecommendationsToBuyer, buyer=buyer_id, parameters=parameter)
                                             for parameter in parameters]
-            await asyncio.gather(*tasks)
+            try:
+                await asyncio.gather(*tasks)
+            except IntegrityError:
+                return False
             # select_query = await manager.get_or_create(offers_history_module\
             #                                            .RecommendationsToBuyer, buyer=buyer_id, parameters=parameters)
 
 
         except Exception as ex:
             ic(ex)
-            traceback.print_exc()
+            # traceback.print_exc()
             pass
 
     @staticmethod
@@ -75,6 +79,7 @@ class RecommendationParametersBinder:
         select_query = list(await manager.execute(query))
         return select_query
 
+    @cache_redis.cache_update_decorator(model=offers_history_module.RecommendedOffers, mode='by_scan')
     @staticmethod
     async def remove_wire_by_parameter(parameter_table, parameter_id):
         if not isinstance(parameter_id, list):
@@ -85,8 +90,15 @@ class RecommendationParametersBinder:
         )
 
         ic(parameter_recommendations_to_buyer_wire)
+        recommendations = list(await manager.execute(offers_history_module.RecommendedOffers
+        .select(offers_history_module.RecommendedOffers, User).join(User).where(
+            offers_history_module.RecommendedOffers.parameters_id.in_(offers_history_module\
+                .RecommendationsToBuyer.select(offers_history_module\
+                                               .RecommendationsToBuyer.id).where(offers_history_module\
+                .RecommendationsToBuyer.id.in_(
+                parameter_recommendations_to_buyer_wire.where(parameter_table.id.in_(parameter_id)
 
-
+        )))))))
         await manager.execute(offers_history_module.RecommendedOffers.delete().where(offers_history_module.RecommendedOffers.parameters_id.in_(
                         offers_history_module\
                                 .RecommendationsToBuyer.select(offers_history_module\
@@ -114,57 +126,69 @@ class RecommendationParametersBinder:
         ic(await manager.execute(
             AdvertParameters.delete().where(AdvertParameters.id.in_(condition_by_advert_parameter_and_selected_param))))
 
+        buyer_ids = list({recommendation.buyer.telegram_id for recommendation in recommendations})
+        return buyer_ids
 class RecommendationRequester:
+    @cache_redis.cache_update_decorator(model=offers_history_module.RecommendedOffers, mode='by_scan')
     @staticmethod
     async def add_recommendation(advert):
 
         parameter_wire = await RecommendationParametersBinder.get_wire_by_parameters(
                                                                                 advert)
-        ic(parameter_wire)
         if parameter_wire:
-            data = []
-            for wire in parameter_wire:
-                ic(advert, wire.buyer.telegram_id, parameter_wire)
-                data.append({'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
-                return list(await manager.execute(offers_history_module\
-                                                  .RecommendedOffers.insert_many(data)))
+            # Подготовка значений для вставки
+            values = ', '.join([f"({advert}, {wire.buyer.telegram_id}, {wire.id})" for wire in parameter_wire])
+            data = [{'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id}
+                    for wire in parameter_wire]
+            buyers = list({wire.buyer.telegram_id for wire in parameter_wire})
+            # Формирование SQL запроса с RETURNING для получения вставленных объектов
+            await manager.execute(offers_history_module.RecommendedOffers.insert_many(data))
 
+            return buyers
+            # data = []
+            # for wire in parameter_wire:
+            #     data.append({'advert': advert, 'buyer': wire.buyer.telegram_id, 'parameters': wire.id})
+            #     return list(await manager.execute(offers_history_module\
+            #                                       .RecommendedOffers.insert_many(data)))
+
+    @cache_redis.cache_decorator(model=offers_history_module.RecommendedOffers)
     @staticmethod
-    async def retrieve_by_buyer_id(buyer_id, get_brands=False, by_brand=None):
+    async def retrieve_by_buyer_id(buyer_id, by_brand=None, count=False, get_brands=False):
         ic(buyer_id)
-        query = offers_history_module\
-            .RecommendedOffers.select(offers_history_module\
-                                      .RecommendedOffers, CarAdvert, offers_history_module\
-                                      .RecommendationsToBuyer).join(CarAdvert).switch(offers_history_module\
-                                            .RecommendedOffers).join(User).switch(offers_history_module\
-                                  .RecommendedOffers).join(offers_history_module\
-                                                           .RecommendationsToBuyer).where(User.telegram_id == int(buyer_id))
-        result = await manager.execute(query)
-        if get_brands and result:
-            ic()
-            result = {f'load_brand_{str(recommendation.advert.complectation.model.brand.id)}': recommendation.advert.complectation.model.brand.name for recommendation in result}
-            return result
+        query = (RecommendedOffers.select(RecommendedOffers.id, CarAdvert, offers_history_module\
+                                      .RecommendationsToBuyer).join(CarAdvert).switch(RecommendedOffers)
+                                    .join(User).switch(RecommendedOffers)
+                                        .join(offers_history_module\
+                                                           .RecommendationsToBuyer).where(User.telegram_id == int(buyer_id)))
+        if count:
+            return await manager.count(query)
+        elif get_brands:
+            query = (CarBrand.select().where(CarBrand.id.in_(query.select(CarBrand.id)
+                     .switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand))))
+
         elif by_brand:
-            ic()
-            result = query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand).where(
-                CarBrand.id == int(by_brand)
-            )
-        ic(result)
+            query = (query.switch(CarAdvert).join(CarComplectation).join(CarModel).join(CarBrand)
+                     .where(CarBrand.id == int(by_brand)))
 
         result = list(await manager.execute(query))
-        if result:
-            return result
-        return False
+        return result
 
+    @cache_redis.cache_update_decorator(model=offers_history_module.RecommendedOffers, mode='by_scan')
     @staticmethod
     async def remove_recommendation_by_advert_id(advert_id=None):
         if not isinstance(advert_id, list):
             advert_id = [advert_id]
-        try:
-            await manager.execute(offers_history_module\
-                                  .RecommendedOffers.delete().where(offers_history_module\
-                                                                    .RecommendedOffers.advert.in_(advert_id)))
-        except:
-            traceback.print_exc()
-            pass
+        ic(advert_id)
+        # id_list_str = ','.join([str(id) for id in advert_id])  # Прямая подстановка значений
+
+        select_query = (RecommendedOffers.select(RecommendedOffers.buyer, RecommendedOffers.id, User).join(User)
+                        .where(RecommendedOffers.advert_id.in_(advert_id)))
+        recommendations = list(await manager.execute(select_query))
+        ic(recommendations)
+        delete_query = RecommendedOffers.delete().where(RecommendedOffers.id.in_(recommendations))
+        await manager.execute(delete_query)
+
+        buyer_ids_of_deleted_recommendations = list({recommendation.buyer.telegram_id for recommendation in recommendations})
+
+        return buyer_ids_of_deleted_recommendations
 

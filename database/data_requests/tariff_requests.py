@@ -93,7 +93,7 @@ class TarifRequester:
             else:
                 raise TariffHasWireError()
         except Exception as ex:
-            traceback.print_exc()
+            # traceback.print_exc()
             return False
 
     @staticmethod

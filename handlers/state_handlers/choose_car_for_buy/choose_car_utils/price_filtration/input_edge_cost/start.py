@@ -31,7 +31,7 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
         lexicon_part['message_text'] = lexicon_part['message_text'].format(
             max_cost=await get_valutes(default_cost_diapason['before'], None, get_string=True),
             min_cost=await get_valutes(default_cost_diapason['from'], None, get_string=True),
-            default_side_name=lexicon_module.LEXICON[f'{diapason_side}_caption']
+            default_side_name=lexicon_module.LEXICON[f'accusative_case_lower_caption_side_{diapason_side}']
         )
         lexicon_part = await self.incorrect_case_handler(incorrect_flag, lexicon_part, lexicon_module)
 
@@ -60,7 +60,11 @@ class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
                 )
             case _:
                 sub_string = ''
-        lexicon_part['message_text'] += f'\n<blockquote>{sub_string}</blockquote>'
+
+        if sub_string:
+            sub_string = f'\n<blockquote>{sub_string}\n</blockquote>{lexicon_module.low_sep}\n'
+
+        lexicon_part['message_text'] = f'''{sub_string}{lexicon_part['message_text']}'''
         return lexicon_part
 
     async def get_diapason_edges(self, memory_storage: dict, current_side=None):

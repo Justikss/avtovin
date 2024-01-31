@@ -100,7 +100,6 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             await tech_support_callback_handler(callback=callback)
 
         elif mode == 'choose_car_category':
-            print('choty')
             await search_auto_callback_handler(callback=callback, state=state)
 
         elif mode == 'set_language':
@@ -130,7 +129,6 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
                     pass
                 await set_language(callback, set_languange=False)
             else:
-                print("LEXICON_CACHA")
                 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
                 user_id = callback.from_user.id
@@ -169,15 +167,6 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             car_brand = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
             await output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand=car_brand)
 
-
-        # elif mode == 'start_boot_new_car':
-        #     edit_mode = await redis_storage.redis_data.get_data(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
-        #     if edit_mode and edit_mode != 'null':
-        #         print('EDITMOD ', edit_mode, type(edit_mode))
-        #         await output_load_config_for_seller(request=callback, state=state)
-        #     else:
-        #         await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback)
-
         elif mode == 'seller__my_feedbacks':
 
             await commodity_requests.commodity_requests_handler.commodity_reqests_by_seller(callback, state=state, delete_mode=True)
@@ -186,7 +175,6 @@ async def backward_button_handler(callback: CallbackQuery, state: FSMContext):
             ic()
             await CheckFeedbacksHandler.my_feedbacks_callback_handler(callback, state=state, delete_media_group_mode=True)
     else:
-        print("LEXICON_CACHA")
         memory_data = await state.get_data()
         last_lexicon_code = memory_data.get('last_lexicon_code')
         if last_lexicon_code:

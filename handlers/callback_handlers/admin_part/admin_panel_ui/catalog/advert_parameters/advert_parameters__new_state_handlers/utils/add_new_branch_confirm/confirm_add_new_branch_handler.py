@@ -79,6 +79,8 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
                         action = 'insert'
                     current_param = await car_configs_module\
                         .CarConfigs.custom_action(key, action, value, **subtables)
+                    if action == 'insert_or_get' and isinstance(current_param, tuple):
+                        current_param = current_param[0]
             else:
                 current_param = await car_configs_module\
                     .CarConfigs.get_by_id(key, value)

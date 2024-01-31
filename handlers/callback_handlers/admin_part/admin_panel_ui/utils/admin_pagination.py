@@ -75,7 +75,7 @@ class AdminPaginationOutput(Pagination):
                 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
                 advert_model = await car_advert_requests_module\
-                    .AdvertRequester.get_where_id(data_part)
+                    .AdvertRequester.get_where_id(advert_id=data_part)
                 if advert_model:
                     output_structured_data.append(advert_model)
 

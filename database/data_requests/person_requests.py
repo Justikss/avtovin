@@ -123,7 +123,8 @@ class PersonRequester:
             seller = await manager.get(Seller, Seller.telegram_id == advert.seller)
             return seller
         except:
-            traceback.print_exc()
+            pass
+            # traceback.print_exc()
 
     @staticmethod
     async def retrieve_all_data(user=False, seller=False, entity=None) -> Union[bool, List[User]]:

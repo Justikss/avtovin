@@ -18,6 +18,7 @@ async def delete_mailing_messages_pack(callback, messages_to_delete):
     for chat_id, message_ids in messages_to_delete.items():
         async with ignore_exceptions():
             await delete_message(callback, chat_id=chat_id, message_id=message_ids)
+            await asyncio.sleep(1)
 
 async def delete_current_mailing_handler(callback: CallbackQuery, state: FSMContext):
     admin_pagination_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination')

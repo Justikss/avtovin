@@ -85,7 +85,7 @@ class DeleteCarRequest:
             car_id = seller_request_data['car_id']
 
             await car_advert_requests_module\
-                .AdvertRequester.delete_advert_by_id(callback.from_user.id, car_id)
+                .AdvertRequester.delete_advert_by_id(callback.from_user.id, advert_id=car_id)
 
             await callback.answer(Lexicon_module.LexiconSellerRequests.success_delete)
 

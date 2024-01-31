@@ -1,4 +1,5 @@
 import asyncio
+import importlib
 import json
 import random
 import traceback
@@ -9,7 +10,6 @@ from datetime import timedelta, datetime
 from peewee import JOIN, IntegrityError, fn
 
 from database.data_requests.new_car_photo_requests import PhotoRequester
-from database.data_requests.recomendations_request import RecommendationParametersBinder
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
@@ -26,6 +26,8 @@ from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.user import User
 from utils.translator import translate
 
+cache_redis_module = importlib.import_module('utils.redis_for_language')
+cache_redis = cache_redis_module.cache_redis
 
 class CarConfigs:
     @staticmethod
@@ -49,6 +51,7 @@ class CarConfigs:
         brand, created = await database.get_or_create(CarBrand, name=brand_name)
         return brand
 
+    @cache_redis.cache_update_decorator(model='car_config', id_key='1:action', second_id_key='0:mode')
     @staticmethod
     async def custom_action(mode, action: str, name=None, model_id=None,
                             first_subject=None, second_subject=None):
@@ -123,12 +126,16 @@ class CarConfigs:
                     if not insert_kwargs:
                         return '(translate_error)'
                     result = await manager.create(current_table, **insert_kwargs)
+                    # if result:
+                    #     result = current_table
                 except IntegrityError:
-                    traceback.print_exc()
+                    # traceback.print_exc()
                     return '(exists)'
 
             case 'delete' if model_id:
                 if not mode in ('mileage', 'year'):
+                    from database.data_requests.recomendations_request import RecommendationParametersBinder
+
                     await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
                 result = await manager.execute(current_table.delete().where(default_condition))
 
@@ -138,7 +145,10 @@ class CarConfigs:
             case 'insert_or_get':
                 ic(map_condition)
                 result = await manager.get_or_create(current_table, **map_condition)
-                result = result[0]
+                if result[1]:
+                    result = (result[0], current_table)
+                else:
+                    result = result[0]
 
         if result and isinstance(result, list) and not current_table in (CarYear, CarMileage):
             if hasattr(result[0], 'name'):
@@ -174,6 +184,7 @@ class CarConfigs:
             if isinstance(model_id, int):
                 return await manager.get_or_none(table, table.id == model_id)
 
+    # @cache_redis.cache_decorator(model=CarColor)
     @staticmethod
     async def get_color_by_complectaiton(complectation_id, without_other=False):
         if not isinstance(complectation_id, int):
@@ -200,6 +211,8 @@ class CarConfigs:
             #     ic(result)
             return result
 
+
+    @cache_redis.cache_decorator(model=CarEngine)
     @staticmethod
     async def get_all_engines():
         result = list(await manager.execute(CarEngine.select()))
@@ -208,6 +221,8 @@ class CarConfigs:
                 result = await sort_objects_alphabetically(result)
 
         return result
+
+    @cache_redis.cache_decorator(model=CarState)
     @staticmethod
     async def get_all_states():
         result = list(await manager.execute(CarState.select()))
@@ -228,7 +243,7 @@ class CarConfigs:
             return color
         except:
             # return [await manager.get(CarColor, _name=name)]
-            traceback.print_exc()
+            # traceback.print_exc()
             pass
 
     @staticmethod
@@ -245,7 +260,7 @@ class CarConfigs:
         update_kwargs = await translate.translate(new_name, 'name')
         await manager.execute(table.update(**update_kwargs).where(table.id == model_id))
 
-
+    @cache_redis.cache_decorator(model=CarBrand)
     @staticmethod
     async def get_brands_by_engine(engine_id):
         result = await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
@@ -264,18 +279,21 @@ class CarConfigs:
         model, created = await database.get_or_create(CarModel, brand=brand, name=model_name)
         return model
 
+    @cache_redis.cache_decorator(model=CarModel)
     @staticmethod
     async def get_models_by_brand_and_engine(brand_id, engine_id=None):
         ic(brand_id, engine_id)
+        base_query = CarModel.select(CarModel, CarComplectation, CarBrand, CarEngine).join(CarComplectation).join(CarEngine).switch(CarModel).join(CarBrand)
         if engine_id:
-            result = list(await manager.execute(CarModel.select().join(CarComplectation).join(CarEngine).where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
+            result = list(await manager.execute(base_query.where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
         else:
-            result = list(await manager.execute(CarModel.select().join(CarComplectation).where(CarModel.brand_id == brand_id)))
+            result = list(await manager.execute(base_query.where(CarModel.brand_id == brand_id)))
 
         if result:
             if hasattr(result[0], 'name'):
                 result = await sort_objects_alphabetically(result)
-
+        ic()
+        ic(result)
         return result
 
     @staticmethod
@@ -284,12 +302,14 @@ class CarConfigs:
         complectation, created = await database.get_or_create(CarComplectation, model=model, name=complectation_name)
         return complectation
 
+    @cache_redis.cache_decorator(model=CarComplectation)
     @staticmethod
     async def get_complectations_by_model_and_engine(model_id, engine_id=None):
+        base_query = CarComplectation.select(CarComplectation, CarModel, CarBrand, CarEngine).join(CarModel).join(CarBrand).switch(CarComplectation).join(CarEngine)
         if engine_id:
-            result = list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).join(CarEngine).where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
+            result = list(await manager.execute(base_query.where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
         else:
-            result = list(await manager.execute(CarComplectation.select().join(CarModel).switch(CarComplectation).where((CarModel.id == model_id))))
+            result = list(await manager.execute(base_query.where((CarModel.id == model_id))))
 
         if result:
             if hasattr(result[0], 'name'):
@@ -315,6 +335,8 @@ class CarConfigs:
                                             color=data.get('color'), mileage=data.get('mileage'), year=data.get('year_of_release'))
 
             photo_album = data.get('photos')
+            ic(listing)
+            ic(listing.id)
             if listing and photo_album:
                 if isinstance(photo_album, dict):
                     object_for_iteration = [photo_data for photo_data in photo_album.values()][0]
@@ -495,12 +517,16 @@ async def get_seller_account(mock_feedbacks=False):
         return sellers
     await manager.create(User, telegram_id=902230076, username='Justion', name='Boris', surname='Борисов', phone_number='+79371567898')
     await manager.create(Admin, telegram_id=902230076)
+    await manager.create(User, telegram_id=6306554751, username='JuJU', name='ReRe', surname='WWW', phone_number='+79333367898')
+
 
     justion = await manager.create(Seller, telegram_id=902230076, dealship_name='Борис Пром', entity='legal', dealship_address='Угол Борисова 45', authorized=True, phone_number='+79371567898')
     # mockseller = await manager.create(Seller, telegram_id=902330076, dealship_name='Мокнутый', entity='legal', dealship_address='Шпельм', authorized=True, phone_number='+79323567898')
     # mockselle2 = await manager.create(Seller, telegram_id=912330076, entity='natural', name='Мокнутый', surname='Частюк', patronymic=None, dealship_address=None, authorized=True, phone_number='+79323557898')
+    sellers = list(await manager.execute(Seller.select()))
+    if sellers:
+        return sellers
 
-    # return [justion, mockseller, mockselle2]
 
 async def mock_feedbacks(sellers, raw_cars):
     ic(sellers)
@@ -513,10 +539,10 @@ async def mock_feedbacks(sellers, raw_cars):
                 'complectation': car['complectation'],
                 'color': car['color'],
             })
-        serialized_dicts = {json.dumps(d, sort_keys=True) for d in good_cars}
-
+        # serialized_dicts = {json.dumps(d, sort_keys=True) for d in good_cars}
+        good_cars = list(set(good_cars))
         # Десериализация обратно в словари
-        good_cars = [json.loads(d) for d in serialized_dicts]
+        # good_cars = [json.loads(d) for d in serialized_dicts]
         ic(len(good_cars))
         async with manager.atomic():
             # Вставка данных в AdvertParameters
@@ -532,6 +558,7 @@ async def mock_feedbacks(sellers, raw_cars):
 
     # Получение всех id для AdvertParameters
     advert_params_ids = [ap.id for ap in await manager.execute(AdvertParameters.select())]
+
     # Генерация данных для SellerFeedbacksHistory для каждого продавца
     queue = Queue(maxsize=10)
     workers = [asyncio.create_task(worker(queue, manager)) for _ in range(5)]  # Создание 5 рабочих
@@ -567,8 +594,9 @@ async def get_car_adverts_by_brand_and_color(brand_id, color):
 
 async def insert_advert_photos(new_car_photos, params):
     async def collect_data(brand_id, photos):
-        async def iteration_on_adverts(advert, photos):
+        async def iteration_on_adverts(advert, photos, iteration_counter = 0):
             for photo_id in photos:
+                iteration_counter += 1
                 advert_photo_data_list.append({
                     'car_id': advert.id,
                     'photo_id': photo_id,
@@ -582,11 +610,14 @@ async def insert_advert_photos(new_car_photos, params):
                         'photo_id': photo_id,
                         'photo_unique_id': f'{brand_id}_{uuid.uuid4()}'
                     })
+            if iteration_counter < 5:
+                await iteration_on_adverts(advert, photos,
+                                           iteration_counter=iteration_counter)
         # Получаем все объявления для данного бренда
-        if params:
-            current_table = AdvertParameters
-        else:
-            current_table = CarAdvert
+        # if params:
+        #     current_table = AdvertParameters
+        # else:
+        current_table = CarAdvert
         matching_adverts = await manager.execute(
             current_table.select(current_table, CarComplectation, CarColor).join(CarColor).switch(current_table) \
                 .join(CarComplectation).join(CarEngine).switch(CarComplectation).join(CarModel).join(CarBrand).where(
@@ -681,7 +712,9 @@ async def get_car(photos=None, cars=False):
         await manager.create(CarAdvert, seller=902230076, complectation=7, state=1, dollar_price=1234223, color=await manager.get(CarColor, CarColor.id == 2), mileage=None, year= None)
         await manager.create(CarAdvert, seller=902230076, complectation=8, state=1, dollar_price=53458799, color=await manager.get(CarColor, CarColor.id == 1), mileage=None, year=None )
     car_id = 0
-    for index in range(9, 132):
+    complectations = [param.id for param in await manager.execute(CarComplectation.select(CarComplectation.id))]
+
+    for index in complectations:
         for state_index in range(1, 3):
             for color_index in range(1, 10):
                 if state_index == 1:

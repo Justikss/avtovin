@@ -55,6 +55,8 @@ async def get_valutes(usd, sum_valute, get_string=None, language=None):
     elif not sum_valute:
         sum_valute = await convertator('usd', usd)
     ic(usd, sum_valute)
+    sum_valute = 0 if not sum_valute else sum_valute
+    usd = 0 if not usd else usd
     usd, sum_valute = "{:,}".format(usd), "{:,}".format(sum_valute)
     if None not in (usd, sum_valute):
         result = (usd, sum_valute)

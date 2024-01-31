@@ -12,7 +12,8 @@ async def delete_advert_handler(callback: CallbackQuery, state: FSMContext, adve
     car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
     memory_storage = await state.get_data()
 
-    deleted_advert = await car_advert_requests_module.AdvertRequester.delete_advert_by_id(seller_id, advert_id)
+    deleted_advert = await car_advert_requests_module.AdvertRequester.delete_advert_by_id(seller_id,
+                                                                                          advert_id=advert_id)
     await log_admin_action(callback.from_user.username, 'close_advert', f'seller:{seller_id}',
                            (deleted_advert, memory_storage.get('reason')))
 

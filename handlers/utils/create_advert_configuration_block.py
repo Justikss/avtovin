@@ -19,7 +19,7 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
         if not isinstance(advert_id, (CarAdvert, AdvertParameters)):
             if not isinstance(advert_id, int):
                 advert_id = int(advert_id)
-            advert_model = await advert_requests_module.AdvertRequester.get_where_id(advert_id)
+            advert_model = await advert_requests_module.AdvertRequester.get_where_id(advert_id=advert_id)
         else:
             advert_model = advert_id
         engine_type = await to_ru(advert_model.complectation.engine, language)

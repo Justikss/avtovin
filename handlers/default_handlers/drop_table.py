@@ -73,7 +73,7 @@ async def load_type_photos(dota):
     try:
         await PhotoRequester.load_photo_in_base(data)
     except:
-        traceback.print_exc()
+        # traceback.print_exc()
         pass
 
 async def read_photos_by_brand(directory):
@@ -110,15 +110,16 @@ async def create_ts_contacts():
     await manager.execute(TechSupports.insert_many(insert_tsss))
 
 async def dop_feedbacks():
-    aps = list()
-    for color, complectation in zip(range(1, 10), range(1, 9)):
-        aps.append({'color': color,
-                    'complectation': complectation})
-
-    await manager.execute(AdvertParameters.insert_many(aps))
-    advert_params_end_index = len(aps) + 10
+    # aps = list()
+    # for color, complectation in zip(range(1, 10), range(1, 9)):
+    #     aps.append({'color': color,
+    #                 'complectation': complectation})
+    #
+    # await manager.execute(AdvertParameters.insert_many(aps))
+    advert_params = list(await manager.execute(AdvertParameters.select()))
+    # advert_params_end_index = len(aps) + 10
     sfb = []
-    for ap_id in range(11, advert_params_end_index):
+    for ap_id in advert_params:
         sfb.extend([{'seller_id': 902230076, 'advert_parameters': ap_id,
           'feedback_time': datetime.now() - timedelta(days=randint(150, 365))}])
     await manager.execute(SellerFeedbacksHistory.insert_many(sfb))
@@ -175,12 +176,13 @@ async def drop_table_handler(message: Message):
     # #
     # return
     await message.answer('Waiting..')
-    await drop_tables_except_one('Фотографии_Новых_Машин')
-    await create_tables()
+    # await drop_tables_except_one('Фотографии_Новых_Машин')
+    # await create_tables()
     await mock_values(only_base_params=False)
     sellers = await get_seller_account()
-    # photos = None
     photos = await read_photos_by_brand('utils/carss')
+    # photos = None
+
     inserted_cars = await get_car(photos, cars=1)
     # asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     # await dop_feedbacks()
@@ -188,6 +190,6 @@ async def drop_table_handler(message: Message):
     await load_type_photos(type_photos)
     await set_viewed_status()
 
-    # await create_ts_contacts()
+    await create_ts_contacts()
 
     await message.answer('SUCCESS')

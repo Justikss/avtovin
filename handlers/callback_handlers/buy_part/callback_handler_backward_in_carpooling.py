@@ -17,12 +17,15 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
     user_id = str(callback.from_user.id)
     redis_key = user_id + ':state_history_stack'
     states_stack = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
-
-    states_stack.pop()
-    if len(states_stack) < 1:
-        last_state = None
+    if states_stack:
+        states_stack.pop()
+        if len(states_stack) < 1:
+            last_state = None
+        else:
+            last_state = states_stack[-1]
     else:
-        last_state = states_stack[-1]
+        last_state = None
+    ic(last_state)
     await redis_module.redis_data.set_data(key=redis_key, value=states_stack)
     await state.set_state(last_state)
     if last_state is None:
@@ -33,11 +36,12 @@ async def backward_in_carpooling_handler(callback: CallbackQuery, state: FSMCont
         await hybrid_handlers.choose_brand_handler(callback=callback, state=state, first_call=False)
     elif last_state == 'HybridChooseStates:select_model':
         await hybrid_handlers.choose_model_handler(callback=callback, state=state, first_call=False)
-    elif last_state == 'HybridChooseStates:config_output':
+    elif last_state in ('HybridChooseStates:config_output', 'CheckActiveOffersStates:show_from_search_config'):
         memory_storage = await state.get_data()
+        ic(memory_storage['cars_class'])
         if str(memory_storage['cars_class']) == '2':
             await second_hand_car_handlers.choose_year_of_release_handler(callback=callback, state=state, first_call=False)
-        elif str(memory_storage['cars_class']) == '1':
+        else:
             await hybrid_handlers.choose_complectation_handler(callback=callback, state=state, first_call=False)
 
     elif last_state == 'SecondHandChooseStates:select_year':

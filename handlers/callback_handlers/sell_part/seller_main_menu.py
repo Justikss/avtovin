@@ -44,7 +44,7 @@ async def try_get_free_tariff(callback, normal_status=False):
                         'tariff': tariff
                         }
                 if not normal_status:
-                    try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=boot_data, bot=callback.bot, seconds=4) #days=1 seconds=5
+                    try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=boot_data, bot=callback.bot, seconds=61) #days=1 seconds=5
                 else:
                     try_set_bind = await tariff_to_seller_requests_module.TariffToSellerBinder.set_bind(data=boot_data, bot=callback.bot, seconds=None) #days=1 seconds=5
 

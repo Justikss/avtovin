@@ -135,12 +135,13 @@ class TravelEditor:
                             try:
                                 new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
                             except TelegramServerError:
-                                traceback.print_exc()
+                                # traceback.print_exc()
 
                                 try:
                                     new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
                                 except:
-                                    traceback.print_exc()
+                                    # traceback.print_exc()
+                                    pass
                             await redis_data.set_data(key=user_id+':last_media_group',
                                                       value=[media_message.message_id
                                                              for media_message in new_media_message])
@@ -149,18 +150,20 @@ class TravelEditor:
                         else:
                             if album_id:
                                 media_group = media_group[album_id]
+                            media_group = media_group[:8]
                             new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
                             ic('post ', new_album)
                             ic(len(new_album))
                             try:
                                 new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
                             except TelegramServerError:
-                                traceback.print_exc()
+                                # traceback.print_exc()
                                 try:
                                     new_media_message = await bot.send_media_group(chat_id=send_chat_id, media=new_album)
 
                                 except:
-                                    traceback.print_exc()
+                                    # traceback.print_exc()
+                                    pass
                             ic(lexicon_part['message_text'])
                             await asyncio.sleep(anti_spam_duration)
                             new_message = await bot.send_message(chat_id=send_chat_id, text=lexicon_part['message_text'],

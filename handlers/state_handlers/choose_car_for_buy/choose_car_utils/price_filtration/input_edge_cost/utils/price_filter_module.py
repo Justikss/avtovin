@@ -16,8 +16,8 @@ class PriceFilterForBuyerModule:
             await state.get_data()
         )
         inputted_usd_price = await self.inputted_value_handler(currency, inputted_cost)
-
-        if inputted_usd_price in range(default_cost_diapason['from'], default_cost_diapason['before']):
+        ic(inputted_usd_price)
+        if inputted_usd_price in range(default_cost_diapason['from'], default_cost_diapason['before']+1):
             prices_in_diapason_is_exists = await self.prices_in_diapason_is_exists(
                 inputted_usd_price, default_cost_diapason, state
             )
@@ -30,14 +30,19 @@ class PriceFilterForBuyerModule:
             return incorrect_flag
 
     async def prices_in_diapason_is_exists(self, inputted_cost, default_cost_diapason, state: FSMContext):
-        async def seek_near_number_out_of_range():
+        async def seek_near_number_out_of_range(direction):
             closest_number = None
             min_distance = float('inf')
 
             # Итерация с минимальным использованием памяти
             for number in all_advert_prices:
-                if number < lower_bound or number > upper_bound:
-                    distance = min(abs(number - lower_bound), abs(number - upper_bound))
+                if direction == 'lower' and number < lower_bound:
+                    distance = abs(number - lower_bound)
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_number = number
+                elif direction == 'upper' and number > upper_bound:
+                    distance = abs(number - upper_bound)
                     if distance < min_distance:
                         min_distance = distance
                         closest_number = number
@@ -53,12 +58,15 @@ class PriceFilterForBuyerModule:
         lower_bound = default_cost_diapason['from']
         upper_bound = default_cost_diapason['before']
 
+        # Определение направления поиска на основе diapason_side
+        direction = 'lower' if diapason_side == 'from' else 'upper'
+
         # Фильтрация с использованием генератора
         filtered_exist_costs = (number for number in all_advert_prices if lower_bound <= number <= upper_bound)
         inputted_range_is_valid = any(filtered_exist_costs)
 
         if not inputted_range_is_valid:
-            return await seek_near_number_out_of_range()
+            return await seek_near_number_out_of_range(direction)
         else:
             return inputted_range_is_valid
 

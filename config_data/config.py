@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='[{asctime}] #{levelname:8} {filename}:'
                             '{lineno} - {name} - {message}',
                     style='{')
-
+logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 if not find_dotenv():
     exit("Переменные окружения не загружены т.к отсутствует файл .env")
@@ -26,21 +26,18 @@ else:
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 LOCATIONIQ_TOKEN = os.getenv("LOCATIONIQ_TOKEN")
-
+DEVELOPER_TELEGRAM_ID = os.getenv('DEVELOPER_TELEGRAM_ID')
 ADMIN_SELLERS_CHAT = os.getenv('ADMIN_SELLERS_CHAT')
 ADMIN_ADVERTS_CHAT = os.getenv('ADMIN_ADVERTS_CHAT')
 
-SUPPORT_NUMBER = os.getenv("SUPPORT_NUMBER")
-SUPPORT_NUMBER_2 = os.getenv("SUPPORT_NUMBER_2")
-SUPPORT_TELEGRAM = os.getenv("SUPPORT_TELEGRAM")
 
 DEFAULT_COMMANDS = (
     ("start", "Запустить бота"),
     ("help", "Вывести справку")
 )
-
-YANDEX_IAM_TOKEN = os.getenv('YANDEX_IAM_TOKEN')
-YANDEX_folder_id = os.getenv('YANDEX_folder_id')
+#
+# YANDEX_IAM_TOKEN = os.getenv('YANDEX_IAM_TOKEN')
+# YANDEX_folder_id = os.getenv('YANDEX_folder_id')
 
 DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
 MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'

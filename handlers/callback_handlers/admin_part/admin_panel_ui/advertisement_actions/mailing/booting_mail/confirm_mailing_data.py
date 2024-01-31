@@ -39,7 +39,7 @@ async def confirm_boot_mailing_handler(callback: CallbackQuery, state: FSMContex
     new_mailing = await create_mailing(text=mailing_text, media=media_group, scheduled_time=mailing_datetime,
                                        recipients_type=mailing_recipients)
     if new_mailing:
-        await mailing_service.schedule_single_mailing(bot=callback.bot, mailing=new_mailing)
+        mailing_service.schedule_single_mailing(bot=callback.bot, mailing=new_mailing)
         await callback.answer(Lexicon_module.ADVERT_LEXICON['successfully_boot_mail_message'])
         await state.clear()
         await ChooseMailingAction().callback_handler(callback, state)

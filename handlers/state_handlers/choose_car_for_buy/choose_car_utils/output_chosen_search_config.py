@@ -1,12 +1,9 @@
 import importlib
 from copy import copy
-from typing import Optional, List
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
-from database.data_requests.recomendations_request import RecommendationParametersBinder
-from database.tables.car_configurations import CarAdvert
 from handlers.utils.create_advert_configuration_block import create_advert_configuration_block
 
 
@@ -15,12 +12,16 @@ offers_history_module = importlib.import_module('database.tables.offers_history'
 
 async def get_seller_header(seller=None, car=None, state=None, language=None):
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    ic()
+    ic(car)
     if language == 'ru':
         message_text = copy(lexicon_module.__LEXICON).get('chosen_configuration').get('message_text')
     else:
         message_text = lexicon_module.LEXICON.get('chosen_configuration').get('message_text')
     if car:
         seller = car.seller
+        ic()
+        ic(seller, car.seller)
     seller_number = ''
     if state:
         current_state = str(await state.get_state())
@@ -38,13 +39,14 @@ async def get_seller_header(seller=None, car=None, state=None, language=None):
 async def get_output_string(advert, state=None, callback=None):
     offer_requester = importlib.import_module('database.data_requests.offers_requests')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+    ic(advert)
+    ic()
 
     if isinstance(advert, set) and len(advert) == 1:
         advert = advert.pop()
     if isinstance(advert, int | str):
         advert = await car_advert_requests_module\
-            .AdvertRequester.get_where_id(advert)
+            .AdvertRequester.get_where_id(advert_id=advert)
     seller_header = await get_seller_header(car=advert, state=state)
     footer_viewed_by_seller_status = ''
 
@@ -145,6 +147,8 @@ async def get_cars_data_pack(callback: CallbackQuery, state: FSMContext, advert_
         data_stack = [advert.id for advert in advert_models]
     ic(data_stack, first_view_mode)
     if first_view_mode:
+        from database.data_requests.recomendations_request import RecommendationParametersBinder
+
         await cached_requests_module.CachedOrderRequests.set_cache(buyer_id=callback.from_user.id, car_data=data_stack)
         await RecommendationParametersBinder.store_parameters(buyer_id=callback.from_user.id,
                                                               complectation_id=complectation,

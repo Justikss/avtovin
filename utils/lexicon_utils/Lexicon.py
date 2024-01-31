@@ -113,10 +113,11 @@ __LEXICON = {
                                  'brand': 'Марка: <i>X</i>', 'complectation': 'Комплектация: <i>X</i>',
                                  'cost': f'<blockquote><b>Cтоимость: <i>X {money_valute}</i></b></blockquote>', 'mileage': 'Пробег: <i>X</i>', 'year': 'Год: <i>X</i>',
                                  'color': 'Цвет: <i>X</i>'}, 'buyer_car_pagination:-': '←', 'buyer_car_pagination:+': '→',
-                'confirm_buy_settings:': '✓ Подтвердить ✓', 'backward_in_carpooling': '⚙️ Изменить ⚙️',
-                'buy_search_price_filter': 'Фильтровать по цене', 'return_main_menu': '🏡 В меню 🏡',
+                'confirm_buy_settings:': '✓ Подтвердить ✓', 'buy_search_price_filter': '♻️ Фильтровать по цене ♻️',
+                'backward_in_carpooling': '⚙️ Изменить ⚙️',
+                 'return_main_menu': '🏡 В меню 🏡',
                 'width': (2, 1, 1, 1, 1)},
-
+            'cost_filter_non_actiallity': 'В текущих объявлениях присутствует единая цена.\nВ данном случае фильтрация бесполезна.',
             'confirm_buy_configuration': {'message_text': 'Вы успешно оставили заявку!\nВам поступит уведомление о её одобрении.',
                                           'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
             'buy_configuration_error': {'message_text': 'У вас уже оставлена такая заявка.',
@@ -199,10 +200,10 @@ __LEXICON = {
                 'set_buyer_cost_filter': 'Применить фильтр', 'remove_buyer_cost_filter': 'Отменить фильтр',
                 'width': 2
             }},
-            'buyer_price_filter_start_input': {'message_text': '<b>Возможный диапазон фильтра стоимости:'
-                                                               '\nОт {min_cost}'
-                                                               '\nДо {max_cost}.</b>'
-                                                               '\nВведите сумму для фильтрации объявлений\n{default_side_name}:',
+            'buyer_price_filter_start_input': {'message_text': '<b>Возможный диапазон фильтра стоимости:</b>'
+                                                               '\n<blockquote>От <i>{min_cost}</i>'
+                                                               '\nДо <i>{max_cost}</i></blockquote>'
+                                                               '\n<b>Введите {default_side_name} сумму для фильтрации объявлений:</b>',
                                                'buttons': {
                                                    'backward:input_request_b_cost_filter': captions['backward'],
                                                    'width': 1
@@ -215,10 +216,12 @@ __LEXICON = {
                                                           'width': 1
                                                       }},
             'reset_current_range_side_buttons': {'reset_current_range_side': 'Сбросить'},
-            'price_incorrect': f'<b>Стоимость должна состоять из одного числа(до {max_price_len} цифр)</b>\nВозможен ввод со знаком " $ "',
-            'price_not_in_range': '<b>Введённая стоимость выходит за приделы текущей выборки.</b>',
+            'price_incorrect': f'<b>Стоимость должна состоять из одного числа (до {max_price_len} цифр)</b>\nВозможен ввод со знаком " $ "',
+            'price_not_in_range': '<b>Введённая стоимость выходит за пределы текущей выборки.</b>',
             'nominative_case_cost_side_from': 'Минимальная',
             'nominative_case_cost_side_before': 'Максимальная',
+            'accusative_case_lower_caption_side_before': 'максимальную',
+            'accusative_case_lower_caption_side_from': 'минимальную',
             'from_caption': 'От',
             'before_caption': 'До',
             'incorrect_nearest_price': '<b>Ваша настройка фильтрации не выбрала ни одного объявления.\nБлижайшая к вашему диапазону стоимость:\n{nearest_price}</b>',
@@ -348,7 +351,7 @@ lexicon_ru = {
     'deal_fell_through': 'Сделка сорвалась',
     'page_view_separator': 'Страница: ',
     'tariff_prefix': '<blockquote>💰 Тариф: <i>X</i></blockquote>',
-    'tarif_expired': 'Ваш тариф истёк',
+    'tarif_expired': '<blockquote>Ваш тариф истёк</blockquote>',
     'start_choose_payment_method': 'Выбор платёжной системы',
     'offer': '<b>Заявка <i>№{offer_number}</i></b>'
 

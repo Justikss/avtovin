@@ -14,9 +14,6 @@ def to_int(element):
     return element
 
 class AdminManager:
-    # @staticmethod
-    # async def get_admin_by_username(bot, username):
-    #     await manager.get_or_none(Admin, await get_username(bot, Admin.telegram_id) == username)
     @staticmethod
     async def set_red_admin(telegram_id):
 

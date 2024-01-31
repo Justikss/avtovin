@@ -184,7 +184,7 @@ async def data_update_controller(request: Union[Message, CallbackQuery], state: 
             ic(await message.bot.delete_message(chat_id=message.chat.id, message_id=last_config_message))
         except TelegramBadRequest as ex:
             ic(ex)
-            traceback.print_exc()
+            # traceback.print_exc()
             pass
 
         if ((isinstance(request, CallbackQuery) and not request.data.startswith('rewrite_boot_')) or isinstance(request, Message)):
