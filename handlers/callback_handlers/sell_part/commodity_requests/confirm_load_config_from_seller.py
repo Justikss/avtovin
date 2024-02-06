@@ -143,7 +143,7 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
                                                     send_chat=config_module.ADMIN_ADVERTS_CHAT, media_group=photos)
 
     from database.data_requests.recomendations_request import RecommendationRequester
-
+    ic()
     await RecommendationRequester.add_recommendation(advert=commodity_number)
 
     await callback.answer()

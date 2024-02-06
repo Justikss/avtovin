@@ -28,9 +28,10 @@ class ChooseCarPriceFilterHandler(BaseCallbackQueryHandler):
     async def price_is_only_case_handler(self, request, state):
         memory_storage = await state.get_data()
         default_cost_diapason = memory_storage.get('default_costs_diapason_on_buy_search') #keys from / before
-        if default_cost_diapason['from'] == default_cost_diapason['before']:
-            await request.answer(lexicon_module.LEXICON['cost_filter_non_actiallity'], show_alert=True)
-            return True
+        if default_cost_diapason:
+            if default_cost_diapason['from'] == default_cost_diapason['before']:
+                await request.answer(lexicon_module.LEXICON['cost_filter_non_actiallity'], show_alert=True)
+                return True
 
     async def construct_lexicon_part(self, request, state):
 

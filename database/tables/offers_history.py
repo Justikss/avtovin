@@ -56,6 +56,8 @@ class RecommendedOffers(BaseModel):
     buyer = ForeignKeyField(User, field=User.telegram_id, backref='recommendations')
     advert = ForeignKeyField(CarAdvert, field=CarAdvert.id)
     parameters = ForeignKeyField(RecommendationsToBuyer, field=RecommendationsToBuyer.id, backref='recommendations_offers')
+    datetime_of_deletion = DateTimeField(default=datetime.now() + timedelta(days=7))
+
 
     class Meta:
         db_table = 'Рекомендации'
@@ -63,14 +65,3 @@ class RecommendedOffers(BaseModel):
             (('buyer', 'advert'), True),  # Создание уникального индекса для пары buyer и advert
         )
 
-
-#
-# class ActiveOffersToCars(BaseModel):
-#     car_id = ForeignKeyField(Commodity, backref='car_id')
-#     offer_id = ForeignKeyField(ActiveOffers, backref='offer_id')
-#
-#     class Meta:
-#         db_table = 'Связь_предложений_с_машинами'
-#         indexes = (
-#             (('car_id', 'offer_id'))
-#         )

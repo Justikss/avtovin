@@ -266,9 +266,6 @@ class CachedOrderRequests:
                 pass
 
 
-
-
-
     @cache_redis.cache_update_decorator(model=CacheBuyerOffers, mode='by_scan')
     @staticmethod
     async def remove_cache(buyer_id=None, car_id=None, offer_model=None):
@@ -305,9 +302,21 @@ class CachedOrderRequests:
     @staticmethod
     async def check_overtime_requests(select_query):
         '''Асинхронная проверка запросов на превышение времени'''
-        requests_to_remove = [request for request in select_query if request.datetime_of_deletion < datetime.now()]
+        import pytz
+        from datetime import datetime
+
+        # Установка часового пояса, например, 'UTC'
+        tz = pytz.timezone('UTC')
+        now_aware = datetime.now(tz)
+
+        ic(select_query[0].datetime_of_deletion)
+        requests_to_remove = [request for request in select_query if request.datetime_of_deletion < now_aware]
         if requests_to_remove:
-            await CachedOrderRequests.remove_cache(offer_model=requests_to_remove)
+            if isinstance(requests_to_remove[0], CacheBuyerOffers):
+                await CachedOrderRequests.remove_cache(offer_model=requests_to_remove)
+            elif isinstance(requests_to_remove[0], RecommendedOffers):
+                from database.data_requests.recomendations_request import RecommendationParametersBinder
+                await RecommendationParametersBinder.remove_recommendation_by_recommendation_id(requests_to_remove)
         result = [request for request in select_query if request not in requests_to_remove]
 
         return result

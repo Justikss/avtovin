@@ -5,7 +5,10 @@ import logging
 
 from utils.lexicon_utils.lexicon_uz.config_uz import DEFAULT_COMMANDS_UZ, header_message_text_uz, faq_uz, faq_seller_uz, \
     faq_buyer_uz
-# from utils.safe_dict_class import config_module.SafeDict
+import time
+
+# os.environ['TZ'] = 'Asia/Tashkent'
+# time.tzset()  # Применяет изменения часового пояса (работает только на Unix/Linux)
 
 TEST_MOMENT = True
 

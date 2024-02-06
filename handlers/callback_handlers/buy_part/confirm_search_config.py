@@ -129,7 +129,9 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
     tariff_to_seller_binder_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
-    from database.data_requests.recomendations_request import RecommendationRequester
+    from database.data_requests.recomendations_request import RecommendationParametersBinder
+
+    # from database.data_requests.recomendations_request import RecommendationRequester
 
     # redis_data = importlib.import_module('utils.redis_for_language')
     car_dont_exists = False
@@ -159,7 +161,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
         ic(seller_model)
 
         if seller_model.telegram_id == callback.from_user.id:
-            await RecommendationRequester.remove_recommendation_by_advert_id(car_id)
+            await RecommendationParametersBinder.remove_recommendation_by_advert_and_buyer_ids(car_id, callback.from_user.id)
             await cached_requests_module.CachedOrderRequests.remove_cache(buyer_id=callback.from_user.id,
                                                                           car_id=car_id)
 
@@ -187,7 +189,8 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
                     ic(cached_data, is_recommendated_state)
                     await cached_requests_module.CachedOrderRequests.remove_cache(buyer_id=callback.from_user.id,
                                                                                   car_id=car_id)
-                    await RecommendationRequester.remove_recommendation_by_advert_id(car_id)
+                    await RecommendationParametersBinder.remove_recommendation_by_advert_and_buyer_ids(car_id,
+                                                                                                callback.from_user.id)
                     recommendations_was_deleted = True
 
                     # data_for_seller = await output_for_seller_formater(callback, cached_data)
@@ -241,7 +244,7 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
             advert_offer_already_exists = True
 
     if is_recommendated_state and not recommendations_was_deleted:
-        await RecommendationRequester.remove_recommendation_by_advert_id(car_id)
+        await RecommendationParametersBinder.remove_recommendation_by_advert_and_buyer_ids(car_id, callback.from_user.id)
 
     # ic(pagination_data, cached_data, car_dont_exists)
     if (not advert_offer_already_exists or (advert_offer_already_exists and len(pagination_data['data'])) <= 1) and (not car_was_withdrawn_from_sale or (car_was_withdrawn_from_sale and len(pagination_data['data']) <= 1)):

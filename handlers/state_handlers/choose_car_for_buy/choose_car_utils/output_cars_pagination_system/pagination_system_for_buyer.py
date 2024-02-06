@@ -63,11 +63,10 @@ class BuyerCarsPagination:
             ic(advert_id)
             #  # page_data = page_data[0]
             page_data = await self.get_output_data(request, state, advert_id)
+            await BuyerCarsPagination.remove_offer_from_list_controller(request, state, advert_id)
             ic(page_data)
             keyboard = await self.get_keyboard(car_id=advert_id, state=state, page_data=page_data)
-            # message_text = await get_output_string(page_data)
-            # Здесь код для отправки данных текущей страницы
-            # page_header, page_footer = await self.get_page(page_data)
+
             page_footer = {
                 'message_text': lexicon_module.LEXICON['sepp']*7 + f'[{str(self.pagination.current_page)}/{str(self.pagination.total_pages)}]' + lexicon_module.LEXICON['sepp']*7 + '\n'
             }
@@ -89,6 +88,18 @@ class BuyerCarsPagination:
 
         else:
             await request.answer(lexicon_module.LEXICON['confirm_from_buyer']['non_data_more'])
+
+    @staticmethod
+    async def remove_offer_from_list_controller(request, state, advert_id):
+        user_id = request.from_user.id
+        current_state = str(await state.get_state())
+        ic(current_state)
+        if current_state.startswith('CheckRecommendationsStates')\
+                or current_state == 'CheckActiveOffersStates:show_from_recommendates':
+            from database.data_requests.recomendations_request import RecommendationParametersBinder
+            ic()
+            await RecommendationParametersBinder.remove_recommendation_by_advert_and_buyer_ids(advert_id, user_id,
+                                                                                               from_output=True)
 
     @staticmethod
     async def get_keyboard(state, car_id=None, page_data=None):
