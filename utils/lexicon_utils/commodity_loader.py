@@ -1,6 +1,6 @@
 from handlers.state_handlers.seller_states_handler.load_new_car.boot_car_buttons_controller import RedisBootCommodityHelper
 from utils.lexicon_utils.lexicon_uz.commodity_loader_uz import commodity_loader_lexicon_uz
-from utils.safe_dict_class import SafeDict
+from utils.safe_dict_class import SafeDict, SmartGetattr
 
 commodity_loader_lexicon_ru = {
     'button_backward': '◂ Назад ▸',
@@ -38,21 +38,23 @@ commodity_loader_lexicon_ru = {
 commodity_loader_lexicon = SafeDict({'ru': commodity_loader_lexicon_ru,
                                      'uz': commodity_loader_lexicon_uz})
 
-class BaseBootButtons:
+class BaseBootButtons(SmartGetattr):
 
     def __init__(self):
-        self.last_buttons = {'boot_car_backward': commodity_loader_lexicon['button_backward'],
+        super().__init__()
+
+        self.base_last_buttons = {'boot_car_backward': commodity_loader_lexicon['button_backward'],
                             'cancel_boot_new_commodity': commodity_loader_lexicon['cancel_button']}
         self.width = 2
         self.message_text = ''
         self.dynamic_buttons = 2
 
     async def part(self):
-        return {'message_text': self.message_text, 'buttons': {**self.last_buttons, 'width': self.width}}
+        return {'message_text': self.message_text, 'buttons': {**self.base_last_buttons, 'width': self.width}}
 
 
 
-class LexiconCommodityLoader:
+class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_state(BaseBootButtons):
         def __init__(self):
             super().__init__()
@@ -68,6 +70,7 @@ class LexiconCommodityLoader:
             self.message_text = commodity_loader_lexicon['engine_text']
             self.buttons_callback_data = 'load_engine_'
             self.width = 2
+            self.last_buttons = self.base_last_buttons
 
     class load_commodity_brand(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
@@ -75,6 +78,7 @@ class LexiconCommodityLoader:
             self.message_text = commodity_loader_lexicon['brand_text']
             self.buttons_callback_data = 'load_brand_'
             self.width = 2
+            self.last_buttons = self.base_last_buttons
 
     class load_commodity_model(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
@@ -82,6 +86,7 @@ class LexiconCommodityLoader:
             self.message_text = commodity_loader_lexicon['model_text']
             self.buttons_callback_data = 'load_model_'
             self.width = 2
+            self.last_buttons = self.base_last_buttons
 
     # load_commodity_model = {, 'buttons': {, , 'width': 2}}
     class load_commodity_complectation(BaseBootButtons, RedisBootCommodityHelper):
@@ -90,6 +95,7 @@ class LexiconCommodityLoader:
             self.message_text = commodity_loader_lexicon['complectation_text']
             self.buttons_callback_data = 'load_complectation_'
             self.width = 1
+            self.last_buttons = self.base_last_buttons
 
     class load_commodity_year_of_realise(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
@@ -97,6 +103,7 @@ class LexiconCommodityLoader:
             self.message_text = commodity_loader_lexicon['year_text']
             self.buttons_callback_data = 'load_year_'
             self.width = 2
+            self.last_buttons = self.base_last_buttons
     class load_commodity_mileage(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
@@ -104,6 +111,7 @@ class LexiconCommodityLoader:
             self.buttons_callback_data = 'load_mileage_'
             self.dynamic_buttons = 3
             self.width = 2
+            self.last_buttons = self.base_last_buttons
     class load_commodity_color(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
@@ -111,20 +119,24 @@ class LexiconCommodityLoader:
             self.buttons_callback_data = 'load_color_'
             self.width = 2
             self.dynamic_buttons = 2
+            self.last_buttons = self.base_last_buttons
 
     class load_commodity_price(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
             self.message_text = commodity_loader_lexicon['input_price_text']
             self.width = 1
+            self.last_buttons = self.base_last_buttons
 
     class load_commodity_photo(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
             self.message_text = commodity_loader_lexicon['input_photo_text']
             self.width = 1
+            self.last_buttons = self.base_last_buttons
 
     def __init__(self):
+        super().__init__()
 
         # load_other_color = {'message_text': commodity_loader_lexicon'Введите цвет автомобиля:', 'buttons': {'rewrite_boot_color': commodity_loader_lexicon'◂ Назад ▸', 'cancel_boot_new_commodity': commodity_loader_lexicon'🚫 Отмена 🚫', 'width': 1}}
         # make_sure_selected_other_color = {'message_text': 'Вы выбрали: <i>X цвет</i>', 'buttons': {'make_sure_other_color': '✓ Подтвердить ✓', 'rewrite_other_boot_color': '⚙️ Изменить ⚙️', 'width': 1}}

@@ -1,7 +1,7 @@
 from copy import copy
 
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
-from utils.safe_dict_class import SafeDict
+from utils.safe_dict_class import SafeDict, SmartGetattr
 
 return_main_menu = {'return_main_menu': 'В меню'}
 pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{end}]', 'admin_pagination:+': '→'}
@@ -127,8 +127,10 @@ statistic_class_lexicon = SafeDict({'ru': statistic_class_lexicon_ru,
 
 
 
-class SelectCustomParamsProcess:
+class SelectCustomParamsProcess(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.message_text = statistic_class_lexicon['select_custom_params_process_message_text']  # Или lexicon_uz для узбекской версии
         self.width = 1
         self.backward_buttons = {'admin_backward:select_custom_params': statistic_class_lexicon['backward'],
@@ -137,8 +139,10 @@ class SelectCustomParamsProcess:
         self.output_current_top_buttons = {'output_current_top': statistic_class_lexicon['output_current_top_buttons']}
 
 
-class TopTenDisplay:
+class TopTenDisplay(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.buttons_callback_data = 'ttp:'
         self.backward_command = {'admin_backward:top_ten_display': statistic_class_lexicon['backward'],
                             'admin_backward:to_statistic_panel': statistic_class_lexicon['to_statistic_panel']}

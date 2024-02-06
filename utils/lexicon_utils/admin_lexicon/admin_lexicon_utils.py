@@ -3,10 +3,15 @@ import importlib
 
 
 
-async def get_ban_notification_lexicon_part(activity, reason):
+async def get_ban_notification_lexicon_part(activity, reason, language=None):
     admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-    lexicon_part = lexicon_module.ADMIN_LEXICON['user_ban_notification']
+    if language:
+        lexicon = lexicon_module.ADMIN_LEXICON._data[language]
+    else:
+        lexicon = lexicon_module.ADMIN_LEXICON
+
+    lexicon_part = lexicon['user_ban_notification']
     ic(activity)
 
     ic(lexicon_part['message_text'])

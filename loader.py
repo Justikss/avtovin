@@ -116,7 +116,6 @@ from handlers.custom_handlers.admin_administrating.set_red_admin import SetRedAd
 from handlers.custom_handlers.admin_administrating.unban_person import UnbanPersonAdminHandler
 from handlers.custom_handlers.developer_handlers.delete_all_messages import delete_all_messages_developer_handler
 from handlers.default_handlers.drop_table import drop_table_handler
-from handlers.default_handlers.help import bot_help
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.empty_field_handler import EmptyFieldCarpoolingHandler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.choose_diapason_side import \
     ChooseCarPriceFilterHandler
@@ -167,14 +166,14 @@ from utils.middleware.language import LanguageMiddleware
 from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
 from utils.middleware.callbacks_dupe_defender import ThrottlingMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
+import contextvars
+
 '''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
-# from config_data.config import BOT_TOKEN
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, \
     confirm_search_config, language_callback_handler
 from handlers.callback_handlers.buy_part.buyer_offers_branch import show_requests
 from handlers.custom_filters import correct_name, correct_number, pass_on_dealership_address, price_is_digit, message_is_photo
 from handlers.default_handlers import start
-# from handlers.callback_handlers.buy_part import (return_main_menu_from_offers_history)
 from handlers.state_handlers import buyer_registration_handlers
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, second_hand_car_handlers
@@ -202,6 +201,8 @@ from handlers.callback_handlers.hybrid_part.utils.media_group_collector import c
 redis = None
 bot = None
 
+# Определение контекстной переменной для языка
+
 redis = Redis(host='localhost')
 storage = RedisStorage(redis=redis)
 # ic.disable()
@@ -217,68 +218,12 @@ async def start_bot():
     redis = Redis(host='localhost')
     storage = RedisStorage(redis=redis)
     dp = Dispatcher(storage=storage)
-    # asyncio.get_event_loop().set_debug(True)
-    # @dp.callback_query(F.data.in_(('advert_parameters_choose_state:1')))
-    # async def testor(callback: CallbackQuery, state: FSMContext):
-    #     from handlers.state_handlers.choose_car_for_buy.hybrid_handlers import search_config_output_handler
-    #     # Пример использования
-    #     # from database.data_requests.car_advert_requests import AdvertRequester
-    #     from database.data_requests.recomendations_request import RecommendationRequester
-    #     await RecommendationRequester.remove_recommendation_by_advert_id(224)
-    #     # await state.clear()
-    #     memory_storage = {'add_new_branch_status': 'complectation',
-    #                          'admin_chosen_advert_parameter': 'model',
-    #                          'backward_command': {'add_new_advert_parameter': 'Добавить',
-    #                                               'admin_backward:choose_specific_advert_parameter_value': '◂ '
-    #                                                                                                        'Назад '
-    #                                                                                                        '▸',
-    #                                               'delete_current_advert_parameter': 'Удалить',
-    #                                               'return_main_menu': 'В меню',
-    #                                               'rewrite_current_advert_parameter': 'Редактировать'},
-    #                          'can_set_add_new_branch_status': False,
-    #                          'current_advert_parameter': {'id': 7, 'value': 'X2'},
-    #                          'current_value': 'Aaa',
-    #                          'dynamic_buttons': 3,
-    #                          'last_params_state': 'AdminAdvertParametersStates.NewStateStates:chosen_model',
-    #                          'message_text': '<b>Добавление авто</b>'
-    #
-    #                                          '───────────────'
-    #
-    #                                          '<blockquote>Состояние: Новое'
-    #
-    #                                          'Двигатель: ДВС'
-    #
-    #                                          'Бренд: Leampo'
-    #
-    #                                          'Модель: X2</blockquote>'
-    #
-    #                                          '───────────────'
-    #
-    #                                          '<b>Выберите Комплектация авто</b>:',
-    #                          'next_params_output': 'color',
-    #                          'params_type_flag': 'new',
-    #                          'selected_parameters': {'brand': 2,
-    #                                                  'complectation': {'added': 'aaaavvvv'},
-    #                                                  'engine': 3,
-    #                                                  'model': 7,
-    #                                                  'state': 1},
-    #                          'width': 2}
-    #     await state.set_data(memory_storage)
-    #     await state.set_state(AdminAdvertParametersStates.confirmation_add_value_process)
-    #     await AddNewValueAdvertParameter().callback_handler(callback, state)
-    #     #
-        # from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_photo_to_load
-        # await input_photo_to_load(callback, state, False)
 
     await create_tables()
-
-    # dp.message.register(bot_help, Command(commands=['free_tariff']))
-
     await TarifRequester.create_tarifs()
     await mailing_service.schedule_mailing(bot)
-    ic()
 
-    # asyncio.create_task(check_blocked_users(bot))
+
     asyncio.create_task(check_on_old_messages(bot))
     asyncio.create_task(fetch_currency_rate())
     asyncio.create_task(schedule_tariff_deletion(bot))
@@ -288,63 +233,27 @@ async def start_bot():
     dp.callback_query.middleware(LanguageMiddleware())
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
-    # ic()
-    # Команда для начала профилирования
-    # @dp.message(Command(commands=['startp']))  # Замените 123456789 на ваш Telegram user_id
-    # async def start_profile(message: Message):
-    #     global profiler
-    #     if profiler is None:  # Начать новую сессию профилирования, если она еще не начата
-    #         profiler = cProfile.Profile()
-    #         profiler.enable()
-    #         await message.reply("Профилирование началось.")
-    #     else:
-    #         await message.reply("Профилирование уже активно.")
-    #
-    # # Команда для завершения профилирования и вывода результатов
-    # @dp.message(Command(commands=['stopp']))  # Замените 123456789 на ваш Telegram user_id
-    # async def stop_profile(message: Message):
-    #     global profiler
-    #     if profiler is not None:
-    #         profiler.disable()
-    #         s = io.StringIO()
-    #         sortby = 'cumulative'
-    #         ps = pstats.Stats(profiler, stream=s).sort_stats(sortby)
-    #         ps.print_stats()
-    #         profiler = None
-    #         print("Профилирование завершено. Результаты:\n" + s.getvalue())
-    #     else:
-    #         await message.reply("Профилирование не активно.")
 
-    # dp.message.middleware(MessageThrottlingMiddleware(bot))
 
     dp.message.middleware(ErrorHandler())
     dp.message.middleware(LanguageMiddleware())
-    #
-    # @dp.message()
-    # async def send_chat_id(message: Message):
-    #     await message.answer(str(message.chat.id))
+
 
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
-
     dp.message.register(collect_and_send_mediagroup,
                         F.photo, F.photo[0].file_id.as_("photo_id"), F.photo[0].file_unique_id.as_('unique_id'))
 
-    # (dp.message.register(start_state_boot_new_car_photos_message_handler, F.text,
-    #                     lambda message: message.text.startswith('p:')),
-    #                     StateFilter(default_state))
-    #
     dp.message.register(drop_table_handler,
-                        Command(commands=['dt', 'dtc']))
-    # dp.message.register(save_tariff_handler, Command(commands=['ut']))
+                        Command(commands=['dt', 'dtc']), CheckOnDeveloper())
+    dp.message.register(delete_all_messages_developer_handler,
+                        Command(commands=["delmesss"], ignore_case=True), CheckOnDeveloper())
 
     '''обработка Сообщений'''
 
     dp.message.register(start.bot_start,
                         Command(commands=["start"], ignore_case=True), ThrottlingFilter())
-    dp.message.register(delete_all_messages_developer_handler,
-                        Command(commands=["delmesss"], ignore_case=True),
-                        CheckOnDeveloper())
+
 
     '''Состояния регистрации покупателя'''
     dp.callback_query.register(buyer_registration_handlers.input_full_name,
@@ -607,15 +516,6 @@ async def start_bot():
                                F.data == 'output_current_demand_stats',
                                AdminStatusController()
                                )
-
-    # @dp.message(F.text == 'a')
-    # async def any_mes(message: Message, state: FSMContext):
-    #     #
-    #     #
-    #     # await state.update_data(next_params_output='engine')
-    #     # await state.update_data(params_type_flag='new')
-    #     # await state.update_data(selected_parameters={'brand': 2, 'engine': 1, 'state': 1})
-    #     await AdvertParametersChooseCarState().callback_handler(message, state)
 
 
     '''catalog_action'''
@@ -1035,26 +935,6 @@ async def start_bot():
 
     '''Заглушки'''
     dp.callback_query.register(page_conter_plug, F.data == 'page_count')
-
-    # @dp.message(Command(commands='m'))
-    # async def asdsad(message: Message):
-    #     await message.answer(str(message.chat.id))
-
-    @dp.callback_query()
-    async def checker(callback: CallbackQuery, state: FSMContext):
-
-      await callback.message.answer('Пролёт ' + callback.data + '\n' + str(await state.get_state()))
-      #await sell_part.commodity_requests.commodity_requests.commodity_reqests_by_seller(callback=callback)
-      # await accept_registration_request_button.accept_registraiton(callback=callback)
-
-
-    # dp.message.register(echo.bot_echo, StateFilter(default_state))
-
-    # dp.message.register(echo.bot_echo, StateFilter(default_state))
-    #
-    #
-    # dp.message.register(echo.bot_echo, StateFilter(default_state))
-    # '''bot_echo всегда в последней позиции'''
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

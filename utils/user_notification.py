@@ -1,6 +1,7 @@
 import asyncio
 import importlib
 import traceback
+from copy import copy
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramServerError, TelegramForbiddenError
@@ -53,6 +54,7 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     lexicon_part = None
     current_id = None
+    lexicon_key = ''
     ic(user_status)
     if user_status == 'seller':
         redis_sub_key = ':seller_registration_notification'
@@ -74,13 +76,9 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
             lexicon_caption_key = 'purchases'
         redis_sub_key = f':{lexicon_caption_key}_notification'
         ic(lexicon_caption_key)
-        lexicon_part = await get_ban_notification_lexicon_part(lexicon_caption_key, ban_reason)
 
     elif user_status == 'close_advert':
-        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-        lexicon_part = lexicon_module\
-            .CATALOG_LEXICON['close_advert_seller_notification']
-        lexicon_part['message_text'] = lexicon_part['message_text'].format(**advert_block_data)
+
         redis_sub_key = f':close_advert_notification'
         current_id = chat_id
 
@@ -93,13 +91,25 @@ async def send_notification(callback: CallbackQuery | None, user_status: str, ch
     if not chat_id:
         chat_id = await redis_module.redis_data.get_data(key=current_id + ':chat_id')
 
+    language = await redis_module.redis_data.get_data(f'{chat_id}:language')
+    if not language:
+        language = 'ru'
+    lexicon = copy(lexicon_module.LEXICON)._data[language]
+    if user_status == 'close_advert':
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        lexicon_part = lexicon_module\
+            .CATALOG_LEXICON._data[language]['close_advert_seller_notification']
+        lexicon_part['message_text'] = lexicon_part['message_text'].format(**advert_block_data)
+    elif user_status in ('seller_ban', 'buyer_ban'):
+        lexicon_part = await get_ban_notification_lexicon_part(lexicon_caption_key, ban_reason, language)
+
     notification_message_id = await redis_module.redis_data.get_data(key=f'{current_id}{redis_sub_key}')
     if notification_message_id:
         #return
         pass
 
-    if not lexicon_part:
-        lexicon_part = lexicon_module.LEXICON[lexicon_key]
+    if not lexicon_part and lexicon_key:
+        lexicon_part = lexicon[lexicon_key]
     message_text = lexicon_part['message_text']
     keyboard = await InlineCreator.create_markup(input_data=lexicon_part)
     ic(message_text, callback, bot)
@@ -127,6 +137,10 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     commodity_model = await car_advert_requests_module\
         .AdvertRequester.get_where_id(advert_id=data_for_seller['car_id'])
     seller_id = commodity_model.seller.telegram_id
+    language = await redis_module.redis_data.get_data(f'{seller_id}:language')
+    if not language:
+        language = 'ru'
+    lexicon = copy(lexicon_module.LEXICON)._data[language]
     ic(seller_id)
     media_message = None
     active_seller_notifications = []
@@ -159,7 +173,7 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
         # active_seller_notifications.append(notification_media_part)
 
     lexicon_part = {'message_text': data_for_seller['message_text'],
-                    'buttons': lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons']}
+                    'buttons': lexicon['notification_from_seller_by_buyer_buttons']}
 
 
     if media_message:
@@ -179,7 +193,7 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     else:
         head_message_id = ''
 
-    for key, value in lexicon_module.LEXICON['notification_from_seller_by_buyer_buttons'].items():
+    for key, value in lexicon['notification_from_seller_by_buyer_buttons'].items():
         if key in ('close_seller_notification:', 'my_sell_feedbacks:'):
             key = key + str(head_message_id)
 

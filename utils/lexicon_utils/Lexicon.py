@@ -1,6 +1,6 @@
 from abc import ABC
 
-from config_data.config import faq, faq_buyer_ru, faq_seller_ru, max_phone_number_len
+from config_data.config import max_phone_number_len
 # from config_data.config import
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import __CATALOG_LEXICON, catalog_captions
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import __ADVERT_PARAMETERS_LEXICON
@@ -12,7 +12,7 @@ from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.bot_statistic_uz import STA
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.catalog_lexicon_uz import CATALOG_LEXICON_UZ, catalog_captions_uz
 from utils.lexicon_utils.lexicon_uz.lexicon_uz import LEXICON_UZ, money_valute, \
     max_price_len, max_contact_info_len, lexicon_uz, captions_uz
-from utils.safe_dict_class import SafeDict
+from utils.safe_dict_class import SafeDict, SmartGetattr
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_action_lexicon import __ADVERT_LEXICON
 
@@ -86,7 +86,10 @@ __LEXICON = {
             'main_menu': {'message_text': 'Меню покупателя 👨🏻‍💻\nВыберите ваше действие:', 'buyer_requests': 'Предложения 📋', 'car_search': '🚘 Поиск Авто',
                           'faq': 'Инструкции 💬', 'support': '🌐 Поддержка', 'backward:set_language': '◂ Назад ▸ ', 'width': 2},
             'buyer_requests': {'message_text': '<b>Список предложений:</b>', 'buttons': {'buyer_cached_offers': '🚫 Неподтверждённые ({non_confirmed})', 'buyer_active_offers': '✅ Подтверждённые ({confirmed})', 'buyers_recommended_offers': '🔥 Новые ({new})', 'return_main_menu': 'В Меню', 'width': 1}},
-            'f_a_q': {'message_text': f'Ответы на часто задаваемые вопросы: \n\nДля ознакомления с устройством купле-продажи в боте, выберите кнопки ниже.\n{faq}', 'seller_faq': 'Продажа 👨🏻‍💼', 'buyer_faq': '👨🏻‍💻 Покупка',
+            'f_a_q': {'message_text': f'Ответы на часто задаваемые вопросы: \n\nДля ознакомления с устройством купле-продажи в боте, выберите кнопки ниже.\n' + '''
+<b>Тех поддержка:</b>
+Контакты доступны с главного меню по кнопке [Поддержка]
+''', 'seller_faq': 'Продажа 👨🏻‍💼', 'buyer_faq': '👨🏻‍💻 Покупка',
                       'return_main_menu': '◂ Назад ▸', 'width': 2},
             'tech_support': {'message_text': 'Выберите ваше действие:', 'write_to_support': 'Написать 💬',
                              'call_to_support': 'Позвонить 📱', 'width': 2, 'return_main_menu': '◂ Назад ▸'},
@@ -173,8 +176,42 @@ __LEXICON = {
 
             'success_seller_registration_notice': {'message_text': 'Вы зарегистрированы в системе', 'return_main_menu': 'В меню продавца 👨🏻‍💼', 'width': 1},
 
-            'seller_faq': {'message_text': faq_seller_ru, 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
-            'buyer_faq': {'message_text': faq_buyer_ru, 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
+            'seller_faq': {'message_text': '''
+\n<b>Продажа:</b>\n
+После регистрации продавца и подтверждения её от администрации - <b>требуется оформить тариф,
+для того чтобы получать отклики:
+</b> <i>[Меню продавца] - [Профиль] - [Продлить тариф].</i>\n
+<b>Пополнить свою витрину можно через:
+</b> <i>[Меню продавца] - [Заявки] - [Создать заявку].</i>
+\n<b>Созданные заявки отображаются в:
+</b> <i>[Меню продавца] - [Заявки] - [Мои заявки]</i>
+Их можно удалить и поменять им цену.\n
+<b>Когда пользователь откликается на ваш товар</b> - вам приходит оповещение в чат с ботом, а так же и сам отклик с контактами покупателя в разделе:
+<i>[Меню продавца] - [Заявки] - [Мои отклики].</i>
+Отклики делятся на просмотренные и новые - соответственно.
+\n<b>В разделе откликов, на просмотренные заявки, по необходимости возможно применить команды:</b>
+\n<b>Удалить только отклик, с ваших списков, оставив товар на витрине</b>: 
+<i>[Просмотренные отклики] - [Сделка сорвалась],</i>
+\n<b>Удалить товар вместе с откликом:</b>
+<i>[Просмотренные отклики] - [Снять с продажи]</i>
+''', 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
+            'buyer_faq': {'message_text': '''
+<b>Покупка:</b>
+\nПо прохождению регистрации покупателя - вы можете совершать отклики на подходящие вам автомобили.
+\n<b>Поиск машин</b> происходит через цепочку взаимодействия с ботом: 
+<i>[Меню покупателя] - [Поиск авто].</i>\n
+При поиске автомобилей следует выбирать подходящие вам параметры из предложенных, в итоге вы получите список машин по вашему запросу.
+\n<b>Просмотренные, но оставшиеся без вашего подтверждения товары - переходят в раздел:</b>
+<i>[Меню покупателя] - [Предложения] - [Неподтверждённые].</i>
+Они остаются там до момента отклика с вашей стороны или по истечению 7-ми дней с момента первого просмотра.
+
+<b>Рекомендации автомобилей</b> появляются, при новых выкладках продавцов, в разделе:
+<i>[Меню покупателя] - [Предложения] - [Рекомендации],</i>
+основываясь на истории тех автомобилей, которые вы смотрели ранее.
+
+<b>Ваши отклики</b> отображаются с контактами и статусом просмотра вашего отклика от продавца:
+<i>[Меню покупателя] - [Предложения] - [Подтверждённые].</i>
+''', 'faq': '◂ Назад ▸', 'return_main_menu': '🏡 В Меню 🏡', 'width': 1},
 
             'seller_requests': {'message_text': '<b>Раздел работы с заявками</b>\nВыберите ваше действие:', 'create_new_seller_request': '📨 Создать объявление', 'my_sell_requests': '💰 Мои объявления', 'my_sell_feedbacks': '🔸 Отклики', 'return_main_menu': 'В Меню', 'width': 1},
 
@@ -364,9 +401,11 @@ class_lexicon = SafeDict({'ru': lexicon_ru,
 
 
 
-class LastButtonsInCarpooling(ABC):
+class LastButtonsInCarpooling(ABC, SmartGetattr):
     def __init__(self):
-        self.last_buttons = {'backward_in_carpooling': class_lexicon['backward_in_carpooling'],
+        super().__init__()
+
+        self.base_last_buttons = {'backward_in_carpooling': class_lexicon['backward_in_carpooling'],
                             **LEXICON['return_main_menu_button']}
         self.buttons_callback_data = None
         self.width = 2
@@ -376,13 +415,14 @@ class LastButtonsInCarpooling(ABC):
 class BaseOptionalField(LastButtonsInCarpooling, ABC):
     def __init__(self):
         super().__init__()
-        self.last_buttons = {'empty_field_carpooling': class_lexicon['make_empty_field'], **self.last_buttons}
+        self.last_buttons = {'empty_field_carpooling': class_lexicon['make_empty_field'], **self.base_last_buttons}
         self.dynamic_buttons = 3
 class ChooseEngineType(LastButtonsInCarpooling):
     def __init__(self):
         super().__init__()
         self.message_text = class_lexicon['choose_engine_type_text']
         self.buttons_callback_data = 'cars_engine_type_'
+        self.last_buttons = self.base_last_buttons
         self.width = 2
 
 class ChooseBrand(LastButtonsInCarpooling):
@@ -436,8 +476,10 @@ class SecondsEndswith:
     two_four = 'ы'
 
 
-class LexiconSellerRequests:
+class LexiconSellerRequests(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.backward_from_delete_in_feedbacks = {'viewed_feedbacks': class_lexicon['backward_in_carpooling']}
 
         self.seller_sure_delete_car_ask = {'message_text': class_lexicon['seller_sure_delete_car_ask_text'],
@@ -503,8 +545,10 @@ class LexiconSellerRequests:
         self.success_delete = class_lexicon['success_delete']
 
 
-class LexiconSellerProfile:
+class LexiconSellerProfile(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.header = class_lexicon['profile_header']
         self.dealership_prefix = class_lexicon['dealership_prefix']
         self.seller_prefix = class_lexicon['seller_prefix']
@@ -529,16 +573,20 @@ class LexiconSellerProfile:
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'
 
-class LexiconTariffSelection:
+class LexiconTariffSelection(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.not_found_message_text = class_lexicon['tariff_selection_not_found_message_text']
         self.message_text = class_lexicon['tariff_selection_message_text']
         self.width = 2
         self.buttons_callback_data = 'select_tariff:'
         self.backward_command = {'backward:affordable_tariffs': class_lexicon['backward_in_carpooling']}
 
-class LexiconSelectedTariffPreview:
+class LexiconSelectedTariffPreview(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.header = class_lexicon['selected_tariff_preview_header']
         self.tariff_block = class_lexicon['tariff_block']
         self.simultaneous_announcements_caption = class_lexicon['simultaneous_announcements']
@@ -547,8 +595,10 @@ class LexiconSelectedTariffPreview:
         self.buttons = {'start_choose_payment_method': class_lexicon['start_choose_payment_method'],
                        'backward:tariff_preview': class_lexicon['backward_in_carpooling'], 'width': 1}
 
-class LexiconChoicePaymentSystem:
+class LexiconChoicePaymentSystem(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.message_text = class_lexicon['choice_payment_system_message_text']
         self.payment_click = {'run_tariff_payment:click': '💷 CLICK'}
         self.payment_payme = {'run_tariff_payment:payme': '💴 PayMe'}
@@ -556,15 +606,19 @@ class LexiconChoicePaymentSystem:
         self.bottom_buttons = {'backward:choose_payment_system': class_lexicon['backward_in_carpooling'], 'width': 1}
         self.buttons_list = [self.payment_click, self.payment_payme, self.payment_uzumPay, self.bottom_buttons]
 
-class LexiconCreateInvoice:
+class LexiconCreateInvoice(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.in_progress_notification = class_lexicon['create_invoice_in_progress_notification']
         self.title = class_lexicon['create_invoice_title']
         self.description = class_lexicon['create_invoice_description']
         self.load_price_label = class_lexicon['create_invoice_load_price_label']
 
-class LexiconPaymentOperation:
+class LexiconPaymentOperation(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.error_payment_text = class_lexicon['payment_operation_error_text']
         self.success_payment_text = class_lexicon['payment_operation_success_text']
         self.cancel_button = {'backward:make_payment': class_lexicon['payment_operation_cancel_button']}

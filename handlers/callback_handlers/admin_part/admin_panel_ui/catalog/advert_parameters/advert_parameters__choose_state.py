@@ -18,16 +18,10 @@ class AdvertParametersChooseCarState(BaseCallbackQueryHandler):
         ic(type(request))
         await self.incorrect_manager.try_delete_incorrect_message(request, state)
         await self.set_state(state, AdminAdvertParametersStates.review_process)
-        logging.debug("Стек вызовов: %s", traceback.format_stack())
         await state.update_data(next_params_output=None)
         await state.update_data(selected_parameters=None)
         await state.update_data(add_new_branch_status=None)
         self.output_methods = [
-            # InlinePaginationInit(
-            #     lexicon_class=AdvertParametersChooseState,
-            #     models_range=ic(await car_configs_module.CarConfigs.get_all_states()),
-            #     page_size=config_module.car_configurations_in_keyboard_page
-            # )
             self.menu_manager.travel_editor(
                 lexicon_part=advert_params_class_lexicon['car_parameters_start'],
                 dynamic_buttons=2,

@@ -1,3 +1,4 @@
+import importlib
 from abc import ABC
 from datetime import datetime
 
@@ -5,17 +6,21 @@ from datetime import datetime
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
 from peewee import BigIntegerField, ForeignKeyField, BooleanField, TextField, CharField, DateTimeField
-class AttributeLanguageManager:
-    def __init__(self, language='ru'):
-        self.language = language
+#
+# safe_dict_class_module = importlib.import_module('')
+# current_language = safe_dict_class_module.current_language
 
-    async def set_language(self, language):
-        self.language = language
-
-# clas(ABC):
-
-
-attribute_language_manager = AttributeLanguageManager()
+# class AttributeLanguageManager:
+#     def __init__(self, language='ru'):
+#         self.language = language
+#
+#     async def set_language(self, language):
+#         self.language = language
+#
+# # clas(ABC):
+#
+#
+# attribute_language_manager = AttributeLanguageManager()
 
 class CarState(BaseModel):
     _name = CharField(unique=True, null=True)
@@ -24,7 +29,8 @@ class CarState(BaseModel):
 
     @property
     def name(self):
-        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
+        from utils.safe_dict_class import current_language
+        language_name = getattr(self, f'name_{current_language.get()}', None)
         return language_name if language_name else self._name
 
     @name.setter
@@ -39,7 +45,9 @@ class CarEngine(BaseModel):
 
     @property
     def name(self):
-        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
+        from utils.safe_dict_class import current_language
+
+        language_name = getattr(self, f'name_{current_language.get()}', None)
         return language_name if language_name else self._name
 
 
@@ -55,7 +63,8 @@ class CarColor(BaseModel):
 
     @property
     def name(self):
-        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
+        from utils.safe_dict_class import current_language
+        language_name = getattr(self, f'name_{current_language.get()}', None)
         return language_name if language_name else self._name
 
     @name.setter
@@ -90,7 +99,9 @@ class CarComplectation(BaseModel):
 
     @property
     def name(self):
-        language_name = getattr(self, f'name_{attribute_language_manager.language}', None)
+        from utils.safe_dict_class import current_language
+        # ic(current_language.get())
+        language_name = getattr(self, f'name_{current_language.get()}', None)
         return language_name if language_name else self._name
 
     @name.setter

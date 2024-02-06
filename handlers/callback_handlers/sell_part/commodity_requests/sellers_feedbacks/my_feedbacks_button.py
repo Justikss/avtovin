@@ -27,6 +27,8 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
     async def create_offer_data(request: CallbackQuery | Message, offer_id):
         active_offers_module = importlib.import_module('database.data_requests.offers_requests')
         car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+        redis_module = importlib.import_module('utils.redis_for_language')
+
         offer = await active_offers_module.OffersRequester.get_by_offer_id(offer_id)
 
         try:
@@ -43,7 +45,12 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
             await active_offers_module.OffersRequester.delete_offer(offer_id)
             raise UserExistsError()
 
-        for_seller_lexicon_part = Lexicon_module.LEXICON['confirm_from_seller']['message_text']
+        seller = offer.seller_id
+        language = await redis_module.redis_data.get_data(f'{seller.telegram_id}:language')
+        if not language:
+            language = 'ru'
+        lexicon = copy(Lexicon_module.LEXICON._data[language])
+        for_seller_lexicon_part = lexicon['confirm_from_seller']['message_text']
 
         fullname = f'''{buyer.surname} {buyer.name} {buyer.patronymic if buyer.patronymic else ''}'''
         ic(offer_id)
@@ -53,18 +60,10 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                                                  from_user=f'@{await get_username(request.bot, buyer.telegram_id)}',
                                                  advert_number=car.id, name=fullname, phone=buyer.phone_number)
 
-        mileage = car.mileage.name if car.state.id == 2 else None
-        year_of_realise = car.year.name if car.state.id == 2 else None
+        # mileage = car.mileage.name if car.state.id == 2 else None
+        # year_of_realise = car.year.name if car.state.id == 2 else None
 
-        advert_data = await create_advert_configuration_block(car_state=car.state.name,
-                                                              engine_type=car.complectation.engine.name,
-                                                              brand=car.complectation.model.brand.name,
-                                                              model=car.complectation.model.name,
-                                                              complectation=car.complectation.name,
-                                                              color=car.color.name, mileage=mileage,
-                                                              year_of_realise=year_of_realise,
-                                                              sum_price=car.sum_price,
-                                                              usd_price=car.dollar_price)
+        advert_data = await create_advert_configuration_block(advert_id=car, language=language)
 
         result_string = f'''{card_startswith}{advert_data}'''
 

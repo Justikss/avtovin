@@ -42,9 +42,9 @@ async def get_valutes(usd, sum_valute, get_string=None, language=None):
     boot_commodity_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-    if language == 'ru':
-        lexicon = copy(lexicon_module.__LEXICON)
-        commodity_loader_lexicon = copy(boot_commodity_lexicon_module.commodity_loader_lexicon_ru)
+    if language:
+        lexicon = copy(lexicon_module.LEXICON)._data[language]
+        commodity_loader_lexicon = copy(boot_commodity_lexicon_module.commodity_loader_lexicon)._data[language]
     else:
         lexicon = copy(lexicon_module.LEXICON)
         commodity_loader_lexicon = boot_commodity_lexicon_module.commodity_loader_lexicon

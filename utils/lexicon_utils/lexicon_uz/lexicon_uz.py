@@ -1,6 +1,6 @@
 import importlib
 
-from utils.lexicon_utils.lexicon_uz.config_uz import faq_buyer_uz, faq_seller_uz, faq_uz
+
 
 max_phone_number_len = 25
 
@@ -17,10 +17,13 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
 ''''''
 
 
-faq = faq_uz
+faq = '''
+<b>Texnik yordam:</b>
+Kontaktlar asosiy menyu orqali [Yordam] tugmasi yordamida mavjud
+'''
 money_valute = '$'
-faq_seller = faq_seller_uz
-faq_buyer = faq_buyer_uz
+
+
 max_price_len = 20
 max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
@@ -178,8 +181,43 @@ LEXICON_UZ = {
 
 'success_seller_registration_notice': {'message_text': 'Siz tizimda ro‘yxatdan o‘tdingiz', 'return_main_menu': 'Sotuvchi menyusiga 👨🏻‍💼', 'width': 1},
 
-'seller_faq': {'message_text': faq_seller, 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
-'buyer_faq': {'message_text': faq_buyer, 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
+'seller_faq': {'message_text': '''
+\n<b>Sotish:</b>
+\nSotuvchi ro‘yxatdan o‘tgandan va uni ma’muriyat tomonidan tasdiqlanganidan so‘ng - <b>Javoblarni olish uchun tarifni rasmiylashtirish kerak:
+</b> <i>[Sotuvchi menyusi] - [Profil] - [Tarifni uzaytirish].</i>\n
+<b>O‘z savdo vitrinangizni to‘ldirish mumkin:
+</b> <i>[Sotuvchi menyusi] - [Arizalar] - [Ariza yaratish].</i>
+\n<b>Yaratilgan arizalar quyidagi joyda ko‘rsatiladi:
+</b> <i>[Sotuvchi menyusi] - [Arizalar] - [Mening arizalarim]</i>
+Ularni o‘chirish va narxini o‘zgartirish mumkin.\n
+<b>Foydalanuvchi sizning mahsulotingizga javob yozganda</b> - sizga bot orqali xabar keladi, shuningdek, xaridorning kontaktlari bilan javob:
+<i>[Sotuvchi menyusi] - [Arizalar] - [Mening javoblarim].</i>
+Javoblar ko‘rilgan va yangi - mos ravishda ajratiladi.
+\n<b>Javoblar bo‘limida, ko‘rilgan arizalarga zarurat bo‘lganda quyidagi buyruqlarni qo‘llash mumkin:</b>
+\n<b>Faqat javobni o‘chirish, mahsulotni vitrinada qoldirgan holda</b>: 
+<i>[Ko‘rilgan javoblar] - [Savdo amalga oshmadi],</i>
+\n<b>Mahsulotni javob bilan birga o‘chirish:</b>
+<i>[Ko‘rilgan javoblar] - [Savdodan olib tashlash]</i>
+'''
+, 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
+'buyer_faq': {'message_text': '''
+<b>Xarid:</b>
+\nXaridor ro‘yxatdan o‘tgandan so‘ng - sizga yoqadigan avtomobillarga javob yozishingiz mumkin.
+\n<b>Avtomobillarni qidirish</b> bot bilan o‘zaro ta’sir orqali amalga oshiriladi: 
+<i>[Xaridor menyusi] - [Avtomobil qidirish].</i>\n
+Avtomobillarni qidirganda taklif etilgan parametrlardan mos keladiganlarini tanlashingiz kerak, natijada sizning so‘ro
+vingiz bo‘yicha avtomobillar ro‘yxatini olasiz.
+\n<b>Ko‘rib chiqilgan, lekin sizning tasdiqlashingizsiz qolgan tovarlar quyidagi bo‘limda joylashadi:</b>
+<i>[Xaridorlar menyusi] - [Takliflar] - [Tasdiqlanmaganlar].</i>
+Ular sizning javobingizgacha yoki birinchi ko‘rishdan keyin 7 kun o‘tganidan keyin qoladi.
+
+<b>Avto'lar bo‘yicha tavsiyalar</b> sotuvchilarning yangi joylashuvidan keyin paydo bo‘ladi, quyidagi bo‘limda:
+<i>[Xaridorlar menyusi] - [Takliflar] - [Tavsiyalar],</i>
+siz oldin ko‘rgan avtomobillarning tarixiga asoslanadi.
+
+<b>Sizning javoblaringiz</b> sotuvchining sizning javobingizni ko‘rish holati bilan birga kontaktlar va holatni ko‘rsatadi:
+<i>[Xaridorlar menyusi] - [Takliflar] - [Tasdiqlanganlar].</i>
+''', 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
 
 'seller_requests': {'message_text': '<b>Arizalar bilan ishlash bo‘limi</b>\nHarakatingizni tanlang:', 'create_new_seller_request': '📨 E’lon yaratish', 'my_sell_requests': '💰 Mening e’lonlarim', 'my_sell_feedbacks': '🔸 Javoblar', 'return_main_menu': 'Menyuga', 'width': 1},
 

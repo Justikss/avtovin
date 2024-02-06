@@ -1,3 +1,2 @@
-from . import start
-from . import help
-from . import echo
+from . import start, drop_table
+

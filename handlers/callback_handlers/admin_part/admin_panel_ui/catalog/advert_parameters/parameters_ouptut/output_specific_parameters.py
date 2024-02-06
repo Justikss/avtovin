@@ -32,8 +32,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         await self.incorrect_manager.try_delete_incorrect_message(request, state)
         delete_mode = kwargs.get('delete_mode')
         memory_storage = await state.get_data()
-        # logging.debug("Стек вызовов: %s", traceback.format_stack())
         message_text_header = ''
+        parameter_name = ''
         parameters = None
 
         # if ic(await state.get_state()) == AdminAdvertParametersStates.NewStateStates.parameters_branch_review:

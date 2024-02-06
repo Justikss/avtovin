@@ -55,7 +55,7 @@ class OffersRequester:
             offer_id = int(offer_id)
         try:
             result = await manager.get((ActiveOffers
-                                            .select(ActiveOffers, CarAdvert, Seller)
+                                            .select(ActiveOffers, CarAdvert, Seller, User)
                                             .join(CarAdvert)
                                             .switch(ActiveOffers)
                                             .join(Seller)
@@ -310,7 +310,7 @@ class CachedOrderRequests:
         now_aware = datetime.now(tz)
 
         ic(select_query[0].datetime_of_deletion)
-        requests_to_remove = [request for request in select_query if request.datetime_of_deletion < now_aware]
+        requests_to_remove = [request for request in select_query if request.datetime_of_deletion.replace(tzinfo=None) < now_aware.replace(tzinfo=None)]
         if requests_to_remove:
             if isinstance(requests_to_remove[0], CacheBuyerOffers):
                 await CachedOrderRequests.remove_cache(offer_model=requests_to_remove)

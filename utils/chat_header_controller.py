@@ -21,7 +21,7 @@ async def header_controller(request: Union[CallbackQuery, Message], need_delete=
         message = request.message
     send_flag = False
     copied_message = None
-    header_message_text = str(config_module.header_message_text)
+    header_message_text = config_module.header_message_text['text']
     ic(header_message_id)
 
     if not header_message_id:

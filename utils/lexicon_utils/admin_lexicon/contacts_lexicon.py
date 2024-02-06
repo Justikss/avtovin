@@ -1,6 +1,6 @@
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import return_main_menu
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.contact_lexicon_uz import ADMIN_CONTACTS_UZ
-from utils.safe_dict_class import SafeDict
+from utils.safe_dict_class import SafeDict, SmartGetattr
 
 __ADMIN_CONTACTS_RU = {
     'new_contact_caption_telegram': 'Новая ссылка',
@@ -83,8 +83,10 @@ ADMIN_CONTACTS = SafeDict({'ru': __ADMIN_CONTACTS_RU,
 
 
 
-class OutputTSContacts:
+class OutputTSContacts(SmartGetattr):
     def __init__(self):
+        super().__init__()
+
         self.message_text = ADMIN_CONTACTS['active_contact_list']
         self.buttons_callback_data = 'review_ts_contact:'
         self.backward_command = {'add_ts_contact': ADMIN_CONTACTS['add'],

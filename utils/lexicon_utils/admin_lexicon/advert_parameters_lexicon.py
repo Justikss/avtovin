@@ -1,7 +1,7 @@
 from config_data.config import max_advert_parameter_name_len, max_integer_for_database
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_parameters_uz import advert_params_class_lexicon_uz, \
     advert_params_captions_uz
-from utils.safe_dict_class import SafeDict
+from utils.safe_dict_class import SafeDict, SmartGetattr
 
 _captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
@@ -29,7 +29,7 @@ __ADVERT_PARAMETERS_LEXICON = {
     'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',
 
-    'choose_second_hand_parameter_type': {'message_text': 'Параметры автомобилей с пробегом:', 'buttons': {
+    'choose_second_hand_parameter_type': {'message_text': '<b>Параметры автомобилей с пробегом:</b>', 'buttons': {
         'second_hand_choice_advert_parameters_type_mileage': 'Пробег', 'second_hand_choice_advert_parameters_type_year': 'Год',
         'admin_backward:choose_second_hand_advert_parameters_type': _captions['backward'],
         **return_main_menu,
@@ -151,8 +151,10 @@ advert_parameters_captions = SafeDict({'ru': advert_parameters_captions,
 advert_params_class_lexicon = SafeDict({'ru': advert_params_class_lexicon_ru,
                                         'uz': advert_params_class_lexicon_uz})
 
-class AdvertParametersChooseSpecificValue:
+class AdvertParametersChooseSpecificValue:#(SmartGetattr):
     def __init__(self, parameter_name: str, header: str):
+        #super().__init__()
+
         self.message_text_mileage = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['mileage'])}:'''
         self.message_text_year = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['year_of_realise'])}:'''
         self.message_text_engine = f'''{advert_parameters_captions['choose_param'].format(parameter=advert_parameters_captions['engine'])}:'''

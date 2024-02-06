@@ -6,6 +6,8 @@ from aiogram.types import CallbackQuery, Message
 from database.data_requests.admin_requests import AdminManager
 from keyboards.inline.kb_creator import InlineCreator
 from utils.redis_for_language import redis_data
+from utils.safe_dict_class import current_language
+
 
 async def unpack_lexicon_to_start_using(callback, string_user_id):
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -40,6 +42,28 @@ async def set_language(request: CallbackQuery | Message, delete_mode=False, set_
     else:
         message = request
     string_user_id = str(request.from_user.id)
+    # redis_module = importlib.import_module('handlers.default_handlers.start')
+    # redis_key = f'{str(request.from_user.id)}:language'
+    # language = None
+    #
+    # if isinstance(request, CallbackQuery) and request.data.startswith('language_') and len(request.data) == 11:
+    #     redis_value = request.data.split('_')
+    #     if len(redis_value) >= 1:
+    #         if redis_value[0] == 'language':
+    #             redis_value = redis_value[1]
+    #             await redis_module.redis_data.set_data(key=redis_key, value=redis_value)
+    #             language = redis_value
+    # if not language:
+    #     redis_key = redis_key
+    #     language = await redis_module.redis_data.get_data(key=redis_key)
+    # if not language:
+    #     language = 'ru'  # Или другой язык по умолчанию
+    # ic(language)
+    #
+    # # Установка текущего языка в контекстную переменную
+    # token = current_language.set(language)
+    # ic(token)
+    # try:
     # if set_languange and isinstance(request, CallbackQuery):
     #     redis_key = str(string_user_id) + ':language'
     #     redis_value = request.data.split('_')
