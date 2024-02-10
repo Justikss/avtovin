@@ -230,13 +230,13 @@ async def start_bot():
     asyncio.create_task(GetDealershipAddress.process_queue())
 
     dp.callback_query.middleware(ErrorHandler())
-    dp.callback_query.middleware(LanguageMiddleware())
+    dp.callback_query.outer_middleware(LanguageMiddleware())
     dp.callback_query.middleware(CleanerMiddleware())
     dp.callback_query.middleware(ThrottlingMiddleware())
 
-
+    dp.message.outer_middleware(LanguageMiddleware())
     dp.message.middleware(ErrorHandler())
-    dp.message.middleware(LanguageMiddleware())
+    # dp.message.middleware(LanguageMiddleware())
 
 
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),

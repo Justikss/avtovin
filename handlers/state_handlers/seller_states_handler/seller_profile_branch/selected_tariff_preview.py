@@ -19,6 +19,7 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
     ic(tariff_model.name)
     lexicon_class = copy(Lexicon_module.LexiconSelectedTariffPreview)
+    ic(tariff_model.simultaneous_announcements)
     if not tariff_model.price:
         price = '0'
     else:
@@ -33,7 +34,8 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
 {lexicon_class.separator}'''
 
     if by_admin:
-        buttons = copy(admin_lexicon_module.ChooseTariff.tariff_review_buttons)
+        ic(admin_lexicon_module.ChooseTariff().__dict__)
+        buttons = copy(admin_lexicon_module.ChooseTariff().tariff_review_buttons)
     elif by_admin_tariff:
         buttons = Lexicon_module.ADMIN_LEXICON['tariff_view_buttons']
     else:

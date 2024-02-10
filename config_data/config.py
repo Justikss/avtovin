@@ -6,10 +6,10 @@ import logging
 from utils.lexicon_utils.lexicon_uz.config_uz import DEFAULT_COMMANDS_UZ, header_message_text_uz
 import time
 
-# os.environ['TZ'] = 'Asia/Tashkent'
-# time.tzset()  # Применяет изменения часового пояса (работает только на Unix/Linux)
+os.environ['TZ'] = 'Asia/Tashkent'
+time.tzset()  # Применяет изменения часового пояса (работает только на Unix/Linux)
 
-TEST_MOMENT = True
+TEST_MOMENT = False
 
 logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
@@ -41,11 +41,11 @@ DEFAULT_COMMANDS = (
 # YANDEX_IAM_TOKEN = os.getenv('YANDEX_IAM_TOKEN')
 # YANDEX_folder_id = os.getenv('YANDEX_folder_id')
 
-DATETIME_FORMAT = '%d-%m-%Y %H:%M:%S'
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'
 MODIFIED_MAILING_DATETIME_FORMAT = '%Y-%m-%d %H:%M'
 
-REGISTRATION_DATETIME_FORMAT = '%d-%m-%Y'
+REGISTRATION_DATETIME_FORMAT = '%Y-%m-%d'
 
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600

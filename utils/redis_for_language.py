@@ -297,7 +297,11 @@ class RedisForCache:
         if model in (CarBrand, CarModel, CarComplectation):
             buyer_id = id_value
             id_value = model
-
+        if id_value in ('model', 'brand', 'complectation'):
+            id_value = await get_table_by_string(id_value)
+            ic()
+            ic(id_value)
+            return id_value, None
         return id_value, buyer_id
 
     # def car_advert_search_decorator(self):
@@ -412,7 +416,7 @@ class RedisForCache:
                                 ic(related_keys)
 
                         elif model_element is CarAdvert and str(id_value).isdigit():
-                            related_keys = [f'car_advert_requests:get_where_id:{id_value}']
+                            related_keys = await redis_data.scan_list_of_keys(f'car_advert_requests:get_where_id:{id_value}*')
                         if car_config_update_case:
                             ic()
                             related_keys = await redis_data.scan_list_of_keys(

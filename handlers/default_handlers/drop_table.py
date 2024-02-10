@@ -102,8 +102,8 @@ async def set_viewed_status():
 
 async def create_ts_contacts():
     faker = Faker()
-    links = [f'@{faker.name()}' for _ in range(20)]
-    numbers = [faker.phone_number() for _ in range(20)]
+    links = [f'@{faker.name()}' for _ in range(10)]
+    numbers = [faker.phone_number() for _ in range(10)]
     insert_tss = [{'link': link, 'type': 'telegram'} for link in links]
     insert_tsss = [{'link': link, 'type': 'number'} for link in numbers]
     await manager.execute(TechSupports.insert_many(insert_tss))
@@ -146,6 +146,7 @@ async def get_adverts():
     await manager.execute(CarAdvert.insert_many(insert_data))
 
 async def drop_table_handler(message: Message):
+    pass
     # await manager.create(Admin, telegram_id=902230076)
     # faker = Faker()
     #
@@ -175,21 +176,26 @@ async def drop_table_handler(message: Message):
     #
     # #
     # return
-    await message.answer('Waiting..')
+    # await message.answer('Waiting..')
     # await drop_tables_except_one('Фотографии_Новых_Машин')
+    #
     # await create_tables()
-    await mock_values(only_base_params=False)
-    sellers = await get_seller_account()
-    photos = await read_photos_by_brand('utils/carss')
+    # await manager.create(Admin, telegram_id = 883645786, admin_rang=1,
+    #                                    data_registration=datetime.now().strftime('%d-%m-%Y'))
+    # await mock_values(only_base_params=True)
+    # await message.answer('SUCCESS')
+    # return
+    # sellers = await get_seller_account()
+    # photos = await read_photos_by_brand('/home/user/telegram_bot/utils/carss')
     # photos = None
-
-    inserted_cars = await get_car(photos, cars=1)
+    #
+    # inserted_cars = await get_car(photos, cars=0)
+    # inserted_cars = await get_car(photos, cars=0)
     # asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     # await dop_feedbacks()
-    type_photos = await read_photos_by_brand('utils/type_carss')
-    await load_type_photos(type_photos)
-    await set_viewed_status()
+    # type_photos = await read_photos_by_brand('/home/user/telegram_bot/utils/type_carss')
+    # await load_type_photos(type_photos)
+    # await set_viewed_status()
 
-    await create_ts_contacts()
+    # await create_ts_contacts()
 
-    await message.answer('SUCCESS')

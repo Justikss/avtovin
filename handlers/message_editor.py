@@ -128,7 +128,7 @@ class TravelEditor:
                                 for file_data in file_list[:2]]
 
                             new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id']) if isinstance(file_data, dict) else file_data)
-                                         for file_data in file_list[1:]]
+                                         for file_data in file_list[1:]][:8]
 
                             new_album.insert(0, caption_photo[0])  # Добавление фото с подписью в начало альбома
                             ic(new_album)
@@ -151,7 +151,7 @@ class TravelEditor:
                             if album_id:
                                 media_group = media_group[album_id]
                             media_group = media_group[:8]
-                            new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
+                            new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group][:8]
                             ic('post ', new_album)
                             ic(len(new_album))
                             try:

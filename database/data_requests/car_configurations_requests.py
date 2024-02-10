@@ -424,6 +424,17 @@ async def mock_values(only_base_params):
 
     engine_names = [('Гибрид', 'Gibrid'), ('Электро', 'Elektro'), ('ДВС', 'IYD')]
     await insert_many(CarEngine, engine_names)
+#     await insert_many(CarColor, [
+#     ('Серый', 'Kulrang'),
+#     ('Чёрный', 'Qora'),
+#     ('Синий', "Ko\\'k"),
+#     ('Белый', 'Oq'),
+#     ('Жёлтый', 'Sariq'),
+#     ('Красный', 'Qizil'),
+#     ('Коричневый', 'Jigarrang'),
+#     ('Зелёный', 'Yashil'),
+#     ('Бордовый', 'Binafsha rang')
+# ])
 
     await insert_many(CarYear,
                       ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2020',
@@ -439,7 +450,6 @@ async def mock_values(only_base_params):
     await insert_many(CarBrand, brand_names)
 
 
-    await insert_many(CarColor, ['Серый', 'Чёрный', 'Синий', 'Белый', 'Жёлтый', 'Красный', 'Коричневый', 'Зелёный', 'Бордовый'])
 
     await insert_many_with_foregin(CarModel, {'BYD': ['SONG PLUS CHAMPION', 'CHAZOR'], 'Leapmotor': ['C11'], 'Li Xiang': ['L9', 'L7'], 'Сhevrolet': ['Gentra', 'Nexia 3'],
 
@@ -540,7 +550,10 @@ async def mock_feedbacks(sellers, raw_cars):
                 'color': car['color'],
             })
         # serialized_dicts = {json.dumps(d, sort_keys=True) for d in good_cars}
-        good_cars = list(set(good_cars))
+        unique_cars_tuples = {tuple(sorted(car.items())) for car in good_cars}
+
+        # Преобразование обратно в список словарей
+        good_cars = [dict(car_tuple) for car_tuple in unique_cars_tuples]
         # Десериализация обратно в словари
         # good_cars = [json.loads(d) for d in serialized_dicts]
         ic(len(good_cars))
@@ -738,7 +751,7 @@ async def get_car(photos=None, cars=False):
                                                   'year': year})
 
     if cars:
-        insert_carars = insert_carars[:len(insert_carars)//1000]
+        # insert_carars = insert_carars[:len(insert_carars)//1000]
         await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     # if insert_data:

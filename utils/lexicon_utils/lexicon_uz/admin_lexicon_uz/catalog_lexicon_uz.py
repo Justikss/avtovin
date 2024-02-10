@@ -9,7 +9,7 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             }
 
 catalog_captions_uz = {'catalog_review__make_block': 'bloklash', 'to_block': 'bloklash', 'to_delete': 'o‘chirish',
-                    'catalog_review__make_delete': 'e’lonni o‘chirish', 'advert': '<b>E’lon: №{advert_id}\n</b>',
+                    'catalog_review__make_delete': 'e’lonni o‘chirish', 'advert': '<b>E’lon:</b> <i>№{advert_id}</i>\n',
                     'inactive_advert_or_seller': 'E’lon yoki sotuvchi faol emas',
                     'advert_successfully_closed': 'Avtomobil muvaffaqiyatli sotuvdan olib tashlandi!',
                     'empty': 'Bo‘sh'
@@ -41,7 +41,7 @@ CATALOG_LEXICON_UZ = {
         'admin_backward:choose_catalog_review_advert_type': captions_uz['backward'],
         'width': 2
     }},
-    'review_specific_advert_catalog': {'message_text': 'E’lon: №{advert_id}\n{seller_entity}:', 'buttons': {
+    'review_specific_advert_catalog': {'message_text': '<b>E’lon:</b> <i>№{advert_id}</i>\n{seller_entity}:', 'buttons': {
         **pagination_interface,
         'admin_review_catalog_delete_advert': 'Cheklovlar',
         'admin_backward:review_specific_advert_catalog': captions_uz['backward'],

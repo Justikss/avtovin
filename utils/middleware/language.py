@@ -1,6 +1,6 @@
 import importlib
 from typing import Callable, Dict, Any, Awaitable
-
+from aiogram.types import Update
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, CallbackQuery
 from icecream import ic
@@ -64,7 +64,7 @@ class LanguageMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-            event: TelegramObject,
+            event: Update,
             data: Dict[str, Any],
     ) -> Any:
         redis_module = importlib.import_module('handlers.default_handlers.start')
@@ -83,7 +83,7 @@ class LanguageMiddleware(BaseMiddleware):
             language = await redis_module.redis_data.get_data(key=redis_key)
         if not language:
             language = 'ru'  # Или другой язык по умолчанию
-        ic(language)
+        ic('language to set: ', language)
 
         # Установка текущего языка в контекстную переменную
         token = current_language.set(language)

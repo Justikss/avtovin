@@ -1,1 +1,1 @@
-from . import UzumPay
+#from . import UzumPay

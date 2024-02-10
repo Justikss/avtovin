@@ -13,6 +13,7 @@ lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 class ChooseCarPriceFilterHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         if await self.price_is_only_case_handler(request, state):
+            self.output_methods = None
             return
         await self.incorrect_manager.try_delete_incorrect_message(state=state, request=request, mode='buyer')
         await self.set_state(state, BuyerSearchCostFilterStates.review)

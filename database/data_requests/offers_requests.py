@@ -20,7 +20,7 @@ from database.db_connect import manager
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 cache_redis_module = importlib.import_module('utils.redis_for_language')
 cache_redis = cache_redis_module.cache_redis
-async def to_int(value):
+def to_int(value):
     return int(value) if isinstance(value, str) else value
 
 
@@ -108,7 +108,7 @@ class OffersRequester:
     @staticmethod
     async def get_for_buyer_id(buyer_id, brand=None, car_id=None, count=False, get_brands = False):
         '''Асинхронный метод получения открытых предложений для покупателя'''
-        query = (ActiveOffers.select(ActiveOffers, CarAdvert).join(CarAdvert).switch(ActiveOffers).join(User)
+        query = (ActiveOffers.select(ActiveOffers.id, ActiveOffers.car_id, CarAdvert.id).join(CarAdvert).switch(ActiveOffers).join(User)
                  .where(ActiveOffers.buyer_id == int(buyer_id)))
 
         if brand:
@@ -154,7 +154,7 @@ class OffersRequester:
                 condition = ActiveOffers.id.in_([to_int(id_element) if isinstance(id_element, str) else id_element
                                                  for id_element in offer_id])
             else:
-                offer_id = await to_int(offer_id)
+                offer_id = to_int(offer_id)
                 condition = ActiveOffers.id == offer_id
 
         elif advert_id and buyer_id:
@@ -162,8 +162,8 @@ class OffersRequester:
                 condition = ((ActiveOffers.car_id.in_([to_int(id_element) if isinstance(id_element, str) else id_element
                                                      for id_element in advert_id])) & (ActiveOffers.buyer_id == buyer_id))
             else:
-                advert_id = await to_int(advert_id)
-                buyer_id = await to_int(buyer_id)
+                advert_id = to_int(advert_id)
+                buyer_id = to_int(buyer_id)
                 condition = ActiveOffers.id.in_(ActiveOffers.select(ActiveOffers.id)
                                                 .where((ActiveOffers.car_id == advert_id) &
                                                         (ActiveOffers.buyer_id == buyer_id)))
@@ -177,10 +177,9 @@ class OffersRequester:
 
         else:
             return
-        ic()
+        ic(condition.__dict__)
 
-        selected = list(await manager.execute(ActiveOffers.select(ActiveOffers, User).join(User)
-                                              .where(condition)))
+        selected = list(await manager.execute(ActiveOffers.select(ActiveOffers, User).join(User).where(condition)))
         ic(selected)
         buyer_ids = list({offer.buyer_id.telegram_id for offer in selected})
         ic(buyer_ids)
@@ -302,15 +301,10 @@ class CachedOrderRequests:
     @staticmethod
     async def check_overtime_requests(select_query):
         '''Асинхронная проверка запросов на превышение времени'''
-        import pytz
-        from datetime import datetime
-
-        # Установка часового пояса, например, 'UTC'
-        tz = pytz.timezone('UTC')
-        now_aware = datetime.now(tz)
-
+        if not select_query:
+            return
         ic(select_query[0].datetime_of_deletion)
-        requests_to_remove = [request for request in select_query if request.datetime_of_deletion.replace(tzinfo=None) < now_aware.replace(tzinfo=None)]
+        requests_to_remove = [request for request in select_query if request.datetime_of_deletion < datetime.now()]
         if requests_to_remove:
             if isinstance(requests_to_remove[0], CacheBuyerOffers):
                 await CachedOrderRequests.remove_cache(offer_model=requests_to_remove)

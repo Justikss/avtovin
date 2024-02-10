@@ -170,7 +170,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
         if output_part:
             if output_part.get('album'):
 
-                media_group = [InputMediaPhoto(media=photo_id if '/' not in photo_id else FSInputFile(photo_id)) for photo_id in output_part['album'][:-1]]
+                media_group = [InputMediaPhoto(media=photo_id if '/' not in photo_id else FSInputFile(photo_id)) for photo_id in output_part['album'][:-1]][:7]
                 media_group.append(InputMediaPhoto(media=output_part['album'][-1] if '/' not in output_part['album'][-1] else FSInputFile(output_part['album'][-1]),
                                                    caption=output_part['message_text']))
                 try:

@@ -82,7 +82,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
     '{parameter_type}', max_integer_for_database),
 
     'confirmation_rewrite_exists_parameter': {
-    'message_text': 'Siz rostdan ham parametr qiymatini tahrirlamoqchimisiz: {parameter_type}\nEski: {parameter_old_value}\nYangi: {parameter_new_value} ?',
+    'message_text': '<b>Siz rostdan ham parametr qiymatini tahrirlamoqchimisiz:</b> <i>{parameter_type}</i>\nEski: <i>{parameter_old_value}</i>\nYangi: <i>{parameter_new_value}</i> ?',
     'buttons': {'confirm_rewrite_existing_advert_parameter': captions_uz['confirm'],
                 'rewrite_current_advert_parameter': 'Qayta kiriting',
                 'admin_backward:rewrite_exists_advert_param': captions_uz['backward'],
@@ -117,7 +117,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 advert_params_class_lexicon_uz = {
     'new_car_state_parameters_caption': "<b>Avtomobil qo'shish</b>\n",
     'car_parameters_start': {'message_text': '<b>Avtomobil parametr turini tanlang:</b>', 'buttons': {
-        "advert_parameters_choose_state:2": "foydl. avtomobillar konfigi", 'advert_parameters_choose_state:1': "Avtomobil qo'shing",
+        "advert_parameters_choose_state:2": "foydl. avtomobillar", 'advert_parameters_choose_state:1': "Avtomobil qo'shing",
         'admin_backward:advert_parameters_choose_state': '◂ Orqaga ▸',
         'return_main_menu': 'Menyuda',
         'width': 2}},

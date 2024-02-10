@@ -191,22 +191,23 @@ class CheckFeedbacksHandler(CheckFeedBacksABC):
                 ic()
                 # await OffersRequester.set_viewed_true(seller_offers)
             # card_body_lexicon_part = LEXICON.get('chosen_configuration').get('message_text')
-            output_unpacked_data = []
-            for offer in offers:
-                offer_id = offer.id
-                ic(offer)
-                try:
-                    car = offer.car_id
-                except:
-                    await cached_requests_module.OffersRequester.delete_offer(offer_id)
-                    raise CarExistsError()
-                try:
-                    buyer = offer.buyer_id
-                except:
-                    await cached_requests_module.OffersRequester.delete_offer(offer_id)
-                    raise UserExistsError()
+            output_unpacked_data = [offer.id for offer in offers]
+            # for offer in offers:
+            #     offer_id = offer.id
+            #     ic(offer)
+            #     ic(offer.__dict__)
+                # try:
+                #     car = offer.car_id
+                # except:
+                #     await cached_requests_module.OffersRequester.delete_offer(offer_id)
+                #     raise CarExistsError()
+                # try:
+                #     buyer = offer.buyer_id
+                # except:
+                #     await cached_requests_module.OffersRequester.delete_offer(offer_id)
+                #     raise UserExistsError()
 
-                output_unpacked_data.append(offer_id)
+                # output_unpacked_data.append(offer_id)
             # ic(result_part)
             return output_unpacked_data
 

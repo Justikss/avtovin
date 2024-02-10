@@ -40,10 +40,20 @@ class MailingService:
                 # Упрощенно, без конвертации в cron-формат для примера
                 task_id = str(mailing.id)
                 self.mailing_tasks[task_id] = mailing.scheduled_time
-                aiocron.crontab('*/1 * * * *', func=self.send_scheduled_message_wrapper, args=(bot, mailing.id, task_id))
+                logging.debug('Высылается(с loader) рассылка:%d в %s ', mailing.id)
+                cron_string = send_time.strftime('%M %H %d %m *')
 
-    async def send_scheduled_message_wrapper(self, bot: Bot, mailing, task_id):
+                aiocron.crontab(cron_string, func=self.send_scheduled_message_wrapper, args=(bot, mailing.id, task_id))
+
+
+    async def send_scheduled_message_wrapper(self, bot: Bot, mailing, task_id=None):
+        if not task_id:
+            if isinstance(mailing, Mailing):
+                task_id = mailing.id
+            else:
+                task_id = mailing
         ic(task_id, self.cancelled_tasks)
+
         if task_id in self.cancelled_tasks:
             logging.debug(f"Задача {task_id} отменена.")
             return
@@ -56,6 +66,7 @@ class MailingService:
         if not from_deleting:
             await mailing_requests_module.delete_mailing_action(mailing_id)
         logging.debug(f"Запланировано отменить задачу {task_id}.")
+
     async def get_recipients(self, recipients_type: str) -> Tuple[Optional[List[int]], Tuple[bool, bool]]:
         """
         Возвращает список идентификаторов пользователей для рассылки.
@@ -84,12 +95,16 @@ class MailingService:
         if scheduled_time > datetime.now():
             scheduled_time = self.end_time_control(scheduled_time)
             cron_string = scheduled_time.strftime('%M %H %d %m *')
-            aiocron.crontab(cron_string, func=self.send_scheduled_message, args=(bot, mailing.id))
+            logging.debug('Запланирована рассылка:%d в %s ', mailing.id, scheduled_time)
+            aiocron.crontab(cron_string, func=self.send_scheduled_message_wrapper, args=(bot, mailing.id))
         else:
-            asyncio.create_task(self.send_scheduled_message(bot, mailing.id))
+            logging.debug('Отправляется незапланированная рассылка:%d в %s ', mailing.id, scheduled_time)
+            asyncio.create_task(self.send_scheduled_message_wrapper(bot, mailing.id))
 
 
     async def send_scheduled_message(self, bot: Bot, mailing):
+        logging.debug('Отправляется рассылка:%d', mailing)
+
         ic()
         ic(mailing)
         if not isinstance(mailing, Mailing):

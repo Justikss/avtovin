@@ -33,6 +33,9 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                                                                                        seller_id=car_model.seller.telegram_id)
     except BufferError:
         insert_response = None
+    ic(insert_response)
+    ic()
+    ic(car_model)
     if not insert_response and not current_state.startswith(('CheckRecommendationsStates', 'CheckActiveOffersStates')):
         await callback.answer(text=Lexicon_module.LEXICON['buy_configuration_error']['message_text'], show_alert=True)
     if car_model:
@@ -103,7 +106,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
                     await callback.bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=last_message_id,
                                                                  reply_markup=keyboard)
                 except Exception as ex:
-                    # traceback.print_exc()
+                    traceback.print_exc()
                     ic(ex)
                     pagination_data['data'].pop(pagination_data['data'].index([part
                                                                          for part in pagination_data['data']
@@ -112,7 +115,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
         except Exception as ex:
             pass
             ic(ex)
-            # traceback.print_exc()
+            traceback.print_exc()
         callback_answer_text = Lexicon_module.LEXICON['order_was_created']
     else:
         callback_answer_text = Lexicon_module.LEXICON['seller_dont_exists']
@@ -208,14 +211,15 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
 
                     except (BufferError, TypeError) as ex:
 
-                        # traceback.print_exc()
+                        traceback.print_exc()
+                        ic(ex)
                         insert_response = None
                         await callback.answer(text=Lexicon_module.LEXICON['buy_configuration_error']['message_text'], show_alert=True)
                         advert_offer_already_exists = True
 
                     except Exception as ex:
                         ic(ex)
-                        # traceback.print_exc()
+                        traceback.print_exc()
             else:
                 seller_tariff_run_out = True
             ic(cached_data, is_recommendated_state, car_id, car_model, dying_tariff_status)
@@ -239,6 +243,8 @@ async def confirm_settings_handler(callback: CallbackQuery, state: FSMContext):
             await callback.answer(text=Lexicon_module.LEXICON['car_was_withdrawn_from_sale'], show_alert=True)
             car_was_withdrawn_from_sale = True
         else:
+            ic()
+            ic(car_model, seller_tariff_run_out)
             insert_response = None
             await callback.answer(text=Lexicon_module.LEXICON['buy_configuration_error']['message_text'], show_alert=True)
             advert_offer_already_exists = True

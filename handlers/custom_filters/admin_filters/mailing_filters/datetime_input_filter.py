@@ -1,4 +1,5 @@
 import importlib
+import traceback
 
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
@@ -28,7 +29,7 @@ class DateTimeFilter(BaseFilter):
             return
         else:
             try:
-                mailing_datetime = datetime.datetime.strptime(message.text, config_module.MAILING_DATETIME_FORMAT)
+                mailing_datetime = datetime.datetime.strptime(message.text, '%d-%m-%Y %H:%M')
 
                 if mailing_datetime < datetime.datetime.now():
                     await incorrect(state, message.message_id)
@@ -38,6 +39,7 @@ class DateTimeFilter(BaseFilter):
                 await delete_message(message, message.message_id)
                 return {'mailing_datetime': str(mailing_datetime)}
             except (ValueError, TypeError):
+                traceback.print_exc()
                 await incorrect(state, message.message_id)
                 # await delete_message(message, message.message_id)
                 await request_mailing_date_time(message, state, incorrect=True)  # Возвращаем False, если формат некорректен

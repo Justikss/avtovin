@@ -16,7 +16,7 @@ pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{
 return_main_menu = {'return_main_menu': 'В меню'}
 
 catalog_captions = {'catalog_review__make_block': 'блокировку', 'to_block': 'блокировки', 'to_delete': 'удаления',
-                    'catalog_review__make_delete': 'удаление объявления', 'advert': '<b>Объявление: №{advert_id}\n</b>',
+                    'catalog_review__make_delete': 'удаление объявления', 'advert': '<b>Объявление:</b> <i>№{advert_id}</i>\n',
                     'inactive_advert_or_seller': 'Объявление или продавец неактивен',
                     'advert_successfully_closed': 'Автомобиль успешно снят с продажи!',
                     'empty': 'Раздел оказался пуст'
@@ -44,7 +44,7 @@ __CATALOG_LEXICON = {
         'admin_backward:choose_catalog_review_advert_type': captions['backward'],
         'width': 2
     }},
-    'review_specific_advert_catalog': {'message_text': 'Объявление: №{advert_id}\n{seller_entity}:', 'buttons': {
+    'review_specific_advert_catalog': {'message_text': '<b>Объявление:</b> <i>№{advert_id}</i>\n{seller_entity}:', 'buttons': {
         **pagination_interface,
         'admin_review_catalog_delete_advert': 'Ограничения',
         'admin_backward:review_specific_advert_catalog': captions['backward'],

@@ -24,7 +24,7 @@ ADVERT_LEXICON_UZ = {
     'edit_mailing_data_alert': 'Kiritilgan ma’lumotlarni mos punkt tugmasini bosish orqali o‘zgartirishingiz mumkin.\n',
     'choose_advert_action': {'message_text': '<b>Harakatni tanlang: </b>',
                              'buttons': {'mailing_action': '📄 Yuborish', **return_main_menu_uz, 'width': 1}},
-    'choose_mailing_action': {'message_text': '<b>Siz pochta menyusidasiz<b>\nHarakatni tanlang:',
+    'choose_mailing_action': {'message_text': '<b>Siz pochta menyusidasiz</b>\nHarakatni tanlang:',
                               'buttons': {
                                   'mailing_storage': 'Yuklangan yuborishlar',
                                   'create_new_mailing': 'Yangi yuborish',

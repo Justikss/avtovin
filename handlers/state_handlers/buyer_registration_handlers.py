@@ -150,8 +150,7 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
 
     lexicon_part = lexicon_module.LEXICON['write_phone_number']
 
-    from handlers.utils.delete_message import delete_message
-    await delete_message(message, message_id)
+
 
     if user_name:
         user_name = ' '.join([name_part.capitalize() for name_part in user_name.split(' ')])
@@ -181,6 +180,9 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
     from keyboards.reply.send_reply_markup import send_reply_button_contact
     await send_reply_button_contact(message)
     keyboard = await InlineCreator.create_markup(lexicon_part)
+
+    from handlers.utils.delete_message import delete_message
+    await delete_message(message, message_id)
 
     if incorrect:
         message_object = await message.reply(text=message_text, reply_markup=keyboard)

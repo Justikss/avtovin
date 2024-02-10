@@ -58,7 +58,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_state(BaseBootButtons):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['state_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['state_text']}</b>'''
             self.buttons_callback_data = 'load_state_'
             self.width = 2
             self.dynamic_buttons = 1
@@ -67,7 +67,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_engine_type(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['engine_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['engine_text']}</b>'''
             self.buttons_callback_data = 'load_engine_'
             self.width = 2
             self.last_buttons = self.base_last_buttons
@@ -75,7 +75,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_brand(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['brand_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['brand_text']}</b>'''
             self.buttons_callback_data = 'load_brand_'
             self.width = 2
             self.last_buttons = self.base_last_buttons
@@ -83,7 +83,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_model(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['model_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['model_text']}</b>'''
             self.buttons_callback_data = 'load_model_'
             self.width = 2
             self.last_buttons = self.base_last_buttons
@@ -92,7 +92,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_complectation(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['complectation_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['complectation_text']}</b>'''
             self.buttons_callback_data = 'load_complectation_'
             self.width = 1
             self.last_buttons = self.base_last_buttons
@@ -100,14 +100,14 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_year_of_realise(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['year_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['year_text']}</b>'''
             self.buttons_callback_data = 'load_year_'
             self.width = 2
             self.last_buttons = self.base_last_buttons
     class load_commodity_mileage(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['mileage_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['mileage_text']}</b>'''
             self.buttons_callback_data = 'load_mileage_'
             self.dynamic_buttons = 3
             self.width = 2
@@ -115,7 +115,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_color(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['color_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['color_text']}</b>'''
             self.buttons_callback_data = 'load_color_'
             self.width = 2
             self.dynamic_buttons = 2
@@ -124,7 +124,7 @@ class LexiconCommodityLoader(SmartGetattr):
     class load_commodity_price(BaseBootButtons, RedisBootCommodityHelper):
         def __init__(self):
             super().__init__()
-            self.message_text = commodity_loader_lexicon['input_price_text']
+            self.message_text = f'''<b>{commodity_loader_lexicon['input_price_text']}</b>'''
             self.width = 1
             self.last_buttons = self.base_last_buttons
 

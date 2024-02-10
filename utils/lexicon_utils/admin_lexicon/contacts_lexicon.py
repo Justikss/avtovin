@@ -92,6 +92,7 @@ class OutputTSContacts(SmartGetattr):
         self.backward_command = {'add_ts_contact': ADMIN_CONTACTS['add'],
                                  'admin_backward:review_contacts_list': ADMIN_CONTACTS['backward'],
                                  'return_main_menu': ADMIN_CONTACTS['return_main_menu']}
+        self.last_buttons = None
         self.width = 1
         self.dynamic_buttons = 3
 

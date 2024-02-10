@@ -18,7 +18,7 @@ return_main_menu = {'return_main_menu': 'В меню'}
 
 advert_parameters_captions = {
 
-    'choose_param': '<b>Выберите {parameter} авто</b>',
+    'choose_param': '<b>Выберите параметр: {parameter}</b>',
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
     'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'from_param_branch': ' из ветки параметров:\n{param_branch}\n',
     'year_of_realise': 'Год выпуска'
@@ -97,7 +97,7 @@ __ADVERT_PARAMETERS_LEXICON = {
     'start_rewrite_exists_parameter(exists)': 'Редактирование.\nВведённое значения уже существует на выбранном параметре: {parameter_type}',
 
     'confirmation_rewrite_exists_parameter': {
-        'message_text': 'Вы действительно хотите редактировать значения параметра: {parameter_type}\nС: {parameter_old_value}\nНа: {parameter_new_value} ?',
+        'message_text': '<b>Вы действительно хотите редактировать значения параметра:</b> <i>{parameter_type}</i>\nС: <i>{parameter_old_value}</i>\nНа: <i>{parameter_new_value}</i> ?',
         'buttons': {'confirm_rewrite_existing_advert_parameter': _captions['confirm'],
                     'rewrite_current_advert_parameter': 'Ввести заново',
                     'admin_backward:rewrite_exists_advert_param': _captions['backward'],
@@ -136,7 +136,7 @@ advert_params_class_lexicon_ru = {
         'return_main_menu': 'В меню',
         'width': 2
     }},
-    'rewrite_current_advert_parameter': 'Редактировать',
+    'rewrite_current_advert_parameter': 'Изменить',
     'backward': '◂ Назад ▸',
     'delete': 'Удалить',
     'add': 'Добавить',

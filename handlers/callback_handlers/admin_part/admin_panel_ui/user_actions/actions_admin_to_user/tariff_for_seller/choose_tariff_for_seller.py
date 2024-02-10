@@ -14,13 +14,14 @@ async def choose_tariff_for_seller_by_admin_handler(callback: CallbackQuery, sta
         person_requester_module = importlib.import_module('database.data_requests.person_requests')
         admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
-        lexicon_class = copy(admin_lexicon_module.ChooseTariff)
+        lexicon_class = copy(admin_lexicon_module.ChooseTariff)()
 
         memory_storage = await state.get_data()
         seller_id = memory_storage.get('current_seller_id')
         seller_model = await person_requester_module.PersonRequester.get_user_for_id(user_id=seller_id, seller=True)
         seller_model = seller_model[0]
         seller_name = await get_seller_name(seller_model, get_only_fullname=True)
+        ic(seller_model, seller_name, lexicon_class.message_text, '{name}' in lexicon_class.message_text, lexicon_class.message_text.format(name=seller_name))
         lexicon_class.message_text = lexicon_class.message_text.format(name=seller_name)
         return lexicon_class
 

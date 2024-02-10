@@ -34,7 +34,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
     elif user_status in ('sales', 'purchases'):
         redis_sub_key = f':{user_status}_notification'
     elif user_status == 'close_advert':
-        redis_sub_key = 'close_advert_notification'
+        redis_sub_key = ':close_advert_notification'
     if redis_sub_key:
         notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key)
         if notification_message_id:

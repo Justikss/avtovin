@@ -83,7 +83,7 @@ LEXICON_UZ = {
 'write_phone_number(exists)': '<b>Telefon raqami noto‘g‘ri kiritilgan!</b>\nU allaqachon ro‘yxatdan o‘tgan\nboshqa kutilmoqda',
     'write_phone_number(banned)': 'Ushbu telefon raqami xaridorlar maydonchasida bloklangan\nIltimos, yangi raqam kiriting:',
     # 'most_answers': {'message_text': 'Tez-tez so‘raladigan savollarga javoblar', 'in_main': 'Menyuda', 'width': 1},
-    'main_menu': {'message_text': 'Xaridor menyusi 👨🏻‍💻\nSizning harakatingizni tanlang:',
+    'main_menu': {'message_text': '<b>Xaridor menyusi</b> 👨🏻‍💻\nSizning harakatingizni tanlang:',
                   'buyer_requests': 'Takliflar 📋', 'car_search': '🚘 Avto izlash',
                   'faq': 'Ko‘rsatmalar 💬', 'support': '🌐 Yordam', 'backward:set_language': '◂ Orqaga ▸ ', 'width': 2},
     'buyer_requests': {'message_text': '<b>Takliflar ro‘yxati:</b>',
@@ -168,7 +168,7 @@ LEXICON_UZ = {
 'try_again_seller_registration': {'message_text': 'Xato.\nBatafsil ma’lumot olish uchun ro‘yxatdan o‘tish jarayonini qayta o‘tib chiqing.', 'return_to_start_seller_registration': 'Ro‘yxatdan qayta o‘tish', 'width': 1},
 
 'confirm_seller_profile_notification': {'message_text': '✅ Muaffaqiyatli, sotuvchi profilini tasdiqlandi!',
-'buttons': {'seller_main_menu': 'Sotuvchi menyusiga 👨🏻‍💼', 'close_seller_notification_by_redis:seller': captions_uz['close'], 'width': 1}},
+'buttons': {'seller_main_menu': '<b>Sotuvchi menyusiga</b> 👨🏻‍💼', 'close_seller_notification_by_redis:seller': captions_uz['close'], 'width': 1}},
 
 'seller_main_menu': {'message_text': 'Sotuvchi menyusi 👨🏻‍💼\nHarakatingizni tanlang:', 'seller_pofile': 'Profil 📱', 'seller_requests': '📋 Arizalar', 'support': 'Yordam 🌐', 'faq': '💬 Ko‘rsatmalar', 'backward:set_language': '◂ Orqaga ▸', 'width': 2},
 
@@ -182,41 +182,55 @@ LEXICON_UZ = {
 'success_seller_registration_notice': {'message_text': 'Siz tizimda ro‘yxatdan o‘tdingiz', 'return_main_menu': 'Sotuvchi menyusiga 👨🏻‍💼', 'width': 1},
 
 'seller_faq': {'message_text': '''
-\n<b>Sotish:</b>
-\nSotuvchi ro‘yxatdan o‘tgandan va uni ma’muriyat tomonidan tasdiqlanganidan so‘ng - <b>Javoblarni olish uchun tarifni rasmiylashtirish kerak:
-</b> <i>[Sotuvchi menyusi] - [Profil] - [Tarifni uzaytirish].</i>\n
-<b>O‘z savdo vitrinangizni to‘ldirish mumkin:
-</b> <i>[Sotuvchi menyusi] - [Arizalar] - [Ariza yaratish].</i>
-\n<b>Yaratilgan arizalar quyidagi joyda ko‘rsatiladi:
-</b> <i>[Sotuvchi menyusi] - [Arizalar] - [Mening arizalarim]</i>
-Ularni o‘chirish va narxini o‘zgartirish mumkin.\n
-<b>Foydalanuvchi sizning mahsulotingizga javob yozganda</b> - sizga bot orqali xabar keladi, shuningdek, xaridorning kontaktlari bilan javob:
-<i>[Sotuvchi menyusi] - [Arizalar] - [Mening javoblarim].</i>
-Javoblar ko‘rilgan va yangi - mos ravishda ajratiladi.
-\n<b>Javoblar bo‘limida, ko‘rilgan arizalarga zarurat bo‘lganda quyidagi buyruqlarni qo‘llash mumkin:</b>
-\n<b>Faqat javobni o‘chirish, mahsulotni vitrinada qoldirgan holda</b>: 
-<i>[Ko‘rilgan javoblar] - [Savdo amalga oshmadi],</i>
-\n<b>Mahsulotni javob bilan birga o‘chirish:</b>
-<i>[Ko‘rilgan javoblar] - [Savdodan olib tashlash]</i>
+\n<b>Sotuv:</b>\n
+<b>Ro'yxatdan o'tgandan so'ng siz:
+Tarifni rasmiylashtirishingiz mumkin javoblarni olish uchun:</b>
+<blockquote><i>[Sotuvchi menyusi] - [Profil] - [Tarifni rasmiylashtirish]</i></blockquote>
+
+<b>Avto e'lonini yaratish:</b>
+<blockquote><i>[Sotuvchi menyusi] - [Arizalar] - [E'lon yaratish]</i></blockquote>
+
+<b>Yaratilgan arizalar ko'rsatiladi:</b><blockquote><i>[Sotuvchi menyusi] - [Arizalar] - [Mening e'lonlarim]</i></blockquote>
+
+<b>Mijoz sizning avtongizga javob berganda</b>
+<i>Sizga bot bilan chatda xabar keladi, shuningdek, xaridorning kontaktlari bilan javob bo'limida:</i><blockquote><i>[Sotuvchi menyusi] - [Arizalar] - [Javoblar]</i></blockquote>
+
+<b>Arizalar bilan ishlash.</b>
+<b>Amalga oshmagan bitimni o'chirish:</b>
+<blockquote><i>[Ko'rilgan javoblar] - [Bitim amalga oshmadi]</i></blockquote>
+
+<b>Tovarni o'chirish:</b><i>Javoblar bo'limida:</i>
+<blockquote><i>[Javoblar] - [Sotuvdan olib tashlash]</i></blockquote>
+<i>E'lonlar bo'limida</i>:
+<blockquote><i>[Arizalar] - [Mening e'lonlarim] - [Sotuvdan olib tashlash]</i></blockquote>
 '''
 , 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
 'buyer_faq': {'message_text': '''
 <b>Xarid:</b>
-\nXaridor ro‘yxatdan o‘tgandan so‘ng - sizga yoqadigan avtomobillarga javob yozishingiz mumkin.
-\n<b>Avtomobillarni qidirish</b> bot bilan o‘zaro ta’sir orqali amalga oshiriladi: 
-<i>[Xaridor menyusi] - [Avtomobil qidirish].</i>\n
-Avtomobillarni qidirganda taklif etilgan parametrlardan mos keladiganlarini tanlashingiz kerak, natijada sizning so‘ro
-vingiz bo‘yicha avtomobillar ro‘yxatini olasiz.
-\n<b>Ko‘rib chiqilgan, lekin sizning tasdiqlashingizsiz qolgan tovarlar quyidagi bo‘limda joylashadi:</b>
-<i>[Xaridorlar menyusi] - [Takliflar] - [Tasdiqlanmaganlar].</i>
-Ular sizning javobingizgacha yoki birinchi ko‘rishdan keyin 7 kun o‘tganidan keyin qoladi.
 
-<b>Avto'lar bo‘yicha tavsiyalar</b> sotuvchilarning yangi joylashuvidan keyin paydo bo‘ladi, quyidagi bo‘limda:
-<i>[Xaridorlar menyusi] - [Takliflar] - [Tavsiyalar],</i>
-siz oldin ko‘rgan avtomobillarning tarixiga asoslanadi.
+<b>Siz bizning telegram botimizda xohlagan avtomobilingizni sotib olishingiz mumkin</b>
 
-<b>Sizning javoblaringiz</b> sotuvchining sizning javobingizni ko‘rish holati bilan birga kontaktlar va holatni ko‘rsatadi:
-<i>[Xaridorlar menyusi] - [Takliflar] - [Tasdiqlanganlar].</i>
+<b>Sizga mos keladigan avtomobillarga javob bering.</b>
+<i>Avtomashinalarni qidirish bot bilan amalga oshiriladigan harakatlar zanjiri orqali sodir bo'ladi:</i>
+<blockquote><i>[Xaridor menyusi] - [Avtomobil qidirish]</i></blockquote>
+<i>Avtomobillarni qidirishda siz so'rov bo'yicha ro'yxat olish uchun avtomobilning xohlagan parametrlarini ko'rsatishingiz mumkin</i>
+
+<b>Avtomobil tavsiyalari paydo bo'ladi:</b>
+<i>Sotuvchi siz tanlagan avtomobil parametrlarini yuklaganidan so'ng</i>
+<blockquote><i>[Xaridor menyusi] - [Takliflar] - [Tavsiyalar]</i></blockquote>
+<i>Shuningdek, avval ko'rilgan avtomobil tarixiga asoslanib.</i>
+
+<b>Tasdiqlanmagan e'lonlar:
+Bo'lim o'tadi:</b>
+<blockquote><i>[Xaridor menyusi] - [Takliflar] - [Tasdiqlanmagan]</i></blockquote>
+<i>E'lonlar u yerda qoladi:
+• Sizning tomoningizdan javob berilgunga qadar
+• Birinchi ko'rishdan 7 kun o'tgach.</i>
+
+<b>Sizning javoblaringiz ko'rsatiladi:
+Sotuvchidan javob ko'rish holati va kontaktlar bilan:</b>
+<blockquote><i>[Xaridor menyusi] - [Takliflar] - [Tasdiqlangan]</i></blockquote>
+
 ''', 'faq': '◂ Orqaga ▸', 'return_main_menu': '🏡 Menyuga 🏡', 'width': 1},
 
 'seller_requests': {'message_text': '<b>Arizalar bilan ishlash bo‘limi</b>\nHarakatingizni tanlang:', 'create_new_seller_request': '📨 E’lon yaratish', 'my_sell_requests': '💰 Mening e’lonlarim', 'my_sell_feedbacks': '🔸 Javoblar', 'return_main_menu': 'Menyuga', 'width': 1},
@@ -316,7 +330,7 @@ lexicon_uz = {
     'seller_does_have_active_requests_alert': 'Sizda faol so‘rovlaringiz yo‘q',
     'seller_does_have_active_car_by_brand': 'Bu marka dolzarb emas.',
     'matched_advert': 'Sizning katalogingizda allaqachon shu kabi e‘lon mavjud, qayta joylashtira olmaysiz!',
-    'select_brand_message_text': 'Avtomobil markasini tanlang',
+    'select_brand_message_text': '<b>Avtomobil markasini tanlang</b>',
     'input_new_price': 'Yangi narxni kiriting.\nHozirgi narx: {current_price}',
     'input_new_price_incorrect_message_text': f'<b>Iltimos, bitta raqamni kiriting, uzunligi {max_price_len} tagacha.</b>',
     'input_new_price_car_dont_exists': 'Afsuski, avtomobil savdodan olingan.',
@@ -346,13 +360,13 @@ Rang: <i>{color}</i></blockquote>
     'did_you_sure_to_delete_feedback_ask': 'Murojaatni o‘chirishga ishonchingiz komilmi №{feedback_number} ?',
     'success_delete': 'O‘chirildi',
     'profile_header': '<b>Sotuvchi profili</b>\n\n',
-    'dealership_prefix': 'Yuridik shaxs 🤵🏻‍♂️',
-    'seller_prefix': 'Jismoniy shaxs 👨🏻‍💼\n',
-    'dealership_name_prefix': 'Avtosalon nomi: <i>{dealership_name}</i>',
-    'dealership_address_prefix': 'Avtosalon manzili: <i>{dealership_address}</i>',
-    'seller_name_prefix': 'Sizning ismingiz: <i>{seller_name}</i>',
-    'phonenumber_prefix': 'Telefon raqami: {phone_number}',
-    'tariff_block': '<blockquote>💰 Tarif: <i>{tariff_name}</i>\n🕰 Obuna tugashiga qadar: <i>{days_remaining} Kun</i>\n🔸 Murojaatlar: <i>{feedbacks_remaining}</i></blockquote>',
+    'dealership_prefix': '<b>Yuridik shaxs</b> 🤵🏻‍♂️',
+    'seller_prefix': '<b>Jismoniy shaxs</b> 👨🏻‍💼\n',
+    'dealership_name_prefix': '<b>Avtosalon nomi:</b> <i>{dealership_name}</i>',
+    'dealership_address_prefix': '<b>Avtosalon manzili:</b> <i>{dealership_address}</i>',
+    'seller_name_prefix': '<b>Sizning ismingiz:</b> <i>{seller_name}</i>',
+    'phonenumber_prefix': '<b>Telefon raqami:</b> {phone_number}',
+    'tariff_block': '<blockquote>💰 Tarif: <i>{tariff_name}</i>\n🕰 Obuna tugashiga qadar: <i>{days_remaining} Kun</i>\n🔸 Murojaatlar: <i>{feedbacks_remaining}</i>{simultaneous_announcements_caption}{cost_caption}</blockquote>',
     'tariff_out_date_prefix': '<blockquote>🕰 Obuna tugashiga qadar: <i>{days_remaining} Kun</i></blockquote>',
     'residual_feedback_prefix': '<blockquote>🔸 Qolgan murojaatlar: <i>{feedbacks_remaining}</i></blockquote>',
     'tariff_expired': 'Sizning tarifingiz tugagan',

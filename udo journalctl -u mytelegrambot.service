@@ -1,0 +1,12 @@
+[0;1;31m×[0m mytelegrambot.service - Интернет магазин Telegram Bot
+     Loaded: loaded (/etc/systemd/system/mytelegrambot.service; enabled; vendor preset: enabled)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Thu 2024-02-08 17:37:30 UTC; 4s ago
+    Process: 28779 ExecStart=/home/user/telegram_bot/myenv/bin/python /home/user/telegram_bot/bot.py [0;1;31m(code=exited, status=2)[0m
+   Main PID: 28779 (code=exited, status=2)
+        CPU: 25ms
+
+Feb 08 17:37:30 vbwlywhxjl systemd[1]: mytelegrambot.service: Scheduled restart job, restart counter is at 5.
+Feb 08 17:37:30 vbwlywhxjl systemd[1]: Stopped Интернет магазин Telegram Bot.
+Feb 08 17:37:30 vbwlywhxjl systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mmytelegrambot.service: Start request repeated too quickly.[0m
+Feb 08 17:37:30 vbwlywhxjl systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mmytelegrambot.service: Failed with result 'exit-code'.[0m
+Feb 08 17:37:30 vbwlywhxjl systemd[1]: [0;1;31m[0;1;39m[0;1;31mFailed to start Интернет магазин Telegram Bot.[0m

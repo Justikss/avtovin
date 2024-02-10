@@ -18,7 +18,7 @@ async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False
     ic(seller_model.dealship_name, seller_model.dealship_address)
     if seller_model.dealship_name:
         name = f'''{lexicon_module.LexiconSellerProfile.dealership_prefix}\n{lexicon_module.LexiconSellerProfile.dealership_name_prefix.format(dealership_name=seller_model.dealship_name)}'''
-        address = f'''{lexicon_module.LexiconSellerProfile.dealership_address_prefix.format(dealership_address=seller_model.dealship_address)}'''
+        address = f'''{lexicon_module.LexiconSellerProfile.dealership_address_prefix.format(dealership_address=f'<b>{seller_model.dealship_address}</b>')}'''
         if get_only_fullname:
             return seller_model.dealship_name
         else:
@@ -32,7 +32,7 @@ async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False
 
         fullname = f'{seller_model.surname} {seller_model.name} {patronymic}'
         if for_admin:
-            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{admin_lexicon_module.captions['surname_name_patronymic']}{fullname}'''
+            name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}<b>{admin_lexicon_module.captions['surname_name_patronymic']}</b>{fullname}'''
         else:
             name = f'''{lexicon_module.LexiconSellerProfile.seller_prefix}{lexicon_module.LexiconSellerProfile.seller_name_prefix.format(seller_name=fullname)}'''
         if get_only_fullname:
@@ -54,6 +54,7 @@ async def get_residual_simultaneous_announcements(tariff_to_seller: TariffsToSel
     max_simultaneous_announcements = tariff_to_seller.tariff.simultaneous_announcements
     result = max_simultaneous_announcements - user_adverts_count
     result = result if result >= 0 else 0
+    result = str(result)
     return result
 
 
@@ -87,9 +88,11 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
     else:
         seller_data = f'{seller_data}'
     ic(seller_data)
-    output_string = f'''{lexicon_module.LexiconSellerProfile.header}{seller_data}\n{lexicon_module.LexiconSellerProfile.phonenumber_prefix.format(phone_number=seller_model.phone_number)}'''
+    output_string = f'''{lexicon_module.LexiconSellerProfile.header}<blockquote>{seller_data}\n────────\n{'{tariff}'}{lexicon_module.LexiconSellerProfile.phonenumber_prefix.format(
+        phone_number=seller_model.phone_number)}</blockquote>'''
 
     if get_part == 'top':
+        output_string = output_string.format(tariff='')
         return output_string, seller_entity
     elif get_part == 'bottom':
         ic()
@@ -101,31 +104,45 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
 
     seller_tariff_model = await tariff_to_seller_binder_module.TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
     dying_tariff = await dying_tariff_module.DyingTariffRequester.get_model_by_user_id(user_id)
-    ic(seller_tariff_model)
+    ic(seller_tariff_model, dying_tariff, seller_tariff_model.end_date_time < datetime.now(), get_part)
+    tariff_string = ''
+    lexicon_class = copy(lexicon_module.LexiconSellerProfile)
+
+    if isinstance(seller_tariff_model, list):
+        seller_tariff_model = seller_tariff_model[0]
+
+
 
     if seller_tariff_model and not dying_tariff:
-        lexicon_class = copy(lexicon_module.LexiconSellerProfile)
-        if isinstance(seller_tariff_model, list):
-            seller_tariff_model = seller_tariff_model[0]
+        ic(seller_tariff_model.tariff.simultaneous_announcements)
+        ic(await get_residual_simultaneous_announcements(seller_tariff_model))
+        sellers_feedbacks = seller_tariff_model.residual_feedback
+        # output_string += f'\n{lexicon_class.sep}'
+        days_to_end = seller_tariff_model.end_date_time - datetime.now()
+        tariff_string = copy(lexicon_class.tariff_block.format(
+            simultaneous_announcements_caption=lexicon_class.simultaneous_announcements_caption.format(
+                await get_residual_simultaneous_announcements(seller_tariff_model))\
+                if seller_tariff_model.tariff.simultaneous_announcements else '',
+            tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
+            feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_class.infinity_feedbacks_caption,
+            cost_caption=''))
+        tariff_exists = True
+    elif dying_tariff and seller_tariff_model:
         if seller_tariff_model.end_date_time < datetime.now():
-            output_string += f'\n\n{lexicon_class.tarif_expired}'
-        else:
-            sellers_feedbacks = seller_tariff_model.residual_feedback
-            output_string += f'\n{lexicon_class.sep}'
-            days_to_end = seller_tariff_model.end_date_time - datetime.now()
-            output_string += copy(lexicon_class.tariff_block.format(
-                simultaneous_announcements_caption=lexicon_class.simultaneous_announcements_caption.format(
-                    await get_residual_simultaneous_announcements(seller_tariff_model))\
-                    if seller_tariff_model.tariff.simultaneous_announcements else '',
-                tariff_name=seller_tariff_model.tariff.name, days_remaining=days_to_end.days,
-                feedbacks_remaining=sellers_feedbacks if sellers_feedbacks < 999999 else lexicon_class.infinity_feedbacks_caption,
-                cost_caption=''))
-            tariff_exists = True
-        ic(output_string)
+            tariff_string = f'<b>{lexicon_class.tarif_expired}</b>'
+            tariff_exists = False
+
+    ic(output_string)
+    tariff_string += '\n────────\n'
+    output_string = output_string.format(tariff=tariff_string
+                                         .replace('</blockquote>', '')
+                                         .replace('<blockquote>', ''))
+
+    
     if not get_part:
         return output_string
     elif get_part == 'bottom':
-        return output_string, tariff_exists
+        return tariff_string, tariff_exists
 
 
 async def output_seller_profile(callback: CallbackQuery):

@@ -7,8 +7,8 @@ from peewee_async import PooledPostgresqlDatabase, Manager
 from database.triggers import create_trigger_unique_phone_number
 
 database = PooledPostgresqlDatabase(
-    'postgres',
-    user='postgres',
+    'avtovindb',
+    user='avtovin',
     password='red12red1212',
     host='localhost',
     port=5432

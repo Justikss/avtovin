@@ -16,8 +16,8 @@ class DyingTariffRequester:
     async def get_model_by_user_id(telegram_id):
         if not isinstance(telegram_id, int):
             telegram_id = int(telegram_id)
-        dying_tariff = await manager.execute(DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == telegram_id))
-        return dying_tariff
+        dying_tariff = list(await manager.execute(DyingTariffs.select().join(TariffsToSellers).join(Seller).where(Seller.telegram_id == telegram_id)))
+        return dying_tariff[0] if dying_tariff else False
 
     @staticmethod
     async def dying_tariff_handler(seller, bot):

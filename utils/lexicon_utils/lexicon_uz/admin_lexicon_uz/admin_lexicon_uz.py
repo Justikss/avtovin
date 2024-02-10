@@ -65,7 +65,7 @@ Har qanday adminlarga mavjud buyruqlar:
     'tariff_was_successfully_removed': 'Tarif muvaffaqiyatli o‘chirildi!',
     'tariff_was_inactive': 'Ushbu tarif faol emas edi!',
     'successfully_edit_action': 'Muvaffaqiyatli tahrirlandi!',
-'incorrect_input_block_reason': f'''Sizning sababingiz {block_user_reason_text_len['min']} dan {block_user_reason_text_len['max']} gacha belgilarni o‘z ichiga olishi kerak, jumladan!\nHozirgi uzunlik (bo‘sh joylarsiz):\n''',
+'incorrect_input_block_reason': f'''<b>Sizning sababingiz {block_user_reason_text_len['min']} dan {block_user_reason_text_len['max']} gacha belgilarni o‘z ichiga olishi kerak, jumladan!</b>\nHozirgi uzunlik (bo‘sh joylarsiz):\n''',
 
 'start_admin_panel': {'message_text': '<b>Admin paneliga xush kelibsiz.</b>\nHarakatingizni tanlang:',
                       'buttons': {'admin_button_bot_statistics': 'Statistika 📈', 'admin_button_users': '👨🏻‍💻 Foydalanuvchilar',

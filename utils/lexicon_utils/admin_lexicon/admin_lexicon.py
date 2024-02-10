@@ -72,7 +72,7 @@ __ADMIN_LEXICON = {
     'tariff_was_successfully_removed': 'Тариф успешно удалён!',
     'tariff_was_inactive': 'Данный тариф оказался неактивен!',
     'successfully_edit_action': 'Успешно редактировано!',
-    'incorrect_input_block_reason': f'''Ваша причина должна содержать от {config_module.block_user_reason_text_len['min']} до {config_module.block_user_reason_text_len['max']} символов, включительно!\nТекущая длина (без учёта пробелов):\n''',
+    'incorrect_input_block_reason': f'''<b>Ваша причина должна содержать от {config_module.block_user_reason_text_len['min']} до {config_module.block_user_reason_text_len['max']} символов, включительно!</b>\nТекущая длина (без учёта пробелов):\n''',
 
     'start_admin_panel': {'message_text': '<b>Добро пожаловать в админ панель.</b>\nВыберите ваше действие:',
                           'buttons': {'admin_button_bot_statistics': 'Статистика 📈', 'admin_button_users': '👨🏻‍💻 Пользователи',
@@ -273,7 +273,7 @@ class SelectTariff:#(SmartGetattr):
                                                                             }
                              }
 
-class ChooseTariff(SmartGetattr):
+class ChooseTariff:#(SmartGetattr):
     def __init__(self):
         super().__init__()
 
@@ -338,7 +338,7 @@ class NaturalList(SellerList):
 # NaturalList = NaturalList()
 TariffNonExistsPlug = TariffNonExistsPlug()
 AllTariffsOutput = AllTariffsOutput()
-ChooseTariff = ChooseTariff()
+# ChooseTariff = ChooseTariff()
 
 class DealershipList(SellerList):
     def __init__(self, seller_status):

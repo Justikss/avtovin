@@ -25,8 +25,11 @@ async def try_get_free_tariff(callback, normal_status=False):
         ic(seller_model)
         if seller_model:
             seller_model = seller_model[0]
-            ic(seller_model.data_registration < datetime(2024, 5, 1).date())
-            if seller_model.data_registration < datetime(2024, 5, 1).date():
+            datefield = seller_model.data_registration#str(seller_model.data_registration).strftime('2024-09-02', '%Y-%m-%d').date()
+            free_tariff_max_date = datetime(2024, 5, 1).date()
+            ic(datefield < free_tariff_max_date)
+            ic(datefield, free_tariff_max_date)
+            if datefield < free_tariff_max_date:
                 tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
 
                 seller_entity = seller_model.entity

@@ -1,6 +1,8 @@
+import codecs
+import json
 import logging
 import httpx
-
+import chardet
 
 import httpx
 
@@ -10,7 +12,21 @@ class ParseTranslator:
     async def has_english_char(self, text):
         return any('A' <= char <= 'Z' or 'a' <= char <= 'z'  for char in text)
 
-
+    async def multi_decode_async(self, response):
+        text = response.text
+        result = chardet.detect(text.encode())
+        detected_encoding = result['encoding']
+        confidence = result['confidence']
+        return detected_encoding, confidence
+        # encodings = ['utf-8', 'latin-1', 'windows-1251', 'iso-8859-1']
+        # for encoding in encodings:
+        #
+        #     try:
+        #         decoded_text = response.content.decode(encoding)
+        #         return decoded_text
+        #     except UnicodeDecodeError:
+        #         continue
+        # return None
 
     async def translate(self, text, subkey, from_lang='ru', to_lang='uz', maybe_sorse_uz=False, last_tries=3):
         if not text:
@@ -36,18 +52,42 @@ class ParseTranslator:
             "Sec-Fetch-Site": "same-origin",
             "Sec-Gpc": "1",
             "Accept": "*/*",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "ru-RU,ru;q=0.7"
+            # "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "ru-RU,ru;q=0.7",
+           'Accept-Encoding': 'identity'
         }
 
         if await self.has_english_char(text) and ((not maybe_sorse_uz) and from_lang == 'ru'):
             logging.debug('TRANSLATE: %s has english char', text)
             return {f'_{subkey}': text}
-
+        ic(params, headers)
         response = await async_client.get(url, params=params, headers=headers)
         status_code = response.status_code
         if status_code == 200:
-            response_data = response.json()
+            response_text = response.content.decode('utf-8')
+            print('0|||||| ', response_text)
+
+            ic((not response_text.startswith("{")) and ('{' in response_text))
+            if (not response_text.startswith("{")) and ('{' in response_text):
+                response_text = response_text[response_text.index('{'):response_text.rindex('}')+1].strip()
+                ic(type(response_text))
+
+                # response_data = eval(response_text)
+            # else:
+            print('1|||||| ', response_text)
+            ic(response_text)
+            print('1|||||| ', response.headers)
+
+            # try:
+            response_data = json.loads(response_text)
+            # except json.JSONDecodeError:
+            #     response_text = await self.multi_decode_async(response)
+            #     ic(response_text)
+            #     response_data = json.loads(response_text)
+
+
+                # response_data = response.json()
+
             logging.debug('FIRST TRANSLATE: response_data: %s', response.text)
             good_text = response_data.get('text')
             logging.debug('FIRST TRANSLATE: Good text: %s', good_text)
