@@ -5,6 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from typing import Union
 
+from handlers.callback_handlers.sell_part.seller_main_menu import try_get_free_tariff
+
 
 async def seller_are_registrated_notification(callback: CallbackQuery):
     '''Метод уведомляющий продавца о подтверждении его регистрации'''
@@ -103,6 +105,7 @@ async def load_seller_in_database(request: Union[CallbackQuery, Message], state:
         ic(formatted_load_pattern)
     try_load = await person_requester_module.PersonRequester.store_data(formatted_load_pattern, seller=True)
     if not (isinstance(try_load, tuple) and len(try_load) == 2):
+        await try_get_free_tariff(request, normal_status=True)
         return True
     else:
         logging.error(f'Продавцу на удалось зарегестрироваться с такими данными в методе "load_seller_in_database": {load_seller_in_database}\nС ошибкой:\b{try_load[1]}')

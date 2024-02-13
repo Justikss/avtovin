@@ -4,6 +4,7 @@ import importlib
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.storage.redis import Redis, RedisStorage
+from aiogram.types import Message
 
 from icecream import ic
 
@@ -213,6 +214,10 @@ async def start_bot():
     asyncio.create_task(GetDealershipAddress.process_queue())
 
     dp.update.outer_middleware(UpdateThrottlingMiddleware())
+
+    # @dp.message()
+    # async def re(message: Message):
+    #     await message.answer(str(message.chat.id))
 
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))

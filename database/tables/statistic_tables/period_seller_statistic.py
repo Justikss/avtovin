@@ -28,8 +28,8 @@ async def calculate_stats(period, seller_id=None):
 
     sql_query_base = f"""
         SELECT
-            (SELECT COUNT(*) FROM CarAdvert {seller_condition} AND post_datetime >= {period_start_condition}) AS advert_count,
-            (SELECT COUNT(*) FROM SellerFeedbacksHistory {seller_condition} AND feedback_time >= {period_start_condition}) AS feedback_count
+            (SELECT COUNT(*) FROM CarAdvert {seller_condition} {f'AND post_datetime >= {period_start_condition}' if period_start else ''}) AS advert_count,
+            (SELECT COUNT(*) FROM SellerFeedbacksHistory {seller_condition} {f'AND feedback_time >= {period_start_condition}' if period_start else ''}) AS feedback_count
     """
 
     # Дополнительная часть SQL запроса для случая, когда seller_id не задан

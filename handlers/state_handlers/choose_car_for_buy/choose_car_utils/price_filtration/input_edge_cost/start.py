@@ -11,7 +11,6 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
 class StartInputCarPriceFilterStartInputHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         await self.set_state(state, BuyerSearchCostFilterStates.awaited_input)
-
         self.output_methods = [
             self.menu_manager.travel_editor(
                 lexicon_part=await self.construct_lexicon_part(request, state, kwargs.get('incorrect')),

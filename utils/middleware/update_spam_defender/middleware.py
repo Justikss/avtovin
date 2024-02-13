@@ -35,6 +35,12 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
         self.long_term_block_duration = long_term_spam_block_time  # Длительное время блокировки
         self.locks = {}
 
+        self.callback_spam_handler = CallbackSpamDefender()
+        self.message_spam_defender = MessageSpamDefender()
+        self.language_handler = LanguageMiddlewareModule()
+        self.cleaner_module = CleanerModule()
+        self.error_handler = ErrorHandler()
+
     async def __call__(
             self,
             handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
@@ -57,10 +63,10 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
             if any((message.photo, message.video, message.audio, message.document)):
                 return await handler(event, data)
             bot = message.bot
-            success_filtration = await MessageSpamDefender()(message)
+            success_filtration = await self.message_spam_defender(message)
         elif callback:
             bot = event.callback_query.bot
-            success_filtration = await CallbackSpamDefender()(callback, bot)
+            success_filtration = await self.callback_spam_handler(callback, bot)
 
         if not success_filtration:
             return
@@ -85,9 +91,9 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
         async with lock:
             # Обработка апдейта, если блокировка свободна
             header_controller_module = importlib.import_module('handlers.default_handlers.start')
-            await LanguageMiddlewareModule()(request)
+            await self.language_handler(request)
 
-            await CleanerModule()(request)
+            await self.cleaner_module(request)
             await asyncio.sleep(anti_spam_duration)
             if await self.chat_header_controller_support(request):
                 await asyncio.sleep(anti_spam_duration)
@@ -97,9 +103,9 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
             try:
                 return await handler(event, data)
             except TelegramForbiddenError as exception:
-                await ErrorHandler()(request, exception)
+                await self.error_handler(request, exception)
             except Exception as exception:
-                await ErrorHandler().logging_exception(exception, request)
+                await self.error_handler.logging_exception(exception, request)
                 pass
 
     async def chat_header_controller_support(self, event):

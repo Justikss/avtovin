@@ -12,16 +12,18 @@ from utils.user_registartion_notificator import user_dont_registrated
 
 
 
-async def try_get_free_tariff(callback, normal_status=False):
+async def try_get_free_tariff(callback, normal_status=False, user_id=False):
     tariff_to_seller_requests_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
 
+    if not user_id:
+        user_id = callback.from_user.id
 
-    seller_bind_exists = await tariff_to_seller_requests_module.TariffToSellerBinder.get_by_seller_id(seller_id=callback.from_user.id)
+    seller_bind_exists = await tariff_to_seller_requests_module.TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
     ic(seller_bind_exists)
     if not seller_bind_exists:
         person_requests_module = importlib.import_module('database.data_requests.person_requests')
 
-        seller_model = await person_requests_module.PersonRequester.get_user_for_id(callback.from_user.id, seller=True)
+        seller_model = await person_requests_module.PersonRequester.get_user_for_id(user_id, seller=True)
         ic(seller_model)
         if seller_model:
             seller_model = seller_model[0]
@@ -43,7 +45,7 @@ async def try_get_free_tariff(callback, normal_status=False):
                             if seller_entity == 'legal' \
                             else f'{seller_model.surname} {seller_model.name} {seller_model.patronymic}')
                     return
-                boot_data = {'seller': str(callback.from_user.id),
+                boot_data = {'seller': str(user_id),
                         'tariff': tariff
                         }
                 if not normal_status:
@@ -55,7 +57,6 @@ async def try_get_free_tariff(callback, normal_status=False):
 
 
 async def seller_main_menu(callback: CallbackQuery, bot=None):
-    await try_get_free_tariff(callback, normal_status=True)
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_data = importlib.import_module('utils.redis_for_language')
 

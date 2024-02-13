@@ -90,7 +90,7 @@ class BannedRequester:
 
         # if not banned_user:
         #     banned_user = 'no'
-        ic(banned_user, user.__dict__)
+        # ic(banned_user, user.__dict__)
         return banned_user
 
     @staticmethod
@@ -133,9 +133,12 @@ class BannedRequester:
 
             update_query = (current_table.update(is_banned=True, ban_reason=reason, block_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))
                             .where(current_table.telegram_id == telegram_id))
-            result = await manager.execute(update_query)
+            await manager.execute(update_query)
+            from database.data_requests.person_requests import PersonRequester
+            await PersonRequester.remove_user_history(telegram_id, seller=seller, user=user)
             return user_model
         except:
+            traceback.print_exc()
             raise UserNonExistsError()
 
     @cache_user_status.user_status_cache_update_decorator(model='ban')

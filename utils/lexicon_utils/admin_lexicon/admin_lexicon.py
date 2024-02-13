@@ -67,6 +67,10 @@ __ADMIN_LEXICON = {
 /alist - <i>Список админов</i>''', 'buttons': {'return_main_menu': 'В меню', 'width': 1}
 
         },
+    'fullname_caption': 'ФИО',
+    'dealership_name_caption': 'название',
+    'user_entity_caption': 'пользователя',
+    'dealership_entity_caption': 'автосалона',
     'user_id_not_found': 'Пользователь не был найден. Возможно он никогда не регистрировался в боте.',
     'close_admin_list': 'В меню',
     'admin_list_header': 'Администраторы:\nUsername   Красный статус',
@@ -137,13 +141,13 @@ __ADMIN_LEXICON = {
         'message_text': 'ВНИМАНИЕ!\nВаше отношения к {activity} в нашем боте заблокировано навсегда по причине: {reason}',
     'buttons': {'close_ban_notification': _captions['close'], 'width': 1}},
 
-    'input_name_to_search_process': {'message_text': '<b>Введите ФИО желаемого {block_state} пользователя:</b>',
+    'input_name_to_search_process': {'message_text': '<b>Введите {name_caption} желаемого {block_state} {user_entity}:</b>',
                                      'buttons': {'admin_backward:input_name_to_search': _captions['backward'],
                                                  'width': 1}},
 
     'input_name_to_search_process(novalid)': f'''<b>Некорректный ввод ФИО!</b>\nИмя {'{block_state}'} пользователя должно содержать 2-3 слова в формате "ФИО" и содержать в себе не более {config_module.max_contact_info_len} букв.''',
     'input_name_to_search_process(novalid)dealership': f'<b>Некорректный ввод!</b>\nНазвание автосалона должно быть длинной менее {config_module.max_contact_info_len} символов\nИ состоять только из букв и цифр: ',
-    'input_name_to_search_process(non_exists)': '<b>{block_state} пользователя с таким ФИО - не найдено</b>',
+    'input_name_to_search_process(non_exists)': '<b>{block_state} пользователя с таким именем - не найдено</b>',
 
     'add_tariff_sub_text': '<b>Добавление тарифа</b>\n',
     'rewrite_tariff_sub_text': '<b>Редактирование тарифа</b>\n',
@@ -191,6 +195,7 @@ captions = safe_dict_module.SafeDict({'ru': _captions,
                      'uz': admin_lexicon_uz_module.captions_uz})
 
 admin_class_mini_lexicon_ru = {
+    'search_by_dealership_name_caption': 'Поиск по названию',
     'tariff_non_exists_plug_name': 'Тарифов не найдено',
     'all_tariffs_output_message_text': '<b>Список тарифов:</b>',
     'ban_user_input_reason_dealership': 'автосалона {name}',
@@ -332,6 +337,7 @@ class UserList:#(SmartGetattr):
         #super().__init__()
 
         self.buttons_callback_data = 'user_select_action:'
+
         self.search_by_name_button_caption = admin_class_mini_lexicon['search_by_name']
         self.search_by_name_callback_data_startswith = 'from_admin_search_by_name'
         self.backward_command = {'admin_backward:user_list_to_admin': captions['backward'],
@@ -365,5 +371,6 @@ class DealershipList(SellerList):
         self.message_text = admin_class_mini_lexicon['dealership_list_message_text'].format(block_status=block_status)
         self.message_text = NaturalList.message_text if seller_status == 'natural' \
             else self.message_text
+        self.last_buttons = {f'{self.search_by_name_callback_data_startswith}{seller_status}': admin_class_mini_lexicon['search_by_dealership_name_caption']}
 
 

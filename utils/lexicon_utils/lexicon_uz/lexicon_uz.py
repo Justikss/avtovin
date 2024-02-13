@@ -80,7 +80,7 @@ LEXICON_UZ = {
 'user_in_system': {'message_text': 'Siz tizimdasiz'},
 'choose_language': {'message_text': 'Tilingizni tanlang\nВыберите ваш язык', 'language_uz': '🇺🇿 Uzb',
 'language_ru': "🇷🇺 Rus", 'width': 2},
-'hello_text': {'message_text': '<b>Salom <i>{user_name}</i></b>!\nBizda siz o‘z avtoulovingizni sotishingiz yoki xarid qilishingiz mumkin.\nQuyidagilardan birini tanlang 👇🏼', 'start_sell': 'Sotish 👨🏻‍💼',
+'hello_text': {'message_text': "<b>Salom <i>{user_name}</i></b>!\nBizning ilovamizda siz o'z avtomobilingizni sotishingiz yoki xarid qilishingiz mumkin.\nQuyidagilardan birini tanlang 👇🏼", 'start_sell': 'Sotish 👨🏻‍💼',
 'start_buy': '👨🏻‍💻 Xarid qilish', 'width': 2},
 'write_full_name': {'message_text': 'FIOingizni kiriting', 'backward:user_registration': '◂ Orqaga ▸', 'width': 1},
 'write_full_name(exists)': 'Bu ism allaqachon ro‘yxatdan o‘tgan\nboshqa kutilmoqda',

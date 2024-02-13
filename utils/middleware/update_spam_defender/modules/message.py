@@ -4,12 +4,10 @@ from copy import copy
 from datetime import datetime, timedelta
 
 from aiogram import Bot
-from aiogram.dispatcher.event.handler import HandlerObject
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.filters import BaseFilter
-from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from config_data.config import spam_block_time, message_answer_awaited, anti_spam_duration, long_term_spam_block_time
+
+from config_data.config import spam_block_time, anti_spam_duration, long_term_spam_block_time
 
 # Глобальные переменные
 global_locks = {}

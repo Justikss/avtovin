@@ -105,14 +105,12 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
 
     seller_tariff_model = await tariff_to_seller_binder_module.TariffToSellerBinder.get_by_seller_id(seller_id=user_id)
     dying_tariff = await dying_tariff_module.DyingTariffRequester.get_model_by_user_id(user_id)
-    ic(seller_tariff_model, dying_tariff, seller_tariff_model.end_date_time < datetime.now(), get_part)
+    # ic(seller_tariff_model, dying_tariff, seller_tariff_model.end_date_time < datetime.now(), get_part)
     tariff_string = ''
     lexicon_class = copy(lexicon_module.LexiconSellerProfile)
 
     if isinstance(seller_tariff_model, list):
         seller_tariff_model = seller_tariff_model[0]
-
-
 
     if seller_tariff_model and not dying_tariff:
         ic(seller_tariff_model.tariff.simultaneous_announcements)
@@ -134,7 +132,8 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
             tariff_exists = False
 
     ic(output_string)
-    tariff_string += '\n────────\n'
+    if tariff_string:
+        tariff_string += '\n────────\n'
     output_string = output_string.format(tariff=tariff_string
                                          .replace('</blockquote>', '')
                                          .replace('<blockquote>', ''))

@@ -129,14 +129,14 @@ Har qanday adminlarga mavjud buyruqlar:
 'user_ban_notification': {
     'message_text': 'DIQQAT!\nSizning {activity} botimizdagi faoliyatingiz quyidagi sababga ko‘ra abadiy bloklangan: {reason}',
 'buttons': {'close_ban_notification': captions_uz['close'], 'width': 1}},
-    'input_name_to_search_process':  {'message_text': "<b>{block_state} foydalanuvchining to'liq ismini kiriting :</b>",
+    'input_name_to_search_process':  {'message_text': "<b>{block_state} foydalanuvchining to'liq ismini kiriting:</b>",
                                      'buttons': {'admin_backward:input_name_to_search': captions_uz['backward'],
                                                  'width': 1}},
 
     'input_name_to_search_process(novalid)': f'''<b>Noto'g'ri kirish FIO!</b>\nIsm {'{block_state}'} foydalanuvchi ikki uch so'z shaklida "FIO" bo'lishi kerak va o'z ichiga {max_contact_info_len} harfdan ortiq bo'lmagan bo'lishi kerak.'''
 ,
     'input_name_to_search_process(novalid)dealership': f'<b>Noto‘g‘ri kiritish!</b>\nAvtosalon nomi {max_contact_info_len} belgidan kam bo‘lishi kerak\nva faqat harflar va raqamlardan iborat bo‘lishi kerak: ',
-    'input_name_to_search_process(non_exists)': '<b>{block_state} foydalanuvchi ushbu FIO bilan - topilmadi</b>',
+    'input_name_to_search_process(non_exists)': '<b>Ushbu nomdagi {block_state} foydalanuvchi topilmadi</b>',
 
     'rewrite_tariff_sub_text': '<b>Tarifni tahrirlash</b>\n',
     'add_tariff_sub_text': "<b>Tarif qo'shish</b>\n",
@@ -185,6 +185,7 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             }
 
 admin_class_mini_lexicon_uz = {
+    'search_by_dealership_name_caption': "Ism bo'yicha qidirish",
     'tariff_non_exists_plug_name': 'Tariflar topilmadi',
     'all_tariffs_output_message_text': '<b>Tariflar ro‘yxati:</b>',
     'ban_user_input_reason_dealership': 'avtosalon {name}',

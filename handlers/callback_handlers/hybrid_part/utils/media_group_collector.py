@@ -6,7 +6,8 @@ import os
 import httpx
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, InputMediaPhoto
+from aiogram.types import Message, InputMediaPhoto, FSInputFile
+from httpx import ConnectError
 
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
@@ -124,11 +125,18 @@ async def handle_user_input_photos(album_id, message, state):
         data = {"photo_list": photo_urls}
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=data)
+            try:
+                response = await client.post(url, json=data)
+            except ConnectError:
+                logging.critical(f"Ошибка ConnectError запроса на добавление вотермарки фотографии\nInputted urls: %s"
+                                 f"сервер сервиса выключен.",
+                                 str(photo_urls))
+                return False
             if response.status_code == 200:
                 return response.json()
             else:
-                logging.critical(f"Ошибка запроса на добавление вотермарки фотографии: %d\nInputted urls: %s",
+                logging.critical(f"Ошибка запроса на добавление вотермарки фотографии\nInputted urls: %s"
+                                 f"status code: %d",
                                  str(photo_urls),
                                  response.status_code)
 
@@ -149,16 +157,20 @@ async def handle_user_input_photos(album_id, message, state):
     ic(photo_paths)
     if photo_paths:
         photo_paths = photo_paths['file_paths']
+        medias = [FSInputFile(path) for path in photo_paths]
+        with_watermark = True
     else:
-        from handlers.utils.message_answer_without_callback import send_message_answer
-        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        with_watermark = False
 
-        await send_message_answer(message, Lexicon_module.ADMIN_LEXICON['unsuccessfully'])
-        await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
-                                                                         media_photos=[])
-        return
-    from aiogram.types import FSInputFile
-    media_group = [InputMediaPhoto(media=FSInputFile(path)) for path in photo_paths]
+        medias = [photo['id'] for photo in mediagroups[album_id]]
+        # from handlers.utils.message_answer_without_callback import send_message_answer
+        # Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+        #
+        # await send_message_answer(message, Lexicon_module.ADMIN_LEXICON['unsuccessfully'])
+        # await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
+        #                                                                  media_photos=[])
+        # return
+    media_group = [InputMediaPhoto(media=media) for media in medias]
     ic(media_group)
     try:
         sendned_media_groups = await bot.send_media_group(chat_id, media=media_group)
@@ -171,9 +183,18 @@ async def handle_user_input_photos(album_id, message, state):
 
         await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
                                                                          media_photos=media_photos)
-    except:
-        #todo
-        pass
+    except Exception as ex:
+        from handlers.utils.message_answer_without_callback import send_message_answer
+        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+        await send_message_answer(message, Lexicon_module.ADMIN_LEXICON['unsuccessfully'])
+        await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
+                                                                         media_photos=[])
+        logging.critical('Ошибка при отправке фотографий с вотермаркой в чат: %s'
+                         'photo_paths: %s'
+                         'urls: %s', ex, str(photo_paths), str(urls))
+        return
     finally:
-        delete_photos_tasks = [async_remove_photos(file_path) for file_path in photo_paths]
-        await asyncio.gather(*delete_photos_tasks)
+        if with_watermark:
+            delete_photos_tasks = [async_remove_photos(file_path) for file_path in photo_paths]
+            await asyncio.gather(*delete_photos_tasks)

@@ -111,30 +111,24 @@ class PersonRequester:
         return user_model
 
     @staticmethod
-    async def remove_user(telegram_id, seller=False, user=False):
+    async def remove_user_history(telegram_id, seller=False, user=False):
         if not isinstance(telegram_id, int):
             telegram_id = int(telegram_id)
-        if seller:
-            table_model = Seller
-        elif user:
-            table_model = User
-        else:
-            return
 
         try:
-            user_model = await manager.get(table_model, table_model.telegram_id == telegram_id)
-            if user_model:
-                if user:
-                    await OffersRequester.delete_all_buyer_history(telegram_id)
-                elif seller:
-                    await OffersRequester.delete_seller_offers(telegram_id)
-                    await AdvertFeedbackRequester.delete_by_seller_id(telegram_id)
+            # user_model = await manager.get(table_model, table_model.telegram_id == telegram_id)
+            # if user_model:
+            if user:
+                await OffersRequester.delete_all_buyer_history(telegram_id)
+            elif seller:
+                await OffersRequester.delete_seller_offers(telegram_id)
+                # await AdvertFeedbackRequester.delete_by_seller_id(telegram_id)
 
-                    await car_advert_requests_module\
-                        .AdvertRequester.delete_advert_by_id(telegram_id)
-                    await TariffToSellerBinder.remove_bind(telegram_id)
-            await manager.execute(table_model.delete().where(table_model.telegram_id == telegram_id))
-            return user_model
+                await car_advert_requests_module\
+                    .AdvertRequester.delete_advert_by_id(telegram_id)
+                await TariffToSellerBinder.remove_bind(telegram_id)
+            # await manager.execute(table_model.delete().where(table_model.telegram_id == telegram_id))
+            # return user_model
         except DoesNotExist:
             return False
     @staticmethod

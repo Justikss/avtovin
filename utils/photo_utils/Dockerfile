@@ -21,5 +21,5 @@ COPY web_server.py .
 # Запуск скрипта при старте контейнера
 CMD ["uvicorn", "web_server:app", "--host", "0.0.0.0", "--port", "8000"]
 
-
+#docker build -t watermark_inserter .
 #docker run -p 8000:8000   -v "D:/PythCode/avtovin-main/utils/photo_utils/temp_photos:/app/photo_utils/temp_photos"   -v "D:/PythCode/avtovin-main/utils/photo_utils/Avtovin-Design System-Logo_v1-1.png:/app/photo_utils/Avtovin-Design System-Logo_v1-1.png"   watermark_inserter

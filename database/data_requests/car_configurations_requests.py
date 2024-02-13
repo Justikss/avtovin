@@ -751,7 +751,7 @@ async def get_car(photos=None, cars=False):
                                                   'year': year})
 
     if cars:
-        insert_carars = insert_carars[:len(insert_carars)//1000]
+        # insert_carars = insert_carars[:len(insert_carars)//1000]
         await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     # if insert_data:

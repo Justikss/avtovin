@@ -1,14 +1,10 @@
 import importlib
 import logging
 import traceback
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any
 
-from aiogram import BaseMiddleware
-from aiogram.exceptions import TelegramForbiddenError, TelegramAPIError
-from aiogram.types import TelegramObject, CallbackQuery
-from icecream import ic
-
-from aiogram import BaseMiddleware
+from aiogram.exceptions import TelegramAPIError
+from aiogram.types import CallbackQuery
 
 from handlers.utils.message_answer_without_callback import send_message_answer
 

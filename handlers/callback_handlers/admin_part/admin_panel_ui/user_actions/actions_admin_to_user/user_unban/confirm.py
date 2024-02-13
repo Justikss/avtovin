@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from database.data_requests.banned_person_requests import BannedRequester
+from handlers.callback_handlers.sell_part.seller_main_menu import try_get_free_tariff
 
 
 async def handle_unban_to_system(callback, user_type, user_id):
@@ -41,6 +42,8 @@ async def confirm_unblock_user(callback: CallbackQuery, state: FSMContext):
     if unban_query:
         text = Lexicon_module.ADMIN_LEXICON['successfully']
         asyncio.create_task(handle_unban_to_system(callback, user_type, user_id))
+        asyncio.create_task(try_get_free_tariff(callback, normal_status=True, user_id=user_id))
+
     else:
         text = Lexicon_module.ADMIN_LEXICON['unsuccessfully']
 

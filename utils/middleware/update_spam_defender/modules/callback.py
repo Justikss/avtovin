@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import logging
 from copy import copy
 from typing import Callable, Dict, Any, Awaitable
 
@@ -16,8 +17,8 @@ lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 
 class CallbackSpamDefender:
-    def __init__(self, rate_limit: float = 1, long_term_spam_count: int = 5, long_term_duration: int = 7,
-                 block_duration: int = spam_block_time):
+    def __init__(self, rate_limit: float = 1, long_term_spam_count: int = (24 * 60 * 60) // 15, long_term_duration: int = 24 * 60 * 60,
+                 block_duration: int = 3600 * 24):
         self.rate_limit = rate_limit
         self.long_term_spam_count = long_term_spam_count
         self.long_term_duration = long_term_duration
@@ -34,7 +35,6 @@ class CallbackSpamDefender:
             bot: Bot
     ) -> Any:
         user_id = event.from_user.id
-        # bot = data.get('bot', None)
 
         if not await self.check_user_block(user_id, bot):
             return  # Пользователь заблокирован, прекращаем обработку
@@ -60,7 +60,7 @@ class CallbackSpamDefender:
         last_text_to_send = None
         text = f'<blockquote><b>{copy(message)}</b></blockquote>'
 
-        alert_message = await bot.send_message(chat_id=user_id, text=text)
+        alert_message = await bot.send_message(chat_id=user_id, text=text.format(text=timer))
         ic()
 
         await asyncio.sleep(timer)
@@ -97,8 +97,10 @@ class CallbackSpamDefender:
         return True
 
     async def check_rate_limit(self, user_id: int, current_time: float) -> bool:
+        logging.debug(f'''RATE LIMIT: user_id in self.last_action = {user_id in self.last_action}''')
         if user_id in self.last_action:
             time_since_last_action = current_time - self.last_action[user_id]
+            logging.debug(f'''{time_since_last_action} < {self.rate_limit} = {time_since_last_action < self.rate_limit}''')
             if time_since_last_action < self.rate_limit:
                 return False
         self.last_action[user_id] = current_time
@@ -114,8 +116,11 @@ class CallbackSpamDefender:
             return False
 
         long_term_data = self.long_term_activity[user_id]
+        logging.debug(f'''LONG TERM: {datetime.now() - long_term_data['time']} <= {timedelta(seconds=self.long_term_duration)} = {datetime.now() - long_term_data['time'] <= timedelta(seconds=self.long_term_duration)}
+        {long_term_data['time']}''')
         if datetime.now() - long_term_data['time'] <= timedelta(seconds=self.long_term_duration):
             long_term_data['count'] += 1
+            logging.debug(f'''LONG TERM: {long_term_data['count']} >= {self.long_term_spam_count} = {long_term_data['count'] >= self.long_term_spam_count}''')
             if long_term_data['count'] >= self.long_term_spam_count:
 
                 self.user_block_time[user_id] = {'start_time': datetime.now(),
@@ -124,6 +129,7 @@ class CallbackSpamDefender:
                 await self.send_notification(bot, user_id, lexicon_module.LEXICON['callback_spam_detected'], self.block_duration)
                 return False
         else:
+            logging.debug(f'''LONG TERM: obnull''')
             long_term_data['count'] = 1
             long_term_data['time'] = datetime.now()
         return True

@@ -13,7 +13,7 @@ if not platform.system() == "Windows":
     os.environ['TZ'] = 'Asia/Tashkent'
     time.tzset()  # Применяет изменения часового пояса (работает только на Unix/Linux)
 
-TEST_MOMENT = False
+TEST_MOMENT = True
 
 logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
@@ -54,7 +54,7 @@ REGISTRATION_DATETIME_FORMAT = '%Y-%m-%d'
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600
 message_answer_awaited = 2
-spam_block_time = 3
+spam_block_time = 6
 long_term_spam_block_time = 3600
 anti_spam_duration = 0.7
 mailing_interval = 0.05
