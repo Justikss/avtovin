@@ -20,14 +20,27 @@ _captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбра�
             'successfully': 'Успешно'
             }
 
+low_sep = '────────'
 
 
 __ADMIN_LEXICON = {
+    'banned_users_caption:true': '<i>блокированных</i>',
+    'banned_users_caption:false': '<i>активных</i>',
+    'banned_users_caption_parent_case:true': '<i>блокированного</i>',
+    'banned_users_caption_parent_case:false': '<i>активного</i>',
     'choose_user_block_category': {'message_text': '<b>Выберите тип пользователей:</b>', 'buttons': {
         'user_block_status:true': 'Заблокированные', 'user_block_status:false': 'Активные',
         **return_main_menu,
         'width': 2
     }},
+    'banned_user_endswith': {'message_text': low_sep + '\n<blockquote><b>Заблокирован</b> <i>{date}</i>\n <b>в</b> <i>{time}</i>\n<b>Причина:</b> <i>{reason}</i></blockquote>',
+                             'buttons': {'unblock_user': 'Разблокировать'
+    }},
+    'unban_confirmation': {'message_text': '<b>Подтвердите разблокировку </b>\n<i>{user_entity}</i>',
+                           'buttons': {'confirm_unban': _captions['confirm'],
+                                       'admin_backward:unban_confirmation': _captions['backward'],
+                                       'width': 1}},
+
     'inputted_user_not_is_admin': 'Введённый пользователь не является администратором.',
     'user_has_not_been_blocked': 'Пользователь не был заблокирован',
     'inputted_admin_is_exists': 'Указанный администратор уже стоит на своей должности',
@@ -63,7 +76,7 @@ __ADMIN_LEXICON = {
     'admin_not_is_red': 'Вы не являетесь красным администратором',
     'admin_panel_button_caption': '🔑 Админ Панель',
     'user_havent_admin_permission': 'Вы не администратор',
-    'users_category_non_exists': 'Пользователи данной категории не зарегистрированы.',
+    'users_category_non_exists': 'Пользователи данной категории не найдены.',
     'user_non_active': 'Данный пользователь оказался неактивен',
     'success_set_tariff': 'Тариф успешно выдан!',
     'failed_set_tariff': 'Тариф не был выдан, пользователь не найден.',
@@ -87,14 +100,14 @@ __ADMIN_LEXICON = {
                                       'admin_backward:admin_main_menu': 'Выход',
                                       'width': 2}},
 
-    'select_user_category': {'message_text': '<b>Выберите категорию пользователей:</b>',
+    'select_user_category': {'message_text': '<b>Выберите категорию {block_state} пользователей:</b>',
                              'buttons': {'buyer_category_actions': 'Покупатели 👨🏻‍💻',
                                          'seller_category_actions': '👨🏻‍💼 Продавцы',
                                          'admin_backward:choose_user_entity': _captions['backward'],
                                          **return_main_menu,
                                          'width': 2}},
 
-    'select_seller_category': {'message_text': '<b>Выберите категорию продавцов:</b>',
+    'select_seller_category': {'message_text': '<b>Выберите категорию {block_state} продавцов:</b>',
                                'buttons': {'legal_seller_actions': 'Салоны 🚘', 'natural_seller_actions': '👨🏻‍💼 Частники',
                                            'admin_backward:choose_seller_category': '◂ Назад ▸',
                                            'width': 2}},
@@ -124,13 +137,13 @@ __ADMIN_LEXICON = {
         'message_text': 'ВНИМАНИЕ!\nВаше отношения к {activity} в нашем боте заблокировано навсегда по причине: {reason}',
     'buttons': {'close_ban_notification': _captions['close'], 'width': 1}},
 
-    'input_name_to_search_process': {'message_text': '<b>Введите ФИО желаемого пользователя:</b>',
+    'input_name_to_search_process': {'message_text': '<b>Введите ФИО желаемого {block_state} пользователя:</b>',
                                      'buttons': {'admin_backward:input_name_to_search': _captions['backward'],
                                                  'width': 1}},
 
-    'input_name_to_search_process(novalid)': f'<b>Некорректный ввод ФИО!</b>\nИмя пользователя должно содержать 2-3 слова в формате "ФИО" и содержать в себе не более {config_module.max_contact_info_len} букв.',
+    'input_name_to_search_process(novalid)': f'''<b>Некорректный ввод ФИО!</b>\nИмя {'{block_state}'} пользователя должно содержать 2-3 слова в формате "ФИО" и содержать в себе не более {config_module.max_contact_info_len} букв.''',
     'input_name_to_search_process(novalid)dealership': f'<b>Некорректный ввод!</b>\nНазвание автосалона должно быть длинной менее {config_module.max_contact_info_len} символов\nИ состоять только из букв и цифр: ',
-    'input_name_to_search_process(non_exists)': '<b>Пользователя с таким ФИО - не найдено</b>',
+    'input_name_to_search_process(non_exists)': '<b>{block_state} пользователя с таким ФИО - не найдено</b>',
 
     'add_tariff_sub_text': '<b>Добавление тарифа</b>\n',
     'rewrite_tariff_sub_text': '<b>Редактирование тарифа</b>\n',
@@ -191,9 +204,9 @@ admin_class_mini_lexicon_ru = {
     'review_seller_tariff_message_header_legal': '<b>Тариф салона {name}:</b>',
     'review_seller_tariff_message_header_natural': '<b>Тариф частного продавца {name}:</b>',
     'tariff_not_exists': '<blockquote>Тариф отсутствует</blockquote>',
-    'user_list_message_text': '<b>Список покупателей:</b>',
-    'natural_list_message_text': '<b>Список частных лиц:</b>',
-    'dealership_list_message_text': '<b>Список салонов:</b>',
+    'user_list_message_text': '<b>Список {block_status} покупателей:</b>',
+    'natural_list_message_text': '<b>Список {block_status} частных лиц:</b>',
+    'dealership_list_message_text': '<b>Список {block_status} салонов:</b>',
 
     'return_to_user': 'Вернуться к пользователю',
     'set': 'Установить',
@@ -315,7 +328,7 @@ class ReviewSellerTariff:#(SmartGetattr):
             self.buttons = {**self.set_tariff_button, **self.backward_buttons, 'width': self.width}
 
 class UserList:#(SmartGetattr):
-    def __init__(self, user_status):
+    def __init__(self, user_status, block_status):
         #super().__init__()
 
         self.buttons_callback_data = 'user_select_action:'
@@ -323,23 +336,23 @@ class UserList:#(SmartGetattr):
         self.search_by_name_callback_data_startswith = 'from_admin_search_by_name'
         self.backward_command = {'admin_backward:user_list_to_admin': captions['backward'],
                                  'return_main_menu': admin_class_mini_lexicon['return_main_menu']}
-        self.message_text = admin_class_mini_lexicon['user_list_message_text']
+        self.message_text = admin_class_mini_lexicon['user_list_message_text'].format(block_status=block_status)
         self.width = 1
         self.dynamic_buttons = 2
         self.search_by_name_button = {f'{self.search_by_name_callback_data_startswith}{user_status}': self.search_by_name_button_caption}
         self.last_buttons = {**self.search_by_name_button}
 
 class SellerList(UserList):
-    def __init__(self, user_status):
-        super().__init__(user_status)
+    def __init__(self, user_status, block_status):
+        super().__init__(user_status, block_status)
         # self.message_text = admin_class_mini_lexicon['natural_list_message_text']
         self.buttons_callback_data = 'seller_select_action:'
         self.backward_command = {'admin_backward:seller_list_to_admin': captions['backward']}
 
 class NaturalList(SellerList):
-    def __init__(self, user_status):
-        super().__init__(user_status)
-        self.message_text = admin_class_mini_lexicon['natural_list_message_text']
+    def __init__(self, user_status, block_status):
+        super().__init__(user_status, block_status)
+        self.message_text = admin_class_mini_lexicon['natural_list_message_text'].format(block_status=block_status)
 
 # NaturalList = NaturalList()
 TariffNonExistsPlug = TariffNonExistsPlug()
@@ -347,9 +360,9 @@ AllTariffsOutput = AllTariffsOutput()
 # ChooseTariff = ChooseTariff()
 
 class DealershipList(SellerList):
-    def __init__(self, seller_status):
-        super().__init__(seller_status)
-        self.message_text = admin_class_mini_lexicon['dealership_list_message_text']
+    def __init__(self, seller_status, block_status):
+        super().__init__(seller_status, block_status)
+        self.message_text = admin_class_mini_lexicon['dealership_list_message_text'].format(block_status=block_status)
         self.message_text = NaturalList.message_text if seller_status == 'natural' \
             else self.message_text
 

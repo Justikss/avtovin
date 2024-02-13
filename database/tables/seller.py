@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from peewee import CharField, BooleanField, BigIntegerField, TextField, DateField
+from peewee import CharField, BooleanField, BigIntegerField, TextField, DateField, ForeignKeyField, DateTimeField
 
 from database.db_connect import BaseModel
 
@@ -17,11 +17,10 @@ class Seller(BaseModel):
     authorized = BooleanField(verbose_name='Наличие авторизации.')
     data_registration = DateField(default=datetime.now().strftime('%Y-%m-%d'))
 
+    is_banned = BooleanField(default=False)
+    ban_reason = TextField(null=True)
+    block_date = DateTimeField(null=True)
+
     class Meta:
         db_table = 'Продавцы'
 
-class BannedSeller(BaseModel):
-    telegram_id = BigIntegerField(unique=True, primary_key=True)
-    phone_number = CharField()
-    reason = TextField()
-    block_date = DateField(default=datetime.now().strftime('%d-%m-%Y'))

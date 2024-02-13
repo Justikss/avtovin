@@ -32,7 +32,7 @@ async def inputted_name_from_admin_handler(message: Message, state: FSMContext, 
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
     ic(user_name)
     current_state = str(await state.get_state())
-
+    memory_storage = await state.get_data()
 
     seller_search = False
     callable_object = None
@@ -56,7 +56,8 @@ async def inputted_name_from_admin_handler(message: Message, state: FSMContext, 
 
     result_user = await person_requester_module.PersonRequester.get_by_user_name(user_name, user=buyer_search,
                                                                             seller=seller_search,
-                                                                            dealership=dealership_search)
+                                                                            dealership=dealership_search,
+                                                                                 banned_status=memory_storage.get('users_block_state'))
     ic(result_user)
     if result_user:
         await state.set_state(good_state_object)

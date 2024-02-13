@@ -23,7 +23,8 @@ async def incorrect_input_controller(request: CallbackQuery | Message, state: FS
         await state.update_data(last_admin_message=request.message_id)
         return request.message_id
 
-async def lexicon_part_to_start_input_search_name_constructor(incorrect, redis_value):
+async def lexicon_part_to_start_input_search_name_constructor(incorrect, redis_value, memory_storage):
+    from utils.safe_dict_class import current_language
     Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
     lexicon_part = Lexicon_module.ADMIN_LEXICON['input_name_to_search_process']
@@ -34,6 +35,16 @@ async def lexicon_part_to_start_input_search_name_constructor(incorrect, redis_v
             lexicon_key_endswith = ''
         ic(lexicon_key_endswith)
         lexicon_part['message_text'] = Lexicon_module.ADMIN_LEXICON[f'''input_name_to_search_process{incorrect}{lexicon_key_endswith}''']
+
+    users_block_state = memory_storage.get('users_block_state')
+    users_block_state_caption = Lexicon_module.ADMIN_LEXICON.get(f'banned_users_caption_parent_case:{users_block_state}')
+
+    if incorrect == '(non_exists)' and current_language.get() != 'uz':
+        word = users_block_state_caption.strip('<i>').strip('</i>')  # Извлечение слова
+        capitalized_word = word[0].upper() + word[1:]  # Преобразование первой буквы в заглавную
+        users_block_state_caption = f'<i>{capitalized_word}</i>'  # Возвращение слова в теги
+
+    lexicon_part['message_text'] = lexicon_part['message_text'].format(block_state=users_block_state_caption)
     return lexicon_part
 
 async def input_person_name_to_search_request_handler(request: CallbackQuery | Message, state: FSMContext, incorrect=None):
@@ -64,7 +75,7 @@ async def input_person_name_to_search_request_handler(request: CallbackQuery | M
 
     await message_editor.redis_data.set_data(f'{request.from_user.id}:seller_registration_mode', value=redis_value)
 
-    lexicon_part = await lexicon_part_to_start_input_search_name_constructor(incorrect, redis_value)
+    lexicon_part = await lexicon_part_to_start_input_search_name_constructor(incorrect, redis_value, memory_storage)
     ic(lexicon_part)
     reply_to_message = await incorrect_input_controller(request, state, incorrect)
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='',

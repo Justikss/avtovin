@@ -45,7 +45,7 @@ ADVERT_LEXICON_UZ = {
     'request_mailing_date_time(incorrect)': 'Noto‘g‘ri format. Iltimos, sanani va vaqtni kiriting\nformatda KK-OY-YIL SS:MM',
     'request_mailing_date_time(time)': 'Kiritilgan vaqt o‘tib ketgan,\nqayta kiriting\nformatda KK-OY-YIL SS:MM',
 
-    'enter_mailing_media': {'message_text': '<b>Yuborish uchun media yuboring:</b>\n<blockquote>Ko‘rsatma:\nBir vaqtda yuklash mumkin:\nVideo + foto (birga);\nAudio va hujjat - alohida;</blockquote>',
+    'enter_mailing_media': {'message_text': "<b>Yuborish uchun media yuboring:</b>\n<blockquote>Ko‘rsatma:\nBir vaqtda yuklash mumkin:\nVideo va fotosuratlar (jami 10 tadan ko'p bo'lmagan);\nAudio va hujjat - alohida;</blockquote>",
                             'buttons': {'mailing_without_media': 'Mediasiz',
                                         'admin_backward:input_mailing_data': captions_uz['cancel'], 'width': 1}},
     'edit_mailing_media_buttons': {'mailing_without_media': 'Mediasiz',

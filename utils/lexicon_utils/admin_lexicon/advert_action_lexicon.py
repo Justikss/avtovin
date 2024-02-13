@@ -31,7 +31,7 @@ __ADVERT_LEXICON = {
     'request_mailing_date_time(incorrect)': 'Неверный формат. Пожалуйста, введите дату и время\nв формате ДД-ММ-ГГГГ ЧЧ:ММ',
     'request_mailing_date_time(time)': 'Введённое время истекло,\nповторите ввод\nв формате ДД-ММ-ГГГГ ЧЧ:ММ',
 
-    'enter_mailing_media': {'message_text': '<b>Пришлите медиа для рассылки:</b>\n<blockquote>Инструкция:\nЗа один раз можно загрузить только:\nВидео + фото (вместе);\nАудио и документ - отдельно;</blockquote>',
+    'enter_mailing_media': {'message_text': '<b>Пришлите медиа для рассылки:</b>\n<blockquote>Инструкция:\nЗа один раз можно загрузить только:\nВидео и фото (не более 10 в общем) ;\nАудио и документ - отдельно;</blockquote>',
                             'buttons': {'mailing_without_media': 'Без медиа',
                                         'admin_backward:input_mailing_data': captions['cancel'], 'width': 1}},
     'edit_mailing_media_buttons': {'mailing_without_media': 'Без медиа',

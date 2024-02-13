@@ -18,11 +18,11 @@ from database.tables.admin import Admin
 from database.tables.car_configurations import CarAdvert, CarColor, CarComplectation, CarEngine
 from database.tables.commodity import AdvertPhotos
 from database.tables.offers_history import SellerFeedbacksHistory
-from database.tables.seller import Seller, BannedSeller
+from database.tables.seller import Seller
 from database.tables.statistic_tables.advert_parameters import AdvertParameters
 from database.tables.statistic_tables.advert_to_admin_view_status import AdvertsToAdminViewStatus
 from database.tables.tech_support_contacts import TechSupports
-from database.tables.user import BannedUser
+
 
 
 async def insert_phototo(dataa):
@@ -176,26 +176,26 @@ async def drop_table_handler(message: Message):
     #
     # #
     # return
-    # await message.answer('Waiting..')
-    # await drop_tables_except_one('Фотографии_Новых_Машин')
+    await message.answer('Waiting..')
+    await drop_tables_except_one('Фотографии_Новых_Машин')
     #
-    # await create_tables()
+    await create_tables()
     # await manager.create(Admin, telegram_id = 883645786, admin_rang=1,
     #                                    data_registration=datetime.now().strftime('%d-%m-%Y'))
-    # await mock_values(only_base_params=True)
-    # await message.answer('SUCCESS')
+    await mock_values(only_base_params=False)
     # return
-    # sellers = await get_seller_account()
-    # photos = await read_photos_by_brand('/home/user/telegram_bot/utils/carss')
+    sellers = await get_seller_account()
+    photos = await read_photos_by_brand('utils/carss')
     # photos = None
     #
     # inserted_cars = await get_car(photos, cars=0)
-    # inserted_cars = await get_car(photos, cars=0)
+    inserted_cars = await get_car(photos, cars=1)
     # asyncio.create_task(mock_feedbacks(sellers, inserted_cars))
     # await dop_feedbacks()
-    # type_photos = await read_photos_by_brand('/home/user/telegram_bot/utils/type_carss')
-    # await load_type_photos(type_photos)
+    type_photos = await read_photos_by_brand('utils/type_carss')
+    await load_type_photos(type_photos)
     # await set_viewed_status()
 
     # await create_ts_contacts()
+    await message.answer('SUCCESS')
 

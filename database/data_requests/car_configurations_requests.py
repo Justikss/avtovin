@@ -424,17 +424,17 @@ async def mock_values(only_base_params):
 
     engine_names = [('Гибрид', 'Gibrid'), ('Электро', 'Elektro'), ('ДВС', 'IYD')]
     await insert_many(CarEngine, engine_names)
-#     await insert_many(CarColor, [
-#     ('Серый', 'Kulrang'),
-#     ('Чёрный', 'Qora'),
-#     ('Синий', "Ko\\'k"),
-#     ('Белый', 'Oq'),
-#     ('Жёлтый', 'Sariq'),
-#     ('Красный', 'Qizil'),
-#     ('Коричневый', 'Jigarrang'),
-#     ('Зелёный', 'Yashil'),
-#     ('Бордовый', 'Binafsha rang')
-# ])
+    await insert_many(CarColor, [
+    ('Серый', 'Kulrang'),
+    ('Чёрный', 'Qora'),
+    ('Синий', "Ko\\'k"),
+    ('Белый', 'Oq'),
+    ('Жёлтый', 'Sariq'),
+    ('Красный', 'Qizil'),
+    ('Коричневый', 'Jigarrang'),
+    ('Зелёный', 'Yashil'),
+    ('Бордовый', 'Binafsha rang')
+])
 
     await insert_many(CarYear,
                       ['2001-2007', '2004-2007', '2007-2010', '2010-2013', '2013-2016', '2016-2019', '2019-2020',
@@ -751,7 +751,7 @@ async def get_car(photos=None, cars=False):
                                                   'year': year})
 
     if cars:
-        # insert_carars = insert_carars[:len(insert_carars)//1000]
+        insert_carars = insert_carars[:len(insert_carars)//1000]
         await manager.execute(CarAdvert.insert_many(insert_carars))
     # await add_photo(photos, insert_carars)
     # if insert_data:

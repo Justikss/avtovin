@@ -15,7 +15,8 @@ __LOGGING_LEXICON = {'reset_tariff_action': 'Обнулил тариф прод�
                      'add_mailing': 'Установил сообщение в рассылку с текстом:', 'in_time': ' В ',
                      'delete_mailing': 'Удалил рассылку с текстом: ', 'published_in_time': 'дата публикации: ',
                      'close_advert': 'Удалил объявление продавца: ',
-
+                     'unban_seller': 'Разблокировал продавца: ',
+                     'unban_buyer': 'Разблокировал покупателя: ',
                      'added_param': 'Добавил параметр автомобилей: ',
                      'deleted_param': 'Удалил последний параметр автомобилей по ветке: ',
                      'rewrote_param': 'Редактировал последний параметр автомобилей по ветке: ',
@@ -42,7 +43,7 @@ async def log_admin_action(admin_username, action, subject='', reason=False):
         if action == 'add_mailing':
             reason = f'''{__LOGGING_LEXICON['in_time']}{reason}'''
         elif isinstance(reason, tuple) and isinstance(reason[0], CarAdvert):
-            reason = f'''\n{await create_advert_configuration_block(advert_id=reason[0])}\n{__LOGGING_LEXICON['for_reason']} {reason[1]}'''
+            reason = f'''\n{await create_advert_configuration_block(advert_id=reason[0], language='ru')}\n{__LOGGING_LEXICON['for_reason']} {reason[1]}'''
         elif action == 'delete_mailing':
             reason = f'''{ __LOGGING_LEXICON['published_in_time']} {reason}'''
         elif action in ('deleted_param'):

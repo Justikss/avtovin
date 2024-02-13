@@ -36,6 +36,7 @@ async def create_tables():
         #     print(ex)
 
     except Exception as ex:
+        traceback.print_exc()
         print(f'Ошибка при создании таблиц: {ex}, {type(ex)}')
     finally:
         await manager.close()

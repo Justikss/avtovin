@@ -8,12 +8,29 @@ from peewee import IntegrityError, DoesNotExist
 from database.data_requests.offers_requests import OffersRequester
 from database.data_requests.statistic_requests.advert_feedbacks_requests import AdvertFeedbackRequester
 from database.data_requests.tariff_to_seller_requests import TariffToSellerBinder
-from database.tables.user import User, BannedUser
+from database.tables.user import User
 from database.db_connect import manager
-from database.tables.seller import Seller, BannedSeller
+from database.tables.seller import Seller
 from utils.get_username import get_username
 
 car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
+
+def block_status_condition(table, condition = None, block_mode='false'):
+    ic(block_mode)
+    match block_mode:
+        case 'true':
+            ban_condition = table.is_banned == True
+        case 'false':
+            ban_condition = table.is_banned == False
+        case _:
+            raise ValueError('User block status non implemented')
+            # ban_condition = table.is_banned == False
+
+    if condition:
+        condition = ((ban_condition) & (condition))
+    else:
+        condition = ban_condition
+    return condition
 
 class PersonRequester:
     @staticmethod
@@ -49,11 +66,11 @@ class PersonRequester:
         if tables:
             queries = []
             for table in tables:
-                queries.append(table.select(table.telegram_id))
+                queries.append(table.select(table.telegram_id).where(block_status_condition(table)))
             query = queries[0] | queries[1]
 
         elif current_table:
-            query = current_table.select(current_table.telegram_id)
+            query = current_table.select(current_table.telegram_id).where(block_status_condition(current_table))
 
         user_ids = list(await manager.execute(query))
         if user_ids:
@@ -62,7 +79,7 @@ class PersonRequester:
         return user_ids
 
     @staticmethod
-    async def get_by_user_name(name, seller, user, dealership):
+    async def get_by_user_name(name, seller, user, dealership, banned_status):
         user_model = None
         current_table = None
         name = [name_part.capitalize() for name_part in name.split(' ')]
@@ -73,7 +90,8 @@ class PersonRequester:
         elif seller and not dealership:
             current_table = Seller
         elif seller and dealership:
-            user_model = list(await manager.execute(Seller.select().where(Seller.dealship_name == ' '.join(name))))
+            user_model = list(await manager.execute(Seller.select().where(
+                block_status_condition(Seller, Seller.dealship_name == ' '.join(name), block_mode=banned_status))))
             current_table = None
 
         ic(user_model, current_table)
@@ -82,9 +100,11 @@ class PersonRequester:
             surname = name[0]
             name = name[1]
             ic(f'{surname} {name} {patronymic}')
-            user_model = list(await manager.execute(current_table.select().where(current_table.name == name,
-                                                   current_table.surname == surname,
-                                                   current_table.patronymic == patronymic)))
+            user_model = list(await manager.execute(current_table.select().where(
+                block_status_condition(current_table, ((current_table.name == name) &
+                                                   (current_table.surname == surname) &
+                                                   (current_table.patronymic == patronymic)),
+                                       block_mode=banned_status))))
         if len(user_model) == 1:
             user_model = user_model[0]
         ic(user_model)
@@ -127,25 +147,31 @@ class PersonRequester:
             # traceback.print_exc()
 
     @staticmethod
-    async def retrieve_all_data(user=False, seller=False, entity=None) -> Union[bool, List[User]]:
+    async def retrieve_all_data(user=False, seller=False, entity=None, block_mode='false') -> Union[bool, List[User]]:
         '''Асинхронный метод для извлечения всех моделей строк'''
         if user:
-            return await manager.execute(User.select())
+            query = User.select()
+            current_table = User
         elif seller:
             if entity:
-                query = await manager.execute(Seller.select().where(Seller.entity == entity))
+                condition = ((Seller.entity == entity) & (Seller.is_banned == False))
+                # query = Seller.select().where(Seller.entity == entity)
             else:
-                query = await manager.execute(Seller.select())
-            return list(query)
+                condition = Seller.is_banned == False
+            query = Seller.select().where(condition)
+            current_table = Seller
+
         else:
             return False
+
+        result = list(await manager.execute(query.where(block_status_condition(current_table, block_mode=block_mode))))
+        return result
 
     @staticmethod
     async def store_data(*data: Union[List[dict], dict], user=False, seller=False) -> tuple | bool:
         '''Асинхронный метод для загрузки моделей в таблицу'''
         try:
             current_table = None
-            banned_table = None
             ic(data)
             if data:
                 user_id = data[0]['telegram_id']
@@ -153,14 +179,13 @@ class PersonRequester:
                 if user:
                     ic(data)
                     current_table = User
-                    banned_table = BannedUser
 
                 elif seller:
                     current_table = Seller
-                    banned_table = BannedSeller
 
-                if current_table and banned_table:
-                    banned_model = await manager.get_or_none(banned_table, banned_table.telegram_id == user_id)
+                if current_table:
+                    banned_model = await manager.get_or_none(current_table, current_table.telegram_id == user_id,
+                                                             current_table.is_banned == True)
 
                     if banned_model:
                         return False
@@ -210,6 +235,8 @@ class PersonRequester:
             query = User.select().where(User.telegram_id == user_id)
         elif seller:
             query = Seller.select().where(Seller.telegram_id == user_id)
+
+        ic(user, seller)
         result = await manager.execute(query)
         return list(result) if result else False
 

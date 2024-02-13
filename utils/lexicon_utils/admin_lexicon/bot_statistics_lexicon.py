@@ -62,8 +62,8 @@ __STATISTIC_LEXICON = {
                                                                'width': 1}
     },
 
-    'general_bot_statistics': {'message_text': '<b>Статистика за {period}</b>\n' + (' ' * 17 + '─' * 8) + '\n<blockquote>🔸Откликов: {feedbacks}\n📢 Объявлений: {adverts}\
-\n🧖‍♂️ Пользователей в боте: {users}\n🤵🏻‍♂️ Продавцов: {sellers}\n👨🏻‍💻 Покупателей: {buyers}</blockquote>\n' + (' ' * 17 + '─' * 8), 'buttons': {
+    'general_bot_statistics': {'message_text': '<b>Статистика за <i>{period}</i></b>\n' + '─' * 8 + '\n<blockquote>🔸Откликов: <i>{feedbacks}</i>\n📢 Объявлений: <i>{adverts}</i>\
+\n🧖‍♂️ Пользователей в боте: <i>{users}</i>\n🤵🏻‍♂️ Продавцов: <i>{sellers}</i>\n👨🏻‍💻 Покупателей: <i>{buyers}</i></blockquote>\n' + '─' * 8 + '\n<b>Людей в блокировке: <i>{block_users}</i></b>\n<blockquote>Покупателей: <i>{block_buyers}</i>\nПродавцов: <i>{block_sellers}</i></blockquote>', 'buttons': {
                     **choose_period_keyboard,
                     'admin_backward:check_bot_statistic_values': captions['backward'],
                     **return_main_menu, 'width': (3, 2, 1, 1)}},

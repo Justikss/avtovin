@@ -93,8 +93,12 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         await message_editor.redis_data.delete_key(key=f'{request.from_user.id}:last_seller_message')
 
     if media_photos:
+        ic(media_photos)
+        ic()
         await state.update_data(load_photo=media_photos)
-
+        dont_send_media = True
+    else:
+        dont_send_media = False
     if not bot:
         if isinstance(request, Message):
             # await request.delete()
@@ -130,9 +134,10 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
-                                                    media_group=structured_boot_data.get('photos'),
-                                                    delete_mode=delete_mode,
-                                                    seller_boot=True, bot=bot)
+                                                    media_group=structured_boot_data.get('photos') if not dont_send_media else None,
+                                                    delete_mode=delete_mode or dont_send_media,
+                                                    seller_boot=True, bot=bot,
+                                                    save_media_group=dont_send_media)
 
 
     ic(memory_storage.get('color_for_load'))

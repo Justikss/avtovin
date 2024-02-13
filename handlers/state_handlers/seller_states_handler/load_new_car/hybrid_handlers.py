@@ -379,11 +379,12 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         incorrect_flag = False
     else:
         incorrect_notification = lexicon_part.message_text.split("\n")[3]
-        lexicon_part.message_text = lexicon_part.message_text.split('\n')
-        lexicon_part.message_text[3] = f'<b>{incorrect_notification}</b>'
-        lexicon_part.message_text = '\n'.join(lexicon_part.message_text)
-
+        message_text = lexicon_part.message_text.split('\n')
+        message_text[3] = f'<b>{incorrect_notification}</b>'
         lexicon_part = await lexicon_part.part()
+
+        lexicon_part["message_text"] = '\n'.join(message_text)
+
         await state.update_data(incorrect_flag=True)
         incorrect_flag = True
         ic(request.photo)

@@ -3,6 +3,7 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
+from database.data_requests.banned_person_requests import BannedRequester
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_seller_category import \
     choose_seller_category_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
@@ -12,6 +13,7 @@ from states.admin_part_states.users_review_states import SellerReviewStates, Buy
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_does_not_exists_handler import send_message_answer
 
 async def construct_user_list_pagination_data(callback: CallbackQuery, state: FSMContext):
+    lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
     memory_storage = await state.get_data()
 
@@ -19,32 +21,50 @@ async def construct_user_list_pagination_data(callback: CallbackQuery, state: FS
         user_mode = memory_storage.get('admin_review_user_mode')
     else:
         user_mode = callback.data.split('_')[0]
-    ic()
-    ic(user_mode)
-    if user_mode not in ('buyer', 'seller'):
-        ic()
-        user_mode = memory_storage.get('admin_review_user_mode')
+    # ic()
+    # ic(user_mode)
+        if user_mode not in ('buyer', 'legal', 'natural'):
+            ic()
+            user_mode = memory_storage.get('admin_review_user_mode')
+
+    users_block_state = memory_storage.get('users_block_state')
 
     ic(user_mode)
-    if user_mode:
+    if user_mode and users_block_state:
+        # if user_mode == 'seller':
+        #     user_mode = 'natural'
         admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
-
+        users_block_state_caption = lexicon_module.ADMIN_LEXICON.get(f'banned_users_caption:{users_block_state}')
         if any(seller_entity in user_mode for seller_entity in ['legal', 'natural']):
             if user_mode == 'legal':
-                lexicon_class = admin_lexicon_module.DealershipList(user_mode)
-            else:
                 lexicon_class = admin_lexicon_module\
-                    .NaturalList(user_mode)
+                    .DealershipList(user_mode, users_block_state_caption)
+            else:
+
+                lexicon_class = admin_lexicon_module\
+                    .NaturalList(user_mode, users_block_state_caption)
             ic(user_mode)
+            retrieve_kwargs = {'seller': True, 'entity': user_mode}
             users = await person_requester_module.PersonRequester.retrieve_all_data(seller=True, entity=user_mode)
             current_state = SellerReviewStates.review_state
         elif 'buyer' in user_mode:
             lexicon_class = admin_lexicon_module\
-                .UserList(user_mode)
-            users = await person_requester_module.PersonRequester.retrieve_all_data(user=True)
+                .UserList(user_mode, users_block_state_caption)
+            retrieve_kwargs = {'user': True}
+
             current_state = BuyerReviewStates.review_state
         else:
+            retrieve_kwargs = None
             current_state = None
+            users = None
+        ic(users_block_state)
+        if users_block_state == 'true':
+            retrieve_method = BannedRequester.retrieve_banned_users
+        else:
+            retrieve_method = person_requester_module.PersonRequester.retrieve_all_data
+
+        if retrieve_kwargs:
+            users = await retrieve_method(**retrieve_kwargs)
 
         if current_state:
             ic(current_state)
@@ -62,6 +82,7 @@ async def choose_specific_person_by_admin_handler(callback: CallbackQuery | Mess
     ic()
     if first_call:
         await state.update_data(admin_review_user_mode=callback.data.split('_')[0])
+
 
     await delete_message(callback, ic(memory_storage.get('incorrect_message')))
 

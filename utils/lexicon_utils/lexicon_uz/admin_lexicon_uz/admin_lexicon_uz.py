@@ -17,8 +17,27 @@ captions_uz = {'backward': '◂ Orqaga ▸', 'was_selected': 'Siz tanladingiz', 
             'by_dealership': 'avtosalon', 'by_seller': 'shaxsiy shaxs', 'close': 'Yashirish', 'surname_name_patronymic': 'F.I.Sh.: ', 'add': 'Qo‘shish',
             'successfully': 'Muvaffaqiyatli'
             }
+low_sep = '────────'
+
 
 ADMIN_LEXICON_uz = {
+    'choose_user_block_category': {'message_text': '<b>Foydalanuvchi turini tanlang:</b>', 'buttons': {
+        'user_block_status:true': 'Bloklanganlar', 'user_block_status:false': 'Faol',
+        **return_main_menu_uz,
+        'width': 2
+    }},
+
+    'banned_user_endswith': {'message_text': low_sep + '\n<blockquote><b>Zablokirovan</b> <i>{date}</i>\n <b>soat</b> <i>{time}</i> da\n<b>Sabab:</b> <i>{reason}</i></blockquote>',
+    'buttons': {'unblock_user': 'Razblokirovat'
+    }},
+    'unban_confirmation': {'message_text': '<b>Tasdiqlang razblokirovku </b>\n<i>{user_entity}</i>',
+    'buttons': {'confirm_unban': captions_uz['confirm'],
+    'admin_backward:unban_confirmation': captions_uz['backward'],
+    'width': 1}},
+    'banned_users_caption_parent_case:true': '<i>Bloklangan</i>',
+    'banned_users_caption_parent_case:false': '<i>Faol</i>',
+    'banned_users_caption:true': '<i>Bloklangan</i>',
+    'banned_users_caption:false': '<i>Faol</i>',
     'inputted_user_not_is_admin': 'Kiritilgan foydalanuvchi administrator emas',
     'user_has_not_been_blocked': 'Foydalanuvchi bloklanmagan',
     'inputted_admin_is_exists': "Belgilangan administrator allaqachon o'z lavozimida",
@@ -51,7 +70,7 @@ Har qanday adminlarga mavjud buyruqlar:
     'admin_not_is_red': 'Siz qizil administrator emassiz',
     'admin_panel_button_caption': '🔑 Admin Paneli',
     'user_havent_admin_permission': 'Siz administrator emassiz',
-    'users_category_non_exists': 'Ushbu kategoriya foydalanuvchilari ro‘yxatdan o‘tmagan.',
+    'users_category_non_exists': 'Foydalanuvchilar ushbu kategoriyasi topilmadi.',
     'user_non_active': 'Ushbu foydalanuvchi faol emas',
     'success_set_tariff': 'Tarif muvaffaqiyatli berildi!',
     'failed_set_tariff': 'Tarif berilmadi, foydalanuvchi topilmadi.',
@@ -74,13 +93,14 @@ Har qanday adminlarga mavjud buyruqlar:
                                   'admin_backward:admin_main_menu': 'Chiqish',
                                   'width': 2}},
 
-'select_user_category': {'message_text': '<b>Foydalanuvchi kategoriyasini tanlang:</b>',
+'select_user_category': {'message_text': '<b>{block_state} foydalanuvchilar toifasini tanlang:</b>',
                          'buttons': {'buyer_category_actions': 'Xaridorlar 👨🏻‍💻',
                                      'seller_category_actions': '👨🏻‍💼 Sotuvchilar',
+                                    'admin_backward:choose_user_entity': captions_uz['backward'],
                                      **return_main_menu_uz,
                                      'width': 2}},
 
-'select_seller_category': {'message_text': '<b>Sotuvchi kategoriyasini tanlang:</b>',
+'select_seller_category': {'message_text': '<b>{block_state} sotuvchilar toifasini tanlang:</b>',
                            'buttons': {'legal_seller_actions': 'Salonlar 🚘', 'natural_seller_actions': '👨🏻‍💼 Shaxsiy shaxslar',
                                        'admin_backward:choose_seller_category': '◂ Orqaga ▸',
                                        'width': 2}},
@@ -109,13 +129,14 @@ Har qanday adminlarga mavjud buyruqlar:
 'user_ban_notification': {
     'message_text': 'DIQQAT!\nSizning {activity} botimizdagi faoliyatingiz quyidagi sababga ko‘ra abadiy bloklangan: {reason}',
 'buttons': {'close_ban_notification': captions_uz['close'], 'width': 1}},
-    'input_name_to_search_process': {'message_text': "<b>Istalgan foydalanuvchining to'liq ismini kiriting</b>",
+    'input_name_to_search_process':  {'message_text': "<b>{block_state} foydalanuvchining to'liq ismini kiriting :</b>",
                                      'buttons': {'admin_backward:input_name_to_search': captions_uz['backward'],
                                                  'width': 1}},
 
-    'input_name_to_search_process(novalid)': f"<b>Toʻliq ism notoʻgʻri kiritildi!</b>\nFoydalanuvchi nomi “Full Name” formatida 2-3 soʻzdan iborat boʻlishi va {max_contact_info_len} harfdan oshmasligi kerak",
+    'input_name_to_search_process(novalid)': f'''<b>Noto'g'ri kirish FIO!</b>\nIsm {'{block_state}'} foydalanuvchi ikki uch so'z shaklida "FIO" bo'lishi kerak va o'z ichiga {max_contact_info_len} harfdan ortiq bo'lmagan bo'lishi kerak.'''
+,
     'input_name_to_search_process(novalid)dealership': f'<b>Noto‘g‘ri kiritish!</b>\nAvtosalon nomi {max_contact_info_len} belgidan kam bo‘lishi kerak\nva faqat harflar va raqamlardan iborat bo‘lishi kerak: ',
-    'input_name_to_search_process(non_exists)': '<b>Bunday ismli foydalanuvchi topilmadi</b>',
+    'input_name_to_search_process(non_exists)': '<b>{block_state} foydalanuvchi ushbu FIO bilan - topilmadi</b>',
 
     'rewrite_tariff_sub_text': '<b>Tarifni tahrirlash</b>\n',
     'add_tariff_sub_text': "<b>Tarif qo'shish</b>\n",
@@ -177,9 +198,9 @@ admin_class_mini_lexicon_uz = {
     'review_seller_tariff_message_header_legal': '<b>Salon tarifi {name}:</b>',
     'review_seller_tariff_message_header_natural': '<b>Xususiy sotuvchi tarifi {name}:</b>',
     'tariff_not_exists': '<blockquote>Tarif mavjud emas</blockquote>',
-    'user_list_message_text': '<b>Xaridorlar ro‘yxati:</b>',
-    'natural_list_message_text': '<b>Xususiy shaxslar ro‘yxati:</b>',
-    'dealership_list_message_text': '<b>Salonlar ro‘yxati:</b>',
+    'user_list_message_text': "<b>{block_status} xaridorlar ro'yxati:</b>",
+    'natural_list_message_text': "<b>{block_status} shaxslar ro'yxati:</b>",
+    'dealership_list_message_text': "<b>{block_status} salonlar ro'yxati:</b>",
     'return_to_user': "Foydalanuvchiga qaytish",
     'set': "O'rnatish",
     'set_tariff': "Tarifni belgilash",

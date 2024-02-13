@@ -53,5 +53,8 @@ class GeneralBotStatisticHandler(BaseStatisticCallbackHandler):
                                                                            period=period_string,
                                                                            users=counts['person'],
                                                                            sellers=counts['seller'],
-                                                                           buyers=counts['user'])
+                                                                           buyers=counts['user'],
+                                                                           block_users=counts['block_users'],
+                                                                           block_buyers=counts['block_buyers'],
+                                                                           block_sellers=counts['block_sellers'])
         return lexicon_part

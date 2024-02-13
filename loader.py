@@ -80,6 +80,12 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.choose_type i
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.list import ContactListHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.output.specific import OutputSpecificContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user import tariff_for_seller, user_ban
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_unban.confirm import \
+    confirm_unblock_user
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.user_unban.confirmation import \
+    user_unban_confirmation
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_block_user_category import \
+    choose_user_block_status
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.input_name_to_search.start_input_name_request import \
     input_person_name_to_search_request_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
@@ -114,6 +120,7 @@ from handlers.custom_handlers.admin_administrating.help import AdminHelpHandler
 from handlers.custom_handlers.admin_administrating.set_admin import SetAdminHandler
 from handlers.custom_handlers.admin_administrating.set_red_admin import SetRedAdminHandler
 from handlers.custom_handlers.admin_administrating.unban_person import UnbanPersonAdminHandler
+from handlers.custom_handlers.developer_handlers.add_new_db_columns import add_db_columns
 from handlers.custom_handlers.developer_handlers.delete_all_messages import delete_all_messages_developer_handler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.empty_field_handler import EmptyFieldCarpoolingHandler
@@ -242,12 +249,14 @@ async def start_bot():
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
     dp.message.register(collect_and_send_mediagroup,
-                        F.photo, F.photo[0].file_id.as_("photo_id"), F.photo[0].file_unique_id.as_('unique_id'))
+                        F.photo, F.photo[-1].file_id.as_("photo_id"), F.photo[-1].file_unique_id.as_('unique_id'))
 
     dp.message.register(drop_table_handler,
                         Command(commands=['dt', 'dtc']), CheckOnDeveloper())
     dp.message.register(delete_all_messages_developer_handler,
                         Command(commands=["delmesss"], ignore_case=True), CheckOnDeveloper())
+
+    dp.message.register(add_db_columns, Command(commands=["add_cols"], ignore_case=True), CheckOnDeveloper())
 
     '''обработка Сообщений'''
 
@@ -346,7 +355,9 @@ async def start_bot():
 
     dp.callback_query.register(try_delete_notification, or_f(
         lambda callback: callback.data.startswith('close_seller_notification_by_redis'),
-        lambda callback: callback.data.startswith('close_ban_notification:')
+        lambda callback: callback.data.startswith('close_ban_notification:'),
+        lambda callback: callback.data.startswith('close_unblock_notification:')
+
     ))
 
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
@@ -422,9 +433,9 @@ async def start_bot():
     dp.callback_query.register(admin_panel_ui.start_admin_panel_window.start_admin_menu, F.data == 'admin_panel_button',
                                AdminStatusController())
 
-    dp.callback_query.register(
-        user_actions.choose_specific_user.choose_category.choose_users_category.choose_user_category_by_admin_handler,
-        F.data == 'admin_button_users', AdminStatusController())
+    dp.callback_query.register(choose_user_block_status,
+                               F.data == 'admin_button_users')
+
 
     dp.callback_query.register(tariff_actions.output_tariff_list.output_tariffs_for_admin,
                                F.data == 'admin_button_tariffs', AdminStatusController())
@@ -705,6 +716,13 @@ async def start_bot():
         F.data == 'confirm_mailing_action', AdminStatusController())
 
     '''user actions'''
+    dp.callback_query.register(user_unban_confirmation, F.data == 'unblock_user')
+
+    dp.callback_query.register(confirm_unblock_user, F.data == 'confirm_unban', AdminStatusController())
+
+    dp.callback_query.register(
+        user_actions.choose_specific_user.choose_category.choose_users_category.choose_user_category_by_admin_handler,
+        lambda callback: callback.data.startswith('user_block_status:'), AdminStatusController())
 
     dp.callback_query.register(user_actions.choose_specific_user.choose_category.choose_seller_category.choose_seller_category_by_admin_handler,
                                F.data == 'seller_category_actions', AdminStatusController())

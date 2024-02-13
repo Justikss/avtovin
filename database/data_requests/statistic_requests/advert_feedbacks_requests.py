@@ -7,7 +7,7 @@ from functools import reduce
 from peewee import fn, JOIN, SQL, Window
 from peewee_async import Manager
 
-from database.data_requests.utils.raw_sql_handler import get_top_advert_parameters
+
 from database.db_connect import manager
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarState, CarColor, CarMileage, \
     CarYear, CarBrand, CarEngine

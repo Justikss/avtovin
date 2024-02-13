@@ -63,6 +63,8 @@ class RecommendationParametersBinder:
         parameters = await advert_feedbacks_requests_module\
             .AdvertFeedbackRequester.get_or_create_by_parameters(color_id, complectation_id, model_id)
         if parameters:
+            if isinstance(parameters, AdvertParameters):
+                parameters = [parameters]
             parameters = [parameter.id for parameter in parameters]
 
         query = (offers_history_module\

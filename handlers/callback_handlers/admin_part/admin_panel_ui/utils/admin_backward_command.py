@@ -58,6 +58,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_a
     checkout_seller_tariff_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_admin_to_user.tariff_for_seller.choose_tariff_for_seller import \
     checkout_tariff_for_seller_by_admin_handler, choose_tariff_for_seller_by_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_block_user_category import \
+    choose_user_block_status
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_seller_category import \
     choose_seller_category_by_admin_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
@@ -111,6 +113,9 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'admin_main_menu':
             await set_language(callback, set_languange=False)
 
+        case 'choose_user_entity':
+            await choose_user_block_status(callback, state)
+
         case 'choose_seller_category' | 'user_list_to_admin':
             await choose_user_category_by_admin_handler(callback, state)
 
@@ -121,10 +126,10 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
                 delete_redis_pagination_key=False,
                 first_call=False)
 
-        case 'review_seller_tariff' | 'input_ban_reason' | 'review_result_profile_protocol' | 'check_seller_statistic_values' if current_state.startswith('SellerReviewStates'):
+        case 'review_seller_tariff' | 'input_ban_reason' | 'review_result_profile_protocol' | 'check_seller_statistic_values' | 'unban_confirmation' if current_state.startswith('SellerReviewStates'):
             await output_specific_seller_profile_handler(callback, state)
 
-        case 'input_ban_reason' if current_state.startswith('BuyerReviewStates'):
+        case 'input_ban_reason' | 'unban_confirmation' if current_state.startswith('BuyerReviewStates'):
             await output_buyer_profile(callback, state)
 
         case 'tariff_for_seller_review':

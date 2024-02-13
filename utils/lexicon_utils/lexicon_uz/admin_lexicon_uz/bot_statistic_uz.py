@@ -62,8 +62,8 @@ STATISTIC_LEXICON_UZ = {
                                                                'width': 1}
     },
 
-    'general_bot_statistics': {'message_text': '<b>{period} davridagi statistika</b>\n' + (' ' * 17 + '─' * 8) + '\n<blockquote>🔸Javoblar: {feedbacks}\n📢 E’lonlar: {adverts}\
-\n🧖‍♂️ Bot foydalanuvchilari: {users}\n🤵🏻‍♂️ Sotuvchilar: {sellers}\n👨🏻‍💻 Xaridorlar: {buyers}</blockquote>\n' + (' ' * 17 + '─' * 8), 'buttons': {
+    'general_bot_statistics': {'message_text': "<b>Statistika <i>{period}</i> uchun</b>\n" + '─' * 8 + "\n<blockquote>🔸Javoblar: <i>{feedbacks}</i>\n📢 E'lonlar: <i>{adverts}</i>\
+\n🧖‍♂️ Bot foydalanuvchilari: <i>{users}</i>\n🤵🏻‍♂️ Sotuvchilar: <i>{sellers}</i>\n👨🏻‍💻 Xaridorlar: <i>{buyers}</i></blockquote>\n" + '─' * 8 + "\n<b>Bloklangan odamlar: <i>{block_users}</i></b>\n<blockquote>Xaridorlar: <i>{block_buyers}</i>\nSotuvchilar: <i>{block_sellers}</i></blockquote>", 'buttons': {
                     **choose_period_keyboard,
                     'admin_backward:check_bot_statistic_values': captions_uz['backward'],
                     **return_main_menu_uz, 'width': (3, 2, 1, 1)}},

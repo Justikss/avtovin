@@ -36,7 +36,7 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
         ic(alert_message)
         for time_point in range(config_module.message_answer_awaited, 0, -1):
             await alert_message.edit_text(text=f'{text}{time_point}...')
-            await asyncio.sleep(config_module.message_answer_awaited / 3)
+            await asyncio.sleep(max(config_module.message_answer_awaited / 3, 1))
 
         await delete_message(request, alert_message.message_id)
 

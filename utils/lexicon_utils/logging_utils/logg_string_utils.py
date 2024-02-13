@@ -33,7 +33,7 @@ async def get_user_name(subject):
             seller_model = await person_request_module.PersonRequester.get_user_for_id(subject.split(':')[-1], seller=True)
         if seller_model:
             seller_model = await one_element_in_object(seller_model)
-            name = await get_seller_name(seller_model, for_admin=True)
+            name = await get_seller_name(seller_model, for_admin=True, logg_mode=True)
 
     elif (isinstance(subject, str) and subject.startswith('buyer')) or isinstance(subject, User):
         ic()
@@ -67,7 +67,7 @@ async def get_user_name(subject):
                 value = await car_configurations_requests_module.CarConfigs.get_by_id(key, value)
 
             value_name = value if isinstance(value, str) else value.name
-            name += f"\n{advert_parameters_captions[key]}: {value_name}"
+            name += f"\n{advert_parameters_captions._data['ru'][key]}: {value_name}"
 
     elif isinstance(subject, tuple):
         param_subject = await get_user_name(subject[0])

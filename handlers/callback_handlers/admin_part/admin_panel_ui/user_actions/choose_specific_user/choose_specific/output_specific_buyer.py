@@ -4,6 +4,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from database.tables.user import User
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_users_category import \
+    choose_user_category_by_admin_handler
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.utils.align_banned_data import \
+    handle_banned_person_card
 from states.admin_part_states.users_review_states import BuyerReviewStates
 from utils.get_user_name import get_user_name
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import pagination_interface
@@ -12,9 +16,10 @@ from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import pagination_i
 async def output_buyer_profile(request: CallbackQuery | Message, state: FSMContext, user_model=None, pagination: any=False):
     person_requester_module = importlib.import_module('database.data_requests.person_requests')
     message_editor_module = importlib.import_module('handlers.message_editor')
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     user_id = None
     memory_storage = await state.get_data()
-
+    dynamic_buttons = 3
     await state.set_state(BuyerReviewStates.review_state)
 
     if not user_model:
@@ -32,7 +37,6 @@ async def output_buyer_profile(request: CallbackQuery | Message, state: FSMConte
     elif isinstance(user_model, list):
         user_model = user_model[0]
     if user_model:
-        Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
         ic(user_model)
         if not isinstance(user_model, User):
             ic(user_id)
@@ -60,6 +64,15 @@ async def output_buyer_profile(request: CallbackQuery | Message, state: FSMConte
         incorrect_flag = memory_storage.get('admin_incorrect_flag')
         if incorrect_flag:
             await state.update_data(incorrect_flag=False)
+
+        if memory_storage.get('users_block_state') == 'true':
+            lexicon_part = await handle_banned_person_card(lexicon_part, user_model)
+
         await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='',
-                                                                   lexicon_part=lexicon_part, dynamic_buttons=3,
+                                                               lexicon_part=lexicon_part,
+                                                               dynamic_buttons=dynamic_buttons,
                                                                delete_mode=not pagination or incorrect_flag)
+    else:
+        if isinstance(request, CallbackQuery):
+            await request.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
+        await choose_user_category_by_admin_handler(request, state)

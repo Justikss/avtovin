@@ -11,9 +11,10 @@ from database.tables.tariff import TariffsToSellers
 # from  import captions
 
 
-async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False) -> Union[Tuple[str, str], str]:
+async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False, logg_mode=False) -> Union[Tuple[str, str], str]:
     '''Метод сопоставляющий имя/название продавца/автосалона'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+    admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
 
     ic(seller_model.dealship_name, seller_model.dealship_address)
     if seller_model.dealship_name:
@@ -24,7 +25,7 @@ async def get_seller_name(seller_model, get_only_fullname=False, for_admin=False
         else:
             return (name, address)
     else:
-        admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
+
         if seller_model.patronymic:
             patronymic = seller_model.patronymic
         else:

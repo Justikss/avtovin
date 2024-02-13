@@ -3,6 +3,8 @@ import importlib
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.utils.align_banned_data import \
+    handle_banned_person_card
 from handlers.callback_handlers.sell_part.checkout_seller_person_profile import seller_profile_card_constructor
 from states.admin_part_states.users_review_states import SellerReviewStates
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import pagination_interface
@@ -25,6 +27,7 @@ async def output_specific_seller_profile_handler(request: CallbackQuery | Messag
     message_editor_module = importlib.import_module('handlers.message_editor')
     choose_specific_person_by_admin_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.choose_specific_person')
     seller_id = None
+    dynamic_buttons = 2
 
     await state.set_state(SellerReviewStates.review_state)
     memory_storage = await state.get_data()
@@ -64,13 +67,26 @@ async def output_specific_seller_profile_handler(request: CallbackQuery | Messag
         incorrect_flag = memory_storage.get('admin_incorrect_flag')
         if incorrect_flag:
             await state.update_data(incorrect_flag=False)
+
+        if memory_storage.get('users_block_state') == 'true':
+            person_requester_module = importlib.import_module('database.data_requests.person_requests')
+
+            seller_model = await person_requester_module.PersonRequester.get_user_for_id(seller_id,
+                                                                                       seller=True)
+            ic(seller_model)
+            if seller_model:
+                seller_model = seller_model[0]
+                lexicon_part = await handle_banned_person_card(lexicon_part, seller_model)
+
         await message_editor_module.travel_editor.edit_message(request=request, lexicon_key='',
-                                                               lexicon_part=lexicon_part, dynamic_buttons=2,
+                                                               lexicon_part=lexicon_part,
+                                                               dynamic_buttons=dynamic_buttons,
                                                                delete_mode=not pagination or incorrect_flag)
-    else:
-        if isinstance(request, CallbackQuery):
-            await request.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
-        return await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(request, state,
+        return
+
+    if isinstance(request, CallbackQuery):
+        await request.answer(Lexicon_module.ADMIN_LEXICON['user_non_active'])
+    return await choose_specific_person_by_admin_module.choose_specific_person_by_admin_handler(request, state,
                                                                                                     first_call=False)
 
 
