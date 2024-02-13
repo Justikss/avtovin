@@ -50,8 +50,10 @@ class CheckInputNumber(BaseFilter):
             banned_number = await BannedRequester.check_banned_number(formatted_number, user=buyer_use, seller=seller_use)
             ic(banned_number)
             if number_is_exists or banned_number:
-
-                await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                try:
+                    await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                except:
+                    pass
                 if banned_number:
                     incorrect_flag = '(banned)'
                 elif number_is_exists:
@@ -67,7 +69,10 @@ class CheckInputNumber(BaseFilter):
 
         else:
             if edit_mode == 'true':
-                await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                try:
+                    await chat.Chat.delete_message(self=message.chat, message_id=message_id)
+                except:
+                    pass
 
             if current_state.startswith('CarDealerShipRegistrationStates'):
                 await current_method(request=message, state=state, incorrect='(novalid)')
@@ -77,19 +82,6 @@ class CheckInputNumber(BaseFilter):
 
             return False
         
-
-    # async def handle_backward_command(self, message: Message, state: FSMContext, buyer_use, seller_use):
-    #     from handlers.utils.delete_message import delete_message
-    #     from keyboards.reply.delete_reply_markup import delete_reply_markup
-    #     await delete_reply_markup(message)
-    #     await delete_message(message, message.message_id)
-    #     if buyer_use:
-    #         from handlers.state_handlers.buyer_registration_handlers import input_full_name
-    #         await input_full_name(message, state)
-    #     elif seller_use:
-    #         from handlers.state_handlers.seller_states_handler.seller_registration.seller_registration_handlers import \
-    #             input_seller_name
-    #         await input_seller_name(message, state, from_backward_Delete_mode=True)
 
     @staticmethod
     async def format_and_validate_phone_number(phone_number):

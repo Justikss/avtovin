@@ -1,15 +1,10 @@
 import asyncio
-import cProfile
 import importlib
-import io
-import pstats
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.storage.redis import Redis, RedisStorage
-from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+
 from icecream import ic
 
 from database.data_requests.tariff_requests import TarifRequester
@@ -35,15 +30,11 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.demand_
     TopTenByDemandDisplayHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.bot_statistics.general_statistics.general_statistic import \
     GeneralBotStatisticHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__choose_state import \
-    AdvertParametersChooseCarState
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.new_car_state_parameters_handler import \
     NewCarStateParameters
 
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_branch_confirm.confirm_add_new_branch_handler import \
     ConfirmLoadNewParamsBranchHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import \
-    AddNewValueAdvertParameter
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_media_group_to_advert.input_media import \
     InputCarPhotosToSetParametersBranchHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_deletion.confirm_deletion import \
@@ -56,11 +47,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     ConfirmationRewriteExistsAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_rewriting.start import \
     RewriteExistsAdvertParameterHandler
-
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
-from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
-    OutputSpecificAdvertParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirm import \
     ConfirmAddNewContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirmation import \
@@ -86,8 +74,6 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.actions_a
     user_unban_confirmation
 from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_category.choose_block_user_category import \
     choose_user_block_status
-from handlers.callback_handlers.admin_part.admin_panel_ui.user_actions.choose_specific_user.choose_specific.input_name_to_search.start_input_name_request import \
-    input_person_name_to_search_request_handler
 from handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_pagination import AdminPaginationOutput
 from handlers.callback_handlers.buy_part.buyer_offers_branch.offers_handler import buyer_offers_callback_handler
 
@@ -168,14 +154,8 @@ from utils.asyncio_tasks.invalid_tariffs_deleter import schedule_tariff_deletion
 from utils.asyncio_tasks.old_messages_cleaner import check_on_old_messages
 from utils.get_currency_sum_usd import fetch_currency_rate
 from utils.mailing_heart.mailing_service import mailing_service
-from utils.middleware.exceptions_handler.middleware import ErrorHandler
-from utils.middleware.language import LanguageMiddleware
-from utils.middleware.mediagroup_chat_cleaner import CleanerMiddleware
-from utils.middleware.callbacks_dupe_defender import ThrottlingMiddleware
+from utils.middleware.update_spam_defender.middleware import UpdateThrottlingMiddleware
 from utils.user_notification import delete_notification_for_seller, try_delete_notification
-import contextvars
-
-'''РАЗДЕЛЕНИЕ НА БИБЛИОТЕКИ(/\) И КАСТОМНЫЕ МОДУЛИ(V)'''
 from handlers.callback_handlers.buy_part import FAQ_tech_support, backward_callback_handler, callback_handler_backward_in_carpooling, callback_handler_start_buy, \
     confirm_search_config, language_callback_handler
 from handlers.callback_handlers.buy_part.buyer_offers_branch import show_requests
@@ -184,12 +164,10 @@ from handlers.default_handlers import start
 from handlers.state_handlers import buyer_registration_handlers
 from handlers.state_handlers.buyer_registration_handlers import BuyerRegistationStates
 from handlers.state_handlers.choose_car_for_buy import hybrid_handlers, second_hand_car_handlers
-
 from states.hybrid_choose_states import HybridChooseStates
 from states.second_hand_choose_states import SecondHandChooseStates
 from states.load_commodity_states import LoadCommodityStates
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-
 from states.seller_registration_states import HybridSellerRegistrationStates, CarDealerShipRegistrationStates
 from handlers.callback_handlers.sell_part import start_sell_button_handler, start_seller_registration_callback_handlers, \
     commodity_requests
@@ -200,10 +178,8 @@ from handlers.state_handlers.seller_states_handler.seller_registration import se
 from handlers.state_handlers.seller_states_handler import load_new_car, seller_profile_branch
 from handlers.callback_handlers.hybrid_part import return_main_menu
 from handlers.callback_handlers.hybrid_part.faq import seller_faq, buyer_faq, faq
-
 from handlers.callback_handlers.hybrid_part.utils.media_group_collector import collect_and_send_mediagroup
 
-'''echo.router обязан последней позици.'''
 
 redis = None
 bot = None
@@ -236,15 +212,7 @@ async def start_bot():
     asyncio.create_task(schedule_tariff_deletion(bot))
     asyncio.create_task(GetDealershipAddress.process_queue())
 
-    dp.callback_query.middleware(ErrorHandler())
-    dp.callback_query.outer_middleware(LanguageMiddleware())
-    dp.callback_query.middleware(CleanerMiddleware())
-    dp.callback_query.middleware(ThrottlingMiddleware())
-
-    dp.message.outer_middleware(LanguageMiddleware())
-    dp.message.middleware(ErrorHandler())
-    # dp.message.middleware(LanguageMiddleware())
-
+    dp.update.outer_middleware(UpdateThrottlingMiddleware())
 
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
@@ -336,7 +304,7 @@ async def start_bot():
     dp.callback_query.register(language_callback_handler.set_language,
                                F.data.in_(('language_uz', 'language_ru')))
     dp.callback_query.register(callback_handler_start_buy.start_buy,
-                               F.data == 'start_buy')
+                               F.data == 'start_buy', UserBlockStatusController())
     ic()
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
                                lambda callback: callback.data.startswith('backward'), UserBlockStatusController('sell'))
@@ -361,7 +329,8 @@ async def start_bot():
     ))
 
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
-                              or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
+                              or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'),
+                               UserBlockStatusController())
 
     dp.callback_query.register(accept_registration_request_button.accept_registraiton,
                                lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))

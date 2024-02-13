@@ -17,7 +17,7 @@ class UserBlockStatusController(BaseFilter):
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         lexicon_text = lexicon_module.LEXICON['you_are_blocked_alert']
-        await send_message_answer(request, lexicon_text, 1)
+        await send_message_answer(request, lexicon_text, 1, message=True)
 
         await set_language(request, set_languange=False)
 
@@ -26,9 +26,14 @@ class UserBlockStatusController(BaseFilter):
         person_requester_module = importlib.import_module('database.data_requests.person_requests')
         ic()
         redis_key = f'{request.from_user.id}:user_state'
+
         user_state = self.user_status
         if not user_state:
             user_state = await redis_data_module.redis_data.get_data(key=redis_key)
+            if not user_state and isinstance(request, CallbackQuery):
+                if request.data.startswith('start_'):
+                    user_state = request.data.split('_')[-1]
+
         if user_state:
             user = False
             seller = False
@@ -47,6 +52,7 @@ class UserBlockStatusController(BaseFilter):
                 await self.stop_user_actions(request)
                 if await state.get_state():
                     await state.clear()
+                ic()
                 return False
             else:
                 return True

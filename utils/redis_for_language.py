@@ -623,7 +623,7 @@ class RedisCacheUserStatus:
 
                 user_id = await self.get_telegram_id(*args, **kwargs)
                 if not user_id or not str(user_id).isdigit():
-                    logging.critical('REDIS user update status: telegram id not found in args-kwargs: %s %s', str(args), str(kwargs))
+                    logging.error('REDIS user update status: telegram id not found in args-kwargs: %s %s', str(args), str(kwargs))
                     return
 
                 match model:
@@ -631,7 +631,7 @@ class RedisCacheUserStatus:
                         user_state = await self.get_user_state_from_arguments(*args, **kwargs)
                         redis_key = f'user_ban:{user_state}:{user_id}'
                     case _:
-                        logging.critical('REDIS user update status: model kwarg not implemented')
+                        logging.error('REDIS user update status: model kwarg not implemented')
                         return
                 if user_state:
                     await redis_data.delete_key(redis_key)
@@ -648,7 +648,7 @@ class RedisCacheUserStatus:
             async def wrapper(*args, **kwargs):
                 user_id = await self.get_telegram_id(*args, **kwargs)
                 if not user_id or not str(user_id).isdigit():
-                    logging.critical('REDIS user status: telegram id not found in args-kwargs: %s %s, user_id = %s',
+                    logging.error('REDIS user status: telegram id not found in args-kwargs: %s %s, user_id = %s',
                                      str(args), str(kwargs), user_id)
                     return
 
@@ -658,17 +658,17 @@ class RedisCacheUserStatus:
                         redis_key = f'user_ban:{user_state}:{user_id}'
 
                     case _:
-                        logging.critical('REDIS user status: model kwarg not implemented')
+                        logging.error('REDIS user status: model kwarg not implemented')
                         return
 
                 result = await redis_data.get_data(redis_key)
                 ic(result, result is False)
                 if not result:
-                    logging.critical('REDIS user status: func result not been cached by key: %s', redis_key)
+                    logging.debug('REDIS user status: func result not been cached by key: %s', redis_key)
                     result = await func(*args, **kwargs)
                     if user_state:
                         await redis_data.set_data(redis_key, result)
-                        logging.critical('REDIS user status: set new result by key: %s and value: %s',
+                        logging.debug('REDIS user status: set new result by key: %s and value: %s',
                                          redis_key, result)
                     else:
                         logging.debug('REDIS user status: user state not found by args-kwargs: %s, %s',

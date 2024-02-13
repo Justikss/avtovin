@@ -88,9 +88,9 @@ class BannedRequester:
             if user.is_banned:
                 banned_user = 'yes'
 
-        if not banned_user:
-            banned_user = 'no'
-            ic(banned_user)
+        # if not banned_user:
+        #     banned_user = 'no'
+        ic(banned_user, user.__dict__)
         return banned_user
 
     @staticmethod
