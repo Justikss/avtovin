@@ -3,6 +3,7 @@ import importlib
 import traceback
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
+from aiogram.enums import ChatType
 from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import CallbackQuery, Message, Update
 from datetime import datetime, timedelta
@@ -16,6 +17,7 @@ from utils.middleware.update_spam_defender.modules.media_groups_cleaner import C
 from utils.middleware.update_spam_defender.modules.message import MessageSpamDefender
 
 lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+header_controller_module = importlib.import_module('handlers.default_handlers.start')
 
 # Глобальные переменные для отслеживания активности пользователей
 global_user_message_counts = {}
@@ -47,24 +49,25 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
             event: Update,
             data: Dict[str, Any]
     ) -> Any:
-
         message = event.message
         callback = event.callback_query
-
-        request = message
-        if not request:
+        ic(data)
+        if callback:
             request = callback
+            message = request.message
+        else:
+            request = message
+            message = request
 
-        bot = None
+        if message.chat.type != ChatType.PRIVATE:
+            return
 
-        success_filtration = False
-
-        if message:
+        if isinstance(request, Message):
             if any((message.photo, message.video, message.audio, message.document)):
                 return await handler(event, data)
             bot = message.bot
-            success_filtration = await self.message_spam_defender(message)
-        elif callback:
+            success_filtration = await self.message_spam_defender(request, data.get('state'))
+        else:
             bot = event.callback_query.bot
             success_filtration = await self.callback_spam_handler(callback, bot)
 
@@ -90,12 +93,11 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
 
         async with lock:
             # Обработка апдейта, если блокировка свободна
-            header_controller_module = importlib.import_module('handlers.default_handlers.start')
             await self.language_handler(request)
 
             await self.cleaner_module(request)
             await asyncio.sleep(anti_spam_duration)
-            if await self.chat_header_controller_support(request):
+            if ic(await self.chat_header_controller_support(request, data.get('state'))):
                 await asyncio.sleep(anti_spam_duration)
 
                 await header_controller_module.header_controller(request)
@@ -107,17 +109,54 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
             except Exception as exception:
                 await self.error_handler.logging_exception(exception, request)
                 pass
+            finally:
+                if isinstance(request, CallbackQuery):
+                    await request.answer()
 
-    async def chat_header_controller_support(self, event):
+    async def chat_header_controller_support(self, event, state):
+        # return True
+        ic(str(await state.get_state()) == 'CarDealerShipRegistrationStates:input_dealship_name')
+        current_state = str(await state.get_state())
+        ic(str(await state.get_state()))
         if isinstance(event, CallbackQuery):
-            if event.data in ('backward:user_registration_number', 'backward:seller_registration_number'):
-                from keyboards.reply.delete_reply_markup import delete_reply_markup
-                await delete_reply_markup(event)
+            ic(event.data)
+        if isinstance(event, CallbackQuery):
+            if event.data == 'rewrite_seller_name':
+                await header_controller_module.header_controller(event, True)
+            elif event.data == 'confirm_registration_from_seller':
+                await header_controller_module.header_controller(event)
+
+
                 return False
-            elif event.data == 'rewrite_seller_number':
-                await send_reply_button_contact(event)
+        if current_state == 'CarDealerShipRegistrationStates:input_dealship_name':
+            if isinstance(event, CallbackQuery) and event.data.startswith('backward:'):
+                # from keyboards.reply.delete_reply_markup import delete_reply_markup
+                # await delete_reply_markup(event)
+                pass
+            else:
+                return False
+        elif current_state in ('HybridSellerRegistrationStates:check_input_data') and isinstance(event, CallbackQuery) and event.data.startswith('backward'):
+            ic()
+            return False
+        elif current_state == 'BuyerRegistationStates:finish_check_phone_number':
+            if isinstance(event, CallbackQuery) and event.data.startswith('backward'):
+                return True
+            return False
+        if isinstance(event, CallbackQuery):
+            # if event.data in ('backward:user_registration_number', 'backward:seller_registration_number'):
+            #     from keyboards.reply.delete_reply_markup import delete_reply_markup
+            #     await delete_reply_markup(event)
+            #     return False
+            if event.data == 'rewrite_seller_number':
+                ic()
+                # await send_reply_button_contact(event)
                 return False
 
+        elif isinstance(event, Message) and event.text == '/start':
+            return False
+        else:
+            ic(event.text)
+        ic()
         return True
     def get_user_id(self, request):
         ic(request)

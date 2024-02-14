@@ -22,7 +22,7 @@ low_sep = '────────'
 
 ADMIN_LEXICON_uz = {
     'choose_user_block_category': {'message_text': '<b>Foydalanuvchi turini tanlang:</b>', 'buttons': {
-        'user_block_status:true': 'Bloklanganlar', 'user_block_status:false': 'Faol',
+        'user_block_status:true': 'Bloklashda', 'user_block_status:false': 'Faol',
         **return_main_menu_uz,
         'width': 2
     }},
@@ -42,7 +42,7 @@ ADMIN_LEXICON_uz = {
     'user_has_not_been_blocked': 'Foydalanuvchi bloklanmagan',
     'inputted_admin_is_exists': "Belgilangan administrator allaqachon o'z lavozimida",
     'user_id_not_found': "Foydalanuvchi topilmadi. Ehtimol, u hech qachon botda ro'yxatdan o'tmagan.",
-    'admin_help': {'message_text': '''<b>Atamalar</b>:
+    'admin_help': {'message_text': '''<b>Atamalar:</b>
 Qizil admin - Eng yuqori darajali administrator.
 
 Qizil adminlarga mavjud buyruqlar:
@@ -61,7 +61,8 @@ Har qanday adminlarga mavjud buyruqlar:
 /unban b @username - <i>Xaridorni blokdan chiqarish</i>
 /unban @username - <i>Xaridorni ham, sotuvchini ham blokdan chiqaring</i>
 
-/alist - <i>Adminlar ro'yxati</i>''', 'buttons': {'return_main_menu': 'Menyuga qaytish', 'width': 1}},
+/alist - <i>Adminlar ro'yxati</i>''', 'buttons': {'check_banned_persons': "Foydalanuvchilar ro'yxati",
+                                                  'return_main_menu': 'Menyuga qaytish', 'width': 1}},
     'close_admin_list': 'Menyuda',
     'admin_list_header': 'Administratorlar:\nFoydalanuvchi nomi   Qizil holat',
     'admin_list_part': '\n{username} | {red_status}',
@@ -120,7 +121,7 @@ Har qanday adminlarga mavjud buyruqlar:
                                  'buttons': {'confirm_reset_seller_tariff_action': 'Tasdiqlash',
                                              'admin_backward:reset_seller_tariff': captions_uz['cancel'],
                                              'width': 1}},
-'final_decision_ban_user': {'message_text': '<b>Bloklovni amalga oshirish:</b>\n{user_entity}\nSababi:\n{reason}',
+'final_decision_ban_user': {'message_text': '<b>Bloklovni amalga oshirish:</b>\n{user_entity}\n<b>Sababi:</b>\n{reason}',
                             'confirm_block_user_by_admin': captions_uz['confirm'],
                             'admin_backward:final_confirm_block_user': captions_uz['backward'],
                             'admin_backward:review_result_profile_protocol': captions_uz['cancel'],

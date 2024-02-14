@@ -75,7 +75,7 @@ async def get_output_string(advert, state=None, callback=None):
     else:
         mileage, year_of_realise = None, None
 
-    result_string = f'''{startswith_text}{seller_header}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name, brand=advert.complectation.model.brand.name, model=advert.complectation.model.name, complectation=advert.complectation.name, color=advert.color.name, mileage=mileage, year_of_realise=year_of_realise, sum_price=advert.sum_price, usd_price=advert.dollar_price)}{footer_viewed_by_seller_status}'''
+    result_string = f'''{startswith_text}{seller_header}{await create_advert_configuration_block(advert_id=advert)}{footer_viewed_by_seller_status}'''
 
     return result_string
 

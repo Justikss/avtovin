@@ -31,6 +31,9 @@ def resize_watermark(image_width, image_height, watermark, scale=0.1):
     # else:
     #     print('not from cache')
 
+    if all(side < 300 for side in (image_height, image_width)):
+        scale = 0.3
+        image_width, image_height = image_width * 0.9, image_height * 0.9
     watermark_width = int(image_width * scale)
     aspect_ratio = watermark.shape[1] / watermark.shape[0]
     watermark_height = int(watermark_width / aspect_ratio)

@@ -46,7 +46,7 @@ LEXICON_UZ = {
             'you_are_blocked_alert': 'Siz bu faoliyatda bloklanibsiz',
             'sepp': '—',
             'tariff_non_actuallity': 'Tarif sotib olishingiz kerak!',
-            'awaiting_process': 'Kuting',
+            'awaiting_process': {'message_text': 'Yuklanmoqda..', 'buttons': {'return_main_menu': 'Menyuga', 'width': 1}},
             'new_recommended_offer_startswith': 'Yangi taklif kelib tushdi:',
             'make_choose_brand': 'Markani tanlang:',
             'buyer_havent_recommendated_offers': "Tavsiya etilgan e'lonlar ro'yxati bo'sh!",
@@ -159,8 +159,8 @@ LEXICON_UZ = {
 'write_full_seller_name(exists)': {'message_text': 'Bu ism allaqachon ro‘yxatdan o‘tgan\nBoshqa ism kutmoqda', 'backward:seller_registration_seller_person_name': '◂ Orqaga ▸', 'width': 1},
 
 'write_dealership_name': {'message_text': 'Avtosalon nomini kiriting:', 'backward:seller_registration_dealership_name': '◂ Orqaga ▸', 'width': 1},
-'write_dealership_name(novalid)': f'Avtosalon nomi {max_contact_info_len} belgidan kam bo‘lishi kerak\nva faqat harflar va raqamlardan iborat bo‘lishi kerak:',
-'write_dealership_name(exists)': 'Bu nom allaqachon ro‘yxatdan o‘tgan\nboshqa nom kutilmoqda',
+'write_dealership_name(novalid)': {'message_text': f'Avtosalon nomi {max_contact_info_len} belgidan kam bo‘lishi kerak\nva faqat harflar va raqamlardan iborat bo‘lishi kerak:', 'backward:seller_registration_dealership_name': '◂ Orqaga ▸', 'width': 1},
+'write_dealership_name(exists)': {'message_text': 'Bu nom allaqachon ro‘yxatdan o‘tgan\nboshqa nom kutilmoqda', 'backward:seller_registration_dealership_name': '◂ Orqaga ▸', 'width': 1},
 
 'write_seller_phone_number': {'message_text': 'Telefon raqamingizni kiriting:',
                        'backward:seller_registration_number': '◂ Orqaga ▸', 'width': 1},
@@ -205,7 +205,7 @@ Tarifni rasmiylashtirishingiz mumkin javoblarni olish uchun:</b>
 
 <b>Arizalar bilan ishlash.</b>
 <b>Amalga oshmagan bitimni o'chirish:</b>
-<blockquote><i>[Ko'rilgan javoblar] - [Bitim amalga oshmadi]</i></blockquote>
+<blockquote><i>[Ko'rilgan javoblar] - [Bitim bekor]</i></blockquote>
 
 <b>Tovarni o'chirish:</b><i>Javoblar bo'limida:</i>
 <blockquote><i>[Javoblar] - [Sotuvdan olib tashlash]</i></blockquote>
@@ -398,8 +398,8 @@ Rang: <i>{color}</i></blockquote>
     'confirm': 'Tasdiqlash ✅',
     'delete': 'O‘chirish',
     'rewrite_price_by_seller': 'Narxni o‘zgartirish',
-    'withdrawn': 'Savdodan olib tashlash',
-    'deal_fell_through': 'Bitim amalga oshmadi',
+    'withdrawn': 'Sotishni bekor qil',
+    'deal_fell_through': 'Bitim bekor',
     'page_view_separator': 'Sahifa: ',
     'tariff_prefix': '<blockquote>💰 Tarif: <i>X</i></blockquote>',
     'tarif_expired': '<blockquote>Sizning tarifingiz tugagan</blockquote>',

@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery
 
 from config_data.config import spam_block_time, anti_spam_duration, long_term_spam_block_time
 
@@ -33,13 +34,19 @@ class MessageSpamDefender:
     block_duration = spam_block_time
     long_term_spam_block_time = long_term_spam_block_time
 
-    async def __call__(self, message: Message):
+    async def __call__(self, event: Message | CallbackQuery, state: FSMContext):
 
-
+        # if state and (message.text == '/start' and str(await state.get_state()).startswith(('HybridSellerRegistrationStates',
+        #                                                                          'BuyerRegistationStates'))):
+        #     from keyboards.reply.delete_reply_markup import delete_reply_markup
+        #     await delete_reply_markup(message)
         global global_locks, global_user_message_counts, global_blocked_users, global_active_notifications, \
             long_term_spam_count, long_term_duration, global_long_term_user_message_counts
-        user_id = message.from_user.id
-
+        user_id = event.from_user.id
+        if isinstance(event, CallbackQuery):
+            message = event.message
+        else:
+            message = event
 
         # Проверка блокировки пользователя
         ic(user_id in global_blocked_users)

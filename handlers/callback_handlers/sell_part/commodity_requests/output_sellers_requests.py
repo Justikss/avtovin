@@ -76,12 +76,7 @@ async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
     #     heart = ''
     #
     output_string = f'''{copy(Lexicon_module.LexiconSellerRequests.output_car_request_header).format(
-        offer_number=advert.id)}{await create_advert_configuration_block(car_state=advert.state.name, engine_type=advert.complectation.engine.name,
-                                                                     brand=advert.complectation.model.brand.name,
-                                                                     model=advert.complectation.model.name,
-                                                                     complectation=advert.complectation.name, color=advert.color.name,
-                                                                     mileage=mileage, year_of_realise=year_of_realise,
-                                                                     sum_price=advert.sum_price, usd_price=advert.dollar_price)}'''
+        offer_number=advert.id)}{await create_advert_configuration_block(advert_id=advert)}'''
     output_string = output_string.format()
     ic(output_string)
 

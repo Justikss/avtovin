@@ -12,18 +12,23 @@ from handlers.state_handlers.seller_states_handler.load_new_car.load_data_fromat
 
 
 
-async def get_output_string(mode, boot_data: dict = None, language=None, advert_id=None) -> str:
+async def get_output_string(request, mode, boot_data: dict = None, language=None, advert_id=None) -> str:
     '''Метод создаёт строку для вывода выбранных конфигураций загружаемого авто продавцу/админам.'''
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    if not language:
+        redis_key = f'{str(request.from_user.id)}:language'
+        redis_module = importlib.import_module('handlers.default_handlers.start')
+        language = await redis_module.redis_data.get_data(key=redis_key)
     if mode:
         if mode == 'to_seller':
-            start_sub_string = copy(lexicon_module.LexiconCommodityLoader.config_for_seller)
+            start_sub_string = copy(lexicon_module.commodity_loader_lexicon._data[language]['config_for_seller'])
         elif mode.startswith('to_admins_from_'):
             seller_link = mode.split('_')[3]
             start_sub_string = copy(lexicon_module.commodity_loader_lexicon_ru['config_for_admins']).format(username=seller_link)
     else:
         start_sub_string = ''
-
+    ic(language)
+    ic()
     if language != 'ru':
         bottom_layer = f'''\n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
     else:
@@ -117,15 +122,20 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:structured_boot_data',
                                                  value = structured_boot_data)
 
+    # from utils.safe_dict_class import current_language
+    redis_key = f'{str(request.from_user.id)}:language'
+    redis_module = importlib.import_module('handlers.default_handlers.start')
 
-    output_string = await get_output_string(mode='to_seller',
-                                            boot_data=structured_boot_data)
+    output_string = await get_output_string(request, mode='to_seller',
+                                            boot_data=structured_boot_data,
+                                            language=ic(await redis_module.redis_data.get_data(key=redis_key)
+))
 
 
     output_string = output_string.replace('None', '').strip()
 
 
-    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(state=state,
+    lexicon_part = await create_buttons_module.create_edit_buttons_for_boot_config(request, state=state,
                                                                                    boot_data=structured_boot_data,
                                                                                    output_string=output_string)
 

@@ -63,8 +63,10 @@ class CheckInputNumber(BaseFilter):
 
 
                 return False
-            from keyboards.reply.delete_reply_markup import delete_reply_markup
-            await delete_reply_markup(message)
+            from utils.chat_header_controller import header_controller
+            await header_controller(message, True)
+            # from keyboards.reply.delete_reply_markup import delete_reply_markup
+            # await delete_reply_markup(message)
             return {'input_number': formatted_number}
 
         else:

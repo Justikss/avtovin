@@ -31,6 +31,7 @@ async def delete_message(request: CallbackQuery | Message, message_id=None, chat
     if not chat_id:
         chat_id = message.chat.id
     try:
+        ic(message_id)
         if isinstance(message_id, list):
             delete_method = request.bot.delete_messages
             message_id_kwarg = {'message_ids': message_id}

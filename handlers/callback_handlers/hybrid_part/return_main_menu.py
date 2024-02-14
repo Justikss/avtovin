@@ -17,9 +17,9 @@ async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMC
     user_state = await redis_data.redis_data.get_data(redis_key)
 
     if user_state == 'sell':
-        await sell_main_module.seller_main_menu(callback=callback)
+        await sell_main_module.seller_main_menu(callback=callback, state=state)
     elif user_state == 'buy':
-        await buy_main_module.main_menu(request=callback)
+        await buy_main_module.main_menu(request=callback, state=state)
     elif user_state == 'admin':
         await start_admin_menu(callback, state)
     else:

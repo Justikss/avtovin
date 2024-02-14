@@ -202,11 +202,17 @@ async def get_price_string(head_valute, captions, index):
         result = str(captions[index]) + '$'
     return index, result.strip()
 
-async def create_edit_buttons_for_boot_config(boot_data, output_string, state, rewrite_mode=False):
+async def create_edit_buttons_for_boot_config(request, boot_data, output_string, state, rewrite_mode=False):
     '''Метод генерирует заготовку кнопок (для InlineCreator) с назначением переписи полей добавляемого автомобиля'''
     get_load_car_state_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
     lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     boot_car_lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+
+    redis_key = f'{str(request.from_user.id)}:language'
+    redis_module = importlib.import_module('handlers.default_handlers.start')
+    language = await redis_module.redis_data.get_data(key=redis_key)
+    if not language:
+        language = 'ru'
 
     async def get_color_caption(index):
         ic(captions[index])
@@ -216,7 +222,7 @@ async def create_edit_buttons_for_boot_config(boot_data, output_string, state, r
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
     boot_config_value = list(value for value in boot_data.values())
     ic(boot_config_value)
-    lexicon_button_part = lexicon_module.LEXICON['confirm_load_config_from_seller_button']
+    lexicon_button_part = lexicon_module.LEXICON._data[language]['confirm_load_config_from_seller_button']
     memory_storage = await state.get_data()
     head_valute = memory_storage['head_valute']
 

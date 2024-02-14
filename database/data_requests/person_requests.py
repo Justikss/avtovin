@@ -66,11 +66,11 @@ class PersonRequester:
         if tables:
             queries = []
             for table in tables:
-                queries.append(table.select(table.telegram_id).where(block_status_condition(table)))
+                queries.append(table.select(table.telegram_id))
             query = queries[0] | queries[1]
 
         elif current_table:
-            query = current_table.select(current_table.telegram_id).where(block_status_condition(current_table))
+            query = current_table.select(current_table.telegram_id)
 
         user_ids = list(await manager.execute(query))
         if user_ids:
@@ -122,7 +122,7 @@ class PersonRequester:
                 await OffersRequester.delete_all_buyer_history(telegram_id)
             elif seller:
                 await OffersRequester.delete_seller_offers(telegram_id)
-                # await AdvertFeedbackRequester.delete_by_seller_id(telegram_id)
+                await AdvertFeedbackRequester.delete_by_seller_id(telegram_id)
 
                 await car_advert_requests_module\
                     .AdvertRequester.delete_advert_by_id(telegram_id)

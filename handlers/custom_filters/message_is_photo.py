@@ -23,9 +23,10 @@ class MessageIsPhoto(BaseFilter):
         tasks = []
         for redis_key in trash_redis_keys:
             redis_key = f'{user_id}{redis_key}'
-            last_message_id = await redis_module.redis_data.get_data(key=redis_key)
+            last_message_id = await redis_module.redis_data.get_data(key=redis_key, use_json=True)
             if last_message_id:
-                if not isinstance(last_message_id, int):
+                if isinstance(last_message_id, str):
+                    ic(last_message_id)
                     last_message_id = int(last_message_id)
                 ic(last_message_id)
                 tasks.append(MessageIsPhoto().delete_message(message=message, chat_id=chat_id,
@@ -36,8 +37,12 @@ class MessageIsPhoto(BaseFilter):
 
 
     async def delete_message(self, message, chat_id, last_message_id):
+
         try:
-            await message.bot.delete_message(chat_id=chat_id, message_id=last_message_id)
+            if isinstance(last_message_id, list):
+                await message.bot.delete_messages(chat_id=chat_id, message_ids=last_message_id)
+            else:
+                await message.bot.delete_message(chat_id=chat_id, message_id=last_message_id)
         except:
             pass
 

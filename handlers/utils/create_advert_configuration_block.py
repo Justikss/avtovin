@@ -10,6 +10,8 @@ lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 async def to_language(element, language):
     result = ''
+    ic()
+    ic(element, language)
     name_on_language = f'name_{language}'
     ic(name_on_language)
     ic(hasattr(element, name_on_language))
@@ -35,6 +37,8 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
         else:
             advert_model = advert_id
         # ic(lan)
+        ic(advert_model)
+        ic()
         engine_type = await to_language(advert_model.complectation.engine, language)
         brand = advert_model.complectation.model.brand.name
         model = advert_model.complectation.model.name
@@ -49,7 +53,8 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
 
     ic(isinstance(color, CarColor))
     ic(color)
-
+    ic()
+    ic(language)
     if language:
 
         lexicon = copy(lexicon_module\
@@ -57,6 +62,8 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
     else:
         lexicon = copy(lexicon_module\
                              .LexiconSellerRequests.commodity_output_block)
+        from utils.safe_dict_class import current_language
+        ic(current_language.get())
 
     configurate_block = copy(lexicon).format(state=car_state, engine_type=engine_type,
                                             brand_name=brand, model_name=model,

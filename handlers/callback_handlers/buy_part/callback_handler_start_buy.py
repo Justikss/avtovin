@@ -15,8 +15,10 @@ async def start_buy(callback: CallbackQuery, state: FSMContext):
     user_from_db = await person_requests_module.PersonRequester.get_user_for_id(str(callback.from_user.id), user=True)
     user_ban = await BannedRequester.user_is_blocked(callback.from_user.id, user=True)
     if user_from_db:
-        await callback.answer(Lexicon_module.LEXICON['user_in_system']['message_text'])
-        await buyer_registration_handlers_module.main_menu(request=callback)
+        from handlers.custom_filters.user_not_is_banned import UserBlockStatusController
+        if await UserBlockStatusController('buy')(callback, state):
+            await callback.answer(Lexicon_module.LEXICON['user_in_system']['message_text'])
+            await buyer_registration_handlers_module.main_menu(request=callback, state=state)
     elif user_ban == 'no':
         await callback.answer()
         await state.clear()

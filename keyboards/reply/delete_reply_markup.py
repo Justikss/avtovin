@@ -27,5 +27,5 @@ async def delete_reply_markup(request: Message | CallbackQuery):
     from utils.chat_header_controller import header_controller
     await header_controller(request, True, ReplyKeyboardRemove())
 
-    # await asyncio.sleep(config_module.anti_spam_duration)
+    await asyncio.sleep(config_module.anti_spam_duration)
 

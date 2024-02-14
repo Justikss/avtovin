@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -14,6 +15,7 @@ from utils.user_registartion_notificator import user_dont_registrated
 
 async def try_get_free_tariff(callback, normal_status=False, user_id=False):
     tariff_to_seller_requests_module = importlib.import_module('database.data_requests.tariff_to_seller_requests')
+
 
     if not user_id:
         user_id = callback.from_user.id
@@ -56,10 +58,11 @@ async def try_get_free_tariff(callback, normal_status=False, user_id=False):
 
 
 
-async def seller_main_menu(callback: CallbackQuery, bot=None):
+async def seller_main_menu(callback: CallbackQuery, state: Optional[FSMContext], bot=None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_data = importlib.import_module('utils.redis_for_language')
-
+    if await state.get_state():
+        await state.clear()
     await try_delete_notification(callback=callback, user_status='seller')
     await delete_media_groups(request=callback)
     await redis_data.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')

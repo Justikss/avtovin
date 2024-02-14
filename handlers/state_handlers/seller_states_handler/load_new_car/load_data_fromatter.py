@@ -10,7 +10,11 @@ from aiogram.fsm.context import FSMContext
 async def data_formatter(request: Union[Message, CallbackQuery], state: FSMContext, id_values=False):
     '''Собирает сырые объекты в стэк данных по загружаемому автомобилю'''
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
+    redis_key = f'{str(request.from_user.id)}:language'
+    redis_module = importlib.import_module('handlers.default_handlers.start')
 
+
+    language = await redis_module.redis_data.get_data(key=redis_key)
     memory_storage = await state.get_data()
 
     sub_data = {'seller_id': request.from_user.id,
@@ -43,7 +47,12 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
                         value = Lexicon_module\
                             .LEXICON['other_caption']
                     elif hasattr(value, 'name'):
-                        value = value.name
+                        if hasattr(value, f'name_{language}'):
+                            value_name = getattr(value, f'name_{language}')
+                            value = value.name if not value_name else value_name
+
+                        else:
+                            value = value.name
                     else:
 
                         raise(f'None moment {value}')

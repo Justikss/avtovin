@@ -4,8 +4,7 @@ import logging
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
-    output_tariffs_for_admin
+
 from handlers.utils.message_answer_without_callback import send_message_answer
 from utils.lexicon_utils.logging_utils.admin_loggings import log_admin_action
 
@@ -42,5 +41,6 @@ async def insert_tariff_data(message: Message, state: FSMContext):
                 .ADMIN_LEXICON['unsuccessfully_add_tariff']
 
     await send_message_answer(message, alert_text, 1)
-
+    from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
+        output_tariffs_for_admin
     await output_tariffs_for_admin(message, state)

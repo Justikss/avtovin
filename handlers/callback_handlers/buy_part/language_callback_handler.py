@@ -89,3 +89,4 @@ async def set_language(request: CallbackQuery | Message, delete_mode=False, set_
             message_object = await message.answer(text=message_text, reply_markup=keyboard)
     
     await redis_data.set_data(string_user_id + ':last_message', message_object.message_id)
+

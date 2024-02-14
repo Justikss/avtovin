@@ -29,7 +29,7 @@ __ADMIN_LEXICON = {
     'banned_users_caption_parent_case:true': '<i>блокированного</i>',
     'banned_users_caption_parent_case:false': '<i>активного</i>',
     'choose_user_block_category': {'message_text': '<b>Выберите тип пользователей:</b>', 'buttons': {
-        'user_block_status:true': 'Заблокированные', 'user_block_status:false': 'Активные',
+        'user_block_status:true': 'В блокировке', 'user_block_status:false': 'Активные',
         **return_main_menu,
         'width': 2
     }},
@@ -45,7 +45,7 @@ __ADMIN_LEXICON = {
     'user_has_not_been_blocked': 'Пользователь не был заблокирован',
     'inputted_admin_is_exists': 'Указанный администратор уже стоит на своей должности',
     'admin_help': {
-            'message_text': '''<b>Терминология</b>:
+            'message_text': '''<b>Терминология:</b>
 Красный админ - Администратор высшего уровня.
 
 Команды доступные красным админам:
@@ -64,7 +64,8 @@ __ADMIN_LEXICON = {
 /unban b @username - <i>Разблокировать  покупателя</i>
 /unban @username - <i>Разблокировать  и покупателя и продавца</i>
 
-/alist - <i>Список админов</i>''', 'buttons': {'return_main_menu': 'В меню', 'width': 1}
+/alist - <i>Список админов</i>''', 'buttons': {'check_banned_persons': 'Список пользователей',
+                                               'return_main_menu': 'В меню', 'width': 1}
 
         },
     'fullname_caption': 'ФИО',
@@ -131,7 +132,7 @@ __ADMIN_LEXICON = {
                                      'buttons': {'confirm_reset_seller_tariff_action': 'Подтвердить',
                                                  'admin_backward:reset_seller_tariff': _captions['cancel'],
                                                  'width': 1}},
-    'final_decision_ban_user': {'message_text': '<b>Произвести блокировку:</b>\n{user_entity}\nПо причине:\n{reason}',
+    'final_decision_ban_user': {'message_text': '<b>Произвести блокировку:</b>\n{user_entity}\n<b>По причине:</b>\n{reason}',
                                 'confirm_block_user_by_admin': _captions['confirm'],
                                 'admin_backward:final_confirm_block_user': _captions['backward'],
                                 'admin_backward:review_result_profile_protocol': _captions['cancel'],

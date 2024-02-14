@@ -72,7 +72,7 @@ async def seller_confirm_registration(callback: CallbackQuery, state: FSMContext
         seller_main_menu_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
         lexicon_code = 'confirm_seller_profile_notification'
         await send_message_to_admins(callback=callback)
-        await seller_main_menu_module.seller_main_menu(callback)
+        await seller_main_menu_module.seller_main_menu(callback, state=state)
 
     else:
         lexicon_code = 'try_again_seller_registration'

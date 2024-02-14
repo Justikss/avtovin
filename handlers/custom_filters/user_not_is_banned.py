@@ -33,6 +33,8 @@ class UserBlockStatusController(BaseFilter):
             if not user_state and isinstance(request, CallbackQuery):
                 if request.data.startswith('start_'):
                     user_state = request.data.split('_')[-1]
+            if not user_state:
+                return True
 
         if user_state:
             user = False

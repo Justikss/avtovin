@@ -4,8 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from database.tables.tariff import Tariff
-from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
-    output_tariffs_for_admin
+
 from handlers.utils.message_answer_without_callback import send_message_answer
 from states.admin_part_states.tariffs_branch_states import TariffEditState
 from utils.get_currency_sum_usd import get_valutes
@@ -69,6 +68,8 @@ async def edit_tariff_by_admin_handler(request: CallbackQuery | Message, state: 
                                                                lexicon_part=lexicon_part, delete_mode=delete_mode)
         await state.set_state(TariffEditState.waiting_for_field_choice)
     else:
+        from handlers.callback_handlers.admin_part.admin_panel_ui.tariff_actions.output_tariff_list import \
+            output_tariffs_for_admin
         await send_message_answer(request, Lexicon_module.ADMIN_LEXICON['tariff_was_inactive'], 1)
         await output_tariffs_for_admin(request, state)
 

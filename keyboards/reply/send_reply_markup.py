@@ -22,7 +22,7 @@ async def send_reply_button_contact(request: Message | CallbackQuery):
 
     # await asyncio.sleep(config_module.anti_spam_duration)
     from utils.chat_header_controller import header_controller
-    await header_controller(request, True, keyboard)
+    await header_controller(request, True, ic(keyboard))
     # delete_reply_markup_message = await request.bot.send_message(reply_markup=keyboard, text='||О||', chat_id=chat_id,
     #                                                              parse_mode="MarkdownV2")
 

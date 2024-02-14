@@ -3,6 +3,7 @@ import importlib
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
+from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.types import Message
 
@@ -215,9 +216,22 @@ async def start_bot():
 
     dp.update.outer_middleware(UpdateThrottlingMiddleware())
 
-    # @dp.message()
-    # async def re(message: Message):
-    #     await message.answer(str(message.chat.id))
+    # @dp.message(F.text == 's')
+    # async def re(message: Message, state: FSMContext):
+    #     mm = await message.answer(str(message.chat.id))
+    #     await state.update_data(mmm=mm.message_id)
+    #     # await message.bot.delete_message(chat_id=message.chat.id, message_id=mm.message_id)
+    #     # await message.bot.edit_message_text(chat_id=message.chat.id, message_id=mm.message_id, text='1111saas')
+    #     # await message.edit_text(chat_id=message.chat.id, message_id=mm.message_id, text='1111saas')
+    # @dp.message(F.text == 'a')
+    # async def re(message: Message, state: FSMContext):
+    #     w = await state.get_data()
+    #     mi = w['mmm']
+    #     # await message.bot.delete_message(chat_id=message.chat.id, message_id=mi)
+    #     asdsa = await message.bot.edit_message_text(chat_id=message.chat.id, message_id=mi, text='1111saas')
+    #     ic(asdsa)
+    #     # await message.edit_text(chat_id=message.chat.id, message_id=mm.message_id, text='1111saas')
+
 
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
@@ -309,10 +323,10 @@ async def start_bot():
     dp.callback_query.register(language_callback_handler.set_language,
                                F.data.in_(('language_uz', 'language_ru')))
     dp.callback_query.register(callback_handler_start_buy.start_buy,
-                               F.data == 'start_buy', UserBlockStatusController())
+                               F.data == 'start_buy')
     ic()
     dp.callback_query.register(backward_callback_handler.backward_button_handler,
-                               lambda callback: callback.data.startswith('backward'), UserBlockStatusController('sell'))
+                               lambda callback: callback.data.startswith('backward'))
     dp.callback_query.register(hybrid_handlers.search_auto_callback_handler,
                                F.data == 'car_search', UserBlockStatusController())
     dp.callback_query.register(confirm_search_config.confirm_settings_handler,
@@ -334,8 +348,7 @@ async def start_bot():
     ))
 
     dp.callback_query.register(start_sell_button_handler.start_sell_callback_handler,
-                              or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'),
-                               UserBlockStatusController())
+                              or_f(F.data == 'start_sell', F.data == 'return_to_start_seller_registration'))
 
     dp.callback_query.register(accept_registration_request_button.accept_registraiton,
                                lambda callback: callback.data.startswith('confirm_new_seller_registration_from'))
@@ -408,7 +421,8 @@ async def start_bot():
                                AdminStatusController())
 
     dp.callback_query.register(choose_user_block_status,
-                               F.data == 'admin_button_users')
+                               F.data.in_(('admin_button_users',
+                                           'check_banned_persons')))
 
 
     dp.callback_query.register(tariff_actions.output_tariff_list.output_tariffs_for_admin,

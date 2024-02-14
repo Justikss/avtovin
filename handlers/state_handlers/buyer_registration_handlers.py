@@ -177,8 +177,9 @@ async def input_phone_number(message: Message, state: FSMContext, incorrect=None
 
     from keyboards.inline.kb_creator import InlineCreator
     # if isinstance(message, Message):
-    from keyboards.reply.send_reply_markup import send_reply_button_contact
-    await send_reply_button_contact(message)
+    if not incorrect:
+        from keyboards.reply.send_reply_markup import send_reply_button_contact
+        await send_reply_button_contact(message)
     keyboard = await InlineCreator.create_markup(lexicon_part)
 
     from handlers.utils.delete_message import delete_message
@@ -223,7 +224,7 @@ async def finish_check_phone_number(message: Message, state: FSMContext, input_n
 
         await state.clear()
 
-        await main_menu(request=message)
+        await main_menu(request=message, state=state)
 
     except NumberParseException:
         await input_phone_number(message=message, state=state, incorrect='(novalid)')

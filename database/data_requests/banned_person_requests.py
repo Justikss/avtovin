@@ -87,7 +87,7 @@ class BannedRequester:
         if user:
             if user.is_banned:
                 banned_user = 'yes'
-
+        ic(banned_user, telegram_id)
         # if not banned_user:
         #     banned_user = 'no'
         # ic(banned_user, user.__dict__)

@@ -63,13 +63,13 @@ __CATALOG_LEXICON = {
         'width': 1
     }},
     'catalog_close_advert__confirmation_advert_close_action': {
-        'message_text': '<b>Произвести {action_subject}</b>\n{seller_entity}\n{advert_caption}По причине:\n<b>{action_reason}</b>',
+        'message_text': '<b>Произвести {action_subject}</b>\n{seller_entity}\n{advert_caption}<b>По причине:</b>\n<b>{action_reason}</b>',
         'buttons': {'catalog_review__confirm_close_action': captions['confirm'],
                     'admin_backward:to_catalog_review_adverts': 'Вернуться к объявлениям',
                     'admin_backward:catalog_review_close_action_confirmation': captions['backward'],
                     **return_main_menu,
                     'width': 1}},
-    'close_advert_seller_notification': {'message_text': 'Ваше объявление №{advert_id} было удалено администратором по причине: {close_reason}',
+    'close_advert_seller_notification': {'message_text': 'Ваше объявление №{advert_id} было удалено администратором по причине: <b>{close_reason}</b>',
                                          'close_seller_notification_by_redis:close_advert': captions['close'],
                                          'width': 1}
 }

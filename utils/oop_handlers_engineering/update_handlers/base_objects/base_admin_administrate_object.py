@@ -23,12 +23,19 @@ class BaseAdminCommandHandler(BaseMessageHandler):
         self.admin_lexicon = ADMIN_LEXICON
         super().__init__(output_methods, filters)
 
+    async def username_len_filter(self, username):
+        if len(username) > 35:
+            return False
+        return True
+
     async def get_user_id(self, request, banned=False):
         user_name = request.text.split()[-1]
         telegram_id = None
         ic(user_name)
         ic(banned)
         if user_name.startswith('@'):
+            if not await self.username_len_filter(user_name):
+                return False
             if not banned:
                 from database.data_requests.person_requests import PersonRequester
 

@@ -45,7 +45,7 @@ async def create_notification_for_admins(callback, commodity_number):
 
         structured_boot_data = await message_editor.redis_data.get_data(key=redis_key, use_json=True)
 
-        output_string = await get_output_string(mode=None,
+        output_string = await get_output_string(callback, mode=None,
                                                 boot_data=structured_boot_data, language='ru',
                                                 advert_id=commodity_number)
 

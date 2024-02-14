@@ -60,13 +60,13 @@ CATALOG_LEXICON_UZ = {
         'width': 1
     }},
     'catalog_close_advert__confirmation_advert_close_action': {
-        'message_text': '<b>{action_subject} amalga oshirish</b>\n{seller_entity}\n{advert_caption}Sababi:\n<b>{action_reason}</b>',
+        'message_text': '<b>{action_subject} amalga oshirish</b>\n{seller_entity}\n{advert_caption}<b>Sababi:</b>\n<b>{action_reason}</b>',
     'buttons': {'catalog_review__confirm_close_action': captions_uz['confirm'],
                 'admin_backward:to_catalog_review_adverts': 'E’lonlarga qaytish',
                 'admin_backward:catalog_review_close_action_confirmation': captions_uz['backward'],
                 **return_main_menu_uz,
                 'width': 1}},
-'close_advert_seller_notification': {'message_text': 'Sizning №{advert_id} raqamli e’loningiz admin tomonidan quyidagi sababga ko‘ra o‘chirildi: {close_reason}',
+'close_advert_seller_notification': {'message_text': 'Sizning №{advert_id} raqamli e’loningiz admin tomonidan quyidagi sababga ko‘ra o‘chirildi: <b>{close_reason}</b>',
                                      'close_seller_notification_by_redis:close_advert': captions_uz['close'],
                                      'width': 1}}
 

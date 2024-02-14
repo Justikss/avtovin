@@ -212,7 +212,7 @@ class RedisRequester:
     async def set_ttl(self, key, expire):
         if not expire:
             if any(sub_key in key for sub_key in self.keys_storage['messages']):
-                expire = 48 * 60 * 60
+                expire = 24 * 60 * 60
                 return expire
 
 
@@ -286,9 +286,7 @@ class RedisForCache:
             kwarg_name = id_key.split(':')[1]
             arg_index = id_key.split(':')[0]
             id_value = kwargs.get(kwarg_name)
-            if not id_value:
-                ic(arg_index, args, len(args))
-                ic(args[int(arg_index)])
+            if not id_value and int(arg_index) >= len(args)-1:
                 id_value = args[int(arg_index)]
 
             if model in (RecommendedOffers, CacheBuyerOffers, ActiveOffers):

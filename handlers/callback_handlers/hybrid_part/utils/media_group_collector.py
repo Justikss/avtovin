@@ -12,6 +12,8 @@ from httpx import ConnectError
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 from states.admin_part_states.catalog_states.advert_parameters_states import AdminAdvertParametersStates
 from states.load_commodity_states import LoadCommodityStates
+from utils.middleware.update_spam_defender.modules.language import LanguageMiddlewareModule
+
 # from utils.photo_utils.insert_watermark import insert_watermark
 
 mediagroups = {}
@@ -70,7 +72,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             return
         mediagroups[album_id] = [{'id': photo_id, 'unique_id': unique_id}]
         user_messages.append(message.message_id)
-        await asyncio.sleep(2)
+        await asyncio.sleep(2.5)
         # media_group = await insert_watermark(mediagroups[album_id], message.chat.id, message.bot)
 
         # new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
@@ -117,6 +119,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
 
 async def handle_user_input_photos(album_id, message, state):
     redis_data_module = importlib.import_module('utils.redis_for_language')
+    message_editor_module = importlib.import_module('handlers.message_editor')
+    Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
     bot = message.bot
     chat_id = message.chat.id
 
@@ -146,7 +151,9 @@ async def handle_user_input_photos(album_id, message, state):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, os.remove, file_path)
 
-
+    # await message_editor_module.travel_editor.edit_message(request=message,
+    #                                                        lexicon_part=Lexicon_module.LEXICON['awaiting_process'],
+    #                                                        lexicon_key='')
 
     tasks = [bot.get_file(mediagroup['id']) for mediagroup in mediagroups[album_id]]
     files_info = await asyncio.gather(*tasks)
@@ -188,6 +195,7 @@ async def handle_user_input_photos(album_id, message, state):
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         await send_message_answer(message, Lexicon_module.ADMIN_LEXICON['unsuccessfully'])
+        # await LanguageMiddlewareModule()(message)
         await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
                                                                          media_photos=[])
         logging.critical('Ошибка при отправке фотографий с вотермаркой в чат: %s'

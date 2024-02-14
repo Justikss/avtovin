@@ -18,8 +18,10 @@ async def bot_start(message: Message, state: FSMContext):
     travel_editor = importlib.import_module('handlers.message_editor')
     from database.data_requests.admin_requests import AdminManager
     from config_data.config import TEST_MOMENT
-    from keyboards.reply.delete_reply_markup import delete_reply_markup
-    await delete_reply_markup(message)
+
+    header_controller_module = importlib.import_module('handlers.default_handlers.start')
+    await header_controller_module.header_controller(message, need_delete=True)
+
 
     if TEST_MOMENT:
         await AdminManager.set_red_admin(message.from_user.id)

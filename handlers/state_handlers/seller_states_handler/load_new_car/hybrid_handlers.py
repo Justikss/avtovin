@@ -239,6 +239,7 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     base_lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
+    message_text = ''
 
     if not bot:
         if isinstance(request, CallbackQuery):
@@ -283,9 +284,9 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
         if incorrect == '$':
             Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
-            lexicon_part.message_text = f'''{lexicon_part.message_text}\n{Lexicon_module.class_lexicon['incorrect_price_$']}'''
+            message_text = f'''{lexicon_part.message_text}\n{Lexicon_module.class_lexicon['incorrect_price_$']}'''
         else:
-            lexicon_part.message_text = base_lexicon_module.LEXICON['message_not_digit']
+            message_text = base_lexicon_module.LEXICON['message_not_digit']
 
     if not isinstance(lexicon_part, dict):
         await lexicon_part.initializate(request, state)
@@ -293,6 +294,8 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
 
     lexicon_part = await lexicon_part.part()
     ic(lexicon_part)
+    if message_text:
+        lexicon_part['message_text'] = message_text
 
 
     ic(await state.get_state())

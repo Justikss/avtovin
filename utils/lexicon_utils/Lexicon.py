@@ -44,7 +44,7 @@ __LEXICON = {
             'you_are_blocked_alert': 'Вы заблокированы в данной деятельности',
             'sepp': '—',
             'tariff_non_actuallity': 'Вам следует приобрести тариф!',
-            'awaiting_process': 'Ожидайте',
+            'awaiting_process': {'message_text': 'Загрузка..', 'buttons': {'return_main_menu': 'В Меню', 'width': 1}},
             'new_recommended_offer_startswith': 'Поступило новое предложение:',
             'make_choose_brand': 'Выберите марку:',
             'buyer_havent_recommendated_offers': 'Список рекомендованных объявлений пуст!',
@@ -89,8 +89,8 @@ __LEXICON = {
             'write_phone_number(exists)': '<b>Некорректный ввод номера!</b>\nОн уже зарегистрирован\nожидается иной',
             'write_phone_number(banned)': 'Данный номер телефона заблокирован на площадке покупателей\nПожалуйста введите новый:',
             # 'most_answers': {'message_text': 'Ответы на часто задаваемые вопросы', 'in_main': 'В меню', 'width': 1},
-            'main_menu': {'message_text': '<b>Меню покупателя</b> 👨🏻‍💻\nВыберите ваше действие:', 'buyer_requests': 'Предложения 📋', 'car_search': '🚘 Поиск Авто',
-                          'faq': 'Инструкции 💬', 'support': '🌐 Поддержка', 'backward:set_language': '◂ Назад ▸ ', 'width': 2},
+            'main_menu': {'message_text': '<b>Меню покупателя</b> 👨🏻‍💻\nВыберите ваше действие:', 'support': 'Поддержка 🌐', 'buyer_requests': '📋 Заявки',
+                          'faq': 'Инструкции 💬', 'car_search': '🚘 Поиск Авто', 'backward:set_language': '◂ Назад ▸ ', 'width': 2},
             'buyer_requests': {'message_text': '<b>Список предложений:</b>', 'buttons': {'buyer_cached_offers': '🚫 Неподтверждённые ({non_confirmed})', 'buyer_active_offers': '✅ Подтверждённые ({confirmed})', 'buyers_recommended_offers': '🔥 Новые ({new})', 'return_main_menu': 'В Меню', 'width': 1}},
             'f_a_q': {'message_text': f'<b>Ответы на часто задаваемые вопросы:</b>\n' + '''
 <b>Тех поддержка:</b>
@@ -152,8 +152,8 @@ __LEXICON = {
             'write_full_seller_name(exists)': {'message_text': 'Это имя уже зарегистрировано\nожидается иное', 'backward:seller_registration_seller_person_name': '◂ Назад ▸', 'width': 1},
 
             'write_dealership_name': {'message_text': 'Введите название автосалона:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
-            'write_dealership_name(novalid)': f'Название автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр:',
-            'write_dealership_name(exists)': 'Это название уже зарегестрировано\nожидается иное',
+            'write_dealership_name(novalid)': {'message_text': f'Название автосалона должно быть длинной менее {max_contact_info_len} символов\nИ состоять только из букв и цифр:', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
+            'write_dealership_name(exists)': {'message_text': 'Это название уже зарегистрировано\nожидается иное', 'backward:seller_registration_dealership_name': '◂ Назад ▸', 'width': 1},
 
             'write_seller_phone_number': {'message_text': 'Введите ваш номер телефона:',
                                    'backward:seller_registration_number': '◂ Назад ▸', 'width': 1},
@@ -171,7 +171,7 @@ __LEXICON = {
 
             'confirm_seller_profile_notification': {'message_text': '✅ Успешно, профиль продавца подтверждён!', 'buttons': {'seller_main_menu': 'В меню продавца 👨🏻‍💼', 'close_seller_notification_by_redis:seller': captions['close'], 'width': 1}},
 
-            'seller_main_menu': {'message_text': '<b>Меню продавца</b> 👨🏻‍💼\nВыберите ваше действие:', 'seller_pofile': 'Профиль 📱', 'seller_requests': '📋 Заявки', 'support': 'Поддержка 🌐', 'faq': '💬 Инструкции', 'backward:set_language': '◂ Назад ▸', 'width': 2},
+            'seller_main_menu': {'message_text': '<b>Меню продавца</b> 👨🏻‍💼\nВыберите ваше действие:', 'seller_requests': 'Заявки 📋', 'faq': '💬 Инструкции', 'seller_pofile': 'Профиль 📱', 'support': '🌐 Поддержка', 'backward:set_language': '◂ Назад ▸', 'width': 2},
 
             'confirm_new_seller_registration_from_admin_button': {'confirm_from_admin': 'Подтвердить ✅', 'callback_startswith': 'confirm_new_seller_registration_from:'},
 

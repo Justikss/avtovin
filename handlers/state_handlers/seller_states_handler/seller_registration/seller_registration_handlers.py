@@ -129,9 +129,13 @@ async def hybrid_input_seller_number(request: Union[CallbackQuery, Message], sta
         message_reply_mode = False
 
 
-    from keyboards.reply.send_reply_markup import send_reply_button_contact
-    if isinstance(request, Message):
-        await send_reply_button_contact(message)
+
+    # if isinstance(request, Message) and not incorrect:
+    ic(incorrect)
+    if not incorrect:
+        from keyboards.reply.send_reply_markup import send_reply_button_contact
+        ic()
+        await send_reply_button_contact(request)
 
 
     await message_editor_module.travel_editor.edit_message(request=travel_object, lexicon_key='', lexicon_part=lexicon_part,
@@ -148,7 +152,10 @@ async def dealership_input_address(request: Union[CallbackQuery, Message], state
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_module = importlib.import_module('handlers.default_handlers.start')  # Ленивый импорт
     check_reg_config_module = importlib.import_module('handlers.state_handlers.seller_states_handler.seller_registration.check_your_registration_config')
-
+    # ic(str(await state.get_state()))
+    # if str(await state.get_state()) == 'CarDealerShipRegistrationStates:input_dealship_name':
+    #     from keyboards.reply.delete_reply_markup import delete_reply_markup
+    #     await delete_reply_markup(request)
     if incorrect:
         delete_mode = True
     else:

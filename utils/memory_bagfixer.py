@@ -9,4 +9,4 @@ Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 async def memory_was_lost(callback: CallbackQuery, mode: str):
     await callback.answer(Lexicon_module.LEXICON['retry_now_allert'])
     if mode == 'seller':
-        await seller_main_menu(callback=callback)
+        await seller_main_menu(callback=callback, state=None)
