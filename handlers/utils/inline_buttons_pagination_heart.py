@@ -9,6 +9,8 @@ from icecream import ic
 
 from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
 from handlers.utils.pagination_heart import Pagination
+from states.hybrid_choose_states import HybridChooseStates
+from states.second_hand_choose_states import SecondHandChooseStates
 from utils.chat_cleaner.media_group_messages import delete_media_groups
 
 
@@ -175,6 +177,10 @@ class CachedRequestsView:
         user_state = await redis_module.redis_data.get_data(str(callback.from_user.id) + ':user_state')
         if user_state == 'buy':
             backward_command = lexicon_module.LEXICON['backward_from_buyer_offers']
+            if current_state in (HybridChooseStates.select_color, SecondHandChooseStates.select_mileage,
+                                 HybridChooseStates.config_output, SecondHandChooseStates.select_year):
+                backward_command = memory_storage.get('last_buttons')
+
         elif user_state == 'sell':
             if memory_storage:
                 ic()

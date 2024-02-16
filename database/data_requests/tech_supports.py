@@ -10,7 +10,7 @@ class TechSupportsManager:
         return await manager.get_or_none(TechSupports, link=link)
     @staticmethod
     async def get_by_type(supports_type):
-        support_models = list(await manager.execute(TechSupports.select().where(TechSupports.type == supports_type)))
+        support_models = list(await manager.execute(TechSupports.select().where(TechSupports.type == supports_type).order_by(TechSupports.id.desc())))
         return support_models
 
     @staticmethod

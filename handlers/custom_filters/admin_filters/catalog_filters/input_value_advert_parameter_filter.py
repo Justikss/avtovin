@@ -102,7 +102,7 @@ class AdvertParameterValueFilter(BaseFilterObject):
         one_symbol_limit = not all(symbol in inputted_value for symbol in ('+', '-'))
         point_limit = inputted_value.count('.') <= 6
         valid_number = not inputted_value.startswith(('-', '.', '+'))
-        input_value_not_null = not any(value_part.startswith('0') for value_part in only_digit_value)
+        input_value_not_null = not any(value_part.startswith('0') for value_part in inputted_value.replace('+', '').replace(' ', '').replace('.', '').split('-'))
         plus_correct_position = inputted_value.endswith('+') if '+' in inputted_value else True
         if all((only_digit_value.isdigit(), one_nodigit_type_limit, one_symbol_limit, point_limit, valid_number,
                 plus_correct_position, input_value_not_null)):

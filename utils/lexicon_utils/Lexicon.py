@@ -12,7 +12,7 @@ from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.bot_statistic_uz import STA
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.catalog_lexicon_uz import CATALOG_LEXICON_UZ, catalog_captions_uz
 from utils.lexicon_utils.lexicon_uz.lexicon_uz import LEXICON_UZ, money_valute, \
     max_price_len, max_contact_info_len, lexicon_uz, captions_uz
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 from utils.lexicon_utils.admin_lexicon.admin_lexicon import __ADMIN_LEXICON
 from utils.lexicon_utils.admin_lexicon.advert_action_lexicon import __ADVERT_LEXICON
 
@@ -50,7 +50,7 @@ __LEXICON = {
             'buyer_havent_recommendated_offers': 'Список рекомендованных объявлений пуст!',
             'active_offers_non_exists': 'Список активных предложений пуст.',
             "buyer_haven't_cached_requests": 'История недавно просмотренных пуста.',
-            'incoming_address_caption': 'Указанный адрес:\n',
+            'incoming_address_caption': '<b>Указанный адрес:</b>\n',
             'address': 'Адрес',
             'waiting_request_process': "Ваш запрос обрабатывается. Примерное время ожидания: {time} {seconds}",
             'cached_requests_for_buyer_message_text': {
@@ -340,12 +340,12 @@ lexicon_ru = {
     'choose_year_text': 'Выберите год',
     'choose_mileage_text': 'Выберите пробег',
     'choose_color_text': 'Выберите цвет',
-    'seller_sure_delete_car_ask_text': 'Вы уверены что хотите удалить с витрины машину №{number} ?',
+    'seller_sure_delete_car_ask_text': '<b>Вы уверены что хотите удалить с витрины машину</b> <i>№{number}</i> ?',
     'seller_does_have_active_requests_alert': 'У вас нет активных заявок',
     'seller_does_have_active_car_by_brand': 'Эта марка не актуальна.',
     'matched_advert': 'У вас в каталоге уже имеется идентичное объявление, повторно не выложить!',
     'select_brand_message_text': '<b>Выберите марку автомобиля</b>',
-    'input_new_price': 'Введите новую стоимость.\nНынешняя цена: {current_price}',
+    'input_new_price': '<b>Введите новую стоимость.</b>\nНынешняя цена: <i>{current_price}</i>',
     'input_new_price_incorrect_message_text': f'<b>Пожалуйста, укажите одно число, длиной до {max_price_len} цифр.</b>',
     'input_new_price_car_dont_exists': 'К сожалению автомобиль снят с продажи.',
     'succes_rewrite_price': 'Цена успешно изменена',
@@ -424,7 +424,7 @@ class_lexicon = SafeDict({'ru': lexicon_ru,
 
 
 
-class LastButtonsInCarpooling(ABC, SmartGetattr):
+class LastButtonsInCarpooling(ABC):
     def __init__(self):
         super().__init__()
 
@@ -499,7 +499,7 @@ class SecondsEndswith:
     two_four = 'ы'
 
 
-class LexiconSellerRequests(SmartGetattr):
+class LexiconSellerRequests(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -568,7 +568,7 @@ class LexiconSellerRequests(SmartGetattr):
         self.success_delete = class_lexicon['success_delete']
 
 
-class LexiconSellerProfile(SmartGetattr):
+class LexiconSellerProfile(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -596,7 +596,7 @@ class LexiconSellerProfile(SmartGetattr):
 class DateTimeFormat:
     get_string = '%d-%m-%Y %H:%M:%S'
 
-class LexiconTariffSelection(SmartGetattr):
+class LexiconTariffSelection(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -606,7 +606,7 @@ class LexiconTariffSelection(SmartGetattr):
         self.buttons_callback_data = 'select_tariff:'
         self.backward_command = {'backward:affordable_tariffs': class_lexicon['backward_in_carpooling']}
 
-class LexiconSelectedTariffPreview(SmartGetattr):
+class LexiconSelectedTariffPreview(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -618,7 +618,7 @@ class LexiconSelectedTariffPreview(SmartGetattr):
         self.buttons = {'start_choose_payment_method': class_lexicon['start_choose_payment_method'],
                        'backward:tariff_preview': class_lexicon['backward_in_carpooling'], 'width': 1}
 
-class LexiconChoicePaymentSystem(SmartGetattr):
+class LexiconChoicePaymentSystem(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -629,7 +629,7 @@ class LexiconChoicePaymentSystem(SmartGetattr):
         self.bottom_buttons = {'backward:choose_payment_system': class_lexicon['backward_in_carpooling'], 'width': 1}
         self.buttons_list = [self.payment_click, self.payment_payme, self.payment_uzumPay, self.bottom_buttons]
 
-class LexiconCreateInvoice(SmartGetattr):
+class LexiconCreateInvoice(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -638,7 +638,7 @@ class LexiconCreateInvoice(SmartGetattr):
         self.description = class_lexicon['create_invoice_description']
         self.load_price_label = class_lexicon['create_invoice_load_price_label']
 
-class LexiconPaymentOperation(SmartGetattr):
+class LexiconPaymentOperation(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -647,20 +647,3 @@ class LexiconPaymentOperation(SmartGetattr):
         self.cancel_button = {'backward:make_payment': class_lexicon['payment_operation_cancel_button']}
         self.width_parameter = {'width': 1}
 
-
-LexiconSellerRequests = LexiconSellerRequests()
-LexiconTariffSelection = LexiconTariffSelection()
-LexiconSelectedTariffPreview = LexiconSelectedTariffPreview()
-LexiconChoicePaymentSystem = LexiconChoicePaymentSystem()
-LexiconCreateInvoice = LexiconCreateInvoice()
-LexiconPaymentOperation = LexiconPaymentOperation()
-LexiconSellerProfile = LexiconSellerProfile()
-LastButtonsInCarpooling = LastButtonsInCarpooling()
-ChooseEngineType = ChooseEngineType()
-ChooseBrand = ChooseBrand()
-ChooseModel = ChooseModel()
-ChooseComplectation = ChooseComplectation()
-ChooseYearOfRelease = ChooseYearOfRelease()
-ChooseMileage = ChooseMileage()
-ChooseColor = ChooseColor()
-BaseOptionalField = BaseOptionalField()

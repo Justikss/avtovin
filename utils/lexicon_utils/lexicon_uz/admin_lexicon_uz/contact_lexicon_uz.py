@@ -20,7 +20,7 @@ ADMIN_CONTACTS_UZ = {
     'return_main_menu': 'Menyuga',
     'backward': 'Orqaga',
     'add': 'Qo\'shish',
-    'active_contact_list': 'Faol kontaktlar ro\'yxati:',
+    'active_contact_list': '<b>Faol kontaktlar ro\'yxati:</b>',
     'choose_type': {'message_text': '<b>Texnik yordam kontakti turini tanlang:</b>', 'buttons': {
         'ts_contact_type:number': '📞 Telefon raqami', 'ts_contact_type:telegram': '📨 Telegram',
         **return_main_menu,

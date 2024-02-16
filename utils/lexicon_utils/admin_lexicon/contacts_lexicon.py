@@ -1,6 +1,6 @@
 from utils.lexicon_utils.admin_lexicon.admin_catalog_lexicon import return_main_menu
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.contact_lexicon_uz import ADMIN_CONTACTS_UZ
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 
 __ADMIN_CONTACTS_RU = {
     'new_contact_caption_telegram': 'Новая ссылка',
@@ -22,7 +22,7 @@ __ADMIN_CONTACTS_RU = {
     'return_main_menu': 'В меню',
     'backward': 'Назад',
     'add': 'Добавить',
-    'active_contact_list': 'Список активных контактов:',
+    'active_contact_list': '<b>Список активных контактов:</b>',
     'choose_type': {'message_text': '<b>Выберите тип контакта технической поддержки:</b>', 'buttons': {
         'ts_contact_type:number': '📞 Телефонный номер', 'ts_contact_type:telegram': '📨 Телеграм',
         **return_main_menu,
@@ -83,7 +83,7 @@ ADMIN_CONTACTS = SafeDict({'ru': __ADMIN_CONTACTS_RU,
 
 
 
-class OutputTSContacts(SmartGetattr):
+class OutputTSContacts(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 

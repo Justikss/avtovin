@@ -1,3 +1,4 @@
+from datetime import datetime
 
 from peewee import TextField, DateTimeField, BooleanField, CharField, BigIntegerField, ForeignKeyField
 from playhouse.postgres_ext import JSONField, ArrayField
@@ -21,3 +22,4 @@ class ViewedMailing(BaseModel):
     user_id = BigIntegerField()
     buyer = BooleanField()
     seller = BooleanField()
+    send_datetime = DateTimeField(default=datetime.now)

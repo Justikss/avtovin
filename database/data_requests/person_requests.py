@@ -66,11 +66,11 @@ class PersonRequester:
         if tables:
             queries = []
             for table in tables:
-                queries.append(table.select(table.telegram_id))
+                queries.append(table.select(table.telegram_id).where(block_status_condition(table)))
             query = queries[0] | queries[1]
 
         elif current_table:
-            query = current_table.select(current_table.telegram_id)
+            query = current_table.select(current_table.telegram_id).where(block_status_condition(current_table))
 
         user_ids = list(await manager.execute(query))
         if user_ids:

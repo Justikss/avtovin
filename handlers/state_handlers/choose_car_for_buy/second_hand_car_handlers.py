@@ -30,7 +30,7 @@ async def choose_mileage_handler(callback: CallbackQuery, state: FSMContext, fir
                                                        buyer_search_mode=callback.from_user.id)
 
     # button_texts = {car.mileage for car in models_range}
-    lexicon_class = lexicon_module.ChooseMileage
+    lexicon_class = lexicon_module.ChooseMileage()
     await output_choose(callback, state, lexicon_class, models_range, config_module.car_configurations_in_keyboard_page)
 
     # lexicon_part = await create_lexicon_part(lexicon_class, models_range)
@@ -68,13 +68,11 @@ async def choose_year_of_release_handler(callback: CallbackQuery, state: FSMCont
                                                        mileage_id=user_answer,
                                                        buyer_search_mode=callback.from_user.id)
 
-    # button_texts = {car.year for car in models_range}
-    lexicon_class = lexicon_module.ChooseYearOfRelease
-    # lexicon_part = await create_lexicon_part(lexicon_class, models_range)
+
+    lexicon_class = lexicon_module.ChooseYearOfRelease()
+
     await output_choose(callback, state, lexicon_class, models_range, config_module.car_configurations_in_keyboard_page)
-    # await message_editor.travel_editor.edit_message(request=callback, lexicon_key='',
-    #                                                 lexicon_part=lexicon_part, lexicon_cache=False, delete_mode=delete_mode,
-    #                                                 dynamic_buttons=lexicon_class.dynamic_buttons)
+
     await callback.answer()
     await state.set_state(choose_car_states_module.HybridChooseStates.config_output)
 

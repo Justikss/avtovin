@@ -43,7 +43,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
     # 'start_add_new_advert_parameter_value': '',
 
     'confirmation_add_new_advert_parameter_value': {
-        'message_text': 'Qo‘shmoqchimisiz:\n{parameter_name}: {new_parameter_value} ?',
+        'message_text': '<b>Qo‘shmoqchimisiz:</b>\n{parameter_name}: <b>{new_parameter_value}</b> ?',
         'buttons': {
             'confirm_action_add_new_parameter_value': captions_uz['confirm'],
             'admin_backward:confirmation_add_new_parameter_value_rewrite': 'Qayta kiriting',
@@ -59,7 +59,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 'width': 2
 }},
 'confirmation_to_delete_exists_parameter': {
-'message_text': 'Tanlangan parametrni o‘chirishni tasdiqlang{from_param_branch}\nParametr:\n{parameter_type_to_parameter_value}', 'buttons': {
+'message_text': '<b>Tanlangan parametrni o‘chirishni tasdiqlang</b>{from_param_branch}\n<b>Parametr:</b>\n<i>{parameter_type_to_parameter_value}</i>', 'buttons': {
 'confirm_delete_advert_parameter': captions_uz['confirm'],
 'admin_backward:confirmation_delete_advert_param': captions_uz['backward'],
 **return_main_menu_uz,
@@ -94,7 +94,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
                                           'width': 1
                                       }},
 'load_new_params_branch_confirmation': {
-    'message_text': 'Yangi avto parametrlar filialini yuklashni tasdiqlashni kutish:', 'buttons': {
+    'message_text': '<b>Yangi avto parametrlar filialini yuklashni tasdiqlashni kutish:</b>', 'buttons': {
                                     'confirm_load_new_params_branch': captions_uz['confirm'],
                                     'update_params_branch_media_group': 'Fotolarni yangilash',
                                      'admin_backward:review_params_branch_to_load': captions_uz['backward'],

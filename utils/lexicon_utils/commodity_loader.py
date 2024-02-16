@@ -1,6 +1,6 @@
 from handlers.state_handlers.seller_states_handler.load_new_car.boot_car_buttons_controller import RedisBootCommodityHelper
 from utils.lexicon_utils.lexicon_uz.commodity_loader_uz import commodity_loader_lexicon_uz
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 
 commodity_loader_lexicon_ru = {
     'button_backward': '◂ Назад ▸',
@@ -38,7 +38,7 @@ commodity_loader_lexicon_ru = {
 commodity_loader_lexicon = SafeDict({'ru': commodity_loader_lexicon_ru,
                                      'uz': commodity_loader_lexicon_uz})
 
-class BaseBootButtons(SmartGetattr):
+class BaseBootButtons(metaclass=SmartGetAttrMeta):
 
     def __init__(self):
         super().__init__()
@@ -54,7 +54,7 @@ class BaseBootButtons(SmartGetattr):
 
 
 
-class LexiconCommodityLoader(SmartGetattr):
+class LexiconCommodityLoader(metaclass=SmartGetAttrMeta):
     class load_commodity_state(BaseBootButtons):
         def __init__(self):
             super().__init__()
@@ -167,5 +167,3 @@ class LexiconCommodityLoader(SmartGetattr):
 
         self.seller_notification = {'message_text': commodity_loader_lexicon['seller_notification_text']}
 
-BaseBootButtons = BaseBootButtons()
-LexiconCommodityLoader = LexiconCommodityLoader()

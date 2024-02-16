@@ -73,67 +73,39 @@ class SafeDict:
         # ic(item, type(item))
         return item
 
+
+class SmartGetAttrMeta(type):
+    def __getattr__(cls, item):
+        # Создаём временный экземпляр для единоразовой выдачи атрибута
+        temp_instance = cls()
+        return getattr(temp_instance, item)
+
+
 import threading
 
-_thread_locals = threading.local()
+# _thread_locals = threading.local()
 
 # class SmartGetattr:
-#     def __init__(self):
-#         # Инициализация хранилища для кешированных атрибутов экземпляра
-#         self._cached_attrs = {}
-#
-#     def __getattribute__(self, item):
-#         if item == "_cached_attrs" or item.startswith('__') and item.endswith('__'):
-#             # Доступ к внутренним атрибутам напрямую
-#             return object.__getattribute__(self, item)
-#
-#         if hasattr(_thread_locals, 'in_getattribute') and _thread_locals.in_getattribute:
-#             # Возвращаем атрибут напрямую, избегая рекурсии
-#             return object.__getattribute__(self, item)
-#
-#         _thread_locals.in_getattribute = True
-#         try:
-#             # Возвращаем атрибут из кеша, если он там есть
-#             if item in self._cached_attrs:
-#                 return self._cached_attrs[item]
-#
-#             # Иначе, создаем новый экземпляр и кешируем атрибут
-#             instance = object.__getattribute__(self, '__class__')()
-#             attr = getattr(instance, item)
-#             self._cached_attrs[item] = attr
-#             return attr
-#         finally:
-#             _thread_locals.in_getattribute = False
-#
-#     def __setattr__(self, key, value):
-#         if key == "_cached_attrs" or key.startswith('__') and key.endswith('__'):
-#             # Установка внутренних атрибутов напрямую
-#             object.__setattr__(self, key, value)
-#         else:
-#             # Кешируем измененные атрибуты
-#             self._cached_attrs[key] = value
-
-class SmartGetattr:
     # Хранилище для атрибутов всех экземпляров
-    _global_attrs = {}
-
-    def __getattribute__(self, item):
-        if hasattr(_thread_locals, 'in_getattribute') and _thread_locals.in_getattribute:
-            return object.__getattribute__(self, item)
-
-        _thread_locals.in_getattribute = True
-        try:
-            # Создаем новый экземпляр класса
-            instance = object.__getattribute__(self, '__class__')()
-            # Инициализируем его атрибуты из глобального хранилища
-            instance.__dict__.update(SmartGetattr._global_attrs)
-            # Возвращаем значение атрибута
-            return getattr(instance, item)
-        finally:
-            _thread_locals.in_getattribute = False
-
-    def __setattr__(self, key, value):
-        # Обновляем значение в глобальном хранилище
-        SmartGetattr._global_attrs[key] = value
-        # Устанавливаем значение атрибута напрямую для текущего экземпляра
-        object.__setattr__(self, key, value)
+    # _global_attrs = {}
+    #
+    # def __getattribute__(self, item):
+    #     if hasattr(_thread_locals, 'in_getattribute') and _thread_locals.in_getattribute:
+    #         return object.__getattribute__(self, item)
+    #
+    #     _thread_locals.in_getattribute = True
+    #     try:
+    #         # Создаем новый экземпляр класса
+    #         instance = object.__getattribute__(self, '__class__')()
+    #         # Инициализируем его атрибуты из глобального хранилища
+    #         instance.__dict__.update(SmartGetattr._global_attrs)
+    #         # Возвращаем значение атрибута
+    #         return getattr(instance, item)
+    #     finally:
+    #         _thread_locals.in_getattribute = False
+    #
+    # def __setattr__(self, key, value):
+    #     # Обновляем значение в глобальном хранилище
+    #     SmartGetattr._global_attrs[key] = value
+    #     # Устанавливаем значение атрибута напрямую для текущего экземпляра
+    #     object.__setattr__(self, key, value)

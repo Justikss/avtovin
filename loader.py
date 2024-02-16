@@ -294,7 +294,8 @@ async def start_bot():
                         pass_on_dealership_address.GetDealershipAddress()))
 
     '''Пагинация клавиатуры'''
-    dp.callback_query.register(CachedRequestsView.inline_buttons_pagination_vector_handler, F.data.in_(('inline_buttons_pagination:-', 'inline_buttons_pagination:+')))
+    dp.callback_query.register(CachedRequestsView.inline_buttons_pagination_vector_handler,
+                               F.data.in_(('inline_buttons_pagination:-', 'inline_buttons_pagination:+')))
 
     dp.callback_query.register(AdminPaginationOutput.admin_pagination_vector,
                                lambda callback: callback.data.startswith('admin_pagination'))

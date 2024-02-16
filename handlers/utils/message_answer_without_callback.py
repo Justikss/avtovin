@@ -17,7 +17,7 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
     await delete_message(request, from_redis=True)
     from handlers.custom_filters.message_is_photo import MessageIsPhoto
     await MessageIsPhoto().chat_cleaner(trash_redis_keys=(':last_message', ':last_media_group'),
-                                        message=request if isinstance(request, Message) else request.message)
+                                        message=request)
     ic(type(request))
     if isinstance(request, Message) or message:
         if message and isinstance(request, CallbackQuery):

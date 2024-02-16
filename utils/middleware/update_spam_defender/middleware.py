@@ -142,6 +142,7 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
             if isinstance(event, CallbackQuery) and event.data.startswith('backward'):
                 return True
             return False
+        ic(isinstance(event, Message) and event.text == '/start')
         if isinstance(event, CallbackQuery):
             # if event.data in ('backward:user_registration_number', 'backward:seller_registration_number'):
             #     from keyboards.reply.delete_reply_markup import delete_reply_markup

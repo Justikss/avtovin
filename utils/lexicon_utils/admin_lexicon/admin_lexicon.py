@@ -2,7 +2,7 @@ import importlib
 
 from config_data.config import max_feedbacks_len, max_contact_info_len
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.admin_lexicon_uz import admin_class_mini_lexicon_uz
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 
 config_module = importlib.import_module('config_data.config')
 admin_lexicon_uz_module = importlib.import_module('utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.admin_lexicon_uz')
@@ -232,14 +232,14 @@ admin_class_mini_lexicon = SafeDict({'ru': admin_class_mini_lexicon_ru,
 
 
 
-class TariffNonExistsPlug(SmartGetattr):
+class TariffNonExistsPlug(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
         self.id = 'None'
         self.name = admin_class_mini_lexicon['tariff_non_exists_plug_name']  # Для русской версии, для узбекской замените на lexicon_uz
 
-class AllTariffsOutput(SmartGetattr):
+class AllTariffsOutput(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -252,7 +252,7 @@ class AllTariffsOutput(SmartGetattr):
                                  'return_main_menu': admin_class_mini_lexicon['return_main_menu']}
 
 class BanUser:
-    class InputReason:#(SmartGetattr):
+    class InputReason:
         def __init__(self, user_entity, name):
             #super().__init__()
 
@@ -273,7 +273,7 @@ class BanUser:
                 self.lexicon_part = {'message_text': self.message_text, 'buttons': {**self.buttons}}
 
 
-class SelectTariff:#(SmartGetattr):
+class SelectTariff:
     def __init__(self, tariff_exists, tariff_name, seller_name):
         #super().__init__()
 
@@ -298,7 +298,7 @@ class SelectTariff:#(SmartGetattr):
                                                                             }
                              }
 
-class ChooseTariff:#(SmartGetattr):
+class ChooseTariff:
     def __init__(self):
         super().__init__()
 
@@ -312,7 +312,7 @@ class ChooseTariff:#(SmartGetattr):
         self.tariff_review_buttons = {'activate_tariff_by_admin_for_seller': admin_class_mini_lexicon['set'],
                                 'admin_backward:tariff_for_seller_review': captions['backward'], 'width': 1}
 
-class ReviewSellerTariff:#(SmartGetattr):
+class ReviewSellerTariff:
     def __init__(self, tariff_exists):
         #super().__init__()
 
@@ -333,7 +333,7 @@ class ReviewSellerTariff:#(SmartGetattr):
             self.width = 1
             self.buttons = {**self.set_tariff_button, **self.backward_buttons, 'width': self.width}
 
-class UserList:#(SmartGetattr):
+class UserList:
     def __init__(self, user_status, block_status):
         #super().__init__()
 

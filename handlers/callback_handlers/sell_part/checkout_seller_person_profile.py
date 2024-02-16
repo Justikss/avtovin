@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime
 
 from aiogram.types import CallbackQuery
@@ -107,7 +107,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
     dying_tariff = await dying_tariff_module.DyingTariffRequester.get_model_by_user_id(user_id)
     # ic(seller_tariff_model, dying_tariff, seller_tariff_model.end_date_time < datetime.now(), get_part)
     tariff_string = ''
-    lexicon_class = copy(lexicon_module.LexiconSellerProfile)
+    lexicon_class = deepcopy(lexicon_module.LexiconSellerProfile)()
 
     if isinstance(seller_tariff_model, list):
         seller_tariff_model = seller_tariff_model[0]

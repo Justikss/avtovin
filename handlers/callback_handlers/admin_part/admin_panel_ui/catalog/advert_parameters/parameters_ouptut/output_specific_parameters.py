@@ -49,7 +49,9 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                                                                               'delete',
                                                                               '_choice_advert_parameters_type_') ) \
                                     or ('new' in request.data and memory_storage.get('params_type_flag') == 'new')))\
-                and 'choose_action_on_specific_adv_parameter' not in request.data:
+                and 'choose_action_on_specific_adv_parameter' not in request.data and not (
+                memory_storage.get('params_type_flag') == 'second_hand' and request.data == 'delete_current_advert_parameter'
+        ):
             ic()
             if (request.data.startswith(('admin_backward', 'new')) or any(pattern in request.data for pattern in (
                     'state',

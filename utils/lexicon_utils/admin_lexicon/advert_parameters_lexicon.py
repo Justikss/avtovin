@@ -1,7 +1,7 @@
 from config_data.config import max_advert_parameter_name_len, max_integer_for_database
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.advert_parameters_uz import advert_params_class_lexicon_uz, \
     advert_params_captions_uz
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 
 _captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
@@ -56,7 +56,7 @@ __ADVERT_PARAMETERS_LEXICON = {
     # 'start_add_new_advert_parameter_value': '',
 
     'confirmation_add_new_advert_parameter_value': {
-        'message_text': 'Желаете добавить:\n{parameter_name}: {new_parameter_value} ?',
+        'message_text': '<b>Желаете добавить:</b>\n{parameter_name}: <i>{new_parameter_value}</i> ?',
         'buttons': {
             'confirm_action_add_new_parameter_value': _captions['confirm'],
             'admin_backward:confirmation_add_new_parameter_value_rewrite': 'Ввести заново',
@@ -72,7 +72,7 @@ __ADVERT_PARAMETERS_LEXICON = {
             'width': 2
     }},
     'confirmation_to_delete_exists_parameter': {
-        'message_text': 'Подтвердите удаление{from_param_branch}\nПараметра:\n{parameter_type_to_parameter_value}', 'buttons': {
+        'message_text': '<b>Подтвердите удаление</b>{from_param_branch}\n<b>Параметра:</b>\n<i>{parameter_type_to_parameter_value}</i>', 'buttons': {
             'confirm_delete_advert_parameter': _captions['confirm'],
             'admin_backward:confirmation_delete_advert_param': _captions['backward'],
             **return_main_menu,
@@ -109,7 +109,7 @@ __ADVERT_PARAMETERS_LEXICON = {
                                               'width': 1
                                           }},
     'load_new_params_branch_confirmation': {
-        'message_text': 'Ожидание подтверждения загрузки новой ветки параметров для авто:', 'buttons': {
+        'message_text': '<b>Ожидание подтверждения загрузки новой ветки параметров для авто:</b>', 'buttons': {
                                         'confirm_load_new_params_branch': _captions['confirm'],
                                         'update_params_branch_media_group': 'Обновить фотографии',
                                          'admin_backward:review_params_branch_to_load': _captions['backward'],
@@ -151,7 +151,7 @@ advert_parameters_captions = SafeDict({'ru': advert_parameters_captions,
 advert_params_class_lexicon = SafeDict({'ru': advert_params_class_lexicon_ru,
                                         'uz': advert_params_class_lexicon_uz})
 
-class AdvertParametersChooseSpecificValue:#(SmartGetattr):
+class AdvertParametersChooseSpecificValue:
     def __init__(self, parameter_name: str, header: str):
         #super().__init__()
 

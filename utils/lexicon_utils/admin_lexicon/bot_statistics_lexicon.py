@@ -1,7 +1,7 @@
 from copy import copy
 
 from utils.lexicon_utils.admin_lexicon.advert_parameters_lexicon import advert_parameters_captions
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 
 return_main_menu = {'return_main_menu': 'В меню'}
 pagination_interface = {'admin_pagination:-': '←', 'page_counter': '[{start}/{end}]', 'admin_pagination:+': '→'}
@@ -127,7 +127,7 @@ statistic_class_lexicon = SafeDict({'ru': statistic_class_lexicon_ru,
 
 
 
-class SelectCustomParamsProcess(SmartGetattr):
+class SelectCustomParamsProcess(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 
@@ -139,7 +139,7 @@ class SelectCustomParamsProcess(SmartGetattr):
         self.output_current_top_buttons = {'output_current_top': statistic_class_lexicon['output_current_top_buttons']}
 
 
-class TopTenDisplay(SmartGetattr):
+class TopTenDisplay(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
 

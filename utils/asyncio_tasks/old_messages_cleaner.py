@@ -15,6 +15,7 @@ class DeleteOldRedisKeys:
 
     async def __call__(self, expired_mode=True):
         user_keys, user_id_to_message_id = await self.redis_base._find_users_with_expired_keys(expired_mode=expired_mode)
+        ic(user_keys, user_id_to_message_id)
         data_to_chat_cleaning = await self.redis_base._delete_keys_for_users_without_active_keys(user_keys,
                                                                                                  user_id_to_message_id,
                                                                                                  expired_mode=expired_mode)
@@ -28,6 +29,7 @@ async def check_on_old_messages(bot: Bot):
     ic(delete_old_redis_keys)
     while True:
         deleted_data = await delete_old_redis_keys()
+        ic(deleted_data)
         if deleted_data:
             # logging.debug('Chat cleaner found: %s', json.dumps(deleted_data))
             for user_id, message_ids in deleted_data.items():

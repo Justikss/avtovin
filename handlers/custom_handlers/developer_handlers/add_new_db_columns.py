@@ -14,7 +14,8 @@ async def add_db_columns(message: Message):
         '''ALTER TABLE "Пользователи" ADD COLUMN ban_reason TEXT''',
         '''ALTER TABLE "Пользователи" ADD COLUMN block_date TIMESTAMP''',
         '''DROP TABLE IF EXISTS banneduser''',
-        '''DROP TABLE IF EXISTS bannedseller'''
+        '''DROP TABLE IF EXISTS bannedseller''',
+        '''ALTER TABLE ViewedMailing ADD COLUMN send_datetime timestamp DEFAULT current_timestamp'''
     ]
 
     # Выполнение команд

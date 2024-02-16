@@ -43,14 +43,14 @@ class RedisRequester:
         user_id_to_message_id = {}
         for key_pattern in self.keys_storage['messages']:
             async for key in self._scan_keys(f'*{key_pattern}'):
-                ic(key)
                 user_id = key.split(':')[0]
                 if expired_mode:
                     ttl = await self.redis_base.ttl(key)
+                    # ic(key, ttl)
                 else:
                     ttl = -1
-
-                if (ttl < 1800 and ttl not in (-1, -2)) or (not expired_mode):  # Меньше 30 минут и не истекший
+                # ic((ttl < 2000 and ttl not in (-1, -2)) or (not expired_mode))
+                if (ttl < 2000 and ttl not in (-1, -2)) or (not expired_mode):  # Меньше 30+- минут и не истекший
                     value = await self.get_data(key=key, use_json=True)
                     if not isinstance(value, list):
                         value = [value]
@@ -64,13 +64,13 @@ class RedisRequester:
         users_to_cleaning = []
         messages_to_delete = dict()
         for user_id, keys in users_with_expired_keys.items():
-            if await self._has_active_keys(user_id) and expired_mode:
-                continue
+            # if await self._has_active_keys(user_id) and expired_mode:
+            #     continue
             for key in keys:
                 await self.redis_base.delete(key)
             users_to_cleaning.append(user_id)
             messages_to_delete[user_id] = user_id_to_message_id[user_id]
-
+        ic(messages_to_delete)
         return messages_to_delete
 
     async def _scan_keys(self, pattern):
@@ -211,8 +211,9 @@ class RedisRequester:
 
     async def set_ttl(self, key, expire):
         if not expire:
+            ic(any(sub_key in key for sub_key in self.keys_storage['messages']))
             if any(sub_key in key for sub_key in self.keys_storage['messages']):
-                expire = 24 * 60 * 60
+                expire = 48 * 60 * 60 - 60
                 return expire
 
 

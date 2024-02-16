@@ -52,7 +52,7 @@ async def choose_review_catalog_brand_admin_handler(callback: CallbackQuery, sta
         await send_message_answer(callback, message=True, text=Lexicon_module.catalog_captions['empty'])
         return await choose_review_catalog_type_admin_handler(callback, state)
     ic(brand_models)
-    await output_choose_module.output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand,
+    await output_choose_module.output_choose(callback, state, lexicon_class=AdminReviewCatalogChooseCarBrand(),
                         models_range=brand_models, page_size=config_module.admin_brand_pagination_pagesize)
 
     if isinstance(callback, CallbackQuery):

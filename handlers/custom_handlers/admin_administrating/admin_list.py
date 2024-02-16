@@ -23,7 +23,7 @@ class AdminListHandler(BaseAdminCommandHandler):
 
                 red_status = '✖️' if not admin.admin_rang else '✅'
                 body_data.update({username: red_status})
-            max_username_len = max(len("@Justion"), len("@AikenOZ"))
+            max_username_len = max(len(username) for username, red_status in body_data.items())
 
             ic(max_username_len)
             for username, red_status in body_data.items():

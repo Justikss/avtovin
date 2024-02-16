@@ -13,10 +13,11 @@ class MessageIsPhoto(BaseFilter):
     '''Этот фильтр контролирует вхождение фотографии в конечное состояние загрузки товара'''
     async def chat_cleaner(self, trash_redis_keys, message, user_id=None):
         redis_module = importlib.import_module('utils.redis_for_language')
+        request = message
         if isinstance(message, CallbackQuery):
             message = message.message
         if not user_id:
-            user_id = str(message.from_user.id)
+            user_id = str(request.from_user.id)
             chat_id = message.chat.id
         else:
             chat_id = user_id

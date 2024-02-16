@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 
 from aiogram.types import CallbackQuery
 import importlib
@@ -18,7 +18,7 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
 
     tariff_model = await tariff_request_module.TarifRequester.get_by_id(tariff_id=tariff_id)
     ic(tariff_model.name)
-    lexicon_class = copy(Lexicon_module.LexiconSelectedTariffPreview)
+    lexicon_class = deepcopy(Lexicon_module.LexiconSelectedTariffPreview)()
     ic(tariff_model.simultaneous_announcements)
     if not tariff_model.price:
         price = '0'

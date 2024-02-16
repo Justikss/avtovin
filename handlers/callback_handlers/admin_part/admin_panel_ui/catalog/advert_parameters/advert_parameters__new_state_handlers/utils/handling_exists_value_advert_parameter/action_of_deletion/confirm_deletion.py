@@ -70,16 +70,16 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         ic()
         await state.update_data(delete_params_flag=True)
 
-        match params_state_type_flag:
-            case 'new':
-                admin_backward_command_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_backward_command')
-
-                await admin_backward_command_module\
-                    .backward_in_advert_parameters_interface(memory_storage.get('last_params_state'), request, state)
-            case 'second_hand':
-                output_specific_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
-                await output_specific_parameters_module\
-                    .OutputSpecificAdvertParameters().callback_handler(request, state)#
+        # match params_state_type_flag:
+        #     case 'new':
+        #         admin_backward_command_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.utils.admin_backward_command')
+        #
+        #         await admin_backward_command_module\
+        #             .backward_in_advert_parameters_interface(memory_storage.get('last_params_state'), request, state)
+        #     case 'second_hand':
+        output_specific_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+        await output_specific_parameters_module\
+            .OutputSpecificAdvertParameters().callback_handler(request, state)#
 
     async def delete_query(self, request, state, selected_params):
         memory_storage = await state.get_data()
@@ -88,7 +88,13 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         ic(params_type_flag)
         match params_type_flag:
             case 'new':
-                delete_query = await self.delete_new_state_params(selected_params)
+                now_selected_params, next_params_output = await self.delete_new_state_params(selected_params)
+                if now_selected_params or next_params_output:
+                    delete_query = True
+                    ic(next_params_output, now_selected_params)
+                    await state.update_data(next_params_output=next_params_output)
+                    await state.update_data(selected_parameters=now_selected_params)
+
             case 'second_hand':
                 for parameter_type_name, parameter_value_id in selected_params.items():
                     delete_query = await car_configs_module\
@@ -224,8 +230,27 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         delete_query = await delete_data(params_to_delete, photo_dependencies)
 
         param_to_clear_cache = await seek_head_param_in_selecteds_where_it_is_not_dependencies(selected_params, params_to_delete)
+        now_selected_params = {key: value for key, value in selected_params.items() if key not in params_to_delete}
+        parameters = ['state', 'engine', 'brand', 'model', 'complectation', 'color']
 
-        return delete_query
+
+        # Находим ключи из a, которые есть в parameters, и их индексы
+        keys_with_indices = [(key, parameters.index(key)) for key in now_selected_params if key in parameters]
+
+        # Находим максимальный индекс
+        max_index = max([index for _, index in keys_with_indices])
+
+        # Проверяем, есть ли возможность сдвинуться на индекс вправо
+        if max_index + 1 < len(parameters):
+            # Ищем ключ, который находится на один индекс правее максимального
+            next_param_to_output = parameters[max_index + 1]
+        else:
+            # Если сдвинуться нельзя, обрабатываем эту ситуацию (например, возвращаем None или последний ключ)
+            next_param_to_output = None  # Или можно выбрать другое поведение
+
+
+
+        return now_selected_params, next_param_to_output
 
 
 async def seek_head_param_in_selecteds_where_it_is_not_dependencies(selected_data, params_to_delete):

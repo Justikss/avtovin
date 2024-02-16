@@ -1,7 +1,7 @@
 import importlib
 
 from utils.lexicon_utils.lexicon_uz.admin_lexicon_uz.catalog_lexicon_uz import catalog_mini_lexicon_uz
-from utils.safe_dict_class import SafeDict, SmartGetattr
+from utils.safe_dict_class import SafeDict, SmartGetAttrMeta
 
 captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрали', 'cancel': 'Отменить', 'confirm': 'Подтвердить',
             'sales': 'продажам', 'purchases': 'покупкам', 'any': 'всё время', 'day': 'день', 'week': 'неделю',
@@ -84,7 +84,7 @@ catalog_mini_lexicon_ru = {
 catalog_mini_lexicon = SafeDict({'ru': catalog_mini_lexicon_ru,
                                  'uz': catalog_mini_lexicon_uz})
 
-class AdminReviewCatalogChooseCarBrand(SmartGetattr):
+class AdminReviewCatalogChooseCarBrand(metaclass=SmartGetAttrMeta):
     def __init__(self):
         super().__init__()
         self.message_text = catalog_mini_lexicon['admin_review_catalog_choose_car_brand_message_text']  # Для русской версии
@@ -92,5 +92,3 @@ class AdminReviewCatalogChooseCarBrand(SmartGetattr):
         self.dynamic_buttons = 2
         self.width = 1
         self.backward_command = {'admin_backward:catalog_review_choose_brand': captions['backward'], **return_main_menu}
-
-AdminReviewCatalogChooseCarBrand = AdminReviewCatalogChooseCarBrand()

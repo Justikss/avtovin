@@ -238,7 +238,8 @@ async def input_price_to_load(request: Union[CallbackQuery, Message], state: FSM
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     base_lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+    if await state.get_state() != LoadCommodityStates.input_to_load_price:
+        await state.set_state(LoadCommodityStates.input_to_load_price)
     message_text = ''
 
     if not bot:

@@ -60,7 +60,7 @@ async def choose_engine_type_handler(callback: CallbackQuery, state: FSMContext,
     ic(cars_type)
     await state.update_data(cars_class=cars_type)
 
-    lexicon_class = lexicon_module.ChooseEngineType
+    lexicon_class = lexicon_module.ChooseEngineType()
     lexicon_part = await create_lexicon_part(lexicon_class, models_range)
     lexicon_part['buttons']['width'] = lexicon_class.width
     ic(lexicon_part)
@@ -91,7 +91,7 @@ async def choose_brand_handler(callback: CallbackQuery, state: FSMContext, first
                                        buyer_search_mode=callback.from_user.id
                                                     )
 
-    lexicon_class = lexicon_module.ChooseBrand
+    lexicon_class = lexicon_module.ChooseBrand()
     await output_choose(callback, state, lexicon_class, models_range, config_module\
                         .car_configurations_in_keyboard_page)
 
@@ -123,7 +123,7 @@ async def choose_model_handler(callback: CallbackQuery, state: FSMContext, first
         .AdvertRequester.get_advert_by(state_id=commodity_state, brand_id=brand, engine_type_id=engine_type,
                                        buyer_search_mode=callback.from_user.id)
 
-    lexicon_class = lexicon_module.ChooseModel
+    lexicon_class = lexicon_module.ChooseModel()
     await output_choose(callback, state, lexicon_class, models_range, config_module\
                         .car_configurations_in_keyboard_page)
 
@@ -152,7 +152,7 @@ async def choose_complectation_handler(callback: CallbackQuery, state: FSMContex
                                        buyer_search_mode=callback.from_user.id)
 
     # button_texts = {car.complectation for car in models_range}
-    lexicon_class = lexicon_module.ChooseComplectation
+    lexicon_class = lexicon_module.ChooseComplectation()
     ic(lexicon_class.__dict__)
     await output_choose(callback, state, lexicon_class, models_range, config_module\
                         .car_configurations_in_keyboard_page)
@@ -184,7 +184,7 @@ async def choose_color_handler(callback: CallbackQuery, state: FSMContext, first
     if models_range:
         models_range = await set_other_color_on_last_position(models_range)
 
-    lexicon_class = lexicon_module.ChooseColor
+    lexicon_class = lexicon_module.ChooseColor()
     await output_choose(callback, state, lexicon_class, models_range, config_module\
                         .car_configurations_in_keyboard_page, need_last_buttons=False)
 

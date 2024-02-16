@@ -16,7 +16,7 @@ async def output_affordable_tariffs(callback, state):
     if not affordable_tariffs:
         return False
 
-    lexicon_class = Lexicon_module.LexiconTariffSelection
+    lexicon_class = Lexicon_module.LexiconTariffSelection()
 
     await state.set_state(ChoiceTariffForSellerStates.choose_tariff)
     await output_choose_module.output_choose(callback, state, lexicon_class, affordable_tariffs,
