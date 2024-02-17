@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import traceback
 from copy import copy
@@ -51,7 +52,7 @@ async def activate_offer_handler(callback: CallbackQuery, state: FSMContext, car
             if data_for_seller:
                 ic(data_for_seller)
                 media_mode = True if data_for_seller.get('album') else False
-                await send_notification_for_seller(callback, data_for_seller, media_mode=media_mode)
+                asyncio.create_task(send_notification_for_seller(callback, data_for_seller, media_mode=media_mode))
         cars_class = memory_storage.get('cars_class')
         if current_state.startswith('CheckNonConfirmRequestsStates'):
             await state.set_state(CheckActiveOffersStates.show_from_non_confirm_offers)

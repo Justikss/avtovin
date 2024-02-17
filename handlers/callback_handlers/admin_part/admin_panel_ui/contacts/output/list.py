@@ -17,7 +17,7 @@ class ContactListHandler(BaseCallbackQueryHandler):
         self.output_methods = [
             self.menu_manager.inline_pagination(
                 models_range=await self.get_models_range(request, state),
-                lexicon_class=OutputTSContacts,
+                lexicon_class=OutputTSContacts(),
                 page_size=6
             )
         ]

@@ -103,7 +103,7 @@ async def input_brand_to_load(callback: CallbackQuery, state: FSMContext, bot=No
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_brand()
     await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
-            .CarConfigs.get_brands_by_engine(engine_for_load),
+            .CarConfigs.get_brands_by_engine_and_state(engine_for_load),
                         bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False)
 
@@ -138,7 +138,7 @@ async def input_model_to_load(callback: CallbackQuery, state: FSMContext, bot=No
     engine_for_load = memory_storage.get('engine_for_load')
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_model()
     await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
-            .CarConfigs.get_models_by_brand_and_engine(
+            .CarConfigs.get_models_by_brand_and_engine_and_state(
                                 brand_for_load, engine_for_load),
                                 bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False)
@@ -173,7 +173,7 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
         return
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_complectation()
     await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
-            .CarConfigs.get_complectations_by_model_and_engine(
+            .CarConfigs.get_complectations_by_model_and_engine_and_state(
         model_for_load, engine_for_load), bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False)
 
@@ -316,6 +316,7 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
     get_load_car_state_module = importlib.import_module(
         'handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers')
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
+    base_lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
     ic()
     lexicon_part = copy(lexicon_module.LexiconCommodityLoader.load_commodity_photo())
     await lexicon_part.initializate(request, state)
@@ -388,7 +389,8 @@ async def input_photo_to_load(request: Union[CallbackQuery, Message], state: FSM
         lexicon_part = await lexicon_part.part()
 
         lexicon_part["message_text"] = '\n'.join(message_text)
-
+        if incorrect == 'size':
+            lexicon_part['message_text'] = f'''{base_lexicon_module.LEXICON['incorrect_photo_size']}{lexicon_part['message_text']}'''
         await state.update_data(incorrect_flag=True)
         incorrect_flag = True
         ic(request.photo)

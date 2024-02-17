@@ -148,10 +148,12 @@ class TravelEditor:
                             ic('post ', new_album)
 
                         else:
+                            ic(media_group, album_id)
                             if album_id:
                                 media_group = media_group[album_id]
+                            ic(media_group)
                             media_group = media_group[:8]
-                            new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group][:8]
+                            new_album = [InputMediaPhoto(media=file_data['id'] if '/' not in file_data['id'] else FSInputFile(file_data['id'])) for file_data in media_group]
                             ic('post ', new_album)
                             ic(len(new_album))
                             try:

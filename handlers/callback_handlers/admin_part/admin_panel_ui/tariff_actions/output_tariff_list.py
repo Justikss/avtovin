@@ -19,7 +19,7 @@ async def output_tariffs_for_admin(request: CallbackQuery | Message, state: FSMC
     await state.set_state(TariffAdminBranchStates.tariffs_review)
     tariffs = await tariffs_requester_module.TarifRequester.retrieve_all_data()
     if not tariffs:
-        tariffs = [admin_lexicon_module.TariffNonExistsPlug]
-    lexicon_class = copy(admin_lexicon_module.AllTariffsOutput)
+        tariffs = [admin_lexicon_module.TariffNonExistsPlug()]
+    lexicon_class = copy(admin_lexicon_module.AllTariffsOutput)()
     await output_choose_module.output_choose(request, state, lexicon_class=lexicon_class, models_range=tariffs,
                                              page_size=config_module.tariffs_pagesize)

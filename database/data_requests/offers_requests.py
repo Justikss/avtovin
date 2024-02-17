@@ -205,6 +205,8 @@ class CachedOrderRequests:
             query = CacheBuyerOffers.select(CacheBuyerOffers, CarAdvert, User).join(CarAdvert).switch(CacheBuyerOffers).join(User).where(
                 User.telegram_id == buyer_id)
 
+            query = query.where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+
             if count or get_brands:
                 query = query.where(CacheBuyerOffers.datetime_of_deletion > datetime.now())
             if count:
@@ -224,9 +226,10 @@ class CachedOrderRequests:
             result = list(await manager.execute(query))
             if not get_brands:
                 result = await CachedOrderRequests.check_overtime_requests(result)
-                from database.data_requests.car_advert_requests import AdvertRequester
-                tasks = [AdvertRequester.load_related_data_for_advert(offer.car_id) for offer in result]
-                await asyncio.gather(*tasks)
+                # if result:
+                #     from database.data_requests.car_advert_requests import AdvertRequester
+                #     tasks = [AdvertRequester.load_related_data_for_advert(offer.car_id) for offer in result]
+                #     await asyncio.gather(*tasks)
 
             return result if result else False
 

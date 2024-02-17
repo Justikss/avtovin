@@ -228,9 +228,9 @@ class CachedRequestsView:
                                                                                   'select_year', 'select_mileage')), current_state)
                 if any(state_sub_string in current_state for state_sub_string in ('select_complectation', 'select_color',
                                                                                   'select_year', 'select_mileage')):
-                    backward_command = lexicon_module.BaseOptionalField.last_buttons
+                    backward_command = lexicon_module.BaseOptionalField().last_buttons
                 else:
-                    backward_command = Lexicon_module.LastButtonsInCarpooling.base_last_buttons
+                    backward_command = Lexicon_module.LastButtonsInCarpooling().base_last_buttons
                 dynamic_buttons = memory_storage.get('dynamic_buttons')
 
         if not backward_command:

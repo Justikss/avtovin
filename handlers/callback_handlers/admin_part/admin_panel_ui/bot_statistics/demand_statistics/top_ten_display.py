@@ -151,7 +151,7 @@ class TopTenByDemandDisplayHandler(BaseStatisticCallbackHandler):
             seller_model = feedback_model.seller_id
 
             await self.get_photos_by_params(state, advert_parameters)
-            lexicon_class = deepcopy(TopTenDisplay)
+            lexicon_class = deepcopy(TopTenDisplay)()
             params_text = await self.statistic_manager.car_params_card_pattern(advert_id=advert_parameters)
             ic(params_text)
             params_text = params_text.split('\n')

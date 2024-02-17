@@ -6,12 +6,20 @@ from peewee_async import PooledPostgresqlDatabase, Manager
 
 from database.triggers import create_trigger_unique_phone_number
 
+connect_data = {
+    'database': 'postgresDB',
+'user': 'postgres',
+'password': 'red12red1212',
+'host': 'localhost',
+'port': 5432
+}
+
 database = PooledPostgresqlDatabase(
-    'postgresDB',
-    user='postgres',
-    password='red12red1212',
-    host='localhost',
-    port=5432
+    connect_data['database'],
+    user=connect_data['user'],
+    password=connect_data['password'],
+    host=connect_data['host'],
+    port=connect_data['port']
     )
 
 class BaseModel(Model):

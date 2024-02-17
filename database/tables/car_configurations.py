@@ -96,6 +96,7 @@ class CarComplectation(BaseModel):
     _name = CharField(null=True)
     name_uz = CharField(null=True)
     name_ru = CharField(null=True)
+    wired_state = ForeignKeyField(CarState, null=True, backref='complectations')
 
     @property
     def name(self):

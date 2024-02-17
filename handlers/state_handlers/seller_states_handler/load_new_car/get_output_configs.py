@@ -29,6 +29,7 @@ async def get_output_string(request, mode, boot_data: dict = None, language=None
         start_sub_string = ''
     ic(language)
     ic()
+    ic(boot_data)
     if language != 'ru':
         bottom_layer = f'''\n{boot_data.get('photo_id')}\n{boot_data.get('photo_unique_id')}'''
     else:
@@ -96,9 +97,8 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
             pass
 
         await message_editor.redis_data.delete_key(key=f'{request.from_user.id}:last_seller_message')
-
+    ic(media_photos)
     if media_photos:
-        ic(media_photos)
         ic()
         await state.update_data(load_photo=media_photos)
         dont_send_media = True
@@ -128,8 +128,7 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
     output_string = await get_output_string(request, mode='to_seller',
                                             boot_data=structured_boot_data,
-                                            language=ic(await redis_module.redis_data.get_data(key=redis_key)
-))
+                                            language=ic(await redis_module.redis_data.get_data(key=redis_key)))
 
 
     output_string = output_string.replace('None', '').strip()
@@ -144,10 +143,10 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
-                                                    media_group=structured_boot_data.get('photos') if not dont_send_media else None,
-                                                    delete_mode=delete_mode or dont_send_media,
-                                                    seller_boot=True, bot=bot,
-                                                    save_media_group=dont_send_media)
+                                                    media_group=structured_boot_data.get('photos'),# if not dont_send_media else None,
+                                                    delete_mode=delete_mode,# or dont_send_media,
+                                                    seller_boot=True, bot=bot)#,
+                                                    # save_media_group=dont_send_media)
 
 
     ic(memory_storage.get('color_for_load'))

@@ -13,6 +13,8 @@ class AdvertsToAdminViewStatusRequester:
                  .join(CarAdvert)
                  .where(AdvertsToAdminViewStatus.view_status == status))
 
+        query = query.where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+
         if get_brands:
             query = (CarBrand.select(CarBrand).join(CarModel).join(CarComplectation)
                                                 .join(CarAdvert).where(CarAdvert.id.in_(query)).distinct())

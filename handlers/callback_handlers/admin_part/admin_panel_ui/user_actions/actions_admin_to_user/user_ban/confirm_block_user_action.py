@@ -35,7 +35,7 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
     user_id = memory_storage.get('user_id')
     block_reason = memory_storage.get('reason')
     ic(block_reason)
-
+    ic(current_state)
     if current_state.startswith(('SellerReviewStates', 'AdminCarCatalogReviewStates')):
         seller = True
         user = False
@@ -45,7 +45,7 @@ async def confirm_user_block_action(callback: CallbackQuery, state: FSMContext):
         seller = False
         user_status = 'buyer_ban'
 
-
+    ic(seller, user)
     try:
         ban_query = await BannedRequester.set_ban(callback, user_id, reason=block_reason,
                                                   user=user, seller=seller)

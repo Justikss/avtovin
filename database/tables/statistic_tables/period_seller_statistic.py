@@ -44,7 +44,7 @@ async def calculate_stats(period, seller_id=None):
     sql_query = sql_query_base + sql_query_extra
 
     # Выполнение запроса
-    result_row = await execute_raw_sql(sql_query)
+    result_row = await execute_raw_sql(sql_query, fetch='one')
 
     # Формирование результатов с учетом условий по seller_id
     result = {

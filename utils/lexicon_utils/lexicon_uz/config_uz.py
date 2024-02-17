@@ -3,5 +3,5 @@ DEFAULT_COMMANDS_UZ = (
     # ("help", "yordamni ko'rsatish")
 )
 
-header_message_text_uz = '<b>AUTOWIN</b>\nCho‘ntak Market-pleysi\nEng yaxshi avtolar uchun.'
+header_message_text_uz = "<b>AUTOWIN</b>\nSizning cho'ntak\n<i>avtomobil bozori</i>."
 

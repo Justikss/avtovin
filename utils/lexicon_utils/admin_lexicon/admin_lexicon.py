@@ -204,7 +204,7 @@ admin_class_mini_lexicon_ru = {
     'ban_user_input_reason_buyer': 'покупателя {name}',
     'ban_user_message_text_head': '<b>Блокировка {entity}</b>:\nВведите вашу причину:',
     'select_tariff_message_text_exists': 'Вы действительно хотите\nобновить тариф на {tariff_name}',
-    'select_tariff_message_text_non_exists': 'Вы действительно хотите\nустановить тариф {tariff_name}',
+    'select_tariff_message_text_non_exists': 'Вы действительно хотите\nустановить тариф <b>{tariff_name}</b>',
     'select_tariff_message_text_startswith': '<b>Тариф для {name}:</b>\n',
     'choose_tariff_message_text': '<b>Тариф для {name}</b>\nВыберите новый тариф:',
     'review_seller_tariff_message_header_legal': '<b>Тариф салона {name}:</b>',
@@ -362,8 +362,6 @@ class NaturalList(SellerList):
         self.message_text = admin_class_mini_lexicon['natural_list_message_text'].format(block_status=block_status)
 
 # NaturalList = NaturalList()
-TariffNonExistsPlug = TariffNonExistsPlug()
-AllTariffsOutput = AllTariffsOutput()
 # ChooseTariff = ChooseTariff()
 
 class DealershipList(SellerList):

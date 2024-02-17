@@ -37,6 +37,8 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
         car_configurations_requests_module = importlib.import_module('database.data_requests.car_configurations_requests')
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
         for key, value in sub_data.items():
+            ic(key, value)
+
             if key not in ('seller_id', 'sum_price', 'dollar_price', 'photos') and value != None:
 
                 if str(value).isdigit():
@@ -56,10 +58,9 @@ async def data_formatter(request: Union[Message, CallbackQuery], state: FSMConte
                     else:
 
                         raise(f'None moment {value}')
-                        continue
+                        # continue
 
 
-                ic(key, value)
 
                 ic(key, value)
                 ic()

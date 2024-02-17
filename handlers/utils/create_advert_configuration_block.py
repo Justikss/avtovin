@@ -47,8 +47,12 @@ async def create_advert_configuration_block(car_state=None, engine_type=None, br
         sum_price = advert_model.sum_price if hasattr(advert_model, 'sum_price') else None
         usd_price = advert_model.dollar_price if hasattr(advert_model, 'dollar_price') else None
         if (sum_price or usd_price):
-            year_of_realise = advert_model.year
-            mileage = advert_model.mileage
+            if advert_model.year and advert_model.mileage:
+                year_of_realise = advert_model.year.name
+                mileage = advert_model.mileage.name
+            else:
+                year_of_realise = None
+                mileage = None
             car_state = await to_language(advert_model.state, language)
 
     ic(isinstance(color, CarColor))

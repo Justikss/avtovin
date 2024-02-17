@@ -157,6 +157,8 @@ async def send_notification_for_seller(callback: CallbackQuery, data_for_seller,
     active_seller_notifications = []
     reply_media_message_id = None
     if media_mode:
+        if isinstance(data_for_seller['album'], list):
+            data_for_seller['album'] = data_for_seller['album'][:8]
         media_group = []
         media_message = None
         for file_data in data_for_seller['album']:

@@ -95,5 +95,3 @@ class OutputTSContacts(metaclass=SmartGetAttrMeta):
         self.last_buttons = None
         self.width = 1
         self.dynamic_buttons = 3
-
-OutputTSContacts = OutputTSContacts()

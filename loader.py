@@ -51,6 +51,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     RewriteExistsAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.choose_car_state import \
+    ChooseStateAddNewParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirm import \
     ConfirmAddNewContactHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.contacts.actions.add.confirmation import \
@@ -236,7 +238,8 @@ async def start_bot():
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
     dp.message.register(collect_and_send_mediagroup,
-                        F.photo, F.photo[-1].file_id.as_("photo_id"), F.photo[-1].file_unique_id.as_('unique_id'))
+                        F.photo, F.photo[-1].file_id.as_("photo_id"), F.photo[-1].file_unique_id.as_('unique_id'),
+                        F.photo[-1].width.as_('photo_width'), F.photo[-1].height.as_('photo_height'))
 
     dp.message.register(drop_table_handler,
                         Command(commands=['dt', 'dtc']), CheckOnDeveloper())
@@ -635,9 +638,10 @@ async def start_bot():
                                F.data == 'confirm_rewrite_existing_advert_parameter',
                                AdminStatusController())
     '''new_car_catalog'''
+    dp.callback_query.register(ChooseStateAddNewParamsHandler().callback_handler,
+                               F.data == 'advert_parameters_choose_state:1')
     dp.callback_query.register(NewCarStateParameters().callback_handler,
-                               or_f(F.data == 'advert_parameters_choose_state:1',
-                                    lambda callback: callback.data.startswith('new_state_parameters:')))
+                                lambda callback: callback.data.startswith(('new_state_parameters:', 'set_state:')))
 
     dp.callback_query.register(InputCarPhotosToSetParametersBranchHandler().callback_handler,
                                F.data == 'update_params_branch_media_group')

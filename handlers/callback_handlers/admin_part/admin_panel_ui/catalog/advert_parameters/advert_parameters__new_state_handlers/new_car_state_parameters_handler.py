@@ -110,7 +110,15 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
             if request.data.startswith('advert_parameters_choose_state:'):
 
                 # await state.update_data(admin_chosen_advert_parameter=False)
-                selected_parameters = {'state': 1}
+                # selected_parameters = {'state': 1}
+                next_params_output = 'state'
+
+            elif request.data.startswith('set_state:'):
+                if request.data.endswith('none'):
+                    cars_state = None
+                else:
+                    cars_state = request.data.split(':')[-1]
+                selected_parameters['state'] = cars_state
                 chosen_param = 'state'
                 next_params_output = 'engine'
             elif request.data.startswith('new_state_parameters:'):
@@ -120,15 +128,7 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
 
                 # last_chosen = list(selected_parameters.keys())[-1]
                 last_chosen = memory_storage.get('next_params_output')
-                # if await OutputSpecificAdvertParameters().check_state_on_add_new_branch_status(state):
-                #     try:
-                #         # Получаем индекс последнего выбранного элемента и пытаемся взять следующий элемент
-                #         last_chosen = next(iter(parameter_names[parameter_names.index(last_chosen) + 1:]), None)
-                #         ic()
-                #         ic(last_chosen)
-                #     except ValueError:
-                #         # Если last_chosen не найден в списке, обрабатываем ошибку
-                #         last_chosen = None
+
                 ic(last_chosen)
                 if last_chosen:
                     car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')

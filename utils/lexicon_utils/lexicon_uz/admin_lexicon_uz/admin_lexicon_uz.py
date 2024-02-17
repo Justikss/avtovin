@@ -194,7 +194,7 @@ admin_class_mini_lexicon_uz = {
     'ban_user_input_reason_buyer': 'xaridor {name}',
     'ban_user_message_text_head': '<b>Bloklash {entity}:</b>\nSababingizni kiriting:',
     'select_tariff_message_text_exists': 'Haqiqatan ham tarifni yangilamoqchimisiz {tariff_name}',
-    'select_tariff_message_text_non_exists': 'Haqiqatan ham tarifni o‘rnatmoqchimisiz {tariff_name}',
+    'select_tariff_message_text_non_exists': 'Haqiqatan ham tarifni o‘rnatmoqchimisiz <b>{tariff_name}</b>',
     'select_tariff_message_text_startswith': '<b>{name} uchun tarif:</b>\n',
     'choose_tariff_message_text': '<b>{name} uchun tarif</b>\nYangi tarifni tanlang:',
     'review_seller_tariff_message_header_legal': '<b>Salon tarifi {name}:</b>',

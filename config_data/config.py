@@ -72,7 +72,7 @@ max_naming_len = 70
 max_integer_for_database = 2147483647
 max_biginteger_for_database = 9223372036854775807
 block_user_reason_text_len = {'max': 256, 'min': 3}
-header_message_text = '<b>AUTOWIN</b>\nКарманный Маркет-Плейс\nДля лучших авто.'
+header_message_text = '<b>AVTOVIN</b>\nТвой карманный\n<i>автомаркет</i>.'
 
 money_valute = '$'
 

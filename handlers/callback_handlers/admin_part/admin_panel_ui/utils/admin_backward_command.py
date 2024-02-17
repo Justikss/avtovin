@@ -27,6 +27,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     NewCarStateParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.add_new_value_advert_parameter import \
     AddNewValueAdvertParameter
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.choose_car_state import \
+    ChooseStateAddNewParamsHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
     OutputSpecificAdvertParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
@@ -220,6 +222,9 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'choose_specific_advert_parameter_value' | 'review_params_branch' | 'review_params_branch_to_load' | 'confirmation_add_value_process':
             await backward_in_advert_parameters_interface(current_state, callback, state)
 
+        case 'catalog_choose_state':
+            await AdvertParametersChooseCarState().callback_handler(callback, state)
+
         case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel' | 'choose_action_on_specific_adv_parameter':
             match backward_mode:
                 case 'confirmation_add_new_parameter_value_cancel':
@@ -247,6 +252,7 @@ async def backward_in_advert_parameters_interface(current_state, callback, state
     current_parameters_to_output = None
     next_parameters_to_output = None
     delete_mode = False
+    ic()
     if memory_storage:
         if memory_storage.get('add_new_branch_status'):
             if not memory_storage.get('selected_parameters'):
@@ -258,7 +264,7 @@ async def backward_in_advert_parameters_interface(current_state, callback, state
     parameters = ['state', 'engine', 'brand', 'model', 'complectation', 'color']
     match current_state:
         case 'AdminAdvertParametersStates.NewStateStates:chosen_state':
-            await AdvertParametersChooseCarState().callback_handler(callback, state)
+            await ChooseStateAddNewParamsHandler().callback_handler(callback, state)
         case 'AdminAdvertParametersStates.NewStateStates:parameters_branch_review' | \
             'AdminAdvertParametersStates.NewStateStates:confirmation_new_params_branch_to_load' | \
             'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':

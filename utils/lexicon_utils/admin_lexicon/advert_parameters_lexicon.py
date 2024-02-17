@@ -21,10 +21,17 @@ advert_parameters_captions = {
     'choose_param': '<b>Выберите параметр: {parameter}</b>',
     'year': 'Год', 'mileage': 'Пробег', 'color': 'Цвет', 'complectation': 'Комплектация', 'model': 'Модель',
     'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'from_param_branch': ' из ветки параметров:\n{param_branch}\n',
-    'year_of_realise': 'Год выпуска'
+    'year_of_realise': 'Год выпуска',
+
+    'duo_states': 'Новое/С пробегом'
 }
 
 __ADVERT_PARAMETERS_LEXICON = {
+    'choose_state': {'message_text': '<b>Добавление автомобиля:</b>\nВыберите <i>состояние</i>:', 'buttons': {
+        'set_state:2': 'С пробегом', 'set_state:1': 'Новое', 'set_state:none': 'Для обоих состояний',
+        'admin_backward:catalog_choose_state': _captions['backward'], **return_main_menu, 'width': 2
+    }},
+
     'memory_was_forgotten': 'Сброс к началу',
     'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Выбранная характеристика не может быть удалена так как на неё зарегистрированы объявления!',

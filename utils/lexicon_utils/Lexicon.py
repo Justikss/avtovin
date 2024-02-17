@@ -29,6 +29,7 @@ captions = {'backward': '◂ Назад ▸', 'was_selected': 'Вы выбрал
             }
 low_sep = '────────'
 __LEXICON = {
+            'incorrect_photo_size': '<b>Ваша фотография слишком низкого качества!</b>\n<i>(ожидается размер от 400 на 400 пикселей)</i>\n\n',
             'buyer_unban': {'message_text': 'Ваш аккаунт покупателя успешно разблокирован. Продолжайте совершать покупки с нами!',
                             'buttons': {'close_unblock_notification:buyer': 'Скрыть уведомление', 'width': 1}},
 
@@ -54,9 +55,9 @@ __LEXICON = {
             'address': 'Адрес',
             'waiting_request_process': "Ваш запрос обрабатывается. Примерное время ожидания: {time} {seconds}",
             'cached_requests_for_buyer_message_text': {
-                'message_text': 'Просмотр неподтверждённых вами предложений\n'},
+                'message_text': '<b>Просмотр неподтверждённых вами предложений</b>\n'},
             'active_offers_for_buyer_message_text': {
-                'message_text': 'Просмотр активных предложений\n'},
+                'message_text': '<b>Просмотр активных предложений</b>\n'},
             'recommended_offers_for_buyer_message_text' : {
                 'message_text': 'Просмотр рекомендованных предложений\n'},
             'backward_from_buyer_offers': {'buyer_requests': '◂ Назад ▸'},
@@ -333,13 +334,13 @@ lexicon_ru = {
     'free_cost': 'бесплатно',
     'to_offers': 'К заявкам',
     'backward_in_carpooling': '◂ Назад ▸',
-    'choose_engine_type_text': 'Выберите тип двигателя',
-    'choose_brand_text': 'Выберите марку',
-    'choose_model_text': 'Выберите модель',
-    'choose_complectation_text': 'Выберите комплектацию',
-    'choose_year_text': 'Выберите год',
-    'choose_mileage_text': 'Выберите пробег',
-    'choose_color_text': 'Выберите цвет',
+    'choose_engine_type_text': '<b>Выберите тип двигателя</b>',
+    'choose_brand_text': '<b>Выберите марку</b>',
+    'choose_model_text': '<b>Выберите модель</b>',
+    'choose_complectation_text': '<b>Выберите комплектацию</b>',
+    'choose_year_text': '<b>Выберите год</b>',
+    'choose_mileage_text': '<b>Выберите пробег</b>',
+    'choose_color_text': '<b>Выберите цвет</b>',
     'seller_sure_delete_car_ask_text': '<b>Вы уверены что хотите удалить с витрины машину</b> <i>№{number}</i> ?',
     'seller_does_have_active_requests_alert': 'У вас нет активных заявок',
     'seller_does_have_active_car_by_brand': 'Эта марка не актуальна.',

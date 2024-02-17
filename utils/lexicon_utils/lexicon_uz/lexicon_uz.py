@@ -29,6 +29,7 @@ max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
 
 LEXICON_UZ = {
+    'incorrect_photo_size': '<b>Sizning fotosuratingiz juda past sifatda!</b>\n<i>(kutilayotgan o‘lcham 400x400 piksel)</i>\n\n',
     'buyer_unban': {
         'message_text': 'Xaridor hisobingiz muvaffaqiyatli qulfdan chiqarildi. Biz bilan xarid qilishda davom eting!',
         'buttons': {'close_unblock_notification:buyer': 'Bildirishnomani yashirish', 'width': 1}},
@@ -56,9 +57,9 @@ LEXICON_UZ = {
             'address': 'Manzil',
             'waiting_request_process': "So'rovingiz qayta ishlanmoqda. Taxminiy kutish vaqti: {time} {seconds}",
             'cached_requests_for_buyer_message_text': {
-                'message_text': "Siz tasdiqlamagan takliflarni ko'rish\n"},
+                'message_text': "<b>Siz tasdiqlamagan takliflarni ko'rish</b>\n"},
             'active_offers_for_buyer_message_text': {
-                'message_text': 'Faol takliflarni ko‘rish\n'},
+                'message_text': '<b>Faol takliflarni ko‘rish</b>\n'},
             'recommended_offers_for_buyer_message_text' : {
                 'message_text': "Tavsiya etilgan takliflarni ko'rish\n"},
             'backward_from_buyer_offers': {'buyer_requests': '◂ Orqaga ▸'},
@@ -327,13 +328,13 @@ lexicon_uz = {
     'infinity_feedbacks_caption': 'cheksiz',
     'offer': '<b>Ilova <i>№{offer_number}</i></b>',
     'backward_in_carpooling': '◂ Orqaga ▸',
-    'choose_engine_type_text': 'Dvigatel turini tanlang',
-    'choose_brand_text': 'Avtomobil markasini tanlang',
-    'choose_model_text': 'Avtomobil modelini tanlang',
-    'choose_complectation_text': 'Komplektatsiyani tanlang',
-    'choose_year_text': 'Ishlab chiqarilgan yilni tanlang',
-    'choose_mileage_text': 'Yurgan masofani tanlang',
-    'choose_color_text': 'Rangni tanlang',
+    'choose_engine_type_text': '<b>Dvigatel turini tanlang</b>',
+    'choose_brand_text': '<b>Avtomobil markasini tanlang</b>',
+    'choose_model_text': '<b>Avtomobil modelini tanlang</b>',
+    'choose_complectation_text': '<b>Komplektatsiyani tanlang</b>',
+    'choose_year_text': '<b>Ishlab chiqarilgan yilni tanlang</b>',
+    'choose_mileage_text': '<b>Yurgan masofani tanlang</b>',
+    'choose_color_text': '<b>Rangni tanlang</b>',
     'seller_sure_delete_car_ask_text': '<b>Vitrinadan mashinani olib tashlashni istaysizmi</b> <i>№{number}</i> ?',
     'seller_does_have_active_requests_alert': 'Sizda faol so‘rovlaringiz yo‘q',
     'seller_does_have_active_car_by_brand': 'Bu marka dolzarb emas.',

@@ -106,7 +106,7 @@ class AdvertRequester:
 
     @cache_redis.cache_decorator(model=CarAdvert, id_key='0:advert_id')
     @staticmethod
-    async def get_where_id(advert_id: str | int | list):
+    async def get_where_id(advert_id: str | int | list, without_sleep_status=False):
         '''Получение моделей с определённым параметром id'''
         ic(advert_id)
 
@@ -121,11 +121,14 @@ class AdvertRequester:
         if not base_query:
 
             base_query = CarAdvert.select().where(CarAdvert.id == advert_id)
+            ic(await manager.get_or_none(base_query))
 
-        base_query = base_query.where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
+        if not without_sleep_status:
+            base_query = base_query.where((CarAdvert.sleep_status == False) | (CarAdvert.sleep_status.is_null(True)))
 
         try:
-            advert = await manager.get(base_query)
+            advert = await manager.get_or_none(base_query)
+            ic(advert)
         except:
             return None
         # Загрузка связанных данных

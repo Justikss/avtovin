@@ -56,10 +56,10 @@ car_advert_requests_module = importlib.import_module('database.data_requests.car
 async def output_message_constructor(advert_id: int | str | CarAdvert) -> dict:
     '''Создатель строк для вывода зарегистрированных заявок продавца'''
     # lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
-
+    ic(advert_id)
     if isinstance(advert_id, int | str):
         advert = await car_advert_requests_module\
-            .AdvertRequester.get_where_id(advert_id=advert_id)
+            .AdvertRequester.get_where_id(advert_id=advert_id, without_sleep_status=True)
         ic()
         ic(advert)
         if not advert:
@@ -162,12 +162,14 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
                                                                              offer_id=id_value)
 
             output_part = await CheckFeedbacksHandler.create_offer_data(request, offer_ids[0])
+        ic(output_part)
         if output_part:
             if output_part.get('album'):
 
-                media_group = [InputMediaPhoto(media=photo_id if '/' not in photo_id else FSInputFile(photo_id)) for photo_id in output_part['album'][:-1]][:7]
+                media_group = [InputMediaPhoto(media=photo_id if '/' not in photo_id else FSInputFile(photo_id)) for photo_id in output_part['album'][:-1]][:8]
                 media_group.append(InputMediaPhoto(media=output_part['album'][-1] if '/' not in output_part['album'][-1] else FSInputFile(output_part['album'][-1]),
                                                    caption=output_part['message_text']))
+                ic(media_group)
                 try:
                     commodity_card_message = await message.chat.bot.send_media_group(chat_id=message.chat.id,
                                                                           media=media_group)
@@ -184,6 +186,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
                     commodity_card_messages_id.append(message.message_id)
                 commodity_card_message = commodity_card_message[0].message_id
             else:
+                ic(output_part['message_text'])
                 commodity_card_message = await message.chat.bot.send_message(chat_id=message.chat.id, text=output_part['message_text'])
                 commodity_card_messages_id.append(commodity_card_message.message_id)
                 commodity_card_message = commodity_card_message.message_id
@@ -205,6 +208,7 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
 
     page_monitoring_string = f'{Lexicon_module.LexiconSellerRequests.page_view_separator}[{seller_requests_pagination.current_page}/{seller_requests_pagination.total_pages}]'
     lexicon_part = {'message_text': page_monitoring_string}
+    ic(lexicon_part)
     await asyncio.sleep(anti_spam_duration)
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part, my_keyboard=keyboard, delete_mode=True, reply_message=commodity_card_message, save_media_group=True)
 

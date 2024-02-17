@@ -6,6 +6,7 @@ import traceback
 from asyncio import Queue
 from collections import defaultdict
 from datetime import timedelta, datetime
+from functools import reduce
 
 from peewee import JOIN, IntegrityError, fn
 
@@ -28,6 +29,12 @@ from utils.translator import translate
 
 cache_redis_module = importlib.import_module('utils.redis_for_language')
 cache_redis = cache_redis_module.cache_redis
+
+def to_int(value):
+    if isinstance(value, str) and value.isdigit():
+        value = int(value)
+
+    return value
 
 class CarConfigs:
     @staticmethod
@@ -262,10 +269,22 @@ class CarConfigs:
 
     @cache_redis.cache_decorator(model=CarBrand)
     @staticmethod
-    async def get_brands_by_engine(engine_id):
-        result = await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
-                                     .where(CarEngine.id == int(engine_id)))
+    async def get_brands_by_engine_and_state(engine_id, state):
+        conditions = (CarEngine.id == to_int(engine_id),)
+        if state:
+            conditions += (CarState.id == to_int(state),)
 
+        # conditions = [CarEngine.id == int(engine_id)]
+        # if state:
+        #     # Предполагаем, что сравниваем id состояния, корректируйте в соответствии с вашей моделью
+        #     conditions.append(CarState.id == state)
+        #
+        # # Применяем reduce вне условия, чтобы всегда иметь условие для where
+        # combined_conditions = reduce(lambda a, b: a & b, conditions)
+
+        result = await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
+                                       .switch(CarComplectation).join(CarState)
+                                     .where(*conditions))
         if result:
             if hasattr(result[0], 'name'):
                 result = await sort_objects_alphabetically(result)
@@ -281,7 +300,7 @@ class CarConfigs:
 
     @cache_redis.cache_decorator(model=CarModel)
     @staticmethod
-    async def get_models_by_brand_and_engine(brand_id, engine_id=None):
+    async def get_models_by_brand_and_engine_and_state(brand_id, state, engine_id=None):
         ic(brand_id, engine_id)
         base_query = CarModel.select(CarModel, CarComplectation, CarBrand, CarEngine).join(CarComplectation).join(CarEngine).switch(CarModel).join(CarBrand)
         if engine_id:
@@ -304,7 +323,7 @@ class CarConfigs:
 
     @cache_redis.cache_decorator(model=CarComplectation)
     @staticmethod
-    async def get_complectations_by_model_and_engine(model_id, engine_id=None):
+    async def get_complectations_by_model_and_engine_and_state(model_id, state, engine_id=None):
         base_query = CarComplectation.select(CarComplectation, CarModel, CarBrand, CarEngine).join(CarModel).join(CarBrand).switch(CarComplectation).join(CarEngine)
         if engine_id:
             result = list(await manager.execute(base_query.where((CarModel.id == model_id) & (CarEngine.id == engine_id))))

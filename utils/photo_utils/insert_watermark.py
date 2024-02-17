@@ -20,56 +20,135 @@ import numpy as np
 
 
 
+# def resize_watermark(image_width, image_height, watermark, scale=0.1):
+#     # global watermark_cache
+#     # # Поскольку теперь мы работаем с объектом, ключ кеша не должен включать нехешируемые типы
+#     # cache_key = (scale, image_width, image_height)
+#     #
+#     # if cache_key in watermark_cache:
+#     #     print('from cache')
+#     #     return watermark_cache[cache_key]
+#     # else:
+#     #     print('not from cache')
+#
+#     if all(side < 300 for side in (image_height, image_width)):
+#         scale = 0.3
+#         image_width, image_height = image_width * 0.9, image_height * 0.9
+#     watermark_width = int(image_width * scale)
+#     aspect_ratio = watermark.shape[1] / watermark.shape[0]
+#     watermark_height = int(watermark_width / aspect_ratio)
+#     resized_watermark = cv2.resize(watermark, (watermark_width, watermark_height), interpolation=cv2.INTER_AREA)
+#
+#     # Сохраняем обработанный водяной знак в кеш
+#     # watermark_cache[cache_key] = resized_watermark
+#     return resized_watermark
+##################################
 def resize_watermark(image_width, image_height, watermark, scale=0.1):
-    # global watermark_cache
-    # # Поскольку теперь мы работаем с объектом, ключ кеша не должен включать нехешируемые типы
-    # cache_key = (scale, image_width, image_height)
-    #
-    # if cache_key in watermark_cache:
-    #     print('from cache')
-    #     return watermark_cache[cache_key]
-    # else:
-    #     print('not from cache')
+    # Определите минимальные ширину и высоту водяного знака
+    min_watermark_width = 80  # Минимальная ширина водяного знака, например 100 пикселей
+    min_watermark_height = 40  # Минимальная высота водяного знака, например 50 пикселей
 
-    if all(side < 300 for side in (image_height, image_width)):
-        scale = 0.3
-        image_width, image_height = image_width * 0.9, image_height * 0.9
+    # Рассчитайте предполагаемый размер водяного знака с учетом масштаба
     watermark_width = int(image_width * scale)
-    aspect_ratio = watermark.shape[1] / watermark.shape[0]
-    watermark_height = int(watermark_width / aspect_ratio)
-    resized_watermark = cv2.resize(watermark, (watermark_width, watermark_height), interpolation=cv2.INTER_AREA)
+    watermark_height = int(watermark.shape[0] * (watermark_width / watermark.shape[1]))
 
-    # Сохраняем обработанный водяной знак в кеш
-    # watermark_cache[cache_key] = resized_watermark
+    # Если рассчитанные ширина или высота меньше минимальных, используйте минимальные размеры
+    if watermark_width < min_watermark_width:
+        watermark_width = min_watermark_width
+        watermark_height = int(watermark.shape[0] * (min_watermark_width / watermark.shape[1]))
+
+    if watermark_height < min_watermark_height:
+        watermark_height = min_watermark_height
+        watermark_width = int(watermark.shape[1] * (min_watermark_height / watermark.shape[0]))
+
+    # Используйте интерполяцию INTER_AREA для уменьшения размера, INTER_LINEAR или INTER_CUBIC для увеличения
+    if watermark.shape[1] > watermark_width or watermark.shape[0] > watermark_height:
+        interpolation = cv2.INTER_AREA
+    else:
+        interpolation = cv2.INTER_LINEAR
+
+    # Измените размер водяного знака
+    resized_watermark = cv2.resize(watermark, (watermark_width, watermark_height), interpolation=interpolation)
+
     return resized_watermark
-
-
-def add_watermark(image_data, watermark, position="bottom-right", scale=0.1):
+def add_watermark(image_data, watermark, position="bottom-right", scale=0.06):
     image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_UNCHANGED)
 
     if len(image.shape) == 3:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
 
-    # Изменение вызова resize_watermark, чтобы передать объект watermark напрямую
-    resized_watermark = resize_watermark(image.shape[1], image.shape[0], watermark, scale)
+    # Установка логотипа для маленьких изображений в угол с уменьшенным отступом снизу
+    if min(image.shape[0], image.shape[1]) <= 150:
+        # Уменьшение водяного знака до размера, который точно поместится в угол
+        scale = 0.25  # или другой масштаб, подходящий для маленьких изображений
+        resized_watermark = resize_watermark(image.shape[1], image.shape[0], watermark, scale)
 
-    if position == "bottom-right":
-        x_offset = image.shape[1] - resized_watermark.shape[1] - 20
-        y_offset = image.shape[0] - resized_watermark.shape[0]# - 50
+        # Позиционирование в нижнем правом углу с половинным отступом снизу
+        x_offset = image.shape[1] - resized_watermark.shape[1]
+        y_offset = image.shape[0] - resized_watermark.shape[0] - int(resized_watermark.shape[0] / 1500)
     else:
-        x_offset, y_offset = 0, 0
+        resized_watermark = resize_watermark(image.shape[1], image.shape[0], watermark, scale)
 
-    if y_offset + resized_watermark.shape[0] > image.shape[0] or x_offset + resized_watermark.shape[1] > image.shape[1]:
-        raise ValueError("Watermark doesn't fit on the image.")
+        # Динамически определяем отступы на основе размера изображения
+        offset_x = max(20, int(image.shape[1] * 0.02))  # минимум 20 пикселей или 2% от ширины изображения
+        offset_y = max(5, int(image.shape[0] * 0.01))  # минимум 5 пикселей или 1% от высоты изображения
 
-    # Проверка на наличие альфа-канала в водяном знаке и наложение
+        # Проверяем, не выходит ли водяной знак за пределы изображения после применения отступов
+        x_offset = image.shape[1] - resized_watermark.shape[1] - offset_x
+        y_offset = image.shape[0] - resized_watermark.shape[0] - offset_y
+
+    if y_offset < 0:
+        y_offset = 0
+
+    # Наложение водяного знака с учетом альфа-канала
     alpha_s = resized_watermark[:, :, 3] / 255.0 if resized_watermark.shape[2] == 4 else 1
     alpha_l = 1.0 - alpha_s
     for c in range(0, 3):
         image[y_offset:y_offset + resized_watermark.shape[0], x_offset:x_offset + resized_watermark.shape[1], c] = \
-            (alpha_s * resized_watermark[:, :, c] + alpha_l * image[y_offset:y_offset + resized_watermark.shape[0], x_offset:x_offset + resized_watermark.shape[1], c])
+            (alpha_s * resized_watermark[:, :, c] + alpha_l * image[y_offset:y_offset + resized_watermark.shape[0],
+                                                              x_offset:x_offset + resized_watermark.shape[1], c])
 
     return cv2.imencode('.png', image)[1].tobytes()
+
+
+# def add_watermark(image_data, watermark, position="bottom-right", scale=0.1):
+#     image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_UNCHANGED)
+#
+#     if len(image.shape) == 3:
+#         image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
+#
+#     # Установка логотипа для маленьких изображений в угол без отступов
+#     if min(image.shape[0], image.shape[1]) <= 150:
+#         # Уменьшение водяного знака до размера, который точно поместится в угол
+#         # Например, устанавливаем ширину водяного знака в 1/4 от ширины изображения
+#         scale = 0.25
+#         resized_watermark = resize_watermark(image.shape[1], image.shape[0], watermark, scale)
+#
+#         # Позиционирование в нижнем правом углу без отступов
+#         x_offset = image.shape[1] - resized_watermark.shape[1]
+#         y_offset = image.shape[0] - resized_watermark.shape[0]
+#     else:
+#         resized_watermark = resize_watermark(image.shape[1], image.shape[0], watermark, scale)
+#
+#         # Динамически определяем отступы на основе размера изображения
+#         offset_x = max(20, int(image.shape[1] * 0.02))  # минимум 20 пикселей или 2% от ширины изображения
+#         offset_y = max(5, int(image.shape[0] * 0.01))  # минимум 5 пикселей или 1% от высоты изображения
+#
+#         # Проверяем, не выходит ли водяной знак за пределы изображения после применения отступов
+#         x_offset = image.shape[1] - resized_watermark.shape[1] - offset_x
+#         y_offset = image.shape[0] - resized_watermark.shape[0] - offset_y
+#         if y_offset < 0:
+#             y_offset = 0
+#
+#     # Наложение водяного знака с учетом альфа-канала
+#     alpha_s = resized_watermark[:, :, 3] / 255.0 if resized_watermark.shape[2] == 4 else 1
+#     alpha_l = 1.0 - alpha_s
+#     for c in range(0, 3):
+#         image[y_offset:y_offset + resized_watermark.shape[0], x_offset:x_offset + resized_watermark.shape[1], c] = \
+#             (alpha_s * resized_watermark[:, :, c] + alpha_l * image[y_offset:y_offset + resized_watermark.shape[0],
+#                                                               x_offset:x_offset + resized_watermark.shape[1], c])
+#
+#     return cv2.imencode('.png', image)[1].tobytes()
 
 async def add_watermark_async(image_data, watermark_path, position="bottom-right", scale=0.1):
     loop = asyncio.get_running_loop()

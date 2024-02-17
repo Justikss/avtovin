@@ -1,5 +1,6 @@
 from peewee import JOIN
 
+from database.data_requests.utils.raw_sql_handler import execute_raw_sql
 from database.db_connect import manager
 from database.tables.mailing import Mailing, ViewedMailing
 from database.tables.seller import Seller
@@ -80,3 +81,20 @@ async def delete_mailing_action(mailing):
 
     if data_to_delete:
         return data_to_delete
+
+async def collect_expired_viewed_mails(expired_mode=True):
+    if expired_mode:
+        condition = "WHERE send_datetime <= NOW() - INTERVAL '47 hours 30 minutes'"
+    else:
+        condition = ""  # Удаляются все записи без исключения
+
+    query = f'''
+    WITH expired_rows AS (
+      DELETE FROM ViewedMailing
+      {condition}
+      RETURNING *
+    )
+    SELECT user_id, message_ids FROM expired_rows;
+    '''
+    result = await execute_raw_sql(query)
+    return result

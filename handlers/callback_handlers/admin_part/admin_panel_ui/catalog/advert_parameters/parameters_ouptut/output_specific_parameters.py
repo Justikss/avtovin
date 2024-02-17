@@ -162,7 +162,9 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
         selected_parameters_string = ''
         for param_key, param_value in selected_parameters.items():
-            if param_key in advert_parameters_captions and parameter_name != param_key:
+            if param_key == 'state' and param_value is None:
+                config_name = advert_parameters_captions['duo_states']
+            elif param_key in advert_parameters_captions and parameter_name != param_key:
                 # Получение объекта конфигурации для каждого параметра
                 ic(str(param_value).isdigit(), param_value)
                 if isinstance(param_value, dict):
@@ -178,6 +180,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                 # else:
                 #     config_name = param_value
                 # Формирование строки с названиями и значениями параметров
+            if param_key in advert_parameters_captions:
                 selected_parameters_string += f"\n{advert_parameters_captions[param_key]}: {config_name}"
 
         selected_parameters_string = selected_parameters_string.lstrip('\n')
@@ -189,6 +192,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         parameters = None
         memory_storage = await state.get_data()
         selected_data = memory_storage.get('selected_parameters')
+        cars_state = memory_storage.get('state')
         ic(current_parameter)
         add_new_branch_mode = await self.check_state_on_add_new_branch_status(state)
         match current_parameter:
@@ -197,15 +201,17 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                     .CarConfigs.get_all_engines()
             case 'brand':
                 parameters = await car_configs_module\
-                    .CarConfigs.get_brands_by_engine(selected_data.get('engine'))
+                    .CarConfigs.get_brands_by_engine_and_state(selected_data.get('engine'), cars_state)
             case 'model' if not add_new_branch_mode:
                 parameters = await car_configs_module\
-                    .CarConfigs.get_models_by_brand_and_engine(selected_data.get('brand'),
-                                                                             selected_data.get('engine'))
+                    .CarConfigs.get_models_by_brand_and_engine_and_state(selected_data.get('brand'),
+                                                                         cars_state,
+                                                                         selected_data.get('engine'))
             case 'complectation' if not add_new_branch_mode:
                 parameters = await car_configs_module\
-                    .CarConfigs.get_complectations_by_model_and_engine(
+                    .CarConfigs.get_complectations_by_model_and_engine_and_state(
                     selected_data.get('model'),
+                    cars_state,
                     selected_data.get('engine'))
 
             case 'color' if not add_new_branch_mode:

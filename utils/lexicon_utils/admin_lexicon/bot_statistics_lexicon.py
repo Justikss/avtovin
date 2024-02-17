@@ -126,18 +126,18 @@ statistic_class_lexicon = SafeDict({'ru': statistic_class_lexicon_ru,
 
 
 
-
-class SelectCustomParamsProcess(metaclass=SmartGetAttrMeta):
-    def __init__(self):
-        super().__init__()
-
-        self.message_text = statistic_class_lexicon['select_custom_params_process_message_text']  # Или lexicon_uz для узбекской версии
-        self.width = 1
-        self.backward_buttons = {'admin_backward:to_statistic_panel': statistic_class_lexicon['to_statistic_panel'],
-                                 'admin_backward:select_custom_params': statistic_class_lexicon['backward']}
-        self.buttons_callback_data = 'bot_statistic_param:'
-        self.output_current_top_buttons = {'output_current_top': statistic_class_lexicon['output_current_top_buttons']}
-
+#
+# class SelectCustomParamsProcess(metaclass=SmartGetAttrMeta):
+#     def __init__(self):
+#         super().__init__()
+#
+#         self.message_text = statistic_class_lexicon['select_custom_params_process_message_text']  # Или lexicon_uz для узбекской версии
+#         self.width = 1
+#         self.backward_buttons = {'admin_backward:to_statistic_panel': statistic_class_lexicon['to_statistic_panel'],
+#                                  'admin_backward:select_custom_params': statistic_class_lexicon['backward']}
+#         self.buttons_callback_data = 'bot_statistic_param:'
+#         self.output_current_top_buttons = {'output_current_top': statistic_class_lexicon['output_current_top_buttons']}
+#
 
 class TopTenDisplay(metaclass=SmartGetAttrMeta):
     def __init__(self):
@@ -171,5 +171,5 @@ class ChooseCustomParamsToStats:
         else:
             self.backward_command = self.backward_command
 
-SelectCustomParamsProcess = SelectCustomParamsProcess()
-TopTenDisplay = TopTenDisplay()
+# SelectCustomParamsProcess = SelectCustomParamsProcess()
+# TopTenDisplay = TopTenDisplay()

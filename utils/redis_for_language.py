@@ -49,8 +49,7 @@ class RedisRequester:
                     # ic(key, ttl)
                 else:
                     ttl = -1
-                # ic((ttl < 2000 and ttl not in (-1, -2)) or (not expired_mode))
-                if (ttl < 2000 and ttl not in (-1, -2)) or (not expired_mode):  # Меньше 30+- минут и не истекший
+                if (ttl <= (60 * 30) and ttl not in (-1, -2)) or (not expired_mode):  # Меньше 40 минут и не истекший
                     value = await self.get_data(key=key, use_json=True)
                     if not isinstance(value, list):
                         value = [value]
@@ -287,7 +286,7 @@ class RedisForCache:
             kwarg_name = id_key.split(':')[1]
             arg_index = id_key.split(':')[0]
             id_value = kwargs.get(kwarg_name)
-            if not id_value and int(arg_index) >= len(args)-1:
+            if (not id_value) and (0 <= int(arg_index) < len(args)):
                 id_value = args[int(arg_index)]
 
             if model in (RecommendedOffers, CacheBuyerOffers, ActiveOffers):
@@ -317,10 +316,14 @@ class RedisForCache:
                 command = await self.construct_cache_key(func, id_value, *args, **kwargs)
 
                 result = await redis_data.get_data(command)
+                ic()
+                ic(result)
                 if not result:
                     logging.debug('REDIS without cache\n by command: %s', command)
 
                     result = await func(*args, **kwargs)
+                    ic()
+                    ic(result)
                     ic(id_value)
                     id_value = await self.insert_result_in_id_value_if_need(result, id_value, buyer_id)
                     ic(id_value)
@@ -408,18 +411,19 @@ class RedisForCache:
                                 ic(hash(model_element), hash(offers_history_module.RecommendedOffers))
 
                             if isinstance(id_value, list) and raw_patterns:
-                                patterns = [f'{raw_pattern}{id_element}*' for raw_pattern in raw_patterns
-                                                                          for id_element in id_value ]
+                                patterns = [f'{raw_pattern}*{id_element}*' for raw_pattern in raw_patterns
+                                                                          for id_element in id_value]
+                                patterns.extend([])
                                 ic(patterns)
                                 related_keys = await redis_data.scan_list_of_keys(patterns)
                                 ic(related_keys)
 
                         elif model_element is CarAdvert and str(id_value).isdigit():
-                            related_keys = await redis_data.scan_list_of_keys(f'car_advert_requests:get_where_id:{id_value}*')
+                            related_keys = await redis_data.scan_list_of_keys(f'car_advert_requests:get_where_id:*{id_value}*')
                         if car_config_update_case:
                             ic()
                             related_keys = await redis_data.scan_list_of_keys(
-                                [f'cached_car_config:{str(model_element)}:*']
+                                [f'cached_car_config:*{str(model_element)}:*']
                             )
                         if not related_keys:
                             '''Забыл что конкретно обрабатывает эта строка'''
