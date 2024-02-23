@@ -114,7 +114,7 @@ async def seller_profile_card_constructor(callback: CallbackQuery = None, user_i
 
     if seller_tariff_model and not dying_tariff:
         ic(seller_tariff_model.tariff.simultaneous_announcements)
-        ic(await get_residual_simultaneous_announcements(seller_tariff_model))
+        # ic(await get_residual_simultaneous_announcements(seller_tariff_model))
         sellers_feedbacks = seller_tariff_model.residual_feedback
         # output_string += f'\n{lexicon_class.sep}'
         days_to_end = seller_tariff_model.end_date_time - datetime.now()

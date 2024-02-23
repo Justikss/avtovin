@@ -17,10 +17,11 @@ class AdvertParametersChooseCarState(BaseCallbackQueryHandler):
         ic()
         ic(type(request))
         await self.incorrect_manager.try_delete_incorrect_message(request, state)
+        await state.clear()
         await self.set_state(state, AdminAdvertParametersStates.review_process)
-        await state.update_data(next_params_output=None)
-        await state.update_data(selected_parameters=None)
-        await state.update_data(add_new_branch_status=None)
+        # await state.update_data(next_params_output=None)
+        # await state.update_data(selected_parameters=None)
+        # await state.update_data(add_new_branch_status=None)
         self.output_methods = [
             self.menu_manager.travel_editor(
                 lexicon_part=advert_params_class_lexicon['car_parameters_start'],

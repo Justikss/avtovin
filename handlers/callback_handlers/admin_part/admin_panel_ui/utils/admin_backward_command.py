@@ -1,4 +1,5 @@
 import importlib
+from typing import Dict, Union, Optional
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -29,6 +30,8 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     AddNewValueAdvertParameter
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.choose_car_state import \
     ChooseStateAddNewParamsHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_params_branch_review import \
+    ParamsBranchReviewHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
     OutputSpecificAdvertParameters
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
@@ -85,7 +88,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
     handler_class = None
     current_state = str(await state.get_state())
     memory_storage = await state.get_data()
-
+    ic(current_state)
     ic(backward_mode)
     ic(memory_storage.get('params_type_flag') == 'new')
     match backward_mode:
@@ -217,6 +220,7 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
 
         case 'choose_specific_advert_parameter_value' | 'await_input_new_parameter_value' \
             if memory_storage.get('params_type_flag') == 'new' and memory_storage.get('add_new_branch_status'):
+            ic()
             await backward_in_advert_parameters_interface(current_state, callback, state, memory_storage)
 
         case 'choose_specific_advert_parameter_value' | 'review_params_branch' | 'review_params_branch_to_load' | 'confirmation_add_value_process':
@@ -225,14 +229,27 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
         case 'catalog_choose_state':
             await AdvertParametersChooseCarState().callback_handler(callback, state)
 
+        case 'change_state_on_branch':
+            await ParamsBranchReviewHandler().callback_handler(callback, state, make_output=True)
+
         case 'await_input_new_parameter_value' | 'confirmation_add_new_parameter_value_cancel' | 'choose_action_on_specific_adv_parameter':
+            ic()
             match backward_mode:
                 case 'confirmation_add_new_parameter_value_cancel':
                     if memory_storage.get('admin_incorrect_flag'):
                         await delete_message(callback, memory_storage.get('last_admin_answer'))
+                    ic(memory_storage.get('change_state_flag'))
+                    ic()
+                case 'await_input_new_parameter_value' if memory_storage.get('next_params_output') == 'photo':
+                    await backward_in_advert_parameters_interface(current_state, callback, state, memory_storage)
+                    return
+
+            if memory_storage.get('change_state_flag'):
+                return await backward_on_change_advert_params_state(callback, state, memory_storage)
                     # if memory_storage.get('params_type_flag') == 'new':
                     #     return await backward_in_advert_parameters_interface(current_state, callback, state)
             ic()
+
             await advert_parameters.parameters_ouptut.output_specific_parameters\
                 .OutputSpecificAdvertParameters().callback_handler(callback, state)#
 
@@ -247,20 +264,55 @@ async def admin_backward_command_handler(callback: CallbackQuery, state: FSMCont
                 await ChooseActionOnAdvertParameterHandler().callback_handler(callback, state)
 
 
-
+def find_leftmost_key_with_added(d: Dict[str, Union[Dict[str, int], int]]) -> Optional[str]:
+    maybe_added_parameters = ['brand', 'model', 'complectation', 'color']
+    ic()
+    for key in maybe_added_parameters:
+        ic(key)
+        if key in d:
+            value = d[key]
+            if isinstance(value, dict) and 'added' in value:
+                return key
+    return None  # Если ни один ключ не удовлетворяет условиям
 async def backward_in_advert_parameters_interface(current_state, callback, state, memory_storage=None):
+
     current_parameters_to_output = None
     next_parameters_to_output = None
     delete_mode = False
     ic()
+    quietler_memory_storage = await state.get_data()
+    ic(quietler_memory_storage.get('change_state_flag'))
+    ic()
+    current_fsm_state = str(await state.get_state())
+
+    if quietler_memory_storage.get('change_state_flag'):
+        return await backward_on_change_advert_params_state(callback, state, quietler_memory_storage)
+
+
     if memory_storage:
+        selected_parameters = memory_storage.get('selected_parameters')
+        if current_fsm_state in ('AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos',
+                                 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos') and selected_parameters.get(
+            'photos'):
+            ic()
+            await ParamsBranchReviewHandler().callback_handler(callback, state,
+                                                               make_output=True, delete_mode=True)
+            return
+        ic(memory_storage.get('add_new_branch_status'), memory_storage.get('change_state_flag'))
         if memory_storage.get('add_new_branch_status'):
+
             if not memory_storage.get('selected_parameters'):
                 await state.update_data(add_new_branch_status=None)
                 await state.update_data(next_params_output='engine')
                 await OutputSpecificAdvertParameters().callback_handler(callback, state, delete_mode=delete_mode)  #
                 return
+    else:
+
+        memory_storage = await state.get_data()
+
+    selected_parameters = memory_storage.get('selected_parameters')
     ic(current_state)
+    ic()
     parameters = ['state', 'engine', 'brand', 'model', 'complectation', 'color']
     match current_state:
         case 'AdminAdvertParametersStates.NewStateStates:chosen_state':
@@ -272,14 +324,24 @@ async def backward_in_advert_parameters_interface(current_state, callback, state
             if current_state in ('AdminAdvertParametersStates.NewStateStates:parameters_branch_review',
                                  'AdminAdvertParametersStates.NewStateStates:confirmation_new_params_branch_to_load'):
                 delete_mode = True
-
-            current_parameters_to_output = 'color'
-            next_parameters_to_output = 'complectation'
+            if str(selected_parameters.get('state')) == '2':
+                current_parameters_to_output = 'complectation'
+                next_parameters_to_output = 'model'
+            else:
+                # if current_state == 'AdminAdvertParametersStates.NewStateStates:confirmation_new_params_branch_to_load':
+                #     ic()
+                #     current_parameters_to_output = 'photo'
+                #     next_parameters_to_output = 'color'
+                #     selected_parameters['photos'] = None
+                #     await state.update_data(selected_parameters=selected_parameters)
+                # else:
+                current_parameters_to_output = 'color'
+                next_parameters_to_output = 'complectation'
         case 'AdminAdvertParametersStates:start_add_value_process' | 'AdminAdvertParametersStates:confirmation_add_value_process':
             add_new_branch_status = await OutputSpecificAdvertParameters().check_state_on_add_new_branch_status(state)
             if add_new_branch_status:
                 pass
-            memory_storage = await state.get_data()
+            # memory_storage = await state.get_data()
             ic(add_new_branch_status)
             next_parameters_to_output = memory_storage.get('next_params_output')
             ic(current_parameters_to_output)
@@ -310,6 +372,15 @@ async def backward_in_advert_parameters_interface(current_state, callback, state
         selected_parameters = memory_storage.get('selected_parameters')
         ic(selected_parameters, current_parameters_to_output)
         if current_parameters_to_output in selected_parameters.keys():
+            param_to_pop = selected_parameters[current_parameters_to_output]
+            ic(selected_parameters, param_to_pop, current_parameters_to_output)
+
+            if (isinstance(param_to_pop, dict) and param_to_pop.get('added')
+                    and not memory_storage.get('add_new_branch_status')):
+                first_added_param = find_leftmost_key_with_added(selected_parameters)
+                ic(first_added_param)
+                if first_added_param != current_parameters_to_output:
+                    await state.update_data(add_new_branch_status=first_added_param)
             selected_parameters.pop(current_parameters_to_output)
         await state.update_data(selected_parameters=selected_parameters)
 
@@ -327,6 +398,8 @@ async def choose_custom_params_stats_backwarder(callback: CallbackQuery, state: 
 
     chosen_demand_params = memory_storage.get('chosen_demand_params')
     out_flag = False
+    ic()
+    ic(chosen_demand_params)
     if chosen_demand_params:
         chosen_demand_params_keys = chosen_demand_params.keys()
         ic(chosen_demand_params_keys)
@@ -334,9 +407,13 @@ async def choose_custom_params_stats_backwarder(callback: CallbackQuery, state: 
         for param_type in reversed(all_params_to_choose):
             if param_type in chosen_demand_params_keys:
                 ic()
+                # if param_type == 'engine':
+                #
                 ic(chosen_demand_params)
+
                 chosen_demand_params.pop(param_type)
                 ic(chosen_demand_params)
+                # await state.update_data(next_params_output=all_params_to_choose)
                 await state.update_data(chosen_demand_params=chosen_demand_params)
 
                 if current_state == 'StatisticsStates.CustomParams:review_process':
@@ -350,3 +427,69 @@ async def choose_custom_params_stats_backwarder(callback: CallbackQuery, state: 
     # if out_flag:
     #     # await state.update_data(chosen_demand_params=None)
         await CustomParamsChoosePeriod().callback_handler(callback, state, from_backward=True)
+
+async def backward_on_change_advert_params_state(callback, state, memory_storage=None):
+    if not memory_storage:
+        memory_storage = await state.get_data()
+    selected_parameters = memory_storage.get('selected_parameters')
+    last_state = selected_parameters.get('state')
+    ic(selected_parameters, str(memory_storage.get('new_state')), str(memory_storage.get('new_state')) == '2')
+    old_state = memory_storage.get('old_state')
+    # current_state = str(await state.get_state())
+    ic(old_state)
+    second_hand_mode = 'second_hand_review'
+    current_fsm_state = str(await state.get_state())
+    if current_fsm_state in ('AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos',
+                             'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos') and selected_parameters.get('photos'):
+        ic()
+        await ParamsBranchReviewHandler().callback_handler(callback, state,
+                                                           make_output=True, delete_mode=True)
+        return
+    selected_parameters['state'] = old_state
+    # await state.update_data(selected_parameters=selected_parameters)
+    ic(await state.update_data(new_state=old_state))
+
+    if selected_parameters.get('color'):
+        if str(selected_parameters.get('state')) == '2':
+            ic()
+            if selected_parameters.get('color'):
+                del selected_parameters['color']
+            if selected_parameters.get('photos'):
+                del selected_parameters['photos']
+    ic(await state.update_data(selected_parameters=selected_parameters))
+        # elif str()
+    # if old_state:
+    first_added_param = find_leftmost_key_with_added(selected_parameters)
+    ic(first_added_param)
+    memory_storage = await state.get_data()
+    memory_storage.update((key, None) for key in
+                          ['change_state_flag', 'add_new_branch_status',
+                           'can_set_add_new_branch_status'])#'old_state', 'new_state',
+    await state.set_data(memory_storage)
+
+    if first_added_param:
+        ic()
+        ic(memory_storage.get('add_new_branch_status'))
+        # if not memory_storage.get('add_new_branch_status'):
+        await state.update_data(add_new_branch_status=first_added_param)
+
+        second_hand_mode = 'add'
+
+    start_input_to_new_car_load = str(old_state) != '2' and str(last_state) == '2' and second_hand_mode == 'add'
+
+    ic()
+    ic(second_hand_mode)
+    ic(old_state, last_state, second_hand_mode, start_input_to_new_car_load)
+    if start_input_to_new_car_load:
+        from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters import \
+            OutputSpecificAdvertParameters
+        # await state.update_data(change_state_flag='from_used' + '_add' if second_hand_mode == 'add' else '')
+        await state.update_data(next_params_output='color')
+        await state.update_data(old_state=None)
+        await state.update_data(new_state=None)
+
+
+        return await OutputSpecificAdvertParameters().callback_handler(callback, state)
+
+    return await ParamsBranchReviewHandler().callback_handler(callback, state, second_hand_mode=second_hand_mode,
+                                                              make_output=True, delete_mode=True)

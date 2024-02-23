@@ -20,18 +20,18 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
         'width': 2
     }},
 
-    'start_add_new_advert_parameter_value': {'message_text': 'Parametr qo‘shish\nParametr uchun yangi qiymat kiriting: {parameter_name}',
+    'start_add_new_advert_parameter_value': {'message_text': '<b>Parametr qo‘shish</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}',
                                              'buttons': {
                                                  'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
                                                  'width': 1
                                              }},
 
-    'start_add_new_advert_parameter_value(text_symbols)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
-    'start_add_new_advert_parameter_value(year_len)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
-    'start_add_new_advert_parameter_value(symbols)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
+    'start_add_new_advert_parameter_value(text_symbols)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
+    'start_add_new_advert_parameter_value(year_len)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
+    'start_add_new_advert_parameter_value(symbols)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
 
 
-    'start_add_new_advert_parameter_value(int_len)': "Parametr qo'shish\n<b>Kiritilgan raqam {max_integer_for_database} qiymatidan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}".format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(int_len)': "<b>Parametr qo'shish</b>\n<b>Kiritilgan raqam {max_integer_for_database} qiymatidan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}".format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value(len)': 'Parametr qo‘shish\n<b>Kiritilgan qiymat uzunligi {max_advert_parameter_name_len} harfdan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value_new_state_buttons': {
         'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
@@ -97,7 +97,8 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
     'message_text': '<b>Yangi avto parametrlar filialini yuklashni tasdiqlashni kutish:</b>', 'buttons': {
                                     'confirm_load_new_params_branch': captions_uz['confirm'],
                                     'update_params_branch_media_group': 'Fotolarni yangilash',
-                                     'admin_backward:review_params_branch_to_load': captions_uz['backward'],
+                                    'update_params_branch_state': "Holatni o'zgartirish",
+                                    'admin_backward:review_params_branch_to_load': captions_uz['backward'],
                                      'admin_backward:go_to_choose_params_state': 'Tanlashni boshiga qaytish',
                                      **return_main_menu_uz,
                                      'width': 1
@@ -105,6 +106,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 'review_params_branch': {'message_text': '',
                          'buttons': {'rewrite_current_advert_parameter': 'Tahrirlash',
                                      'update_params_branch_media_group': 'Fotolarni yangilash',
+                                     'update_params_branch_state': "Holatni o'zgartirish",
                                      'delete_current_advert_parameter': captions_uz['delete'],
                                      'admin_backward:review_params_branch': captions_uz['backward'],
                                      'admin_backward:go_to_choose_params_state': 'Tanlashni boshiga qaytish',

@@ -65,8 +65,13 @@ async def get_user_name(subject):
                     value = f'С {old_value} на {new_value}'
             if isinstance(value, int):
                 value = await car_configurations_requests_module.CarConfigs.get_by_id(key, value)
-
-            value_name = value if isinstance(value, str) else value.name
+            if value is None and 'state' in key:
+                value_name = advert_parameters_captions._data['ru']['duo_states']
+            else:
+                if not hasattr(value, 'name'):
+                    continue
+                else:
+                    value_name = value if isinstance(value, str) else value.name
             name += f"\n{advert_parameters_captions._data['ru'][key]}: {value_name}"
 
     elif isinstance(subject, tuple):

@@ -219,7 +219,7 @@ class AdvertRequester:
             ic()
             # Подразумевается, что предыдущие join уже выполнены
             sub_query = (sub_query.switch(CarAdvert).join(CarColor, on=(CarColor.id == CarAdvert.color))
-                         .where((CarComplectation.id == int(complectation_id)) if complectation_id != 'null' else True))
+                         .where((CarComplectation.id == complectation_id) if complectation_id != 'null' else True))
             query = sub_query.select(CarColor.id)
             last_table = CarColor
 
@@ -262,13 +262,14 @@ class AdvertRequester:
         ic(without_actual_filter, int_flag, seller_id)
         if without_actual_filter:
             query = query.select(CarAdvert)
-            result_adverts = list(await manager.execute(query))
             if without_actual_filter == 'for_deletion':
                 ic(result_adverts)
                 # ic(result_adverts[0].__dict__)
-
+                result_adverts = await manager.count(query)
                 return result_adverts
-            ic()
+            else:
+                result_adverts = list(await manager.execute(query))
+
         else:
             # ic(int_flag)
             if (int_flag and not seller_id) and state_id == 2:

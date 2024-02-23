@@ -50,10 +50,11 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
     # except:
     #     pass
     ic()
-    ic(state)
+    ic(await state.get_state())
     state_name = await state.get_state()
     if not state_name in (LoadCommodityStates.photo_verification,
-                             AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos):
+                             AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos,
+                          AdminAdvertParametersStates.NewStateStates.await_input_change_state_photos):
 
         return
         # pass
@@ -86,7 +87,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             ic(state_name)
             #
             if state_name:
-                if state_name in ('LoadCommodityStates:photo_verification', 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos'):
+                if state_name in ('LoadCommodityStates:photo_verification',
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos',
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos'):
                     if not 5 <= len(mediagroups[user_id][album_id]) <= 8:
 
                         photo_filter = MessageIsPhoto()
@@ -107,7 +110,8 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                                 del media_incorect_flag[user_id]
                             else:
                                 await handle_user_input_photos(mediagroups[user_id][album_id], message, state)
-                        case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
+                        case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos' | \
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos':
                             await new_car_state_parameters_module\
                                 .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups[user_id])
                     mediagroups[user_id].clear()
@@ -128,7 +132,8 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                     case 'LoadCommodityStates:photo_verification':
                         await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
                                                                                          media_photos=mediagroups[user_id])
-                    case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
+                    case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos' | \
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos':
                         await new_car_state_parameters_module\
                             .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups[user_id])
 
@@ -217,7 +222,7 @@ async def handle_user_input_photos(mediagroups, message, state):
         logging.critical('Ошибка при отправке фотографий с вотермаркой в чат: %s'
                          'photo_paths: %s'
                          'urls: %s', ex, str(photo_paths), str(urls))
-        return
+
     finally:
         if with_watermark:
             delete_photos_tasks = [async_remove_photos(file_path) for file_path in photo_paths]

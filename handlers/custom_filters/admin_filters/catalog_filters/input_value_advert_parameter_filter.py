@@ -118,9 +118,9 @@ class AdvertParameterValueFilter(BaseFilterObject):
 
             if not incorrect_flag:
                 match parameter_name:
-                    case 'mileage':
-                        if int(only_digit_value) > max_integer_for_database:
-                            incorrect_flag = '(int_len)'
+                    # case 'mileage':
+                    #     if int(only_digit_value) > max_integer_for_database:
+                    #         incorrect_flag = '(int_len)'
 
                     case 'year':
                         current_year = datetime.now().year
