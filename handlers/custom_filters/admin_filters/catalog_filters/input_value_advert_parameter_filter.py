@@ -59,13 +59,13 @@ class AdvertParameterValueFilter(BaseFilterObject):
             if existing_value:
                 incorrect_flag = '(exists)'
         if not incorrect_flag:
-            incorrect_flag = await self.default_parameters_validator(last_advert_parameter, inputted_value)
+            incorrect_flag = await self.default_parameters_validator(last_advert_parameter, inputted_value, memory_storage)
 
         ic(incorrect_flag)
         return await super().__call__(request, state, incorrect_flag=incorrect_flag,
                                       message_input_request_handler=message_input_request_handler)
 
-    async def default_parameters_validator(self, parameter_name, inputted_value):
+    async def default_parameters_validator(self, parameter_name, inputted_value, memory_storage):
         async def is_valid_input(text):
             """
             Проверяет, содержит ли текст только буквы, цифры и/или символы.
@@ -83,12 +83,17 @@ class AdvertParameterValueFilter(BaseFilterObject):
 
         valid_input = await is_valid_input(inputted_value)
         ic()
-        ic(valid_input)
+        ic(valid_input, parameter_name)
         if not valid_input:
             incorrect_flag = '(text_symbols)'
 
             return incorrect_flag
-
+        add_branch_status = any(memory_storage.get(memory_key) for memory_key in (
+                'add_new_branch_status', 'can_set_add_new_branch_status'
+        ))
+        if (parameter_name == 'review' and not add_branch_status) or (parameter_name == 'color' and add_branch_status):
+            if not re.search(r'[a-zA-Z]', inputted_value):
+                return '(invalid_color)'  # Отсутствие букв
 
     async def used_car_parameters_validator(self, parameter_name, inputted_value):
         if not parameter_name in ('mileage', 'year'):
@@ -118,9 +123,9 @@ class AdvertParameterValueFilter(BaseFilterObject):
 
             if not incorrect_flag:
                 match parameter_name:
-                    case 'mileage':
-                        if int(only_digit_value) > max_integer_for_database:
-                            incorrect_flag = '(int_len)'
+                    # case 'mileage':
+                    #     if int(only_digit_value) > max_integer_for_database:
+                    #         incorrect_flag = '(int_len)'
 
                     case 'year':
                         current_year = datetime.now().year

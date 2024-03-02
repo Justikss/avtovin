@@ -59,7 +59,7 @@ class PhotoRequester:
             #         .AdvertRequester.get_active_adverts_by_complectation_and_color(car_complectation, car_color)
             # ic(adverts, len(adverts))
             adverts = await advert_requester_module\
-                    .AdvertRequester.get_advert_by(complectation_id=car_complectation.id,
+                    .AdvertRequester.get_advert_by(complectation_id=car_complectation,
                                                           color_id=car_color.id,
                                                           state_id=1,
                                                           without_actual_filter=True)
@@ -116,18 +116,22 @@ class PhotoRequester:
     async def try_get_photo(state: FSMContext = None, for_admin=False, complectation=None, color=None) -> Optional[list]:
         '''Асинхронная попытка подобрать фотографии для новой заявки на Новый автомобиль'''
         memory_storage = await state.get_data()
-        ic(memory_storage)
         if for_admin:
+            ic()
             memory_storage = memory_storage.get('selected_parameters')
+        ic(memory_storage)
 
         if all(not param for param in (complectation, color)):
             complectation = memory_storage['complectation_for_load' if not for_admin else 'complectation']
-            color = memory_storage['color_for_load' if not for_admin else 'color']
+            color = memory_storage.get('color_for_load' if not for_admin else 'color')
+
+        if any(not param for param in (color, complectation)):
+            return
 
         ic(complectation, color)
         query = (NewCarPhotoBase.select().join(CarComplectation)
                                 .switch(NewCarPhotoBase).join(CarColor).where(
-                        (CarComplectation.id == int(complectation)) & (CarColor.id == color)))
+                        (CarComplectation.id == complectation) & (CarColor.id == color)))
         select_response = list(await manager.execute(query))
         ic(select_response)
         if select_response:
@@ -148,19 +152,19 @@ class PhotoRequester:
         return list(await manager.execute(query))
 
     @staticmethod
-    async def find_photos_by_model_and_engine(model_id, engine_id):
-        query = NewCarPhotoBase.select().join(CarComplectation).switch(CarComplectation).join(CarEngine).where((CarComplectation.model == model_id) & (CarEngine.id == engine_id))
+    async def find_photos_by_model_and_engine_and_state(model_id, engine_id, state_id):
+        query = NewCarPhotoBase.select().join(CarComplectation).switch(CarComplectation).join(CarEngine).where((CarComplectation.model == model_id) & (CarComplectation.wired_state == state_id) & (CarEngine.id == engine_id))
         return list(await manager.execute(query))
 
     @staticmethod
-    async def find_photos_by_brand_and_engine(brand_id, engine_id):
+    async def find_photos_by_brand_and_engine(brand_id, engine_id, state_id):
         query = (NewCarPhotoBase
                  .select()
                  .join(CarComplectation)
                  .join(CarModel)
                  .switch(CarComplectation)
                  .join(CarEngine)
-                 .where((CarModel.brand == brand_id) & (CarEngine.id == engine_id)))
+                 .where((CarModel.brand == brand_id) & (CarComplectation.wired_state == state_id) & (CarEngine.id == engine_id)))
         return list(await manager.execute(query))
 
     @staticmethod
@@ -175,3 +179,11 @@ class PhotoRequester:
             good_ids.append(id_element)
         ic(good_ids)
         ic(await manager.execute(NewCarPhotoBase.delete().where(NewCarPhotoBase.id.in_(good_ids))))
+
+    @staticmethod
+    async def delete_by_color_and_complectation(complectation, color):
+        query = NewCarPhotoBase.delete().where(
+            ((NewCarPhotoBase.car_complectation == complectation) & (NewCarPhotoBase.car_color == color))
+        )
+        delete_response = await manager.execute(query)
+        return delete_response

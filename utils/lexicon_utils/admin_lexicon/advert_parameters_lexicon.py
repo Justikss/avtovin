@@ -23,14 +23,22 @@ advert_parameters_captions = {
     'brand': 'Бренд', 'state': 'Состояние', 'engine': 'Двигатель', 'from_param_branch': ' из ветки параметров:\n{param_branch}\n',
     'year_of_realise': 'Год выпуска',
 
-    'duo_states': 'Новое/С пробегом'
+    'duo_states': 'Новое + С пробегом'
 }
 
 __ADVERT_PARAMETERS_LEXICON = {
+    'update_photo_caption': '<b>Ожидание подтверждения обновления фотографий авто:</b>',
+    'load_photo_to_change_state_confirmation': '<b>Ожидание подтверждения обновления состояния авто:</b>',
+    'state_update_impossible': 'Невозможно поменять состояние автомобиля:\nПо этим параметрам уже существуют объявления.',
     'choose_state': {'message_text': '<b>Добавление автомобиля:</b>\nВыберите <i>состояние</i>:', 'buttons': {
         'set_state:2': 'С пробегом', 'set_state:1': 'Новое', 'set_state:none': 'Для обоих состояний',
         'admin_backward:catalog_choose_state': _captions['backward'], **return_main_menu, 'width': 2
     }},
+    'change_state': {'message_text': "<b>Изменение состояния:</b>\nВыберите нужный параметр:", 'buttons': {
+        'change_state:2': 'С пробегом', 'change_state:1': 'Новое', 'change_state:none': 'Для обоих состояний',
+        'admin_backward:change_state_on_branch': _captions['backward'], 'width': 1
+    }},
+
 
     'memory_was_forgotten': 'Сброс к началу',
     'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
@@ -43,7 +51,7 @@ __ADVERT_PARAMETERS_LEXICON = {
         'width': 2
     }},
 
-    'start_add_new_advert_parameter_value': {'message_text': 'Добавление параметра\nВведите новое значение для параметра: {parameter_name}',
+    'start_add_new_advert_parameter_value': {'message_text': '<b>Добавление параметра</b>\nВведите новое значение для параметра: {parameter_name}',
                                              'buttons': {
                                                  'admin_backward:await_input_new_parameter_value': _captions['backward'],
                                                  'width': 1
@@ -53,13 +61,14 @@ __ADVERT_PARAMETERS_LEXICON = {
         'admin_backward:go_to_choose_params_state': 'В начало выборки',
         'width': 1},
 
-    'start_add_new_advert_parameter_value(text_symbols)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите корректное название.\nВы можете вводить: Цифры, буквы, и символы(при наличии цифр или букв):</b>',
-    'start_add_new_advert_parameter_value(year_len)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите промежуток, не привышающий текущего года, длиной до 9 символов.\nПример: 2019-2020:</b>',
-    'start_add_new_advert_parameter_value(symbols)': 'Добавление параметра: {parameter_name}.\n<b>Пожалуйста, введите корректный положительный промежуток, начинающийся с цифр. Дополнительно возможно ввести: один знак плюса(в конце) или тире и до шести точек:</b>',
+    'start_add_new_advert_parameter_value(invalid_color)': '<b>Добавление параметра:</b> {parameter_name}.\n<b>Пожалуйста, введите корректное название, содержащее минимум 1 букву:</b>',
+    'start_add_new_advert_parameter_value(text_symbols)': '<b>Добавление параметра:</b> {parameter_name}.\n<b>Пожалуйста, введите корректное название.\nВы можете вводить: Цифры, буквы, и символы(при наличии цифр или букв):</b>',
+    'start_add_new_advert_parameter_value(year_len)': '<b>Добавление параметра:</b> {parameter_name}.\n<b>Пожалуйста, введите промежуток, не привышающий текущего года, длиной до 9 символов.\nПример: 2019-2020:</b>',
+    'start_add_new_advert_parameter_value(symbols)': '<b>Добавление параметра:</b> {parameter_name}.\n<b>Пожалуйста, введите корректный положительный промежуток, начинающийся с цифр. Дополнительно возможно ввести: один знак плюса(в конце) или тире и до шести точек:</b>',
 
-    'start_add_new_advert_parameter_value(len)': 'Добавление параметра\n<b>Длина введённого значения не должна превышать {max_advert_parameter_name_len} букв</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
-    'start_add_new_advert_parameter_value(int_len)': 'Добавление параметра\n<b>Введённое число не должно превышать значение {max_integer_for_database}</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
-    'start_add_new_advert_parameter_value(exists)': 'Добавление параметра\n<b>Указанное значение уже присутсвует в конфигурации: {parameter_name}, введите уникальное значение</b>',
+    'start_add_new_advert_parameter_value(len)': '<b>Добавление параметра</b>\n<b>Длина введённого значения не должна превышать {max_advert_parameter_name_len} букв</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(int_len)': '<b>Добавление параметра</b>\n<b>Введённое число не должно превышать значение {max_integer_for_database}</b>\nВведите новое значение для параметра: {parameter_name}'.format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(exists)': '<b>Добавление параметра</b>\n<b>Указанное значение уже присутсвует в конфигурации: {parameter_name}, введите уникальное значение</b>',
     # 'start_add_new_advert_parameter_value': '',
 
     'confirmation_add_new_advert_parameter_value': {
@@ -86,7 +95,7 @@ __ADVERT_PARAMETERS_LEXICON = {
             'width': 1
         }
     },
-
+    'start_rewrite_exists_parameter(invalid_color)': 'Редактирование параметра: {parameter_type}.\n<b>Пожалуйста, введите корректное название, содержащее минимум 1 букву.</b>',
     'start_rewrite_exists_parameter': {
         'message_text': '<b>Редактирование.</b>\n────────\nВведите новое значения для параметра: {parameter_type}.\nТекущий параметр: <b>{parameter_value}</b>\n────────',
         'buttons': {
@@ -119,7 +128,9 @@ __ADVERT_PARAMETERS_LEXICON = {
         'message_text': '<b>Ожидание подтверждения загрузки новой ветки параметров для авто:</b>', 'buttons': {
                                         'confirm_load_new_params_branch': _captions['confirm'],
                                         'update_params_branch_media_group': 'Обновить фотографии',
-                                         'admin_backward:review_params_branch_to_load': _captions['backward'],
+                                        'update_params_branch_state': 'Изменить состояние',
+
+                                            'admin_backward:review_params_branch_to_load': _captions['backward'],
                                          'admin_backward:go_to_choose_params_state': 'В начало выборки',
                                          **return_main_menu,
                                          'width': 1
@@ -127,6 +138,7 @@ __ADVERT_PARAMETERS_LEXICON = {
     'review_params_branch': {'message_text': '',
                              'buttons': {'rewrite_current_advert_parameter': 'Редактировать',
                                          'update_params_branch_media_group': 'Обновить фотографии',
+                                         'update_params_branch_state': 'Изменить состояние',
                                          'delete_current_advert_parameter': _captions['delete'],
                                          'admin_backward:review_params_branch': _captions['backward'],
                                          'admin_backward:go_to_choose_params_state': 'В начало выборки',

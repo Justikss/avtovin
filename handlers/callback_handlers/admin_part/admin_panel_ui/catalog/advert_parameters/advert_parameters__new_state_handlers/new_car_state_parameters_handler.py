@@ -35,6 +35,8 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
             ic()
             if start_output_all_branch:
                 self.output_methods = []
+                ic()
+                print('ParamsBranchReviewHandler()cbh')
                 display_view_class = await ParamsBranchReviewHandler().process_callback(request, state)
                 ic(str(await state.get_state()))
                 await state.update_data(last_params_state=str(await state.get_state()))
@@ -130,7 +132,7 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
                 last_chosen = memory_storage.get('next_params_output')
 
                 ic(last_chosen)
-                if last_chosen:
+                if last_chosen and last_chosen != 'review':
                     car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
                     for index, parameter_name in enumerate(parameter_names):
 
@@ -182,6 +184,8 @@ class NewCarStateParameters(BaseCallbackQueryHandler):
 
 
     async def handle_boot_photos(self, request: CallbackQuery | Message, state: FSMContext, media_photos):
+        ic()
+        print('ParamsBranchReviewHandler()cbh')
         menu_method = await ParamsBranchReviewHandler().process_callback(request, state, media_photos=media_photos)
         ic(menu_method)
         self.output_methods = [

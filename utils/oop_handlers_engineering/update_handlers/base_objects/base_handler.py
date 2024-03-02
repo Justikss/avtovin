@@ -21,6 +21,8 @@ class BaseHandler(ABC):
         self.redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
         self.menu_manager = MenuGenerator
         self.delete_message = delete_message
+        self.lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
     async def send_alert_answer(self, request: Message| CallbackQuery, text: str, show_alert=False, message=False):
 
@@ -34,6 +36,16 @@ class BaseHandler(ABC):
             return 'exists'
         ic(await state.get_state())
 
+    async def get_memory_storage(self, state: FSMContext):
+        memory_storage = await state.get_data()
+        return memory_storage
+    async def get_from_memory_storage(self, state: FSMContext, key: str):
+        memory_storage = await self.get_memory_storage(state)
+        data = memory_storage.get(key)
+        return data
+    async def get_state_string(self, state: FSMContext):
+        state_string = str(await state.get_state())
+        return state_string
 
     async def _output_panel(self, request: CallbackQuery | Message, state: FSMContext):
         if self.output_methods:

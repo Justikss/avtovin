@@ -20,8 +20,8 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
         if memory_storage.get('params_type_flag') == 'new':
             selected_parameters = memory_storage.get('selected_parameters')
         else:
-            parameter_type_name = memory_storage.get('admin_chosen_advert_parameter')
-            parameter_value_id = memory_storage.get('current_advert_parameter')['id']
+            parameter_type_name = ic(memory_storage.get('admin_chosen_advert_parameter'))
+            parameter_value_id = ic(memory_storage.get('current_advert_parameter'))['id']
             selected_parameters = {parameter_type_name: parameter_value_id}
         if 'state' in selected_parameters.keys():
             selected_parameters.pop('state')
@@ -78,7 +78,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
 
     async def check_on_exists_adverts_by_parameter(self, state: FSMContext, selected_parameters):
         car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
-
+        ic(selected_parameters)
         query = {}
         for param_type_name, param_id in selected_parameters.items():
             match param_type_name:
@@ -86,18 +86,23 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
                     param_type_name = 'engine_type'
                 case 'year':
                     param_type_name = 'year_of_release_id'
-            if param_type_name == 'state':
+            if param_type_name in ('state', 'photos') or not param_id:
                 continue
 
             if param_type_name.endswith('id'):
                 parameter_type_key = param_type_name
             else:
                 parameter_type_key = f'{param_type_name}_id'
-
-            query.update({parameter_type_key: int(param_id)})
+            if isinstance(param_id, dict):
+                return []
+            query.update({parameter_type_key: int(param_id) if isinstance(param_id, (str, int)) else param_id.id})
         ic(query)
         advert_parameter_is_used = await car_advert_requests_module\
             .AdvertRequester.get_advert_by(**query, without_actual_filter='for_deletion')
+        if not advert_parameter_is_used and selected_parameters.get('complectation'):
+            from database.db_connect import manager
+            from database.tables.statistic_tables.advert_parameters import AdvertParameters
+            advert_parameter_is_used = list(await manager.execute(AdvertParameters.select(AdvertParameters.id).where(AdvertParameters.complectation == selected_parameters.get('complectation'))))
         ic(advert_parameter_is_used)
         return advert_parameter_is_used
 

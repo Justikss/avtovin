@@ -25,20 +25,23 @@ car_configs_module = importlib.import_module('database.data_requests.car_configu
 
 class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
-        ic(request.data)
-        if request.data.endswith(':0'):
+        # ic(request.data)
+        if isinstance(request, CallbackQuery) and request.data.endswith(':0'):
             return
         ic()
         await self.incorrect_manager.try_delete_incorrect_message(request, state)
         delete_mode = kwargs.get('delete_mode')
         memory_storage = await state.get_data()
+        if memory_storage.get('update_photos'):
+            ic(await state.update_data(update_photos=None))
         message_text_header = ''
         parameter_name = ''
+        second_hand_mode = False
         parameters = None
-
+        ic(memory_storage)
         # if ic(await state.get_state()) == AdminAdvertParametersStates.NewStateStates.parameters_branch_review:
         #     return
-        ic('choose_action_on_specific_adv_parameter' not in request.data)
+        # ic('choose_action_on_specific_adv_parameter' not in request.data)
 
         # await self.handling_after_deletion(memory_storage, request)
 
@@ -64,15 +67,41 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                 ic()
                 memory_storage = await state.get_data()
 
-                ic(memory_storage.get('selected_parameters'))
+                ic(memory_storage.get('selected_parameters'), memory_storage)
                 parameter_name = memory_storage.get('next_params_output')
                 ic(parameter_name)
+                change_state_flag = memory_storage.get('change_state_flag')
                 await self.clear_exists_new_branch_status_flags(state, parameter_name, memory_storage)
+                selected_data = memory_storage.get('selected_parameters', dict())
 
+                ic(selected_data.get('color') and memory_storage.get('change_state_flag'),
+                   selected_data, memory_storage.get('change_state_flag')
+                )
+                ic(change_state_flag)
+                if (str(selected_data.get('state')) == '2' \
+                    and selected_data.get('complectation') \
+                    and (not memory_storage.get('change_state_flag'))) or \
+                        (selected_data.get('color') and memory_storage.get('change_state_flag')):
+                    ic()
+                    if selected_data.get('color') \
+                            and isinstance(change_state_flag, str) \
+                            and change_state_flag.startswith('from_used') \
+                            and not selected_data.get('photos'):
+                        parameter_name = 'photo'
+                    else:
+                        if parameter_name == 'complectation':
+                            ic(await state.update_data(change_state_flag=None))
+                            await state.update_data(new_state=None)
+                        else:
+                            parameter_name = 'review'
+                            if await self.check_state_on_add_new_branch_status(state):
+                                second_hand_mode = 'add'
                 if parameter_name == 'review':
                     params_branch_review_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_params_branch_review')
 
-                    output_class = await params_branch_review_module.ParamsBranchReviewHandler().process_callback(request, state)
+                    output_class = await params_branch_review_module.ParamsBranchReviewHandler().process_callback(
+                        request, state, second_hand_mode=second_hand_mode
+                    )
                     self.output_methods = [output_class]
                 elif parameter_name == 'photo':
                     return await InputCarPhotosToSetParametersBranchHandler().callback_handler(request, state)
@@ -81,8 +110,12 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                     if await self.check_state_on_add_new_branch_status(state):
                         ic()
                         return await AddNewValueAdvertParameter().callback_handler(request, state, add_new_branch_mode=True, delete_mode=delete_mode)
-
+                    elif change_state_flag:
+                        memory_storage = await state.get_data()
+                        memory_storage['change_state_flag'], memory_storage['old_state'], memory_storage['new_state'] = None, None, None
+                        await state.set_data(memory_storage)
                 if memory_storage.get('params_type_flag') == 'new':
+
                     structured_selected_data = await self.construct_message_text_header_for_new_state_choose(state)
                     ic(structured_selected_data)
                     if structured_selected_data:
@@ -139,7 +172,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
             display_view_class = InlinePaginationInit(
                     lexicon_class=AdvertParametersChooseSpecificValue(parameter_name, message_text_header),
                     models_range=parameters,
-                    page_size=config_module.car_configurations_in_keyboard_page
+                    page_size=config_module.car_configurations_in_keyboard_page#, unique_names_mode=True
                 )
 
             self.output_methods = [display_view_class]
@@ -156,21 +189,34 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
 
     async def construct_message_text_header_for_new_state_choose(self, state: FSMContext):
         memory_storage = await state.get_data()
+        config_name = None
         parameter_name = memory_storage.get('next_params_output')
         selected_parameters = memory_storage.get('selected_parameters')
         ic(selected_parameters)
-
+        ic(memory_storage.get('change_state_flag'))
+        ic()
+        if memory_storage.get('change_state_flag'):
+            new_state = memory_storage.get('new_state')
+            ic(new_state)
+            selected_parameters['state'] = new_state
         selected_parameters_string = ''
         for param_key, param_value in selected_parameters.items():
+            ic(param_key, param_value, parameter_name)
             if param_key == 'state' and param_value is None:
                 config_name = advert_parameters_captions['duo_states']
-            elif param_key in advert_parameters_captions and parameter_name != param_key:
+            elif param_key in advert_parameters_captions and (
+                    parameter_name != param_key or (param_key == 'complectation'
+                    and str(selected_parameters.get('state')) == '2')):
                 # Получение объекта конфигурации для каждого параметра
                 ic(str(param_value).isdigit(), param_value)
                 if isinstance(param_value, dict):
+                    ic()
+                    ic(param_value)
                     config_name = [value for value in param_value.values()][0]
+                    ic(config_name)
+                    ic()
                 else:
-                # if str(param_value).isdigit():
+                    # if str(param_value).isdigit():
                     config_object = await car_configs_module\
                         .CarConfigs.get_by_id(param_key, param_value)
                     if not config_object:
@@ -180,7 +226,9 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                 # else:
                 #     config_name = param_value
                 # Формирование строки с названиями и значениями параметров
+            ic(param_key in advert_parameters_captions)
             if param_key in advert_parameters_captions:
+                ic(config_name)
                 selected_parameters_string += f"\n{advert_parameters_captions[param_key]}: {config_name}"
 
         selected_parameters_string = selected_parameters_string.lstrip('\n')
@@ -192,7 +240,7 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         parameters = None
         memory_storage = await state.get_data()
         selected_data = memory_storage.get('selected_parameters')
-        cars_state = memory_storage.get('state')
+        cars_state = selected_data.get('state')
         ic(current_parameter)
         add_new_branch_mode = await self.check_state_on_add_new_branch_status(state)
         match current_parameter:
@@ -201,18 +249,22 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
                     .CarConfigs.get_all_engines()
             case 'brand':
                 parameters = await car_configs_module\
-                    .CarConfigs.get_brands_by_engine_and_state(selected_data.get('engine'), cars_state)
+                    .CarConfigs.get_brands_by_engine_and_state(selected_data.get('engine'),
+                                                               state=cars_state,
+                                                               for_admin=True)
             case 'model' if not add_new_branch_mode:
                 parameters = await car_configs_module\
                     .CarConfigs.get_models_by_brand_and_engine_and_state(selected_data.get('brand'),
-                                                                         cars_state,
-                                                                         selected_data.get('engine'))
+                                                                         state=cars_state,
+                                                                         engine_id=selected_data.get('engine'),
+                                                                         for_admin=True)
             case 'complectation' if not add_new_branch_mode:
                 parameters = await car_configs_module\
                     .CarConfigs.get_complectations_by_model_and_engine_and_state(
                     selected_data.get('model'),
-                    cars_state,
-                    selected_data.get('engine'))
+                    state=cars_state,
+                    engine_id=selected_data.get('engine'),
+                for_admin=True)
 
             case 'color' if not add_new_branch_mode:
                 parameters = await car_configs_module\
@@ -265,6 +317,8 @@ class OutputSpecificAdvertParameters(BaseCallbackQueryHandler):
         param_which_startswith_add_branch = memory_storage.get('add_new_branch_status')
         ic(parameter_name)
         ic()
+        ic(memory_storage.get('can_set_add_new_branch_status'))
+        ic(param_which_startswith_add_branch)
         if param_which_startswith_add_branch in (parameter_name, 'state', 'engine'):
             await state.update_data(add_new_branch_status=False)
 

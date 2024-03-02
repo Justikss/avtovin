@@ -32,7 +32,7 @@ class RedisRequester:
         self.keys_storage = {
     'messages': (':last_user_message', ':last_message', ':last_seller_message',
                  '_notification', ':bot_header_message',
-                 ':seller_media_group_messages', ':last_media_group'
+                 ':seller_media_group_messages', ':last_media_group', ':sended_develop_moment_info'
     )
 }
 
@@ -236,7 +236,14 @@ class RedisForCache:
         ic(args, kwargs)
 
         if id_value in (CarBrand, CarModel, CarComplectation):
-            key_parts = [f'cached_car_config:{id_value}']
+            if 'state' in kwargs:
+                state_id = kwargs.get('state')
+            else:
+                if len(args) >= 2:
+                    state_id = args[1]
+                else:
+                    raise IndexError(f'State param not found\nargs: {args}\nkwargs: {kwargs}')
+            key_parts = [f'cached_car_config:{id_value}{state_id}']
             key_parts.extend(str(arg) for arg in args)
 
         else:
@@ -346,6 +353,11 @@ class RedisForCache:
             return wrapper
         return wrapped_decorator
 
+    async def update_all_config_branch(self):
+        key_pattern = 'cached_car_config*'
+        keys_to_delete = [key async for key in redis_data._scan_keys(key_pattern)]
+        if keys_to_delete:
+            await self.redis_base.delete(*keys_to_delete)
 
     def cache_update_decorator(self, model: Model | Tuple[Model], id_key: Optional[str] = None,
                                mode: Optional[str] = None, action=None, second_id_key=None):
@@ -357,6 +369,10 @@ class RedisForCache:
                 result = await func(*args, **kwargs)
                 ic(result)
                 if result:
+                    if model == 'car_config:branch':
+                        await self.update_all_config_branch()
+                        return result
+
                     car_config_update_case = model == 'car_config' and any(argument in massive for massive in (args, kwargs.values())
                                                      for argument in ('insert_or_get', 'insert', 'delete', 'update'))
                     if model == 'car_config' and not any(argument in massive for massive in (args, kwargs.values())

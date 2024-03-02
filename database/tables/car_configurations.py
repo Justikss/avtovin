@@ -58,7 +58,7 @@ class CarEngine(BaseModel):
 
 class CarColor(BaseModel):
     _name = CharField(unique=True, null=True)
-    name_uz = CharField(unique=True, null=True)
+    name_uz = CharField(unique=False, null=True)
     name_ru = CharField(unique=True, null=True)
 
     @property

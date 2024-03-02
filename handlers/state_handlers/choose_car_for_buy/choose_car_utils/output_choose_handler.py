@@ -26,7 +26,7 @@ async def set_state_data(lexicon_class, state: FSMContext):
             await state.update_data(backward_command=lexicon_class.backward_command)
 
 async def output_choose(callback, state: FSMContext, lexicon_class, models_range, page_size, need_last_buttons=True,
-                        remove_last_pagination_data=True, operation=None):
+                        remove_last_pagination_data=True, operation=None, unique_names_mode=False):
     create_lexicon_part_module = importlib.import_module('handlers.state_handlers.choose_car_for_buy.hybrid_handlers')
     inline_pagination_module = importlib.import_module('handlers.utils.inline_buttons_pagination_heart')
     Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
@@ -36,6 +36,29 @@ async def output_choose(callback, state: FSMContext, lexicon_class, models_range
         await callback.answer(Lexicon_module.catalog_captions['empty'])
         await return_main_menu_callback_handler(callback, state)
         return
+
+    # elif unique_names_mode and False:
+    #     def merge_by_name(objects):
+    #         name_to_ids = {}
+    #         for obj in objects:
+    #             if obj.name in name_to_ids:
+    #                 name_to_ids[obj.name].append(obj.id)
+    #             else:
+    #                 name_to_ids[obj.name] = [obj.id]
+    #
+    #         merged_objects = []
+    #         for name, ids in name_to_ids.items():
+    #             merged_id = ':'.join(map(str, ids))
+    #             merged_objects.append(objects[0].__class__(id=merged_id, name=name))
+    #
+    #         return merged_objects
+    #
+    #     merged_models_range = merge_by_name(models_range)
+    #     ic(merged_models_range[0].__dict__)
+    #     if merged_models_range:
+    #         models_range = merged_models_range
+
+
 
     if remove_last_pagination_data:
         await remove_last_inline_pagination_data(callback)

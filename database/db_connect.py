@@ -1,17 +1,26 @@
 import logging
+import os
 import traceback
 
+from dotenv import find_dotenv, load_dotenv
+from icecream import ic
 from peewee import SqliteDatabase, Model, TextField, CharField, IntegerField, ForeignKeyField, AutoField
 from peewee_async import PooledPostgresqlDatabase, Manager
 
 from database.triggers import create_trigger_unique_phone_number
 
+
+if not find_dotenv():
+    exit("Переменные окружения для базы данных не загружены т.к отсутствует файл database/.env")
+else:
+    load_dotenv('database/.env')
+
 connect_data = {
-    'database': 'postgresDB',
-'user': 'postgres',
-'password': 'red12red1212',
-'host': 'localhost',
-'port': 5432
+    'database': os.getenv('database'),
+'user': os.getenv('user'),
+'password': os.getenv('password'),
+'host': os.getenv('host'),
+'port': os.getenv('port')
 }
 
 database = PooledPostgresqlDatabase(
@@ -21,6 +30,7 @@ database = PooledPostgresqlDatabase(
     host=connect_data['host'],
     port=connect_data['port']
     )
+
 
 class BaseModel(Model):
     class Meta:

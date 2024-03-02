@@ -58,16 +58,19 @@ class AddNewValueAdvertParameter(BaseCallbackQueryHandler):
         ic(memory_storage.get('params_type_flag'))
         ic(memory_storage.get('add_new_branch_status'))
         ic(memory_storage.get('can_set_add_new_branch_status'))
-
-        if memory_storage.get('params_type_flag') == 'new':
-            if not memory_storage.get('add_new_branch_status') and\
-                    not memory_storage.get('can_set_add_new_branch_status'):
-                await state.update_data(can_set_add_new_branch_status=True)
+        change_state_flag = memory_storage.get('change_state_flag')
+        if not change_state_flag:
+            if memory_storage.get('params_type_flag') == 'new':
+                if not memory_storage.get('add_new_branch_status') and\
+                        not memory_storage.get('can_set_add_new_branch_status'):
+                    await state.update_data(can_set_add_new_branch_status=True)
 
 
     async def insert_into_lexicon_part_selected_params_header(self, state: FSMContext, lexicon_part):
 
         memory_storage = await state.get_data()
+        ic(memory_storage)
+        ic()
         # memory_storage.get('can_set_add_new_branch_status') or memory_storage.get('add_new_branch_status') \
         # or
         if ic(memory_storage.get('params_type_flag')) == 'new':

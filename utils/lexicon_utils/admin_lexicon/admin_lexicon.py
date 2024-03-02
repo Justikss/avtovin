@@ -341,20 +341,23 @@ class UserList:
 
         self.search_by_name_button_caption = admin_class_mini_lexicon['search_by_name']
         self.search_by_name_callback_data_startswith = 'from_admin_search_by_name'
-        self.backward_command = {'admin_backward:user_list_to_admin': captions['backward'],
+        self.search_by_name_button = {f'{self.search_by_name_callback_data_startswith}{user_status}': self.search_by_name_button_caption}
+
+        self.backward_command = {**self.search_by_name_button,
+                                 'admin_backward:user_list_to_admin': captions['backward'],
                                  'return_main_menu': admin_class_mini_lexicon['return_main_menu']}
         self.message_text = admin_class_mini_lexicon['user_list_message_text'].format(block_status=block_status)
         self.width = 1
-        self.dynamic_buttons = 2
-        self.search_by_name_button = {f'{self.search_by_name_callback_data_startswith}{user_status}': self.search_by_name_button_caption}
-        self.last_buttons = {**self.search_by_name_button}
+        self.dynamic_buttons = 3
+        # self.last_buttons = {**self.search_by_name_button}
 
 class SellerList(UserList):
     def __init__(self, user_status, block_status):
         super().__init__(user_status, block_status)
         # self.message_text = admin_class_mini_lexicon['natural_list_message_text']
         self.buttons_callback_data = 'seller_select_action:'
-        self.backward_command = {'admin_backward:seller_list_to_admin': captions['backward']}
+        self.backward_command = {**self.search_by_name_button,
+                                 'admin_backward:seller_list_to_admin': captions['backward']}
 
 class NaturalList(SellerList):
     def __init__(self, user_status, block_status):
@@ -370,6 +373,9 @@ class DealershipList(SellerList):
         self.message_text = admin_class_mini_lexicon['dealership_list_message_text'].format(block_status=block_status)
         self.message_text = NaturalList.message_text if seller_status == 'natural' \
             else self.message_text
-        self.last_buttons = {f'{self.search_by_name_callback_data_startswith}{seller_status}': admin_class_mini_lexicon['search_by_dealership_name_caption']}
+        self.search_by_name_button = {f'{self.search_by_name_callback_data_startswith}{seller_status}': admin_class_mini_lexicon['search_by_dealership_name_caption']}
+        del self.backward_command[next(iter(self.backward_command.keys()))]
+        self.backward_command = {**self.search_by_name_button, **self.backward_command}
+
 
 

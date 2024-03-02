@@ -22,9 +22,14 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
                 param_kwarg = None
                 selected_parameters[selected_param_name] = {'added': memory_storage.get('current_value')}
                 await self.try_set_add_new_params_branch_status(state, selected_param_name)
-                await state.update_data(selected_parameters=selected_parameters)
-                await self.set_next_param_to_choose(request, state, memory_storage)
-
+                ic(await state.update_data(selected_parameters=selected_parameters))
+                second_hand_mode_output = await self.set_next_param_to_choose(request, state, memory_storage)
+                # second_hand_mode_output = await self.set_next_param_to_choose(request, state, memory_storage)
+                # if second_hand_mode_output:
+                #     from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_params_branch_review import \
+                #         ParamsBranchReviewHandler
+                #     await ParamsBranchReviewHandler().callback_handler(request, state, second_hand_mode=True, make_output=True)
+                #     return
             case 'second_hand':
                 car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')
 
@@ -57,7 +62,7 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
         # return await ParamsBranchReviewHandler().process_callback(request, state)
 
         if last_params_to_output == 'color' and \
-                output_specific_parameters_module.OutputSpecificAdvertParameters().check_state_on_add_new_branch_status(state):
+                await output_specific_parameters_module.OutputSpecificAdvertParameters().check_state_on_add_new_branch_status(state):
             next_params_output = 'photo'
         else:
 
@@ -65,8 +70,14 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
             parameter_names = ['state', 'engine', 'brand', 'model', 'complectation', 'color']
             if await output_specific_parameters_module.OutputSpecificAdvertParameters().check_state_on_add_new_branch_status(state):
                 try:
+                    selected_parameters = memory_storage.get('selected_parameters')
+
+                    # if str(selected_parameters.get('state')) == '2':
+                    #     return True
+                    # else:
                     # Получаем индекс последнего выбранного элемента и пытаемся взять следующий элемент
-                    next_params_output = next(iter(parameter_names[parameter_names.index(last_params_to_output) + 1:]), None)
+                    next_params_output = next(
+                        iter(parameter_names[parameter_names.index(last_params_to_output) + 1:]), None)
                     ic()
                     ic(next_params_output)
                 except ValueError:
@@ -80,8 +91,9 @@ class ConfirmAddNewValueOfAdvertParameter(BaseCallbackQueryHandler):
         ic()
         ic(memory_storage.get('params_type_flag'))
         ic(memory_storage.get('can_set_add_new_branch_status'))
-
-        if memory_storage.get('params_type_flag') == 'new':
-            if memory_storage.get('can_set_add_new_branch_status'):
-                await state.update_data(add_new_branch_status=status_to_set)
+        change_state_flag = memory_storage.get('change_state_flag')
+        if not change_state_flag:
+            if memory_storage.get('params_type_flag') == 'new':
+                if memory_storage.get('can_set_add_new_branch_status'):
+                    await state.update_data(add_new_branch_status=status_to_set)
 

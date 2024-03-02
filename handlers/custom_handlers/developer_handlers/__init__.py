@@ -1,1 +1,1 @@
-from . import delete_all_messages
+from . import delete_all_messages, clear_cached_configs, add_new_db_columns

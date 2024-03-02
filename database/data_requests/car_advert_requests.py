@@ -1,4 +1,5 @@
 import importlib
+import traceback
 from functools import reduce
 
 from peewee import fn
@@ -219,7 +220,7 @@ class AdvertRequester:
             ic()
             # Подразумевается, что предыдущие join уже выполнены
             sub_query = (sub_query.switch(CarAdvert).join(CarColor, on=(CarColor.id == CarAdvert.color))
-                         .where((CarComplectation.id == int(complectation_id)) if complectation_id != 'null' else True))
+                         .where((CarComplectation.id == complectation_id) if complectation_id != 'null' else True))
             query = sub_query.select(CarColor.id)
             last_table = CarColor
 
@@ -262,13 +263,14 @@ class AdvertRequester:
         ic(without_actual_filter, int_flag, seller_id)
         if without_actual_filter:
             query = query.select(CarAdvert)
-            result_adverts = list(await manager.execute(query))
             if without_actual_filter == 'for_deletion':
                 ic(result_adverts)
                 # ic(result_adverts[0].__dict__)
-
+                result_adverts = await manager.count(query)
                 return result_adverts
-            ic()
+            else:
+                result_adverts = list(await manager.execute(query))
+
         else:
             # ic(int_flag)
             if (int_flag and not seller_id) and state_id == 2:
@@ -414,7 +416,15 @@ class AdvertRequester:
         await OffersRequester.delete_offer(advert_id=advert_id)
         # await manager.execute(CacheBuyerOffers.delete().where(CacheBuyerOffers.car_id.in_(car_advert_subquery)))
         await RecommendationRequester.remove_recommendation_by_advert_id(advert_id)
-
+        ic()
+        try:
+            await manager.execute(AdvertParameters.delete().where(AdvertParameters.complectation.in_(
+                CarAdvert.select(CarComplectation.id).join(CarComplectation).where(CarAdvert.id.in_(advert_id))
+            )))
+        except:
+            ic()
+            traceback.print_exc()
+            pass
         # return car_advert_subquery
 
     @cache_redis.cache_update_decorator(model=CarAdvert, id_key='1:advert_id')

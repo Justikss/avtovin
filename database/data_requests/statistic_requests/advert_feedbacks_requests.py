@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import logging
 import operator
 from datetime import timedelta, datetime
 from functools import reduce
@@ -81,25 +82,117 @@ class AdvertFeedbackRequester:
                               .SellerFeedbacksHistory.insert(seller_id=seller_id, advert_parameters=parameters[0]))
 
 
+    # @staticmethod
+    # async def update_parameters_to_null_by_specific_parameter(table_name, model_id):
+    #     async def where_clause(raw_base_query):
+    #         if table_name == 'color':
+    #             raw_base_query = raw_base_query.where(AdvertParameters.color.in_(model_id))
+    #         if table_name == 'complectation':
+    #             raw_base_query = raw_base_query.where(CarComplectation.id.in_(model_id))
+    #         if model_id:
+    #             raw_base_query = raw_base_query.where(CarModel.id.in_(model_id))
+    #         if table_name == 'brand':
+    #             raw_base_query = raw_base_query.where(CarModel.brand.in_(model_id))
+    #
+    #         return raw_base_query
+    #
+    #     base_query = offers_history_module\
+    #         .SellerFeedbacksHistory.select(offers_history_module\
+    #                                        .SellerFeedbacksHistory.id).join(AdvertParameters)\
+    #                                                                          .join(CarComplectation).join(CarModel)
+    #     base_query = await where_clause(base_query)
+    #
+    #     #RecommendationsToBuyer AdvertParameters
+    #     await manager.execute(offers_history_module\
+    #                           .SellerFeedbacksHistory().update(advert_parameters=None)\
+    #                                                   .where(offers_history_module\
+    #                                                          .SellerFeedbacksHistory.id.in_(base_query)))
+    #
+    #     ap_delete_base_query = await where_clause(AdvertParameters.select(AdvertParameters,
+    #                                                                       CarComplectation,
+    #                                                                       CarModel)
+    #                                               .join(CarComplectation)
+    #                                               .join(CarModel))
+    #
+    #     RecommendationsToBuyer = offers_history_module.RecommendationsToBuyer
+    #     rtb_delete_base_query = await where_clause(RecommendationsToBuyer.select(RecommendationsToBuyer,
+    #                                                                              AdvertParameters,
+    #                                                                              CarComplectation,
+    #                                                                              CarModel)
+    #                                               .join(AdvertParameters)
+    #                                               .join(CarComplectation)
+    #                                               .join(CarModel))
+    #     delete_dependencies_query = await manager.execute(
+    #         RecommendationsToBuyer.delete().where(RecommendationsToBuyer.id.in_(rtb_delete_base_query.select(RecommendationsToBuyer.id)))
+    #     )
     @staticmethod
     async def update_parameters_to_null_by_specific_parameter(table_name, model_id):
-        base_query = offers_history_module\
-            .SellerFeedbacksHistory.select(offers_history_module\
-                                           .SellerFeedbacksHistory.id).join(AdvertParameters)\
-                                                                             .join(CarComplectation).join(CarModel)
-        if table_name == 'color':
-            base_query = base_query.where(AdvertParameters.color.in_(model_id))
-        if table_name == 'complectation':
-            base_query = base_query.where(CarComplectation.id.in_(model_id))
-        if model_id:
-            base_query = base_query.where(CarModel.id.in_(model_id))
-        if table_name == 'brand':
-            base_query = base_query.where(CarModel.brand.in_(model_id))
+        if not model_id:
+            return
 
-        await manager.execute(offers_history_module\
-                              .SellerFeedbacksHistory().update(advert_parameters=None)\
-                                                      .where(offers_history_module\
-                                                             .SellerFeedbacksHistory.id.in_(base_query)))
+        async def get_where_clause():
+            raw_base_query = None
+            if table_name == 'color':
+                raw_base_query = f'AdvertParameters.color_id IN %s'
+            elif table_name == 'complectation':
+                raw_base_query = f'''
+                JOIN public.carcomplectation c on a.complectation_id = c.id
+                JOIN public.carmodel c2 on c2.id = c.model_id
+                WHERE c.id IN %s'''
+            elif table_name == 'model':
+                raw_base_query = f'''
+                JOIN public.carcomplectation c on a.complectation_id = c.id
+                JOIN public.carmodel c2 on c2.id = c.model_id
+                WHERE c2.id IN %s'''
+            elif table_name == 'brand':
+                raw_base_query = f'''
+                JOIN public.carcomplectation c on a.complectation_id = c.id
+                JOIN public.carmodel c2 on c2.id = c.model_id
+                WHERE c2.brand_id IN %s'''
+            elif not raw_base_query:
+                logging.error('%s, %s', table_name, str(model_id))
+                raise ValueError('in log')
+            return raw_base_query
+
+        where_clause = await get_where_clause()
+
+        sfh_update_query = f'''
+        UPDATE sellerfeedbackshistory
+        SET advert_parameters_id = null
+        where sellerfeedbackshistory.id in (
+            SELECT sellerfeedbackshistory.id FROM sellerfeedbackshistory
+            JOIN public.advertparameters a on sellerfeedbackshistory.advert_parameters_id = a.id
+            {where_clause}
+            );
+            
+        '''
+
+        ap_delete_base_query = f'''
+        DELETE FROM advertparameters
+        where advertparameters.id in (
+            SELECT a.id from advertparameters as a
+            {where_clause}
+            );
+        '''
+
+
+        rtb_delete_base_query = f'''
+        DELETE FROM "Параметры_Рекомендаций"
+        where id in (
+            SELECT "Параметры_Рекомендаций".id FROM "Параметры_Рекомендаций"
+            join advertparameters as a on "Параметры_Рекомендаций".parameters_id = a.id
+            {where_clause});
+        '''
+        ic(model_id,table_name, f'{sfh_update_query}\n{rtb_delete_base_query}\n{ap_delete_base_query}')
+        model_id = tuple(model_id)
+        args_to_query = model_id, model_id, model_id
+        from database.data_requests.utils.raw_sql_handler import execute_raw_sql
+        await execute_raw_sql(
+            f'{sfh_update_query}\n{rtb_delete_base_query}\n{ap_delete_base_query}',
+            args_to_query,
+            fetch='count',
+            transaction=True
+        )
 
     @staticmethod
     async def get_top_advert_parameters(period, top_direction='top', manager=manager):

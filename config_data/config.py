@@ -26,9 +26,9 @@ logging.basicConfig(level=logging.DEBUG,
 logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 if not find_dotenv():
-    exit("Переменные окружения не загружены т.к отсутствует файл .env")
+    exit("Переменные окружения не загружены т.к отсутствует файл config_data/.env")
 else:
-    load_dotenv()
+    load_dotenv('config_data/.env')
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 LOCATIONIQ_TOKEN = os.getenv("LOCATIONIQ_TOKEN")

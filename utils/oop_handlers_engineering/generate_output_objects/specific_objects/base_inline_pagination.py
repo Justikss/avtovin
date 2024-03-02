@@ -11,15 +11,18 @@ output_choose_module = importlib.import_module(
 
 class InlinePaginationInit(OutputObject):
     def __init__(self,
-                 lexicon_class: object | str, page_size: int, models_range: list=None, remove_last_pagination_data=True):
+                 lexicon_class: object | str, page_size: int, models_range: list=None, remove_last_pagination_data=True,
+                 unique_names_mode: bool = False):
 
         self.lexicon_class = lexicon_class
         self.model_range = models_range
         self.page_size = page_size
         self.remove_last_pagination_data = remove_last_pagination_data
         self.method = output_choose_module.output_choose
+        self.unique_names_mode = unique_names_mode
 
     async def process(self, request: Message | CallbackQuery, state: FSMContext = None):
         # ic(self.lexicon_class.message_text, self.model_range)
         await self.method(request, state, self.lexicon_class, self.model_range, self.page_size,
-                          remove_last_pagination_data=self.remove_last_pagination_data)
+                          remove_last_pagination_data=self.remove_last_pagination_data,
+                          unique_names_mode=self.unique_names_mode)

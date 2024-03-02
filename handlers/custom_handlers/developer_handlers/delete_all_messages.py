@@ -6,6 +6,8 @@ from database.data_requests.mailing_requests import collect_expired_viewed_mails
 
 
 async def delete_all_messages_developer_handler(message: Message):
+    await message.answer('Started')
+
     from utils.asyncio_tasks.old_messages_cleaner import DeleteOldRedisKeys
     from handlers.utils.delete_message import delete_message
     await delete_message(message, message.message_id)
@@ -29,7 +31,8 @@ async def delete_all_messages_developer_handler(message: Message):
             await bot.delete_messages(chat_id=user_id, message_ids=message_ids)
             await asyncio.sleep(1)
 
-
+    from utils.redis_for_language import redis_data
+    await redis_data.set_data('develop_moment_flag', 't')
     await message.answer('Successfully!')
 
     # await delete_message(message, bot_message)

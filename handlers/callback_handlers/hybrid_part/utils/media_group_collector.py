@@ -2,6 +2,7 @@ import asyncio
 import importlib
 import logging
 import os
+from copy import deepcopy
 
 import httpx
 from aiogram.exceptions import TelegramNetworkError
@@ -9,6 +10,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto, FSInputFile
 from httpx import ConnectError
 
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.add_new_value_advert_parameter.input_media_group_to_advert.input_media import \
+    InputCarPhotosToSetParametersBranchHandler
 from handlers.custom_filters.message_is_photo import MessageIsPhoto
 from handlers.state_handlers.seller_states_handler.load_new_car.hybrid_handlers import input_photo_to_load
 from handlers.utils.delete_message import delete_message
@@ -39,6 +42,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
     # if message.from_user.is_bot:
     #
     #     return
+    ic()
     user_id = message.from_user.id
     if not user_messages.get(user_id):
         user_messages[user_id] = []
@@ -50,12 +54,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
     # except:
     #     pass
     ic()
-    ic(state)
+    ic(await state.get_state())
     state_name = await state.get_state()
-    if not state_name in (LoadCommodityStates.photo_verification,
-                             AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos):
 
-        return
         # pass
     album_id = message.media_group_id
     ic(album_id)
@@ -75,7 +76,12 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
         await asyncio.sleep(2.5)
         # media_group = await insert_watermark(mediagroups[album_id], message.chat.id, message.bot)
         await delete_message(message, user_messages[user_id])
+        del user_messages[user_id]
 
+        if not state_name in (LoadCommodityStates.photo_verification,
+                              AdminAdvertParametersStates.NewStateStates.await_input_new_car_photos,
+                              AdminAdvertParametersStates.NewStateStates.await_input_change_state_photos):
+            return
         # new_album = [InputMediaPhoto(media=file_id) for file_id in mediagroups[album_id]]
 
         # await handle_user_input_photos(album_id, message, state)
@@ -86,12 +92,14 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             ic(state_name)
             #
             if state_name:
-                if state_name in ('LoadCommodityStates:photo_verification', 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos'):
+                if state_name in ('LoadCommodityStates:photo_verification',
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos',
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos'):
                     if not 5 <= len(mediagroups[user_id][album_id]) <= 8:
 
                         photo_filter = MessageIsPhoto()
                         mediagroups[user_id].clear()
-                        user_messages[user_id].clear()
+                        # user_messages[user_id].clear()
                         media_incorect_flag[user_id] = None
 
                         await photo_filter(message=message, state=state)
@@ -107,7 +115,9 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                                 del media_incorect_flag[user_id]
                             else:
                                 await handle_user_input_photos(mediagroups[user_id][album_id], message, state)
-                        case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
+                        case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos' | \
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos':
+                            await LanguageMiddlewareModule()(message)
                             await new_car_state_parameters_module\
                                 .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups[user_id])
                     mediagroups[user_id].clear()
@@ -117,7 +127,8 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
                 mediagroups[user_id].clear()
                 return result
     else:
-        await delete_message(message, user_messages[user_id])
+        await delete_message(message, message.message_id)
+        # del user_messages[user_id]
 
         if state:
             state_name = await state.get_state()
@@ -126,11 +137,14 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             if state_name:
                 match state_name:
                     case 'LoadCommodityStates:photo_verification':
-                        await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
-                                                                                         media_photos=mediagroups[user_id])
-                    case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos':
-                        await new_car_state_parameters_module\
-                            .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups[user_id])
+                        await input_photo_to_load(request=message, state=state, incorrect=True)
+                        # await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
+                        #                                                                  media_photos=mediagroups[user_id])
+                    case 'AdminAdvertParametersStates.NewStateStates:await_input_new_car_photos' | \
+                                  'AdminAdvertParametersStates.NewStateStates:await_input_change_state_photos':
+                        await InputCarPhotosToSetParametersBranchHandler().callback_handler(message, state, incorrect=True)
+                        # await new_car_state_parameters_module\
+                        #     .NewCarStateParameters().callback_handler(message, state, media_photos=mediagroups[user_id])
 
 
 async def handle_user_input_photos(mediagroups, message, state):
@@ -170,7 +184,8 @@ async def handle_user_input_photos(mediagroups, message, state):
     # await message_editor_module.travel_editor.edit_message(request=message,
     #                                                        lexicon_part=Lexicon_module.LEXICON['awaiting_process'],
     #                                                        lexicon_key='')
-
+    ic()
+    ic(mediagroups)
     tasks = [bot.get_file(mediagroup['id']) for mediagroup in mediagroups]
     files_info = await asyncio.gather(*tasks)
     urls = [f"https://api.telegram.org/file/bot{bot.token}/{file_info.file_path}" for file_info in files_info]
@@ -196,14 +211,16 @@ async def handle_user_input_photos(mediagroups, message, state):
     media_group = [InputMediaPhoto(media=media) for media in medias]
     ic(media_group)
     try:
-        sendned_media_groups = await bot.send_media_group(chat_id, media=media_group)
-        media_photos = [{'id': media_message.photo[-1].file_id, 'unique_id': media_message.photo[-1].file_unique_id} for
-                        media_message in sendned_media_groups]
+        if with_watermark:
+            sendned_media_groups = await bot.send_media_group(chat_id, media=media_group)
+            media_photos = [{'id': media_message.photo[-1].file_id, 'unique_id': media_message.photo[-1].file_unique_id} for
+                            media_message in sendned_media_groups]
 
-        await redis_data_module.redis_data.set_data(key=f'{chat_id}:last_media_group',
-                                                    value=[media_message.message_id
-                                                           for media_message in sendned_media_groups])
-
+            await redis_data_module.redis_data.set_data(key=f'{chat_id}:last_media_group',
+                                                        value=[media_message.message_id
+                                                               for media_message in sendned_media_groups])
+        else:
+            media_photos = deepcopy(mediagroups)
         await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
                                                                          media_photos=media_photos)
     except Exception as ex:
@@ -217,7 +234,7 @@ async def handle_user_input_photos(mediagroups, message, state):
         logging.critical('Ошибка при отправке фотографий с вотермаркой в чат: %s'
                          'photo_paths: %s'
                          'urls: %s', ex, str(photo_paths), str(urls))
-        return
+
     finally:
         if with_watermark:
             delete_photos_tasks = [async_remove_photos(file_path) for file_path in photo_paths]

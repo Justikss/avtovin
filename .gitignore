@@ -136,4 +136,4 @@ Shop
 config_data\.env
 db.db
 tests\.env
-database\db_connect
+#database\db_connect

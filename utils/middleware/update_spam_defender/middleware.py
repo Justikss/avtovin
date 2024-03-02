@@ -8,7 +8,7 @@ from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import CallbackQuery, Message, Update
 from datetime import datetime, timedelta
 
-from config_data.config import spam_block_time, anti_spam_duration, long_term_spam_block_time
+from config_data.config import spam_block_time, anti_spam_duration, long_term_spam_block_time, DEVELOPER_TELEGRAM_ID
 from keyboards.reply.send_reply_markup import send_reply_button_contact
 from utils.middleware.update_spam_defender.modules.callback import CallbackSpamDefender
 from utils.middleware.update_spam_defender.modules.errors import ErrorHandler
@@ -24,6 +24,9 @@ global_user_message_counts = {}
 global_blocked_users = {}
 global_long_term_user_message_counts = {}
 
+redis_module = importlib.import_module('utils.redis_for_language')
+redis_get = redis_module.redis_data.get_data
+redis_set = redis_module.redis_data.set_data
 
 class UpdateThrottlingMiddleware(BaseMiddleware):
     def __init__(self, rate_limit: float = 1.4, spam_detection_count: int = 2, long_term_spam_count: int = 15,
@@ -62,6 +65,10 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
         if message.chat.type != ChatType.PRIVATE:
             return
 
+
+
+
+
         if isinstance(request, Message):
             if any((message.photo, message.video, message.audio, message.document)):
                 return await handler(event, data)
@@ -73,6 +80,8 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
 
         if not success_filtration:
             return
+
+
 
         data['bot'] = bot
         user_id = self.get_user_id(request)
@@ -97,13 +106,18 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
 
             await self.cleaner_module(request)
             await asyncio.sleep(anti_spam_duration)
-            if ic(await self.chat_header_controller_support(request, data.get('state'))):
-                await asyncio.sleep(anti_spam_duration)
 
-                await header_controller_module.header_controller(request)
 
             try:
-                return await handler(event, data)
+                ic(user_id, DEVELOPER_TELEGRAM_ID, user_id != DEVELOPER_TELEGRAM_ID)
+                if await redis_get('develop_moment_flag') and user_id != int(DEVELOPER_TELEGRAM_ID):
+                    await self.handle_develop_moment(request, message)
+                else:
+                    if ic(await self.chat_header_controller_support(request, data.get('state'))):
+                        await asyncio.sleep(anti_spam_duration)
+
+                        await header_controller_module.header_controller(request)
+                    return await handler(event, data)
             except TelegramForbiddenError as exception:
                 await self.error_handler(request, exception)
             except Exception as exception:
@@ -112,7 +126,15 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
             finally:
                 if isinstance(request, CallbackQuery):
                     await request.answer()
+    async def handle_develop_moment(self, request, message):
+        user_id = request.from_user.id
+        personal_redis_key = f'{user_id}:sended_develop_moment_info'
 
+        if not await redis_get(personal_redis_key):
+            notification_message = await message.bot.send_message(chat_id=message.chat.id,
+                                                                  text=lexicon_module.LEXICON[
+                                                                      'develop_moment_notif'])
+            await redis_set(personal_redis_key, notification_message.message_id)
     async def chat_header_controller_support(self, event, state):
         # return True
         ic(str(await state.get_state()) == 'CarDealerShipRegistrationStates:input_dealship_name')

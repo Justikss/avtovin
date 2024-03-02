@@ -58,7 +58,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             except Exception as ex:
                 delete_query = 'no'
                 # traceback.print_exc()
-                logging.warning(f'|||Ошибка при удалении связки параметров(удаление конфигурации авто): {ex}')
+                logging.critical(f'|||Ошибка при удалении связки параметров(удаление конфигурации авто): {ex}')
             if delete_query == 'no':
                 alert_message = Lexicon_module.ADMIN_LEXICON['action_non_actuality']
             else:
@@ -77,9 +77,10 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
         #         await admin_backward_command_module\
         #             .backward_in_advert_parameters_interface(memory_storage.get('last_params_state'), request, state)
         #     case 'second_hand':
-        output_specific_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
-        await output_specific_parameters_module\
-            .OutputSpecificAdvertParameters().callback_handler(request, state)#
+        # output_specific_parameters_module = importlib.import_module('handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.output_specific_parameters')
+        # await output_specific_parameters_module\
+        #     .OutputSpecificAdvertParameters().callback_handler(request, state)#
+        return await AdvertParametersChooseCarState().callback_handler(request, state)
 
     async def delete_query(self, request, state, selected_params):
         memory_storage = await state.get_data()
@@ -91,6 +92,7 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 now_selected_params, next_params_output = await self.delete_new_state_params(selected_params)
                 if now_selected_params or next_params_output:
                     delete_query = True
+                    ic()
                     ic(next_params_output, now_selected_params)
                     await state.update_data(next_params_output=next_params_output)
                     await state.update_data(selected_parameters=now_selected_params)
@@ -104,10 +106,11 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                         mode=parameter_type_name
                     )
             case _:
-                ic()
-                await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'],
-                                             message=True)
-                return await AdvertParametersChooseCarState().callback_handler(request, state)
+                return 'no'
+                # ic()
+                # await self.send_alert_answer(request, Lexicon_module.ADVERT_PARAMETERS_LEXICON['memory_was_forgotten'],
+                #                              message=True)
+                # return await AdvertParametersChooseCarState().callback_handler(request, state)
 
         return delete_query
 
@@ -127,7 +130,9 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
 
                 elif current_param == 'complectation':
                     complectations = await car_configs_module\
-                        .CarConfigs.get_complectations_by_model_and_engine_and_state(selected_data['model'])
+                        .CarConfigs.get_complectations_by_model_and_engine_and_state(selected_data['model'],
+                                                                                     state=None,
+                                                                                     without_state=True)
 
                     ic(complectations)
 
@@ -136,7 +141,9 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                         await delete_low_params('model')
                 elif current_param == 'model':
                     models = await car_configs_module\
-                        .CarConfigs.get_models_by_brand_and_engine_and_state(selected_data['brand'])
+                        .CarConfigs.get_models_by_brand_and_engine_and_state(selected_data['brand'],
+                                                                             state=None,
+                                                                             without_state=True)
 
                     if len(models) <= 1:
                         if 'model' not in dependencies.keys():
@@ -159,11 +166,15 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
             elif 'model' in selected_data:
                 # dependencies['model'] = {[selected_data['model']]}
                 complectations = await car_configs_module\
-                    .CarConfigs.get_complectations_by_model_and_engine_and_state(selected_data['model'],
-                                                                                         selected_data['engine'])
+                    .CarConfigs.get_complectations_by_model_and_engine_and_state(model_id=selected_data['model'],
+                                                                                         engine_id=selected_data['engine'],
+                                                                                 state=selected_data['state'],
+                                                                                 for_admin=True)
                 dependencies['complectation'] = {comp.id for comp in complectations}
-                photos = await PhotoRequester.find_photos_by_model_and_engine(selected_data['model'],
-                                                                              selected_data['engine'])
+                #done в параметры find_photos_by_model_and_engine подавать состояния?
+                photos = await PhotoRequester.find_photos_by_model_and_engine_and_state(selected_data['model'],
+                                                                              selected_data['engine'],
+                                                                                        selected_data['state'])
                 await delete_low_params('model')
 
             # Если 'brand' есть в selected_data, ищем зависимые 'model'
@@ -172,7 +183,9 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 # delete_low_params = await delete_low_params('brand')
                 models = await car_configs_module\
                     .CarConfigs.get_models_by_brand_and_engine_and_state(selected_data['brand'],
-                                                                         selected_data['engine'])
+                                                                         engine_id=selected_data['engine'],
+                                                                         state=selected_data['state'],
+                                                                         for_admin=True)
                 if models:
                     dependencies['complectation'] = set()
                     ic(dependencies)
@@ -180,7 +193,9 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                     for model in models:
                         complectations = await car_configs_module\
                             .CarConfigs.get_complectations_by_model_and_engine_and_state(model,
-                                                                                                 selected_data['engine'])
+                                                                                        engine_id=selected_data['engine'],
+                                                                                        state=selected_data['state'],
+                                                                                         for_admin=True)
                         ic(complectations)
                         if complectations:
                             dependencies['complectation'].update({complectation.id for complectation in complectations})
@@ -193,7 +208,8 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                 ic(dependencies)
 
                 photos = await PhotoRequester.find_photos_by_brand_and_engine(selected_data['brand'],
-                                                                              selected_data['engine'])
+                                                                              selected_data['engine'],
+                                                                              selected_data['state'])
             return dependencies, photos
 
         async def delete_data(dependencies, photo_dependencies):
@@ -217,13 +233,16 @@ class ConfirmDeleteExistsAdvertParameter(BaseCallbackQueryHandler):
                     if table_name != 'color':
                         await car_configs_module\
                             .CarConfigs.custom_action(table_name, 'delete', model_id=dependencies[table_name])
-
-        if 'state' in selected_params:
-            selected_params.pop('state')
+        # if 'state' in selected_params:
+        #     selected_params.pop('state')
 
         ic(selected_params)
+        ic()
         params_to_delete, photo_dependencies = await find_dependencies(selected_params)
-        ic(params_to_delete, photo_dependencies)
+        ic(params_to_delete)
+        ic(len(photo_dependencies))
+        ic(photo_dependencies)
+        ic({photo.car_complectation._name: photo.car_color.name_ru for photo in photo_dependencies})
         # photo_dependencies = await find_photo_dependencies(data_to_delete)
         # ic(photo_dependencies)
         delete_query = await delete_data(params_to_delete, photo_dependencies)
@@ -276,7 +295,7 @@ async def seek_head_param_in_selecteds_where_it_is_not_dependencies(selected_dat
         cache_redis_module = importlib.import_module('utils.redis_for_language')
         cache_redis = cache_redis_module.cache_redis
 
-        @cache_redis.cache_update_decorator(model='car_config', id_key='1:action')
+        @cache_redis.cache_update_decorator(model='car_config:branch')
         async def clear_cache_initializating(head_param, action):
             return head_param
         

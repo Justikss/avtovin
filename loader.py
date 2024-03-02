@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, StateFilter, and_f, or_f
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.redis import Redis, RedisStorage
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
 from icecream import ic
 
@@ -49,6 +49,10 @@ from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_paramet
     ConfirmationRewriteExistsAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.action_of_rewriting.start import \
     RewriteExistsAdvertParameterHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.change_state.confirm import \
+    ConfirmChangeStateOnExistsBranchHandler
+from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.change_state.start import \
+    ChangeStateOnExistsBranchHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.advert_parameters__new_state_handlers.utils.handling_exists_value_advert_parameter.choose_actions_on_exists_parameter import \
     ChooseActionOnAdvertParameterHandler
 from handlers.callback_handlers.admin_part.admin_panel_ui.catalog.advert_parameters.parameters_ouptut.choose_car_state import \
@@ -111,7 +115,9 @@ from handlers.custom_handlers.admin_administrating.set_admin import SetAdminHand
 from handlers.custom_handlers.admin_administrating.set_red_admin import SetRedAdminHandler
 from handlers.custom_handlers.admin_administrating.unban_person import UnbanPersonAdminHandler
 from handlers.custom_handlers.developer_handlers.add_new_db_columns import add_db_columns
+from handlers.custom_handlers.developer_handlers.clear_cached_configs import del_cached_configs
 from handlers.custom_handlers.developer_handlers.delete_all_messages import delete_all_messages_developer_handler
+from handlers.custom_handlers.developer_handlers.stop_develop_moment import close_develop_moment_handler
 from handlers.default_handlers.drop_table import drop_table_handler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.empty_field_handler import EmptyFieldCarpoolingHandler
 from handlers.state_handlers.choose_car_for_buy.choose_car_utils.price_filtration.choose_diapason_side import \
@@ -218,23 +224,6 @@ async def start_bot():
 
     dp.update.outer_middleware(UpdateThrottlingMiddleware())
 
-    # @dp.message(F.text == 's')
-    # async def re(message: Message, state: FSMContext):
-    #     mm = await message.answer(str(message.chat.id))
-    #     await state.update_data(mmm=mm.message_id)
-    #     # await message.bot.delete_message(chat_id=message.chat.id, message_id=mm.message_id)
-    #     # await message.bot.edit_message_text(chat_id=message.chat.id, message_id=mm.message_id, text='1111saas')
-    #     # await message.edit_text(chat_id=message.chat.id, message_id=mm.message_id, text='1111saas')
-    # @dp.message(F.text == 'a')
-    # async def re(message: Message, state: FSMContext):
-    #     w = await state.get_data()
-    #     mi = w['mmm']
-    #     # await message.bot.delete_message(chat_id=message.chat.id, message_id=mi)
-    #     asdsa = await message.bot.edit_message_text(chat_id=message.chat.id, message_id=mi, text='1111saas')
-    #     ic(asdsa)
-    #     # await message.edit_text(chat_id=message.chat.id, message_id=mm.message_id, text='1111saas')
-
-
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
     dp.message.register(collect_and_send_mediagroup,
@@ -244,8 +233,11 @@ async def start_bot():
     dp.message.register(drop_table_handler,
                         Command(commands=['dt', 'dtc']), CheckOnDeveloper())
     dp.message.register(delete_all_messages_developer_handler,
-                        Command(commands=["delmesss"], ignore_case=True), CheckOnDeveloper())
+                        Command(commands=["startdev"], ignore_case=True), CheckOnDeveloper())
+    dp.message.register(close_develop_moment_handler, Command(commands=['stopdev'], ignore_case=True),
+                        CheckOnDeveloper())
 
+    dp.message.register(del_cached_configs, Command(commands=['delres'], ignore_case=True), CheckOnDeveloper())
     dp.message.register(add_db_columns, Command(commands=["add_cols"], ignore_case=True), CheckOnDeveloper())
 
     '''обработка Сообщений'''
@@ -280,7 +272,7 @@ async def start_bot():
 
 
 
-    dp.callback_query.register(seller_registration_handlers.hybrid_input_seller_number, 
+    dp.callback_query.register(seller_registration_handlers.hybrid_input_seller_number,
                         and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
                         F.data == 'rewrite_seller_number'))
 
@@ -291,7 +283,7 @@ async def start_bot():
     dp.callback_query.register(seller_registration_handlers.dealership_input_address,
                               and_f(StateFilter(HybridSellerRegistrationStates.check_input_data),
                                F.data == 'rewrite_dealership_address'))
-    
+
     dp.message.register(check_your_registration_config.check_your_config,
                         and_f(StateFilter(HybridSellerRegistrationStates.check_input_data), ThrottlingFilter(),
                         pass_on_dealership_address.GetDealershipAddress()))
@@ -413,7 +405,7 @@ async def start_bot():
                                      lambda callback: callback.data.startswith('run_tariff_payment:')))
 
     '''hybrid'''
-    
+
     dp.callback_query.register(return_main_menu.return_main_menu_callback_handler,
                                F.data == 'return_main_menu')
 
@@ -650,7 +642,10 @@ async def start_bot():
                                F.data == 'confirm_load_new_params_branch',
                                AdminStatusController())
 
-
+    dp.callback_query.register(ChangeStateOnExistsBranchHandler().callback_handler,
+                               F.data == 'update_params_branch_state')
+    dp.callback_query.register(ConfirmChangeStateOnExistsBranchHandler().callback_handler,
+                               lambda callback: callback.data.startswith('change_state:'))
     '''mailing_action'''
     dp.callback_query.register(mailing.choose_mailing_action.ChooseMailingAction().callback_handler
 ,
@@ -897,15 +892,15 @@ async def start_bot():
                               lambda callback: callback.data.startswith('load_state_')),
                               F.data=='rewrite_boot_engine'))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_brand_to_load,
-                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_brand), 
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_brand),
                               lambda callback: callback.data.startswith('load_engine_')),
                               F.data=='rewrite_boot_brand'))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_model_to_load,
-                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_model), 
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_model),
                               lambda callback: callback.data.startswith('load_brand_')),
                               F.data=='rewrite_boot_model'))
     dp.callback_query.register(load_new_car.hybrid_handlers.input_complectation_to_load,
-                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_complectation), 
+                              or_f(and_f(StateFilter(LoadCommodityStates.input_to_load_complectation),
                               lambda callback: callback.data.startswith('load_model_')),
                               F.data=='rewrite_boot_complectation'))
 

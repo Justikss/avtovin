@@ -5,10 +5,22 @@ max_integer_for_database = 2147483647
 
 advert_parameters_captions_uz = {
     'year': 'Yil', 'mileage': 'Yurgan masofasi', 'color': 'Rang', 'complectation': 'Komplektatsiya', 'model': 'Model',
-    'brand': 'Brend', 'state': 'Holati', 'engine': 'Dvigatel', 'from_param_branch': ' parametrlar filialidan:\n{param_branch}\n'
+    'brand': 'Brend', 'state': 'Holati', 'engine': 'Dvigatel', 'from_param_branch': ' parametrlar filialidan:\n{param_branch}\n',
+    'duo_states': 'Yangi + Ishlatilgan'
 }
 
 ADVERT_PARAMETERS_LEXICON_UZ = {
+        'update_photo_caption': '<b>Avtomobil fotosurati yangilanishi tasdiqlanishi kutilmoqda:</b>',
+    'load_photo_to_change_state_confirmation': '<b>Avtomobil holati yangilanishi tasdiqlanishi kutilmoqda:</b>',
+    'state_update_impossible': "Mashinaning holatini o'zgartirishning iloji yo'q:\nBu parametrlar uchun allaqachon reklamalar mavjud.",
+    'choose_state': {'message_text': '<b>Avtomobil qo‘shilmoqda:</b>\nHolatni <i>tanlang</i>:', 'buttons': {
+        'set_state:2': 'Ishlatilgan', 'set_state:1': 'Yangi', 'set_state:none': 'Ikkala davlat uchun',
+        'admin_backward:catalog_choose_state': captions_uz['backward'], **return_main_menu_uz, 'width': 2
+    }},
+    'change_state': {'message_text': "<b>Davlat o'zgarishi:</b>\nIstalgan variantni tanlang:", 'buttons': {
+        'change_state:2': 'Ishlatilgan', 'change_state:1': 'Yangi', 'change_state:none': 'Ikkala davlat uchun',
+        'admin_backward:change_state_on_branch': captions_uz['backward'], 'width': 1
+    }},
     'memory_was_forgotten': 'Boshidan boshlash',
     'selected_new_car_params_pattern': '───────────────\n<blockquote>{params_data}</blockquote>\n───────────────\n',
     'this_advert_parameter_dont_can_was_deleting': 'Tanlangan xususiyat o‘chirib bo‘lmaydi, chunki unga e’lonlar ro‘yxatdan o‘tgan!',
@@ -20,18 +32,19 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
         'width': 2
     }},
 
-    'start_add_new_advert_parameter_value': {'message_text': 'Parametr qo‘shish\nParametr uchun yangi qiymat kiriting: {parameter_name}',
+    'start_add_new_advert_parameter_value': {'message_text': '<b>Parametr qo‘shish</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}',
                                              'buttons': {
                                                  'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
                                                  'width': 1
                                              }},
+    'start_add_new_advert_parameter_value(invalid_color)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Kamida 1 ta harfdan iborat toʻgʻri nom kiriting:</b>",
 
-    'start_add_new_advert_parameter_value(text_symbols)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
-    'start_add_new_advert_parameter_value(year_len)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
-    'start_add_new_advert_parameter_value(symbols)': "Parametr qo'shish: {parameter_name}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
+    'start_add_new_advert_parameter_value(text_symbols)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
+    'start_add_new_advert_parameter_value(year_len)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
+    'start_add_new_advert_parameter_value(symbols)': "<b>Parametr qo'shish:</b> {parameter_name}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
 
 
-    'start_add_new_advert_parameter_value(int_len)': "Parametr qo'shish\n<b>Kiritilgan raqam {max_integer_for_database} qiymatidan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}".format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
+    'start_add_new_advert_parameter_value(int_len)': "<b>Parametr qo'shish</b>\n<b>Kiritilgan raqam {max_integer_for_database} qiymatidan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}".format(max_integer_for_database=max_integer_for_database, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value(len)': 'Parametr qo‘shish\n<b>Kiritilgan qiymat uzunligi {max_advert_parameter_name_len} harfdan oshmasligi kerak:</b>\nParametr uchun yangi qiymat kiriting: {parameter_name}'.format(max_advert_parameter_name_len=max_advert_parameter_name_len, parameter_name='{parameter_name}'),
     'start_add_new_advert_parameter_value_new_state_buttons': {
         'admin_backward:await_input_new_parameter_value': captions_uz['backward'],
@@ -72,6 +85,8 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
         'admin_backward:start_rewrite_exists_parameter_value': captions_uz['backward'],
         'width': 1
     }},
+'start_rewrite_exists_parameter(invalid_color)': "Parametrni tahrirlash: {parameter_type}.\n<b>Kamida 1 ta harfdan iborat toʻgʻri nom kiriting.</b>",
+
 'start_rewrite_exists_parameter(text_symbols)': "Parametrni tahrirlash: {parameter_type}.\n<b>Iltimos, to'g'ri nomni kiriting.\nSiz kiritishingiz mumkin: Raqamlar, harflar, va belgilar (raqamlar yoki harflar mavjud bo'lganda):</b>",
 'start_rewrite_exists_parameter(year_len)': "Parametrni tahrirlash: {parameter_type}.\n<b>Iltimos, hozirgi yildan oshmaydigan oralig'ini kiriting, uzunligi 9 belgigacha.\nMisol: 2019-2020:</b>",
 'start_rewrite_exists_parameter(symbols)': "Parametrni tahrirlash: {parameter_type}.\n<b>Iltimos, raqamlardan boshlanib, to'g'ri ijobiy oralig'ini kiriting. Qo'shimcha ravishda kiritish mumkin: bir dona plus belgisi (oxirida) yoki chiziq va oltigacha nuqta:</b>",
@@ -97,7 +112,8 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
     'message_text': '<b>Yangi avto parametrlar filialini yuklashni tasdiqlashni kutish:</b>', 'buttons': {
                                     'confirm_load_new_params_branch': captions_uz['confirm'],
                                     'update_params_branch_media_group': 'Fotolarni yangilash',
-                                     'admin_backward:review_params_branch_to_load': captions_uz['backward'],
+                                    'update_params_branch_state': "Holatni o'zgartirish",
+                                    'admin_backward:review_params_branch_to_load': captions_uz['backward'],
                                      'admin_backward:go_to_choose_params_state': 'Tanlashni boshiga qaytish',
                                      **return_main_menu_uz,
                                      'width': 1
@@ -105,6 +121,7 @@ ADVERT_PARAMETERS_LEXICON_UZ = {
 'review_params_branch': {'message_text': '',
                          'buttons': {'rewrite_current_advert_parameter': 'Tahrirlash',
                                      'update_params_branch_media_group': 'Fotolarni yangilash',
+                                     'update_params_branch_state': "Holatni o'zgartirish",
                                      'delete_current_advert_parameter': captions_uz['delete'],
                                      'admin_backward:review_params_branch': captions_uz['backward'],
                                      'admin_backward:go_to_choose_params_state': 'Tanlashni boshiga qaytish',
@@ -140,5 +157,6 @@ advert_params_captions_uz = {
     'state': 'Holati',
     'engine': 'Dvigatel',
     'from_param_branch': ' parametr shoxobchasidan:\n{param_branch}\n',
-    'year_of_realise': 'Chiqarilgan yili'
+    'year_of_realise': 'Chiqarilgan yili',
+'duo_states': 'Yangi + Ishlatilgan'
 }

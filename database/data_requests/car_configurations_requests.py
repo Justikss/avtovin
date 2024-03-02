@@ -1,18 +1,21 @@
 import asyncio
 import importlib
 import json
+import logging
 import random
 import traceback
 from asyncio import Queue
 from collections import defaultdict
 from datetime import timedelta, datetime
 from functools import reduce
+from typing import List, Optional
 
-from peewee import JOIN, IntegrityError, fn
+from peewee import JOIN, IntegrityError, fn, Expression, DoesNotExist
 
 from database.data_requests.new_car_photo_requests import PhotoRequester
 from database.data_requests.statistic_requests.adverts_to_admin_view_status import \
     advert_to_admin_view_related_requester
+from database.data_requests.utils.raw_sql_handler import execute_raw_sql
 from database.data_requests.utils.set_color_1_in_last_position import set_other_color_on_last_position
 from database.data_requests.utils.sort_objects_alphabetically import sort_objects_alphabetically
 from database.db_connect import database, manager
@@ -58,17 +61,173 @@ class CarConfigs:
         brand, created = await database.get_or_create(CarBrand, name=brand_name)
         return brand
 
-    @cache_redis.cache_update_decorator(model='car_config', id_key='1:action', second_id_key='0:mode')
+    @staticmethod
+    async def get_params_branch_by_names(selected_parameters):
+        pass
+
+        # complectations = list(await manager.execute(CarComplectation.select().join(CarModel).join(CarBrand).join(CarEngine)
+        #                                                 .where(((CarEngine.name == complectation.engine.name)
+        #                                                         & (CarComplectation.name == complectation.name)
+        #                                                         & (CarModel.name == complectation.model.name)
+        #                                                         & (CarBrand.name == complectation.model.brand.name)
+        #                                                         )))
+        # if len(complectation) > 1:
+
+
+    @cache_redis.cache_update_decorator(model='car_config:branch')
+    @staticmethod
+    async def update_complectation_wired_state(complectation_id, color_id, new_state_id, old_state_id):
+        async def run_update_query():
+            def build_condition(field_name, value):
+                """Возвращает часть SQL-запроса для условия и значение для параметра."""
+                if value is None:
+                    return f"{field_name} IS NULL", None
+                else:
+                    return f"{field_name} = %s", value
+
+            conditions = []
+            params = []
+            last_args = []
+            ic(color_id)
+            ic()
+            # ''''''
+            # CarComplectation.update(wired_state_id=new_state_id).where(CarComplectation.id not in (
+            #     CarComplectation.select(CarComplectation.id).where(единственная привязка к цвету) +? Где нет фотографий(надо будет удалить в конце, где удаляется комплектация)
+            # ))
+            # ''''''
+            ic(str(new_state_id), str(old_state_id))
+            if all(str(state_id) != '2' for state_id in (old_state_id, new_state_id)):
+                print("UPDSTTE: all(str(state_id) != '2' for state_id in (old_state_id, new_state_id))")
+
+                new_car_photo_base_query = '''
+                UPDATE "Фотографии_Новых_Машин"
+                SET car_complectation_id = (SELECT id FROM complectation_id)
+                WHERE car_complectation_id = %s AND car_color_id = %s
+                RETURNING car_complectation_id;
+                '''
+                last_args = [complectation_model.id, color_id]
+            elif str(new_state_id) != '2':
+                print("UPDSTTE: str(new_state_id) != '2'")
+                new_car_photo_base_query = '''
+                SELECT id FROM complectation_id
+                '''
+                # elif not color_id:
+            elif str(new_state_id) == '2':
+                print("UPDSTTE: str(new_state_id) == '2'")
+
+                new_car_photo_base_query = '''
+                DELETE FROM "Фотографии_Новых_Машин"
+                where car_complectation_id = %s AND car_color_id = %s
+                RETURNING car_complectation_id;
+                '''
+                last_args = [complectation_id, color_id]
+
+            # Для каждого условия проверяем, является ли значение None и формируем условие
+            fields_to_check = [
+                ("carmodel.name", complectation_model.model.name),
+                ("carengine._name", complectation_model.engine._name),
+                ("carengine.name_uz", complectation_model.engine.name_uz),
+                ("carengine.name_ru", complectation_model.engine.name_ru),
+                ("carcomplectation._name", complectation_model._name),
+                ("carcomplectation.name_uz", complectation_model.name_uz),
+                ("carcomplectation.name_ru", complectation_model.name_ru),
+                ("carcomplectation.wired_state_id", to_int(new_state_id))
+            ]
+
+            for field_name, value in fields_to_check:
+                condition, param = build_condition(field_name, value)
+                conditions.append(condition)
+                if param is not None:  # Добавляем параметр, если он не None
+                    params.extend([param])
+
+            # Формирование основного запроса
+            where_clause = " AND ".join(conditions)
+            update_raw_query = f'''
+            WITH existing_or_new_complectation AS (
+                SELECT carcomplectation.id
+                FROM carcomplectation
+                JOIN carmodel ON carcomplectation.model_id = carmodel.id
+                JOIN carbrand ON carmodel.brand_id = carbrand.id
+                JOIN carengine ON carcomplectation.engine_id = carengine.id
+                WHERE {where_clause}
+                LIMIT 1
+            ), inserted_complectation AS (
+                INSERT INTO carcomplectation (model_id, engine_id, _name, name_uz, name_ru, wired_state_id)
+                SELECT %s, %s, %s, %s, %s, %s
+                WHERE NOT EXISTS (SELECT 1 FROM existing_or_new_complectation)
+                RETURNING id
+            ), complectation_id AS (
+                SELECT id FROM existing_or_new_complectation
+                UNION ALL
+                SELECT id FROM inserted_complectation
+            )
+            {new_car_photo_base_query}
+            
+            '''
+
+            # Добавляем оставшиеся параметры для INSERT и UPDATE частей
+            params.extend([
+                complectation_model.model.id, complectation_model.engine.id, complectation_model._name,
+                complectation_model.name_uz, complectation_model.name_ru, to_int(new_state_id),
+                *last_args
+            ])
+            ic()
+            logging.debug(f'{update_raw_query}', *params)
+            # Выполнение запроса с параметрами
+            update_query = await execute_raw_sql(update_raw_query,
+                                                 args=params,
+                                                 transaction=True)
+            ic(update_query)
+            return update_query
+        insert_complectation_subquery = ''
+        update_query = None
+        complectation_id, color_id, new_state_id = to_int(complectation_id), to_int(color_id), to_int(new_state_id)
+
+        # ic(complectations_to_colors_wired)
+        ic(complectation_id, color_id, new_state_id)
+
+#         if complectations_to_colors_wired:
+#             wired_colors = {photo_model.car_color.id for photo_model in complectations_to_colors_wired}
+#             ic(wired_colors)
+        if isinstance(complectation_id, CarComplectation):
+            complectation_model = complectation_id
+        else:
+            complectation_model = await CarConfigs.get_by_id('complectation', complectation_id)
+        ic(complectation_model)
+        if complectation_model:
+            update_query = await run_update_query()
+            if not color_id:
+                photo_branches = None
+
+            elif complectation_model.wired_state != 2:
+                photo_branches = list(await manager.execute(
+                    NewCarPhotoBase.select(NewCarPhotoBase, CarColor).join(CarColor).where(NewCarPhotoBase.car_complectation == complectation_model)
+                ))
+            else:
+                photo_branches = None
+            ic(complectation_model.__data__['wired_state'])
+            # ic(complectation_model.__dict__, update_query, complectation_model.wired_state == 2 and not update_query, complectation_model.wired_state, complectation_model.wired_state == 2, update_query, bool(update_query))
+            # ic(photo_branches, update_query, complectation_model.wired_state, len({photo_model.car_color for photo_model in photo_branches}))
+            if ((complectation_model.__data__['wired_state'] == 2 or not photo_branches)
+                    and update_query):
+                #or (photo_branches and len({photo_model.car_color if photo_model.car_color.id != color_id for photo_model in photo_branches}) == 1)) #(всего один цвет в привязке)
+                await manager.execute(NewCarPhotoBase.delete().where(NewCarPhotoBase.car_complectation == complectation_model))
+                await manager.execute(CarComplectation.delete().where(CarComplectation.id == complectation_model))
+            elif complectation_model.__data__['wired_state'] == 2 and not update_query:
+                return [(complectation_model.id,)]
+        return update_query
+
+    @cache_redis.cache_update_decorator(model='car_config:branch')
     @staticmethod
     async def custom_action(mode, action: str, name=None, model_id=None,
-                            first_subject=None, second_subject=None):
+                            first_subject=None, second_subject=None, third_subject=None):
         result = None
         if isinstance(model_id, (list, set)):
             model_id = [int(id_element) for id_element in model_id]
         elif model_id and not isinstance(model_id, int):
             model_id = int(model_id)
 
-        ic(name, mode, action, model_id, first_subject, second_subject)
+        ic(name, mode, action, model_id, first_subject, second_subject, third_subject)
         if mode == 'color':
             current_table = CarColor
         elif mode == 'mileage':
@@ -105,6 +264,22 @@ class CarConfigs:
             ic()
             ic(condition, map_condition)
 
+        insert_kwargs = None
+        if mode in ('color', 'complectation'):
+            insert_kwargs = await translate.translate(name, 'name')
+            ic(insert_kwargs)
+        if not insert_kwargs:
+            insert_kwargs = {'name': name}
+        if first_subject and not second_subject:
+            insert_kwargs['brand'] = first_subject
+        elif all(subject for subject in (first_subject, second_subject)):
+            insert_kwargs['model'] = first_subject
+            insert_kwargs['engine'] = second_subject
+            insert_kwargs['wired_state'] = third_subject
+        ic(insert_kwargs)
+        if not insert_kwargs:
+            return '(translate_error)'
+
         match action:
             case 'get_by_name' if name:
                 result = await manager.get_or_none(current_table, condition)
@@ -116,22 +291,9 @@ class CarConfigs:
                 result = list(query)
 
             case 'insert' if name:
-                insert_kwargs = None
-                if mode in ('color', 'complectation'):
-                    insert_kwargs = await translate.translate(name, 'name')
-                    ic(insert_kwargs)
-                if not insert_kwargs:
-                    insert_kwargs = {'name': name}
 
                 try:
-                    if first_subject and not second_subject:
-                      insert_kwargs['brand'] = first_subject
-                    elif all(subject for subject in (first_subject ,second_subject)):
-                        insert_kwargs['model'] = first_subject
-                        insert_kwargs['engine'] = second_subject
-                    ic(insert_kwargs)
-                    if not insert_kwargs:
-                        return '(translate_error)'
+
                     result = await manager.create(current_table, **insert_kwargs)
                     # if result:
                     #     result = current_table
@@ -144,14 +306,19 @@ class CarConfigs:
                     from database.data_requests.recomendations_request import RecommendationParametersBinder
 
                     await RecommendationParametersBinder.remove_wire_by_parameter(current_table, model_id)
-                result = await manager.execute(current_table.delete().where(default_condition))
+                try:
+                    result = await manager.execute(current_table.delete().where(default_condition))
+                except:
+                    return False
 
             case 'update' if name and model_id:
-                result = await manager.execute(current_table.update(**map_condition).where(default_condition))
-
+                try:
+                    result = await manager.execute(current_table.update(**map_condition).where(default_condition))
+                except:
+                    return False
             case 'insert_or_get':
                 ic(map_condition)
-                result = await manager.get_or_create(current_table, **map_condition)
+                result = await manager.get_or_create(current_table, **insert_kwargs)
                 if result[1]:
                     result = (result[0], current_table)
                 else:
@@ -167,7 +334,7 @@ class CarConfigs:
     @staticmethod
     async def get_by_id(table, model_id):
         if table == 'state':
-            table = CarState   
+            table = CarState
         elif table in ('engine_type', 'engine'):
             table = CarEngine
         elif table == 'brand':
@@ -189,12 +356,12 @@ class CarConfigs:
             if isinstance(model_id, str):
                 model_id = int(model_id)
             if isinstance(model_id, int):
-                return await manager.get_or_none(table, table.id == model_id)
+                return await manager.get_or_none(table, table.id == model_id,)
 
     # @cache_redis.cache_decorator(model=CarColor)
     @staticmethod
     async def get_color_by_complectaiton(complectation_id, without_other=False):
-        if not isinstance(complectation_id, int):
+        if isinstance(complectation_id, str):
             complectation_id = int(complectation_id)
         ic(complectation_id)
         # query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.id == complectation_id)
@@ -242,15 +409,34 @@ class CarConfigs:
     @staticmethod
     async def get_or_add_color(name):
         try:
+            color = None
             map_condition = await translate.translate(name, 'name')
-            color = await manager.get_or_none(CarColor, **map_condition)
-            if not color:
-                color = await manager.create(CarColor, **map_condition)
+            ic(map_condition)
+            # color = await manager.get_or_none(CarColor, **map_condition)
+            try:
+                color = await manager.create_or_get(CarColor, **map_condition)
+            except DoesNotExist:
+                try:
+                    await manager.create(CarColor, **map_condition)
+                    color = await manager.get_or_none(CarColor, **map_condition)
+                except IntegrityError:
+
+                    ic()
+                    for key, value in map_condition.items():
+                        if value:
+                            color = await manager.get_or_none(CarColor, **{key: value})
+                            if color:
+                                return color
+
+            ic(color)
+            if isinstance(color, tuple):
+                color = color[0]
+            ic(color)
 
             return color
         except:
             # return [await manager.get(CarColor, _name=name)]
-            # traceback.print_exc()
+            traceback.print_exc()
             pass
 
     @staticmethod
@@ -266,25 +452,41 @@ class CarConfigs:
                 return
         update_kwargs = await translate.translate(new_name, 'name')
         await manager.execute(table.update(**update_kwargs).where(table.id == model_id))
+    @staticmethod
+    async def bind_state_wire_conditions(conditions: List[bool], state: Optional[str], for_admin: bool,
+                                         without_state: bool):
+        ic(state)
+        ic()
+        if not without_state:
+            if state:
+                if for_admin:
+                    condition_to_append = (CarComplectation.wired_state == to_int(state))
+                else:
+                    condition_to_append = (CarComplectation.wired_state == to_int(state)) | (
+                        CarComplectation.wired_state.is_null(True))
+            else:
+                condition_to_append = CarComplectation.wired_state.is_null(True)
+
+            conditions.append(condition_to_append)
+        if len(conditions) > 1:
+            combined_conditions = reduce(lambda a, b: a & b, conditions)
+        elif len(conditions) == 1:
+            combined_conditions = conditions[0]
+        else:
+            raise IndexError(f'len conditions = {len(conditions)}')
+        return combined_conditions
+
 
     @cache_redis.cache_decorator(model=CarBrand)
     @staticmethod
-    async def get_brands_by_engine_and_state(engine_id, state):
-        conditions = (CarEngine.id == to_int(engine_id),)
-        if state:
-            conditions += (CarState.id == to_int(state),)
+    async def get_brands_by_engine_and_state(engine_id, state, for_admin=False, without_state=False):
+        conditions = [CarEngine.id == to_int(engine_id)]
+        ic(state)
 
-        # conditions = [CarEngine.id == int(engine_id)]
-        # if state:
-        #     # Предполагаем, что сравниваем id состояния, корректируйте в соответствии с вашей моделью
-        #     conditions.append(CarState.id == state)
-        #
-        # # Применяем reduce вне условия, чтобы всегда иметь условие для where
-        # combined_conditions = reduce(lambda a, b: a & b, conditions)
+        combined_conditions = await CarConfigs.bind_state_wire_conditions(conditions, state, for_admin, without_state)
 
-        result = await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
-                                       .switch(CarComplectation).join(CarState)
-                                     .where(*conditions))
+        result = list(await manager.execute(CarBrand.select().join(CarModel).join(CarComplectation).join(CarEngine)
+                                     .where(combined_conditions)))
         if result:
             if hasattr(result[0], 'name'):
                 result = await sort_objects_alphabetically(result)
@@ -300,13 +502,18 @@ class CarConfigs:
 
     @cache_redis.cache_decorator(model=CarModel)
     @staticmethod
-    async def get_models_by_brand_and_engine_and_state(brand_id, state, engine_id=None):
+    async def get_models_by_brand_and_engine_and_state(brand_id, state, engine_id=None, for_admin=False,
+                                                       without_state=False):
         ic(brand_id, engine_id)
-        base_query = CarModel.select(CarModel, CarComplectation, CarBrand, CarEngine).join(CarComplectation).join(CarEngine).switch(CarModel).join(CarBrand)
+        conditions = [CarModel.brand_id == brand_id]
         if engine_id:
-            result = list(await manager.execute(base_query.where((CarEngine.id == engine_id) & (CarModel.brand_id == brand_id))))
-        else:
-            result = list(await manager.execute(base_query.where(CarModel.brand_id == brand_id)))
+            conditions.append(CarEngine.id == engine_id)
+
+        combined_conditions = await CarConfigs.bind_state_wire_conditions(conditions, state, for_admin, without_state)
+        base_query = (CarModel.select(CarModel, CarComplectation, CarBrand, CarEngine).join(CarComplectation)
+                      .join(CarEngine).switch(CarModel).join(CarBrand))
+
+        result = list(await manager.execute(base_query.where(combined_conditions)))
 
         if result:
             if hasattr(result[0], 'name'):
@@ -323,12 +530,18 @@ class CarConfigs:
 
     @cache_redis.cache_decorator(model=CarComplectation)
     @staticmethod
-    async def get_complectations_by_model_and_engine_and_state(model_id, state, engine_id=None):
-        base_query = CarComplectation.select(CarComplectation, CarModel, CarBrand, CarEngine).join(CarModel).join(CarBrand).switch(CarComplectation).join(CarEngine)
+    async def get_complectations_by_model_and_engine_and_state(model_id, state, engine_id=None, for_admin=False,
+                                                               without_state=False):
+        conditions = [CarModel.id == model_id]
         if engine_id:
-            result = list(await manager.execute(base_query.where((CarModel.id == model_id) & (CarEngine.id == engine_id))))
-        else:
-            result = list(await manager.execute(base_query.where((CarModel.id == model_id))))
+            conditions.append(CarEngine.id == engine_id)
+
+        base_query = (CarComplectation.select(CarComplectation, CarModel, CarBrand, CarEngine).join(CarModel)
+                      .join(CarBrand).switch(CarComplectation).join(CarEngine))
+
+        combined_conditions = await CarConfigs.bind_state_wire_conditions(conditions, state, for_admin, without_state)
+
+        result = list(await manager.execute(base_query.where(combined_conditions)))
 
         if result:
             if hasattr(result[0], 'name'):
