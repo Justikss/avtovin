@@ -1,5 +1,6 @@
 import importlib
-from copy import copy
+import traceback
+from copy import copy, deepcopy
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -23,7 +24,8 @@ class DeleteCarRequest:
     async def send_seller_requests_page_without_current(callback: CallbackQuery, state: FSMContext):
         message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
         output_seller_request_module = importlib.import_module('handlers.callback_handlers.sell_part.commodity_requests.output_sellers_requests')
-
+        if callback.data == 'backward_from_delete_car_menu':
+            return
         pagination_data = await message_editor.redis_data.get_data(
             key=f'{str(callback.from_user.id)}:seller_requests_pagination', use_json=True)
         ic(pagination_data)
@@ -33,11 +35,23 @@ class DeleteCarRequest:
         ic(pagination_data)
 
         pagination = Pagination(**pagination_data)
+        ic(pagination.data, pagination.current_page)
+
         ic(len(pagination.data))
+        # if len(pagination.data) == pagination.current_page:
+        page_index_to_delete = deepcopy(pagination.current_page) - 1
+            # pagination.current_page += 1
+        pagination.current_page -= 1
+        # else:
+        #     page_index_to_delete = pagination.current_page
+
         try:
-            pagination.data.pop(pagination.current_page)
+            pagination.data.pop(page_index_to_delete)
         except:
+            traceback.print_exc()
             return False
+        ic(pagination.data, pagination.current_page)
+
         ic(len(pagination.data))
 
         # pagination.current_page -= 1
@@ -93,12 +107,12 @@ class DeleteCarRequest:
             key=f'{str(callback.from_user.id)}:return_path_after_delete_car')
 
         ic(return_path)
+        # raise
+        if (not callback.data == 'backward_from_delete_feedback_menu' and not await DeleteCarRequest.send_seller_requests_page_without_current(callback, state)) or callback.data == 'backward_from_delete_feedback_menu':
+            if return_path in ('viewed_feedbacks', "i'm_sure_delete_feedback", 'new_feedbacks'):
 
-        if not await DeleteCarRequest.send_seller_requests_page_without_current(callback, state):
-            if return_path in ('viewed_feedbacks', "i'm_sure_delete_feedback"):
 
-
-                return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks', state=state)
+                return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command=return_path, state=state)
 
                 if not return_requests:
                    await CheckFeedbacksHandler.my_feedbacks_callback_handler(callback, state)
@@ -110,8 +124,12 @@ class DeleteCarRequest:
 
                 chosen_brand = await redis_module.redis_data.get_data(
                     key=str(callback.from_user.id) + ':sellers_requests_car_brand_cache')
-
-                return_requests = await output_seller_request_module.output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand)
+                seller_requests_pagination = await redis_module.redis_data.get_data(
+                    key=f'{str(callback.from_user.id)}:seller_requests_pagination', use_json=True)
+                current_page = None
+                if seller_requests_pagination:
+                    current_page = seller_requests_pagination['current_page']#max(seller_requests_pagination['current_page'] - 1, 1)
+                return_requests = await output_seller_request_module.output_sellers_requests_by_car_brand_handler(callback, state, chosen_brand, current_page=current_page)
                 ic(return_requests)
 
                 if not return_requests:

@@ -17,10 +17,15 @@ class RedisBootCommodityHelper:
             if there_data_update and isinstance(self.last_buttons, dict) and isinstance(self.dynamic_buttons, int):
                 ic()
                 # Предполагаем, что вы хотите оставить последнюю пару в словаре
-                self.last_buttons = {key: value for key, value in self.last_buttons.items() if key != 'cancel_boot_new_commodity'}
-                if self.dynamic_buttons != 1:
-                    self.dynamic_buttons -= 1
-                ic(self.last_buttons, self.dynamic_buttons)
+                # self.last_buttons = {key: value for key, value in self.last_buttons.items() if key != 'cancel_boot_new_commodity'}
+                ic(self.last_buttons.get('cancel_boot_new_commodity'))
+                if self.last_buttons.get('cancel_boot_new_commodity'):
+                    await state.update_data(last_buttons={'cancel_boot_new_commodity': self.last_buttons['cancel_boot_new_commodity']})
+                    await state.update_data(dynamic_buttons=self.dynamic_buttons - 1)
+                    self.last_buttons = {'cancel_boot_new_commodity': self.last_buttons['cancel_boot_new_commodity']}
+                    if self.dynamic_buttons != 1:
+                        self.dynamic_buttons -= 1
+                    ic(self.last_buttons, self.dynamic_buttons)
 
             ic(state)
             if state:

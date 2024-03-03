@@ -49,7 +49,9 @@ async def get_output_string(request, mode, boot_data: dict = None, language=None
 
 mediagroups = {}
 
-async def output_load_config_for_seller(request: Union[Message, CallbackQuery], state: FSMContext, media_photos=None, need_photo_flag=None, bot=None, structured_boot_data=None):
+async def output_load_config_for_seller(request: Union[Message, CallbackQuery], state: FSMContext, media_photos=None,
+                                        need_photo_flag=None, bot=None, structured_boot_data=None,
+                                        dont_send_media=False):
     message_editor = importlib.import_module('handlers.message_editor')  # Ленивый импорт
     create_buttons_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
@@ -101,9 +103,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
     if media_photos:
         ic()
         await state.update_data(load_photo=media_photos)
-        dont_send_media = True
-    else:
-        dont_send_media = False
+        # dont_send_media = True
+    # else:
+#         dont_send_media = False
     if not bot:
         if isinstance(request, Message):
             # await request.delete()
@@ -143,10 +145,10 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
 
     await message_editor.travel_editor.edit_message(request=request, lexicon_key='', lexicon_part=lexicon_part,
-                                                    media_group=structured_boot_data.get('photos'),# if not dont_send_media else None,
-                                                    delete_mode=delete_mode,# or dont_send_media,
-                                                    seller_boot=True, bot=bot)#,
-                                                    # save_media_group=dont_send_media)
+                                                    media_group=structured_boot_data.get('photos') if not dont_send_media else None,
+                                                    delete_mode=delete_mode or dont_send_media,
+                                                    seller_boot=True, bot=bot,
+                                                    save_media_group=dont_send_media)
 
 
     ic(memory_storage.get('color_for_load'))

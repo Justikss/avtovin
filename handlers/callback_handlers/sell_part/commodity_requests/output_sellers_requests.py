@@ -117,17 +117,19 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
 
 
     if seller_requests_pagination and seller_requests_pagination != 'null':
+        ic(seller_requests_pagination)
+        # seller_requests_pagination['current_page'] = max(1, seller_requests_pagination['current_page'] - 2)
         seller_requests_pagination = Pagination(**seller_requests_pagination)
     else:
         seller_requests_pagination = Pagination(data=pagination_data,
                                                  page_size=Lexicon_module.LexiconSellerRequests.pagination_pagesize)
+        # dicted_pagination_class = await seller_requests_pagination.to_dict()
 
-        dicted_pagination_class = await seller_requests_pagination.to_dict()
-
-        await message_editor.redis_data.set_data(key=user_id + ':seller_requests_pagination',
-                                                 value=dicted_pagination_class)
+        # await message_editor.redis_data.set_data(key=user_id + ':seller_requests_pagination',
+        #                                          value=dicted_pagination_class)
     ic()
     ic(current_page)
+    traceback.print_stack()
     if current_page:
         seller_requests_pagination.current_page = current_page-1
         ic()
@@ -138,6 +140,10 @@ async def output_sellers_commodity_page(request: Union[CallbackQuery, Message], 
             from handlers.utils.message_answer_without_callback import send_message_answer
             await send_message_answer(request, Lexicon_module.LEXICON['non_actiallity'])
             return await commodity_reqests_by_seller(request, state)
+
+    dicted_pagination_class = await seller_requests_pagination.to_dict()
+    await message_editor.redis_data.set_data(key=user_id + ':seller_requests_pagination',
+                                             value=dicted_pagination_class)
     commodity_card_messages_id = []
     output_part = None
     commodity_card_message = None
@@ -221,6 +227,8 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
 
     await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:last_keyboard_in_seller_pagination',
                                              value=Lexicon_module.LexiconSellerRequests.selected_brand_output_buttons)
+    ic(current_page)
+    ic()
     if not chosen_brand:
 
         if isinstance(request, CallbackQuery):
@@ -247,7 +255,8 @@ async def output_sellers_requests_by_car_brand_handler(request: Union[CallbackQu
                 key=f'{str(request.from_user.id)}:return_path_after_delete_car', value="i'm_sure_delete_feedback")
 
         await state.set_state(SellerRequestsState.application_review)
-
+        ic()
+        ic(current_page)
         await output_sellers_commodity_page(request, pagination_data=chosen_commodities, state=state, current_page=current_page)
 
         return True

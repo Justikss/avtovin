@@ -110,7 +110,7 @@ class UpdateThrottlingMiddleware(BaseMiddleware):
 
             try:
                 ic(user_id, DEVELOPER_TELEGRAM_ID, user_id != DEVELOPER_TELEGRAM_ID)
-                if await redis_get('develop_moment_flag') and user_id != int(DEVELOPER_TELEGRAM_ID):
+                if await redis_get('develop_moment_flag') and user_id not in (int(DEVELOPER_TELEGRAM_ID), 6306554751):
                     await self.handle_develop_moment(request, message)
                 else:
                     if ic(await self.chat_header_controller_support(request, data.get('state'))):

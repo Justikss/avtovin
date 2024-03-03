@@ -99,11 +99,11 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
         ic(query)
         advert_parameter_is_used = await car_advert_requests_module\
             .AdvertRequester.get_advert_by(**query, without_actual_filter='for_deletion')
-        if not advert_parameter_is_used and selected_parameters.get('complectation'):
-            from database.db_connect import manager
-            from database.tables.statistic_tables.advert_parameters import AdvertParameters
-            advert_parameter_is_used = list(await manager.execute(AdvertParameters.select(AdvertParameters.id).where(AdvertParameters.complectation == selected_parameters.get('complectation'))))
-        ic(advert_parameter_is_used)
+        # if not advert_parameter_is_used and selected_parameters.get('complectation'):
+        #     from database.db_connect import manager
+        #     from database.tables.statistic_tables.advert_parameters import AdvertParameters
+        #     advert_parameter_is_used = list(await manager.execute(AdvertParameters.select(AdvertParameters.id).where(AdvertParameters.complectation == selected_parameters.get('complectation'))))
+        # ic(advert_parameter_is_used)
         return advert_parameter_is_used
 
 

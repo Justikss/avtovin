@@ -5,7 +5,8 @@ import importlib
 from aiogram.fsm.context import FSMContext
 
 from states.tariffs_to_seller import ChoiceTariffForSellerStates
-from utils.get_currency_sum_usd import convertator
+from utils.get_currency_sum_usd import convertator, get_valutes
+
 from utils.lexicon_utils.Lexicon import class_lexicon
 
 admin_lexicon_module = importlib.import_module('utils.lexicon_utils.admin_lexicon.admin_lexicon')
@@ -23,7 +24,8 @@ async def tariff_preview_card_constructor(tariff_id, by_admin=False, by_admin_ta
     if not tariff_model.price:
         price = '0'
     else:
-        price = f'''{await convertator('sum', tariff_model.price)}$ {Lexicon_module.LEXICON['convertation_sub_string']} {Lexicon_module.LEXICON['uzbekistan_valute'].replace('X', str(tariff_model.price))}'''
+        price = await get_valutes(0, tariff_model.price, get_string=True)
+
     tariff_view_card = f'''\
         {lexicon_class.header}\n\
 {lexicon_class.separator}\

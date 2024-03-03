@@ -23,5 +23,5 @@ async def close_develop_moment_handler(message: Message):
     develop_moment_notification_keys.append('develop_moment_flag')
     await redis_module.redis_data.redis_base.delete(*develop_moment_notification_keys)
     # await redis_module.redis_data.redis_base.delete()
-
+    await redis_module.redis_data.flushdb_action()
     await message.answer('Success')

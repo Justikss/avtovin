@@ -23,6 +23,14 @@ connect_data = {
 'port': os.getenv('port')
 }
 
+connect_dataa = {
+    'database': 'testDB',
+'user': 'postgres',
+'password': 'red12red1212',
+'host': 'localhost',
+'port': 5432
+}
+
 database = PooledPostgresqlDatabase(
     connect_data['database'],
     user=connect_data['user'],
@@ -30,7 +38,6 @@ database = PooledPostgresqlDatabase(
     host=connect_data['host'],
     port=connect_data['port']
     )
-
 
 class BaseModel(Model):
     class Meta:
@@ -58,3 +65,19 @@ async def create_tables():
         print(f'Ошибка при создании таблиц: {ex}, {type(ex)}')
     finally:
         await manager.close()
+
+# def switch_database(db_config):
+#     global database
+#     if not db_config:
+#         db_config = connect_data
+#     else:
+#         db_config = test_connect_data
+#     database.close()
+#     database.init(
+#         db_config['database'],
+#         user=db_config['user'],
+#         password=db_config['password'],
+#         host=db_config['host'],
+#         port=db_config['port']
+#     )
+#     database.connect()

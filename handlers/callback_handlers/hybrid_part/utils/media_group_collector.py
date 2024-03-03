@@ -134,6 +134,7 @@ async def collect_and_send_mediagroup(message: Message, state: FSMContext, photo
             state_name = await state.get_state()
             ic(state_name)
             #
+            await asyncio.sleep(1)
             if state_name:
                 match state_name:
                     case 'LoadCommodityStates:photo_verification':
@@ -211,18 +212,19 @@ async def handle_user_input_photos(mediagroups, message, state):
     media_group = [InputMediaPhoto(media=media) for media in medias]
     ic(media_group)
     try:
-        if with_watermark:
-            sendned_media_groups = await bot.send_media_group(chat_id, media=media_group)
-            media_photos = [{'id': media_message.photo[-1].file_id, 'unique_id': media_message.photo[-1].file_unique_id} for
-                            media_message in sendned_media_groups]
+        # if with_watermark:
+        sendned_media_groups = await bot.send_media_group(chat_id, media=media_group)
+        media_photos = [{'id': media_message.photo[-1].file_id, 'unique_id': media_message.photo[-1].file_unique_id} for
+                        media_message in sendned_media_groups]
 
-            await redis_data_module.redis_data.set_data(key=f'{chat_id}:last_media_group',
-                                                        value=[media_message.message_id
-                                                               for media_message in sendned_media_groups])
-        else:
-            media_photos = deepcopy(mediagroups)
+        await redis_data_module.redis_data.set_data(key=f'{chat_id}:last_media_group',
+                                                    value=[media_message.message_id
+                                                           for media_message in sendned_media_groups])
+        # else:
+            # media_photos = deepcopy(mediagroups)
         await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
-                                                                         media_photos=media_photos)
+                                                                         media_photos=media_photos,
+                                                                         dont_send_media=True)
     except Exception as ex:
         from handlers.utils.message_answer_without_callback import send_message_answer
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')

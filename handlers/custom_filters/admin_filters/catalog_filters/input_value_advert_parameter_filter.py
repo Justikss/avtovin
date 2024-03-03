@@ -92,7 +92,7 @@ class AdvertParameterValueFilter(BaseFilterObject):
                 'add_new_branch_status', 'can_set_add_new_branch_status'
         ))
         if (parameter_name == 'review' and not add_branch_status) or (parameter_name == 'color' and add_branch_status):
-            if not re.search(r'[a-zA-Z]', inputted_value):
+            if not re.search(r'[a-zA-Zа-яА-Я]', inputted_value):
                 return '(invalid_color)'  # Отсутствие букв
 
     async def used_car_parameters_validator(self, parameter_name, inputted_value):

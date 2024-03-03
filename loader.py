@@ -616,7 +616,7 @@ async def start_bot():
     dp.callback_query.register(
         ConfirmDeleteExistsAdvertParameter().callback_handler,
         F.data == 'confirm_delete_advert_parameter',
-        StateFilter(AdminAdvertParametersStates.start_delete_action),
+        # StateFilter(AdminAdvertParametersStates.start_delete_action),
         AdminStatusController()
     )
 

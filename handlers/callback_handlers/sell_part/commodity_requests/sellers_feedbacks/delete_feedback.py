@@ -44,6 +44,9 @@ class DeleteFeedback:
         await callback.answer(Lexicon_module.LexiconSellerRequests.success_delete)
 
         if not await DeleteCarRequest.send_seller_requests_page_without_current(callback, state):
+            # return_path = await redis_module.redis_data.get_data(
+            #     key=f'{str(callback.from_user.id)}:return_path_after_delete_car')
+
             return_requests = await CheckFeedbacksHandler.check_feedbacks_handler(callback, command='viewed_feedbacks', state=state)
         else:
             return_requests = True

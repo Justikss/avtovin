@@ -36,7 +36,8 @@ class RedisRequester:
     )
 }
 
-
+    async def flushdb_action(self):
+        await self.redis_base.flushdb()
 
     async def _find_users_with_expired_keys(self, expired_mode=True):
         user_keys = {}
@@ -341,7 +342,6 @@ class RedisForCache:
 
                     else:
                         logging.error('REDIS without command\nid_value: %s', str(id_value))
-
 
                 else:
                     ic(result)
