@@ -2,6 +2,8 @@ import importlib
 from abc import ABC
 from datetime import datetime
 
+from playhouse.postgres_ext import ArrayField
+
 # from config_data.config import REGISTRATION_DATETIME_FORMAT
 from database.db_connect import BaseModel
 from database.tables.seller import Seller
@@ -96,7 +98,7 @@ class CarComplectation(BaseModel):
     _name = CharField(null=True)
     name_uz = CharField(null=True)
     name_ru = CharField(null=True)
-    wired_state = ForeignKeyField(CarState, null=True, backref='complectations')
+    wired_state = ForeignKeyField(CarState, null=True)
 
     @property
     def name(self):

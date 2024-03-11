@@ -19,7 +19,10 @@ async def input_year_to_load(callback: CallbackQuery, state: FSMContext):
     lexicon_module = importlib.import_module('utils.lexicon_utils.commodity_loader')
     rewrite_controller_module = importlib.import_module('handlers.state_handlers.seller_states_handler.load_new_car.utils')
     memory_storage = await state.get_data()
-    if await rewrite_controller_module.rewrite_boot_state_stopper(request=callback, state=state):
+    rewrite_boot_state_stop = await rewrite_controller_module.rewrite_boot_state_stopper(request=callback, state=state)
+    if rewrite_boot_state_stop:
+        if rewrite_boot_state_stop == 'exit':
+            return 'exit'
         if not callback.data.startswith('rewrite_boot_') and not memory_storage.get('rewrite_state_flag'):
             ic()
             if callback.data[-1].isdigit():

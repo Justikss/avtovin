@@ -224,6 +224,39 @@ async def start_bot():
 
     dp.update.outer_middleware(UpdateThrottlingMiddleware())
 
+    # @dp.callback_query(F.data == 'seller_requests')
+    async def totts(callback: CallbackQuery, state: FSMContext):
+        from handlers.state_handlers.seller_states_handler.load_new_car.get_output_configs import \
+            output_load_config_for_seller
+        from database.data_requests.car_configurations_requests import CarConfigs
+        co = await CarConfigs.custom_action('Elpos', 'get_by_name', model_id='also')
+        b = await CarConfigs.custom_action('brand', 'get_by_name', model_id='also')
+        m = await CarConfigs.custom_action('model', 'get_by_name', model_id='slos')
+        await state.set_data({'boot_car_states_cache': ['LoadCommodityStates:input_to_load_engine_type',
+                                               'LoadCommodityStates:input_to_load_brand',
+                                               'LoadCommodityStates:input_to_load_model',
+                                               'LoadCommodityStates:input_to_load_complectation',
+                                               'LoadCommodityStates:input_to_load_color',
+                                               'LoadCommodityStates:input_to_load_price',
+                                               'LoadCommodityStates:input_to_load_photo'],
+                     'brand_for_load': b.id,
+                     'color_for_load': 6,
+                     'complectation_for_load': f'[236, {co.id}]',
+                     'dollar_price': None,
+                     'dynamic_buttons': 2,
+                     'engine_for_load': 1,
+                     'head_valute': 'sum',
+                     'incorrect_flag': False,
+                     'last_buttons': {'boot_car_backward': '◂ Назад ▸',
+                                      'cancel_boot_new_commodity': 'Отмена'},
+                     'message_text': '<b>Предпочитаемый цвет:</b>',
+                     'model_for_load': m.id,
+                     'state_for_load': 1,
+                     'sum_price': 56657657,
+                     'width': 2})
+        await state.set_state(LoadCommodityStates.input_to_load_photo)
+        await output_load_config_for_seller(callback, state)
+
     dp.message.register(handle_media, or_f(F.photo, F.video, F.audio, F.document),
                         StateFilter(MailingStates.entering_date_time))
     dp.message.register(collect_and_send_mediagroup,

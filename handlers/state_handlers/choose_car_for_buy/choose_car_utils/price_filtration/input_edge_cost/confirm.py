@@ -15,7 +15,7 @@ class ConfirmInputtedCarPriceFilterValueInputHandler(BaseCallbackQueryHandler):
         lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         await self.handle_confirm(state)
-        await self.send_alert_answer(request, lexicon_module.captions['confirm'])
+        await self.send_alert_answer(request, lexicon_module.captions['successfully'])
         await ChooseCarPriceFilterHandler().callback_handler(request, state)
 
     async def handle_confirm(self, state: FSMContext):

@@ -1,3 +1,5 @@
+import traceback
+
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 import importlib
@@ -11,7 +13,6 @@ async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMC
     buy_main_module = importlib.import_module('handlers.callback_handlers.buy_part.main_menu')
     sell_main_module = importlib.import_module('handlers.callback_handlers.sell_part.seller_main_menu')
 
-
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':user_state'
     user_state = await redis_data.redis_data.get_data(redis_key)
@@ -24,4 +25,5 @@ async def return_main_menu_callback_handler(callback: CallbackQuery, state: FSMC
         await start_admin_menu(callback, state)
     else:
         await start.bot_start(callback, state)
-    await callback.answer()
+    if isinstance(callback, CallbackQuery):
+        await callback.answer()

@@ -222,17 +222,19 @@ async def handle_user_input_photos(mediagroups, message, state):
                                                            for media_message in sendned_media_groups])
         # else:
             # media_photos = deepcopy(mediagroups)
-        await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
+        if await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
                                                                          media_photos=media_photos,
-                                                                         dont_send_media=True)
+                                                                         dont_send_media=True) == 'exit':
+            return
     except Exception as ex:
         from handlers.utils.message_answer_without_callback import send_message_answer
         Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
         await send_message_answer(message, Lexicon_module.ADMIN_LEXICON['unsuccessfully'])
         # await LanguageMiddlewareModule()(message)
-        await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
-                                                                         media_photos=[])
+        if await seller_boot_commodity_module.output_load_config_for_seller(request=message, state=state,
+                                                                         media_photos=[]) == 'exit':
+            return
         logging.critical('Ошибка при отправке фотографий с вотермаркой в чат: %s'
                          'photo_paths: %s'
                          'urls: %s', ex, str(photo_paths), str(urls))

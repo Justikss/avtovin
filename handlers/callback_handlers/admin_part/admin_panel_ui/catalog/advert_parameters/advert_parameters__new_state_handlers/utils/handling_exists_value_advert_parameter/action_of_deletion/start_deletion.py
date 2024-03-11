@@ -1,4 +1,5 @@
 import importlib
+import traceback
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -16,18 +17,17 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
         current_state = str(await state.get_state())
         memory_storage = await state.get_data()
-
+        traceback.print_exc()
         if memory_storage.get('params_type_flag') == 'new':
             selected_parameters = memory_storage.get('selected_parameters')
         else:
             parameter_type_name = ic(memory_storage.get('admin_chosen_advert_parameter'))
             parameter_value_id = ic(memory_storage.get('current_advert_parameter'))['id']
             selected_parameters = {parameter_type_name: parameter_value_id}
-        if 'state' in selected_parameters.keys():
-            selected_parameters.pop('state')
+
         ic(selected_parameters)
         ic()
-        exists_model = await self.check_on_exists_adverts_by_parameter(state, selected_parameters)
+        exists_model = await self.check_on_exists_adverts_by_parameter(state, selected_parameters, with_state_param=True)
         if exists_model:
             current_state = str(await state.get_state())
             await self.send_alert_answer(
@@ -45,6 +45,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
             await output_specific_parameters_module.OutputSpecificAdvertParameters().callback_handler(request, state)#
                 # case _:#
                 #     pass
+            self.output_methods = []
             return
 
         else:
@@ -76,9 +77,9 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
 
         await self.set_state(state, AdminAdvertParametersStates.start_delete_action)
 
-    async def check_on_exists_adverts_by_parameter(self, state: FSMContext, selected_parameters):
+    async def check_on_exists_adverts_by_parameter(self, state: FSMContext, selected_parameters, with_state_param=True):
         car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
-        ic(selected_parameters)
+        ic(selected_parameters, with_state_param)
         query = {}
         for param_type_name, param_id in selected_parameters.items():
             match param_type_name:
@@ -86,7 +87,8 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
                     param_type_name = 'engine_type'
                 case 'year':
                     param_type_name = 'year_of_release_id'
-            if param_type_name in ('state', 'photos') or not param_id:
+            if (((param_type_name in ('state', 'photos')) and ((not with_state_param) or param_type_name == 'photos') )
+                    or not param_id):
                 continue
 
             if param_type_name.endswith('id'):
@@ -103,7 +105,7 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
         #     from database.db_connect import manager
         #     from database.tables.statistic_tables.advert_parameters import AdvertParameters
         #     advert_parameter_is_used = list(await manager.execute(AdvertParameters.select(AdvertParameters.id).where(AdvertParameters.complectation == selected_parameters.get('complectation'))))
-        # ic(advert_parameter_is_used)
+        ic(advert_parameter_is_used)
         return advert_parameter_is_used
 
 
@@ -112,7 +114,11 @@ class ActionOfDeletionExistsAdvertParameter(BaseCallbackQueryHandler):
 
         param_names_to_type_names = ''
         for key, value in selected_parameters.items():
-            config_object = await car_configs_module.CarConfigs.get_by_id(table=key, model_id=value)
-            param_names_to_type_names += f'{advert_parameters_captions[key]}: {config_object.name}\n'
+            if key == 'state' and value is None:
+                config_name = advert_parameters_captions['duo_states']
+            else:
+                config_object = await car_configs_module.CarConfigs.get_by_id(table=key, model_id=value)
+                config_name = config_object.name
+            param_names_to_type_names += f'{advert_parameters_captions[key]}: {config_name}\n'
 
         return param_names_to_type_names

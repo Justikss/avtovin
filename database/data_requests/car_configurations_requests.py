@@ -41,6 +41,45 @@ def to_int(value):
 
 class CarConfigs:
     @staticmethod
+    async def get_model_by_brand_and_name(brand_id, model_name):
+
+        model = await manager.get_or_none(CarModel, CarModel.name == model_name, CarModel.brand == brand_id)
+        return model
+
+    @staticmethod
+    async def get_branch(params):
+
+
+        complectation = params['complectation']
+        if isinstance(complectation, dict):
+            if complectation.get('_name'):
+                complectation_condition = CarComplectation._name == complectation['_name']
+            else:
+                complectation_condition = ((CarComplectation.name_uz == complectation['name_uz']) & (CarComplectation.name_ru == complectation['name_ru']))
+        else:
+            complectation_condition = CarComplectation.id == complectation
+
+
+        query = NewCarPhotoBase.select().join(CarComplectation).switch(NewCarPhotoBase).join(CarColor).where(
+            (
+                    (CarColor.id == params['color']) &
+                    (CarComplectation.id == (
+                        CarComplectation.select(CarComplectation.id).join(CarModel).where(
+                            (
+                                (CarModel.id == params['model']) &
+                            (CarComplectation.engine == params['engine']) &
+                            (complectation_condition) &
+                                (CarComplectation.wired_state.is_null(True) | (CarComplectation.wired_state == 1))
+                            )
+                        )
+                    ))
+            )
+        )
+
+        result = await manager.count(query)
+
+        return result
+    @staticmethod
     async def sorted_integer_configs(query, current_table):
         ic(current_table)
         if current_table == CarYear:
@@ -61,17 +100,8 @@ class CarConfigs:
         brand, created = await database.get_or_create(CarBrand, name=brand_name)
         return brand
 
-    @staticmethod
-    async def get_params_branch_by_names(selected_parameters):
-        pass
 
-        # complectations = list(await manager.execute(CarComplectation.select().join(CarModel).join(CarBrand).join(CarEngine)
-        #                                                 .where(((CarEngine.name == complectation.engine.name)
-        #                                                         & (CarComplectation.name == complectation.name)
-        #                                                         & (CarModel.name == complectation.model.name)
-        #                                                         & (CarBrand.name == complectation.model.brand.name)
-        #                                                         )))
-        # if len(complectation) > 1:
+
 
 
     @cache_redis.cache_update_decorator(model='car_config:branch')
@@ -361,11 +391,18 @@ class CarConfigs:
     # @cache_redis.cache_decorator(model=CarColor)
     @staticmethod
     async def get_color_by_complectaiton(complectation_id, without_other=False):
+        ic()
+        ic(complectation_id)
         if isinstance(complectation_id, str):
-            complectation_id = int(complectation_id)
+            if '[' in complectation_id:
+                complectation_id = eval(complectation_id)
+            else:
+                complectation_id = int(complectation_id)
+        if not isinstance(complectation_id, list):
+            complectation_id = [complectation_id]
         ic(complectation_id)
         # query = NewCarPhotoBase.select().join(CarComplectation).where(CarComplectation.id == complectation_id)
-        query = CarColor.select().join(NewCarPhotoBase).join(CarComplectation).where(CarComplectation.id == complectation_id).distinct()
+        query = CarColor.select().join(NewCarPhotoBase).join(CarComplectation).where(CarComplectation.id.in_(complectation_id)).distinct()
         result = list(await manager.execute(query))
         ic(result)
         ic()
@@ -531,7 +568,7 @@ class CarConfigs:
     @cache_redis.cache_decorator(model=CarComplectation)
     @staticmethod
     async def get_complectations_by_model_and_engine_and_state(model_id, state, engine_id=None, for_admin=False,
-                                                               without_state=False):
+                                                               without_state=False, for_seller=False, name=None):
         conditions = [CarModel.id == model_id]
         if engine_id:
             conditions.append(CarEngine.id == engine_id)
@@ -540,8 +577,41 @@ class CarConfigs:
                       .join(CarBrand).switch(CarComplectation).join(CarEngine))
 
         combined_conditions = await CarConfigs.bind_state_wire_conditions(conditions, state, for_admin, without_state)
+        base_query = base_query.where(combined_conditions)
+        if name:
+            if name.get('_name'):
+                complectation_condition = CarComplectation._name == name.get('_name')
+            else:
+                complectation_condition = ((CarComplectation.name_ru == name.get('name_ru')) & (CarComplectation.name_uz == name.get('name_uz')))
 
-        result = list(await manager.execute(base_query.where(combined_conditions)))
+            result = await manager.count(base_query.where(complectation_condition))
+            return result
+
+        result = list(await manager.execute(base_query))
+        ic(for_seller and result)
+        ic(for_seller, result)
+        if for_seller and result:
+            good_result = []
+            name_storage = dict()
+            for result_element in result:
+                element_name = result_element.name
+                # element_id = result_element.id
+                if element_name not in name_storage:
+                    name_storage[element_name] = [result_element]
+                else:
+                    # repeated_element_id = name_storage[result_element]
+                    name_storage[element_name].append(result_element)
+            for name, models in name_storage.items():
+                if len(models) > 1:
+                    repeated_models = [model for model in result if model in models]
+                    ic([repeated_model.id for repeated_model in repeated_models])
+                    model = repeated_models[0]
+                    model.id = [repeated_model.id for repeated_model in repeated_models]
+                else:
+                    model = models[0]
+                good_result.append(model)
+            ic(good_result, name_storage)
+            result = good_result
 
         if result:
             if hasattr(result[0], 'name'):

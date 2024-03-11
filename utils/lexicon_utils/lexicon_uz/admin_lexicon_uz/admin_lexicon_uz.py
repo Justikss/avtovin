@@ -21,6 +21,7 @@ low_sep = '────────'
 
 
 ADMIN_LEXICON_uz = {
+    'branch_is_exists': "Tanlangan xususiyatlar kombinatsiyasi joriy holat uchun allaqachon mavjud.\n'Yangi + ishlatilgan' da mumkin.",
     'choose_user_block_category': {'message_text': '<b>Foydalanuvchi turini tanlang:</b>', 'buttons': {
         'user_block_status:true': 'Bloklashda', 'user_block_status:false': 'Faol',
         **return_main_menu_uz,

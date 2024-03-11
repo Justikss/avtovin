@@ -190,9 +190,25 @@ class AdvertRequester:
             query = query.join(Seller).where(Seller.telegram_id == int(seller_id))
             query = query.switch(CarAdvert)
 
-        if state_id:
+        if isinstance(state_id, str) and state_id.isdigit():
             state_id = int(state_id)
-            query = query.join(CarState).where(CarState.id == state_id)
+
+        if without_actual_filter == 'for_deletion':
+            if brand_id:
+                query = query.join(CarState)
+
+                if not state_id:
+                    state_condition = CarComplectation.wired_state.is_null(True)
+                else:
+                    state_condition = CarComplectation.wired_state == state_id
+
+                query = query.where(
+                    CarAdvert.id.in_(CarAdvert.select(CarAdvert.id).join(CarComplectation).where(state_condition)))
+
+
+        elif state_id:
+            query = query.join(CarState)
+            query = query.where(CarState.id == state_id)
 
         sub_query = query.select().switch(CarAdvert).join(CarComplectation).join(CarEngine)
         query = sub_query.select(CarEngine.id)

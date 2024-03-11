@@ -18,6 +18,8 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
     redis_module = importlib.import_module('utils.redis_for_language')  # Ленивый импорт
 
     redis_sub_key = None
+    if not isinstance(callback, CallbackQuery):
+        return
     callback_data = callback.data
     ic(callback.data)
     if ':' in callback_data:

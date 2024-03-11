@@ -176,7 +176,7 @@ async def input_complectation_to_load(callback: CallbackQuery, state: FSMContext
     lexicon_class = lexicon_module.LexiconCommodityLoader.load_commodity_complectation()
     await output_choose_module.output_choose(callback, state, lexicon_class, await config_module\
             .CarConfigs.get_complectations_by_model_and_engine_and_state(
-        model_for_load, memory_storage.get('state_for_load'), engine_for_load), bot_config_module\
+        model_for_load, memory_storage.get('state_for_load'), engine_for_load, for_seller=True), bot_config_module\
                                              .car_configurations_in_keyboard_page, need_last_buttons=False,
                                              unique_names_mode=True)
 
@@ -198,13 +198,16 @@ async def input_color_to_load(callback: CallbackQuery, state: FSMContext):
         delete_mode = True
     else:
         delete_mode = False
-    if not callback.data.startswith('rewrite_boot_') and callback.data[-1].isdigit():
-        user_answer = int(callback.data.split('_')[-1])
+    if not callback.data.startswith('rewrite_boot_') and (callback.data[-1].isdigit() or callback.data[-1] == ']'):
+        ic()
+        user_answer = callback.data.split('_')[-1]
         if not there_data_update:
             await state.update_data(complectation_for_load=user_answer)
     else:
+        ic()
         memory_storage = await state.get_data()
         user_answer = memory_storage.get('complectation_for_load')
+    ic(user_answer)
     if await rewrite_controller_module.data_update_controller(request=callback, state=state):
         return
 

@@ -4,6 +4,7 @@ from typing import List, Union, Optional
 
 from aiogram.fsm.context import FSMContext
 from icecream import install, ic
+from peewee_async import AsyncQueryWrapper
 
 from database.tables.car_configurations import CarAdvert, CarComplectation, CarModel, CarBrand, CarEngine, CarColor
 from database.tables.commodity import NewCarPhotoBase
@@ -129,9 +130,14 @@ class PhotoRequester:
             return
 
         ic(complectation, color)
+        if isinstance(complectation, str) and complectation.startswith('['):
+            complectation = eval(complectation)
+        elif not isinstance(complectation, list):
+            complectation = [complectation]
+
         query = (NewCarPhotoBase.select().join(CarComplectation)
                                 .switch(NewCarPhotoBase).join(CarColor).where(
-                        (CarComplectation.id == complectation) & (CarColor.id == color)))
+                        (CarComplectation.id.in_(complectation)) & (CarColor.id == color)))
         select_response = list(await manager.execute(query))
         ic(select_response)
         if select_response:
@@ -140,6 +146,18 @@ class PhotoRequester:
             return result
         else:
             return None
+
+    @staticmethod
+    async def get_photo_model_by_media_group_data(media_group):
+        query = NewCarPhotoBase.select(NewCarPhotoBase, CarComplectation).join(CarComplectation).where(
+            ((NewCarPhotoBase.photo_id == media_group[0]['id']) & (NewCarPhotoBase.photo_unique_id == media_group[0]['unique_id']))
+        ).limit(1)
+        result = list(await manager.execute(query))
+        if result:
+            result = result[0]
+        ic(result)
+        ic()
+        return result
 
     @staticmethod
     async def find_photos_by_complectation_and_color(complectation_id, color_id=None):

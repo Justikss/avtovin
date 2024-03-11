@@ -24,6 +24,7 @@ low_sep = '────────'
 
 
 __ADMIN_LEXICON = {
+    'branch_is_exists': 'Выбранная связка характеристик уже присутствует для текущего состояния.\nВозможно в "Новое + С пробегом"',
     'banned_users_caption:true': '<i>блокированных</i>',
     'banned_users_caption:false': '<i>активных</i>',
     'banned_users_caption_parent_case:true': '<i>блокированного</i>',

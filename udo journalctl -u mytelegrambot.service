@@ -10,3 +10,4 @@ Feb 08 17:37:30 vbwlywhxjl systemd[1]: Stopped Интернет магазин T
 Feb 08 17:37:30 vbwlywhxjl systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mmytelegrambot.service: Start request repeated too quickly.[0m
 Feb 08 17:37:30 vbwlywhxjl systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mmytelegrambot.service: Failed with result 'exit-code'.[0m
 Feb 08 17:37:30 vbwlywhxjl systemd[1]: [0;1;31m[0;1;39m[0;1;31mFailed to start Интернет магазин Telegram Bot.[0m
+

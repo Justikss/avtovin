@@ -11,18 +11,77 @@ from utils.custom_exceptions.database_exceptions import SellerWithoutTariffExcep
 
 config_module = importlib.import_module('config_data.config')
 
+async def get_complectation_id(memory_storage, request, state):
+    false_flag = False
+    complectation = None
+    ic()
+    ic(memory_storage.get('complectation_for_load'))
+    if not memory_storage.get('complectation_for_load'):
+        false_flag = True
+    else:
+        complectation = memory_storage['complectation_for_load']
+        ic(complectation)
+        if str(complectation).startswith('[') and str(memory_storage.get('color_for_load')) != '1':
+            from database.data_requests.new_car_photo_requests import PhotoRequester
+
+            # complectation = eval(complectation)
+            photos = memory_storage.get('load_photo')
+            photo = await PhotoRequester.get_photo_model_by_media_group_data(photos)
+            if photo:
+                complectation = photo.car_complectation.id
+                ic(photo, false_flag)
+            else:
+                false_flag = True
+
+        else:
+            ic()
+            complectation_model = None
+            if str(complectation).startswith('['):
+                complectations = eval(complectation)
+            else:
+                complectations = [complectation]
+            ic(complectations)
+            from database.data_requests.car_configurations_requests import CarConfigs
+            for complectation_id in complectations:
+                complectation_model = await CarConfigs.get_by_id('complectation', complectation_id)
+                ic(complectation_model)
+                if complectation_model:
+                    break
+            if not complectation_model:
+                false_flag = True
+            else:
+                complectation = complectation_model
+    ic(false_flag)
+    if false_flag:
+        from handlers.utils.message_answer_without_callback import send_message_answer
+        from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
+        lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
+        await send_message_answer(request, text=lexicon_module.LEXICON['advert_param_was_deleted'], message=True)
+
+        await return_main_menu_callback_handler(request, state)
+        return False
+
+    return complectation
 
 async def check_match_adverts_the_sellers(callback, state: FSMContext):
     car_advert_requests_module = importlib.import_module('database.data_requests.car_advert_requests')
 
     memory_storage = await state.get_data()
     ic(memory_storage.get('color_for_load'))
+
+    car_complectation_id = await get_complectation_id(memory_storage,
+                                                      callback,
+                                                      state)
+    if not car_complectation_id:
+        return 'exit'
+
     match_result = await car_advert_requests_module\
         .AdvertRequester.get_advert_by(state_id=memory_storage['state_for_load'],
                                                  engine_type_id=memory_storage['engine_for_load'],
                                                  brand_id=memory_storage['brand_for_load'],
                                                  model_id=memory_storage['model_for_load'],
-                                                 complectation_id=memory_storage['complectation_for_load'],
+                                                 complectation_id=car_complectation_id,
                                                  year_of_release_id=memory_storage.get('year_for_load'),
                                                  mileage_id=memory_storage.get('mileage_for_load'),
                                                  color_id=memory_storage.get('color_for_load'),
@@ -109,13 +168,18 @@ async def confirm_load_config_from_seller(callback: CallbackQuery, state: FSMCon
                                                         delete_mode=True)
         return
 
-    if await check_match_adverts_the_sellers(callback, state):
+    match_adverts_the_sellers = await check_match_adverts_the_sellers(callback, state)
+    if match_adverts_the_sellers == 'exit':
+        return
+    elif match_adverts_the_sellers:
         logging.debug(f'{callback.from_user.id} ::: Попытался выложить товар, который уже имеет на витрине.')
         return await callback.answer(lexicon_module.LexiconSellerRequests.matched_advert)
 
     await message_editor.redis_data.delete_key(key=str(callback.from_user.id) + ':can_edit_seller_boot_commodity')
 
-    boot_data = await data_formatter(request=callback, state=state, id_values=True)
+    boot_data = await data_formatter(request=callback, state=state, id_values=True)#
+    if boot_data == 'exit':
+        return
     ic(boot_data)
     commodity_number = await car_configurations_requests_module\
         .CarConfigs.add_advert(callback.from_user.id, boot_data)

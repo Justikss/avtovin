@@ -13,6 +13,8 @@ from utils.oop_handlers_engineering.update_handlers.base_objects.base_callback_q
     BaseCallbackQueryHandler
 from utils.translator import translate
 
+Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
+
 
 class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
     async def process_callback(self, request: Message | CallbackQuery, state: FSMContext, **kwargs):
@@ -26,17 +28,18 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
 
             await self.send_alert_answer(request, admin_lexicon_module.captions['successfully'], message=True)
         else:
-            Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
             await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['action_non_actuality'],
                                          message=True)
 
         await choose_catalog_action_admin_handler(request, state)
 
-    async def this_branch_is_exists(self, reqeust, state: FSMContext):
-        exists_branch_photos = await PhotoRequester.try_get_photo()
-
     async def insert_new_branch(self, request, state: FSMContext, admin_id):
+        current_branch_exists = await self.exists_branch(state)
+        if current_branch_exists:
+            await self.send_alert_answer(request, Lexicon_module.ADMIN_LEXICON['branch_is_exists'])
+            await choose_catalog_action_admin_handler(request, state)
+            return 'exit'
         param_objects = await self.get_selected_param_models(state)
         insert_query = None
         current_state = await self.get_state_string(state)
@@ -100,6 +103,58 @@ class ConfirmLoadNewParamsBranchHandler(BaseCallbackQueryHandler):
             raise Exception()
         ic(insert_query)
         return insert_query
+
+    async def exists_branch(self, state: FSMContext):
+        from database.data_requests.car_configurations_requests import CarConfigs
+
+        memory_storage = await state.get_data()
+        selected_parameters = memory_storage.get('selected_parameters')
+        exists_params = {}
+        default_params = ['brand', 'model', 'color']#, 'model', 'complectation', 'color']
+        for key in default_params:
+            value = selected_parameters.get(key)
+            ic(key, value)
+            if isinstance(value, dict):
+                value = value['added']
+
+                match key:
+                    case 'model':
+
+                        value = await CarConfigs.get_model_by_brand_and_name(
+                            exists_params['brand'],
+                            value)
+                    case _:
+                        value = await CarConfigs.custom_action(key, name=value, action='get_by_name')
+                if not value:
+                    return
+            exists_params[key] = value
+        exists_params['engine'] = selected_parameters['engine']
+
+        if isinstance(selected_parameters['complectation'], dict):
+            exists_params['complectation'] = await translate.translate(selected_parameters['complectation']['added'],
+                                                                       'name')
+        else:
+            complectation = await CarConfigs.get_by_id('complectation', selected_parameters['complectation'])
+            if complectation:
+                exists_params['complectation'] = {'name_ru': complectation.name_ru, 'name_uz': complectation.name_uz}
+            else:
+                return
+        #
+        # if all(exists_params.get(param_name) for param_name in ('complectation', 'color')):
+        #
+        #     bind_exists = await PhotoRequester.find_photos_by_complectation_and_color(exists_params['complectation'],
+        #                                                                               exists_params['color'])
+        match str(selected_parameters['state']):
+            case '2':
+                bind_exists = await CarConfigs.get_complectations_by_model_and_engine_and_state(exists_params['model'],
+                                                                                                2,
+                                                                                                name=exists_params[
+                                                                                                    'complectation'
+                                                                                                ])
+            case _:
+                bind_exists = await CarConfigs.get_branch(exists_params)
+        if bind_exists:
+            return True
 
     async def get_selected_param_models(self, state: FSMContext):
         car_configs_module = importlib.import_module('database.data_requests.car_configurations_requests')

@@ -1,4 +1,5 @@
 import logging
+import traceback
 from datetime import datetime
 from typing import Optional
 
@@ -61,6 +62,8 @@ async def try_get_free_tariff(callback, normal_status=False, user_id=False):
 async def seller_main_menu(callback: CallbackQuery, state: Optional[FSMContext], bot=None):
     message_editor_module = importlib.import_module('handlers.message_editor')
     redis_data = importlib.import_module('utils.redis_for_language')
+    traceback.print_exc()
+
     if await state.get_state():
         await state.clear()
     await try_delete_notification(callback=callback, user_status='seller')
@@ -74,5 +77,5 @@ async def seller_main_menu(callback: CallbackQuery, state: Optional[FSMContext],
     user_id = callback.from_user.id
     redis_key = str(user_id) + ':user_state'
     await redis_data.redis_data.set_data(redis_key, value='sell')
-
-    await callback.answer()
+    if isinstance(callback, CallbackQuery):
+        await callback.answer()

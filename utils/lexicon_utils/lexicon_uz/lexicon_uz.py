@@ -29,6 +29,7 @@ max_contact_info_len = 100
 block_user_reason_text_len = {'max': 256, 'min': 3}
 
 LEXICON_UZ = {
+    'advert_param_was_deleted': "Tanlangan parametrlar ma'muriyat tomonidan o'chirildi.",
     'develop_moment_notif': 'Xizmat davom etmoqda, bu xabar avtomatik ravishda oʻchirilganda keyinroq qayta urinib koʻring.',
     'incorrect_photo_size': '<b>Sizning fotosuratingiz juda past sifatda!</b>\n<i>(kutilayotgan o‘lcham 400x400 piksel)</i>\n\n',
     'buyer_unban': {

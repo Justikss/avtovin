@@ -64,6 +64,8 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
         message = request.message
     ic(media_photos)
     memory_storage = await state.get_data()
+    ic()
+    ic(memory_storage, await state.get_state())
     await state.update_data(rewrite_state_flag=None)
     await state.update_data(rewrite_brand_mode=False)
     cars_state = await get_load_car_state_module.get_load_car_state(state=state)
@@ -121,6 +123,9 @@ async def output_load_config_for_seller(request: Union[Message, CallbackQuery], 
 
     if not structured_boot_data:
         structured_boot_data = await data_formatter(request=request, state=state)
+        ic(structured_boot_data)
+        if structured_boot_data == 'exit':
+            return structured_boot_data
         await message_editor.redis_data.set_data(key=f'{str(request.from_user.id)}:structured_boot_data',
                                                  value = structured_boot_data)
 

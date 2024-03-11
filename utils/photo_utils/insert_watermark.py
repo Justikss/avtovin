@@ -14,7 +14,6 @@ from aiogram.types import FSInputFile
 import cv2
 import numpy as np
 
-# #todo установить параметр с ttlом
 # watermark_cache = {}
 # redis_data_module = importlib.import_module('utils.redis_for_language')
 
