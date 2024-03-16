@@ -30,7 +30,7 @@ async def confirm_boot_mailing_handler(callback: CallbackQuery, state: FSMContex
         await ChooseMailingAction().callback_handler(callback, state)
         return
 
-    mailing_datetime = datetime.strptime(mailing_datetime[:-3], config_module\
+    mailing_datetime = datetime.strptime(mailing_datetime, config_module\
                                          .MODIFIED_MAILING_DATETIME_FORMAT)
 
     if mailing_datetime < datetime.now():

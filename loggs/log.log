@@ -14672,3 +14672,540 @@ rodis good_get {'develop_moment_flag': 't'}
 rodis good_get {'902230076:bot_header_message': '42585'}
 rodis good {'902230076:bot_header_message': 42590}
 rodis good_get {'902230076:last_message': '42586'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42590'}
+rodis good {'902230076:bot_header_message': 42594}
+rodis good_get {'902230076:last_message': '42586'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_seller_message
+rodis error_get 902230076:last_user_message
+rodis good_get {'902230076:last_message': 42586}
+rodis Ключ '902230076:last_message' успешно удален
+rodis Ключ '902230076:seller_registration_mode' не найден
+rodis error_get 902230076:last_message
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42595}
+rodis Ключ '902230076:can_edit_seller_registration_data' не найден
+rodis good {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_lexicon_code': 'hello_text'}
+rodis good {'902230076:last_message': 42595}
+Таблицы успешно созданы
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42595'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42596}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_lexicon_code': 'hello_text'}
+rodis good {'902230076:last_message': 42596}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42596'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42597}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42597'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42598}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42598'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42599}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42599'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42600}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42600'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42602}
+rodis good_get {'902230076:last_message': '42602'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42604}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42604'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42606}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_media_group': '[42607]'}
+rodis good_get {'902230076:last_message': '42606'}
+rodis good_get {'902230076:last_media_group': [42607]}
+rodis good {'902230076:last_message': 42608}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42608'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42608'}
+rodis good_get {'902230076:last_media_group': [42607]}
+rodis Ключ '902230076:last_media_group' успешно удален
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42609}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_media_group': '[42611]'}
+rodis good_get {'902230076:last_message': '42609'}
+rodis good_get {'902230076:last_media_group': [42611]}
+rodis good {'902230076:last_message': 42612}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42612'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42612'}
+rodis good_get {'902230076:last_media_group': [42611]}
+rodis Ключ '902230076:last_media_group' успешно удален
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42613}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_media_group': '[42615]'}
+rodis good_get {'902230076:last_message': '42613'}
+rodis good_get {'902230076:last_media_group': [42615]}
+rodis good {'902230076:last_message': 42616}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42616'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42616'}
+rodis good_get {'902230076:last_media_group': [42615]}
+rodis Ключ '902230076:last_media_group' успешно удален
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42617}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+2024-03-16 16:10:00
+rodis good {'902230076:last_media_group': '[42619]'}
+rodis good_get {'902230076:last_message': '42617'}
+rodis good_get {'902230076:last_media_group': [42619]}
+rodis good {'902230076:last_message': 42620}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42620'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42620'}
+rodis good_get {'902230076:last_media_group': [42619]}
+rodis Ключ '902230076:last_media_group' успешно удален
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42621}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+16-03-2024 16:18
+2024-03-16 16:18:00
+rodis good {'902230076:last_media_group': '[42623]'}
+rodis good_get {'902230076:last_message': '42621'}
+rodis good_get {'902230076:last_media_group': [42623]}
+rodis good {'902230076:last_message': 42624}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42624'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42624'}
+rodis good_get {'902230076:last_media_group': [42623]}
+rodis Ключ '902230076:last_media_group' успешно удален
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42625}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+16-03-2024 16:23
+2024-03-16 16:23:00
+rodis good {'902230076:last_media_group': '[42627]'}
+rodis good_get {'902230076:last_message': '42625'}
+rodis good_get {'902230076:last_media_group': [42627]}
+rodis good {'902230076:last_message': 42628}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42628'}
+rodis good_get {'902230076:last_media_group': [42627]}
+rodis Ключ '902230076:last_media_group' успешно удален
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42629}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42629'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42630}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42630'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42631}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42631'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42632}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42632'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42632'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42633}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_lexicon_code': 'hello_text'}
+rodis good {'902230076:last_message': 42633}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get user_ban:seller:902230076
+rodis good {'user_ban:seller:902230076': 'no'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis error_get 902230076:seller_registration_notification
+rodis Ключ '902230076:seller_registration_notification' не найден
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis Ключ '902230076:can_edit_seller_boot_commodity' не найден
+rodis Ключ '902230076:seller_requests_pagination' не найден
+rodis good_get {'902230076:last_message': '42633'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42634}
+rodis good {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis good_get {'902230076:last_message': '42634'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis error_get 902230076:seller_registration_notification
+rodis Ключ '902230076:seller_registration_notification' не найден
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis Ключ '902230076:can_edit_seller_boot_commodity' не найден
+rodis Ключ '902230076:seller_requests_pagination' не найден
+rodis good_get {'902230076:last_message': '42634'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42635}
+rodis good {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_lexicon_code': 'hello_text'}
+rodis good {'902230076:last_message': 42635}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42635'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42636}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis Ключ '902230076:inline_buttons_pagination_data' не найден
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42636'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42637}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"admin_select_tariff:1": "BEPUL"}, {"admin_select_tariff:2": "BEPUL"}, {"admin_select_tariff:6": "///"}], "page_size": 6, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'usd_to_sum_currency': '12515'}
+rodis good_get {'902230076:last_message': '42637'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42637'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42638}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"admin_select_tariff:1": "BEPUL"}, {"admin_select_tariff:2": "BEPUL"}, {"admin_select_tariff:6": "///"}], "page_size": 6, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42638'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:last_seller_message
+rodis good_get {'902230076:last_message': '42638'}
+rodis Ключ '902230076:last_message' успешно удален
+rodis good {'902230076:last_seller_message': 42639}
+rodis error_get 902230076:last_message
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42640}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_seller_message': '42639'}
+rodis Ключ '902230076:last_seller_message' успешно удален
+rodis good_get {'902230076:last_message': '42640'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42642}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42642'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42642'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': 42642}
+rodis Ключ '902230076:last_message' успешно удален
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:last_message
+rodis error_get 902230076:last_message
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis error_get 902230076:last_message
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42647}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"admin_select_tariff:1": "BEPUL"}, {"admin_select_tariff:2": "BEPUL"}, {"admin_select_tariff:6": "///"}, {"admin_select_tariff:7": "AAAS"}], "page_size": 6, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'usd_to_sum_currency': '12515'}
+rodis good_get {'902230076:last_message': '42647'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42647'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42648}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"admin_select_tariff:1": "BEPUL"}, {"admin_select_tariff:2": "BEPUL"}, {"admin_select_tariff:6": "///"}, {"admin_select_tariff:7": "AAAS"}], "page_size": 6, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42648'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42649}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42649'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42649'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42649'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis Ключ '902230076:inline_buttons_pagination_data' не найден
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42649'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42650}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"seller_select_action:902230076": "\\u0411\\u043e\\u0440\\u0438\\u0441 \\u041f\\u0440\\u043e\\u043c"}], "page_size": 6, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42650'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42651}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42651'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42651'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42652}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"select_tariff_for_seller_by_admin:1": "BEPUL"}, {"select_tariff_for_seller_by_admin:2": "BEPUL"}, {"select_tariff_for_seller_by_admin:6": "///"}, {"select_tariff_for_seller_by_admin:7": "AAAS"}], "page_size": 6, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'usd_to_sum_currency': '12515'}
+rodis good_get {'902230076:last_message': '42652'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42652'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}

@@ -29,15 +29,18 @@ class DateTimeFilter(BaseFilter):
             return
         else:
             try:
+                print(message.text)
                 mailing_datetime = datetime.datetime.strptime(message.text, '%d-%m-%Y %H:%M')
-
+                ic(mailing_datetime.__class__.__name__)
+                print(mailing_datetime)
                 if mailing_datetime < datetime.datetime.now():
                     await incorrect(state, message.message_id)
                     await request_mailing_date_time(message, state, incorrect='(time)')
                     return
 
                 await delete_message(message, message.message_id)
-                return {'mailing_datetime': str(mailing_datetime)}
+                mailing_datetime = mailing_datetime.strftime('%d-%m-%Y %H:%M')
+                return {'mailing_datetime': mailing_datetime}
             except (ValueError, TypeError):
                 traceback.print_exc()
                 await incorrect(state, message.message_id)
