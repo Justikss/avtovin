@@ -45,11 +45,11 @@ DEFAULT_COMMANDS = (
 # YANDEX_IAM_TOKEN = os.getenv('YANDEX_IAM_TOKEN')
 # YANDEX_folder_id = os.getenv('YANDEX_folder_id')
 
-DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+DATETIME_FORMAT = '%d-%m-%Y %H:%M'
 MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'
-MODIFIED_MAILING_DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+MODIFIED_MAILING_DATETIME_FORMAT = '%d-%m-%Y %H:%M'
 
-REGISTRATION_DATETIME_FORMAT = '%Y-%m-%d'
+# REGISTRATION_DATETIME_FORMAT = '%Y-%m-%d'
 
 lifetime_of_redis_record_of_request_caching = 259200
 geolocation_cahce_expire = 3600

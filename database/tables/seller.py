@@ -15,7 +15,7 @@ class Seller(BaseModel):
     surname = CharField(null=True, verbose_name='Фамилия')  # поле ограничено символами(возможно нулевое значение, название столбца)
     patronymic = CharField(null=True, verbose_name='Отчество')
     authorized = BooleanField(verbose_name='Наличие авторизации.')
-    data_registration = DateField(default=datetime.now().strftime('%Y-%m-%d'))
+    data_registration = DateField(default=datetime.now().strftime('%d-%m-%Y'))
 
     is_banned = BooleanField(default=False)
     ban_reason = TextField(null=True)

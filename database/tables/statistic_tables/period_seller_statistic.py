@@ -20,7 +20,7 @@ async def calculate_stats(period, seller_id=None):
     }.get(period, None)
 
     # Условия для временного периода
-    period_start_condition = f"'{period_start.strftime('%Y-%m-%d %H:%M:%S')}'" if period_start else "NULL"
+    period_start_condition = f"'{period_start.strftime('%d-%m-%Y %H:%M')}'" if period_start else "NULL"
     user_seller_period_condition = f"WHERE {'{date_field}'} >= {period_start_condition} AND" if period_start else "WHERE"
 
     # Условие для seller_id

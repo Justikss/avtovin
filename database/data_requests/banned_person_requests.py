@@ -131,7 +131,8 @@ class BannedRequester:
             ic(current_table, telegram_id)
             user_model = await manager.get(current_table, current_table.telegram_id == telegram_id)
 
-            update_query = (current_table.update(is_banned=True, ban_reason=reason, block_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))
+            update_query = (current_table.update(is_banned=True, ban_reason=reason,
+                                                 block_date=datetime.datetime.now().strftime('%d-%m-%Y %H:%M'))
                             .where(current_table.telegram_id == telegram_id))
             await manager.execute(update_query)
             from database.data_requests.person_requests import PersonRequester
