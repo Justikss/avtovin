@@ -1,0 +1,3 @@
+from database.tables.offers_history import CacheBuyerOffers
+
+CacheBuyerOffers

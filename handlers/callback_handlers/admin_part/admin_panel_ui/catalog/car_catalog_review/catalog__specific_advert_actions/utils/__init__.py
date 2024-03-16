@@ -1,0 +1,1 @@
+from . import delete_advert_by_admin

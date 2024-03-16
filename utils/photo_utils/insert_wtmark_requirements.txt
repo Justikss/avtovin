@@ -1,0 +1,7 @@
+aiogram
+aiohttp
+aiofiles
+opencv-python-headless
+numpy
+uvicorn
+fastapi
