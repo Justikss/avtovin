@@ -64,7 +64,7 @@ class BaseAdminCommandHandler(BaseMessageHandler):
                 return telegram_id
         return None
 
-    async def query_state_callback(self, request, query, action_on=None):
+    async def query_state_callback(self, request, query, state, action_on=None):
         lexicon_code = None
 
         if query:
@@ -83,6 +83,8 @@ class BaseAdminCommandHandler(BaseMessageHandler):
         await self.delete_message(request, request.message_id)
         message = self.admin_lexicon[lexicon_code]
         await self.send_alert_answer(request, message)
+        from handlers.callback_handlers.hybrid_part.return_main_menu import return_main_menu_callback_handler
+        await return_main_menu_callback_handler(request, state)
 
     async def user_id_not_found_handler(self, request, user_id):
         if not user_id:

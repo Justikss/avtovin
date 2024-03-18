@@ -21,4 +21,4 @@ class DelAdminHandler(BaseAdminCommandHandler):
             if query:
                 await self.logging_action(request, subject=request.text, action='del_admin')
 
-            await self.query_state_callback(request, query, action_on='admin')
+            await self.query_state_callback(request, query, state, action_on='admin')

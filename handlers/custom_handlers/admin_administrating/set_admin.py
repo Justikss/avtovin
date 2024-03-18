@@ -17,4 +17,4 @@ class SetAdminHandler(BaseAdminCommandHandler):
         if query:
             await self.logging_action(request, subject=request.text, action='set_admin')
 
-        await self.query_state_callback(request, query, action_on='set_admin')
+        await self.query_state_callback(request, query, state, action_on='set_admin')

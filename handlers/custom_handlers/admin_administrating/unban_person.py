@@ -25,7 +25,7 @@ class UnbanPersonAdminHandler(BaseAdminCommandHandler):
             if query:
                 await self.logging_action(request, subject=request.text, action='unban_person')
 
-            await self.query_state_callback(request, query, action_on='unban')
+            await self.query_state_callback(request, query, state, action_on='unban')
 
 
     async def identify_entity(self, request):

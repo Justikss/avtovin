@@ -24,4 +24,5 @@ class SetRedAdminHandler(BaseAdminCommandHandler):
             if query:
                 await self.logging_action(request, subject=request.text, action='up_to_red')
 
-            await self.query_state_callback(request, query)
+            await self.query_state_callback(request, query, state)
+
