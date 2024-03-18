@@ -31,6 +31,6 @@ class TariffsToSellers(BaseModel):
 
 class DyingTariffs(BaseModel):
     tariff_wire = ForeignKeyField(TariffsToSellers, backref='dying_status')
-    end_time = DateTimeField(default=datetime.datetime.now() + datetime.timedelta(days=1)) #days=1
+    end_time = DateTimeField(default=datetime.datetime.now() + datetime.timedelta(seconds=5)) #days=1
                                                                                             #seconds=5
 
