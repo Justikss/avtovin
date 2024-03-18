@@ -318,7 +318,7 @@ class CarConfigs:
                 query = current_table.select()
                 if current_table in (CarYear, CarMileage):
                     query = await CarConfigs.sorted_integer_configs(query, current_table)
-                result = list(query)
+                result = list(await manager.execute(query))
 
             case 'insert' if name:
 
