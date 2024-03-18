@@ -43,7 +43,7 @@ async def set_timer_on_active_tariff(active_tariff, bot):
         end_time = datetime.strptime(end_time, config_module.DATETIME_FORMAT)
 
     end_time = end_time_control(end_time)
-
+    ic(end_time)
 
     cron_time = end_time.strftime('%M %H %d %m *')
     aiocron.crontab(cron_time, func=stop_active_tariff, args=(active_tariff, bot))
