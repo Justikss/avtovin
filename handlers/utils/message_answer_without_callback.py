@@ -27,9 +27,11 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
     # if isinstance(request, Message) or message:
     if isinstance(request, CallbackQuery):
         request = request.message
-    ic()
-    ic(request)
 
+        if message == 'None':
+
+            ic(await request.answer(text, show_alert=show_alert))
+            return
 
     # await delete_message(request, last_message)
     await media_group_delete_module.delete_media_groups(request=request)
@@ -42,11 +44,5 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
         await asyncio.sleep(max(config_module.message_answer_awaited / 3, 1))
 
     await delete_message(request, alert_message.message_id)
-
-#     elif isinstance(request, CallbackQuery):
-#         ic(text)
-#         ic()
-#         ic(await request.answer(text, show_alert=show_alert))
-
 
     await asyncio.sleep(anti_spam_duration)

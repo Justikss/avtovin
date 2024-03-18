@@ -28,7 +28,7 @@ class OutputStatisticAdvertParamsHandler(BaseStatisticCallbackHandler):
             pass
         statistic_lexicon = await self.statistic_manager.statistic_lexicon()
         if not kwargs.get('test'):
-            await self.send_alert_answer(request, statistic_lexicon['stats_loading'])
+            await self.send_alert_answer(request, statistic_lexicon['stats_loading'], message='None')
         pagination_data = await self.get_pagination_data(request, state)
         if pagination_data:
             self.output_methods = [
