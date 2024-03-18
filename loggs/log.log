@@ -15209,3 +15209,337 @@ rodis error_get 902230076:last_media_group
 rodis good_get {'902230076:language': 'ru'}
 rodis good_get {'develop_moment_flag': 't'}
 rodis good_get {'902230076:bot_header_message': '42594'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42652'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42655}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42655'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42655'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42656}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'admin'}
+rodis good {'902230076:user_state': 'admin'}
+rodis good_get {'902230076:last_message': '42656'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42657}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good {'902230076:last_lexicon_code': 'hello_text'}
+rodis good {'902230076:last_message': 42657}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis error_get 902230076:seller_registration_notification
+rodis Ключ '902230076:seller_registration_notification' не найден
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis Ключ '902230076:can_edit_seller_boot_commodity' не найден
+rodis Ключ '902230076:seller_requests_pagination' не найден
+rodis good_get {'902230076:last_message': '42657'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42658}
+rodis good {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:last_message': '42658'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'car_configurations_requests:get_all_states': '[{"id": 1, "_name": null, "name_uz": "Yangi", "name_ru": "\\u041d\\u043e\\u0432\\u043e\\u0435"}, {"id": 2, "_name": null, "name_uz": "Ishlatilgan", "name_ru": "\\u0421 \\u043f\\u0440\\u043e\\u0431\\u0435\\u0433\\u043e\\u043c"}]'}
+rodis good_get {'902230076:last_message': '42658'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'car_configurations_requests:get_all_engines': '[{"id": 1, "_name": null, "name_uz": "Gibrid", "name_ru": "\\u0413\\u0438\\u0431\\u0440\\u0438\\u0434"}, {"id": 3, "_name": null, "name_uz": "IYD", "name_ru": "\\u0414\\u0412\\u0421"}, {"id": 2, "_name": null, "name_uz": "Elektro", "name_ru": "\\u042d\\u043b\\u0435\\u043a\\u0442\\u0440\\u043e"}]'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:last_message': '42658'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get cached_car_config:<Model: CarBrand>2:3:2
+rodis good {'cached_car_config:<Model: CarBrand>2:3:2:count:': 1}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42658'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42659}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_brand_6": "Audi"}, {"load_brand_8": "BMW"}, {"load_brand_11": "Ferrari"}, {"load_brand_7": "Ford"}, {"load_brand_5": "Mercedes"}, {"load_brand_9": "Renault"}, {"load_brand_1": "\\u0421hevrolet"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:inline_buttons_pagination_data': {'data': [{'load_brand_6': 'Audi'}, {'load_brand_8': 'BMW'}, {'load_brand_11': 'Ferrari'}, {'load_brand_7': 'Ford'}, {'load_brand_5': 'Mercedes'}, {'load_brand_9': 'Renault'}, {'load_brand_1': 'Сhevrolet'}], 'page_size': 4, 'current_page': 1}}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42659'}
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_brand_6": "Audi"}, {"load_brand_8": "BMW"}, {"load_brand_11": "Ferrari"}, {"load_brand_7": "Ford"}, {"load_brand_5": "Mercedes"}, {"load_brand_9": "Renault"}, {"load_brand_1": "\\u0421hevrolet"}], "page_size": 4, "current_page": 2}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'car_configurations_requests:get_all_engines': '[{"id": 1, "_name": null, "name_uz": "Gibrid", "name_ru": "\\u0413\\u0438\\u0431\\u0440\\u0438\\u0434"}, {"id": 3, "_name": null, "name_uz": "IYD", "name_ru": "\\u0414\\u0412\\u0421"}, {"id": 2, "_name": null, "name_uz": "Elektro", "name_ru": "\\u042d\\u043b\\u0435\\u043a\\u0442\\u0440\\u043e"}]'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:last_message': '42659'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get cached_car_config:<Model: CarBrand>2:2:2
+rodis good {'cached_car_config:<Model: CarBrand>2:2:2:count:': 1}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42659'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42660}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_brand_6": "Audi"}, {"load_brand_8": "BMW"}, {"load_brand_4": "BYD"}, {"load_brand_7": "Ford"}, {"load_brand_10": "Jeep"}, {"load_brand_3": "Leapmotor"}, {"load_brand_5": "Mercedes"}, {"load_brand_9": "Renault"}, {"load_brand_15": "startdev"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:inline_buttons_pagination_data': {'data': [{'load_brand_6': 'Audi'}, {'load_brand_8': 'BMW'}, {'load_brand_4': 'BYD'}, {'load_brand_7': 'Ford'}, {'load_brand_10': 'Jeep'}, {'load_brand_3': 'Leapmotor'}, {'load_brand_5': 'Mercedes'}, {'load_brand_9': 'Renault'}, {'load_brand_15': 'startdev'}], 'page_size': 4, 'current_page': 1}}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42660'}
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_brand_6": "Audi"}, {"load_brand_8": "BMW"}, {"load_brand_4": "BYD"}, {"load_brand_7": "Ford"}, {"load_brand_10": "Jeep"}, {"load_brand_3": "Leapmotor"}, {"load_brand_5": "Mercedes"}, {"load_brand_9": "Renault"}, {"load_brand_15": "startdev"}], "page_size": 4, "current_page": 3}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get cached_car_config:<Model: CarModel>2:15:2:2
+rodis good {'cached_car_config:<Model: CarModel>2:15:2:2:count:': 1}
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42660'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42661}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_model_54": "startdev"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42661'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42662}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_complectation_145": "startdev"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42662'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42663}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_color_14": "Black"}, {"load_color_16": "Osa"}, {"load_color_21": "sadasd"}, {"load_color_24": "ssdsad"}, {"load_color_25": "ssdsadssdsad"}, {"load_color_22": "startdev"}, {"load_color_23": "startdevstartdev"}, {"load_color_15": "trtrtr"}, {"load_color_5": "\\u0411\\u0435\\u043b\\u044b\\u0439"}, {"load_color_10": "\\u0411\\u043e\\u0440\\u0434\\u043e\\u0432\\u044b\\u0439"}, {"load_color_17": "\\u0413\\u043e\\u043b\\u0443\\u0431\\u043e\\u0439"}, {"load_color_20": "\\u0415\\u0432\\u0440\\u043e\\u043f\\u0435\\u0439\\u0441\\u043a\\u0438\\u0439"}, {"load_color_6": "\\u0416\\u0451\\u043b\\u0442\\u044b\\u0439"}, {"load_color_9": "\\u0417\\u0435\\u043b\\u0451\\u043d\\u044b\\u0439"}, {"load_color_13": "\\u041a\\u0435\\u0441\\u043b\\u0435\\u0440"}, {"load_color_8": "\\u041a\\u043e\\u0440\\u0438\\u0447\\u043d\\u0435\\u0432\\u044b\\u0439"}, {"load_color_7": "\\u041a\\u0440\\u0430\\u0441\\u043d\\u044b\\u0439"}, {"load_color_19": "\\u0420\\u0435\\u0436\\u0438\\u0439"}, {"load_color_2": "\\u0421\\u0435\\u0440\\u044b\\u0439"}, {"load_color_4": "\\u0421\\u0438\\u043d\\u0438\\u0439"}, {"load_color_3": "\\u0427\\u0451\\u0440\\u043d\\u044b\\u0439"}, {"load_color_1": "\\u0414\\u0440\\u0443\\u0433\\u043e\\u0439"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42663'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42664}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_year_11": "2023-2024"}, {"load_year_10": "2022-2023"}, {"load_year_9": "2021-2022"}, {"load_year_8": "2020-2021"}, {"load_year_7": "2019-2020"}, {"load_year_6": "2016-2019"}, {"load_year_5": "2013-2016"}, {"load_year_4": "2010-2013"}, {"load_year_3": "2007-2010"}, {"load_year_2": "2004-2007"}, {"load_year_1": "2001-2007"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis Ключ '902230076:inline_buttons_pagination_data' успешно удален
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'902230076:last_message': '42664'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42665}
+rodis good {'902230076:inline_buttons_pagination_data': '{"data": [{"load_mileage_1": "5.000-10.000"}, {"load_mileage_2": "10.000-15.000"}, {"load_mileage_3": "15.000-20.000"}, {"load_mileage_4": "20.000-25.000"}, {"load_mileage_5": "25.000-30.000"}, {"load_mileage_6": "30.000-35.000"}, {"load_mileage_7": "35.000-40.000"}, {"load_mileage_8": "40.000-45.000"}, {"load_mileage_9": "45.000-50.000"}, {"load_mileage_10": "50.000-75.000"}, {"load_mileage_11": "75.000-100.000"}, {"load_mileage_12": "100.000+"}], "page_size": 4, "current_page": 1}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:last_message': '42665'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_message': 42666}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis error_get 902230076:last_seller_message
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis error_get 902230076:can_edit_seller_boot_commodity
+rodis good_get {'902230076:last_message': '42666'}
+rodis error_get 902230076:last_media_group
+rodis error_get 902230076:seller_media_group_messages
+rodis error_get 902230076:last_media_group
+rodis good {'902230076:last_media_group': '[42674, 42675, 42676, 42677, 42678, 42679]'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good {'902230076:boot_advert_ids_kwargs': '{"seller_id": 902230076, "state": 2, "engine_type": 2, "brand": 15, "model": 54, "complectation": "145", "year_of_release": 11, "mileage": 3, "color": 14, "sum_price": 465564, "dollar_price": null, "photos": [{"id": "AgACAgIAAxkDAAKmsmX1hjuzHYVWR42Z-ouETOmeeSqwAAK_1jEbn8OoSzzBhJjEFnr1AQADAgADeQADNAQ", "unique_id": "AQADv9YxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKms2X1hjtWA0cNuIML-i_zLlX86MruAAK-1jEbn8OoS12pQpLIPny1AQADAgADeQADNAQ", "unique_id": "AQADvtYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtGX1hjuR72W1R5wCD9GG_whM2BvFAALA1jEbn8OoS3RMxWu28fn-AQADAgADeQADNAQ", "unique_id": "AQADwNYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtWX1hjsRDswVMXv59eL16psyE0VbAAK91jEbn8OoS6_UlLXZb3S1AQADAgADeAADNAQ", "unique_id": "AQADvdYxG5_DqEt9"}, {"id": "AgACAgIAAxkDAAKmtmX1hjtjl1IOMEdceL86grouatZDAALB1jEbn8OoS6jIZ6x1j52mAQADAgADeQADNAQ", "unique_id": "AQADwdYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmt2X1hju7zykYkaqlsYFi5WtCKwp1AALC1jEbn8OoS-5YRuQsYAG0AQADAgADeQADNAQ", "unique_id": "AQADwtYxG5_DqEt-"}]}'}
+rodis good {'902230076:structured_boot_data': '{"seller_id": 902230076, "state": "\\u0421 \\u043f\\u0440\\u043e\\u0431\\u0435\\u0433\\u043e\\u043c", "engine_type": "\\u042d\\u043b\\u0435\\u043a\\u0442\\u0440\\u043e", "brand": "startdev", "model": "startdev", "complectation": "startdev", "year_of_release": "2023-2024", "mileage": "15.000-20.000", "color": "Black", "sum_price": 465564, "dollar_price": null, "photos": [{"id": "AgACAgIAAxkDAAKmsmX1hjuzHYVWR42Z-ouETOmeeSqwAAK_1jEbn8OoSzzBhJjEFnr1AQADAgADeQADNAQ", "unique_id": "AQADv9YxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKms2X1hjtWA0cNuIML-i_zLlX86MruAAK-1jEbn8OoS12pQpLIPny1AQADAgADeQADNAQ", "unique_id": "AQADvtYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtGX1hjuR72W1R5wCD9GG_whM2BvFAALA1jEbn8OoS3RMxWu28fn-AQADAgADeQADNAQ", "unique_id": "AQADwNYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtWX1hjsRDswVMXv59eL16psyE0VbAAK91jEbn8OoS6_UlLXZb3S1AQADAgADeAADNAQ", "unique_id": "AQADvdYxG5_DqEt9"}, {"id": "AgACAgIAAxkDAAKmtmX1hjtjl1IOMEdceL86grouatZDAALB1jEbn8OoS6jIZ6x1j52mAQADAgADeQADNAQ", "unique_id": "AQADwdYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmt2X1hju7zykYkaqlsYFi5WtCKwp1AALC1jEbn8OoS-5YRuQsYAG0AQADAgADeQADNAQ", "unique_id": "AQADwtYxG5_DqEt-"}]}'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'usd_to_sum_currency': '12515'}
+rodis good_get {'902230076:language': 'ru'}
+rodis good {'902230076:can_edit_seller_boot_commodity': 'true'}
+rodis good_get {'902230076:last_message': '42666'}
+rodis good_get {'902230076:last_media_group': [42674, 42675, 42676, 42677, 42678, 42679]}
+rodis good {'902230076:last_message': 42680}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis Ключ '902230076:can_edit_seller_boot_commodity' успешно удален
+rodis good_get {'902230076:language': 'ru'}
+rodis good {'902230076:boot_advert_ids_kwargs': '{"seller_id": 902230076, "state": 2, "engine_type": 2, "brand": 15, "model": 54, "complectation": "145", "year_of_release": 11, "mileage": 3, "color": 14, "sum_price": 465564, "dollar_price": null, "photos": [{"id": "AgACAgIAAxkDAAKmsmX1hjuzHYVWR42Z-ouETOmeeSqwAAK_1jEbn8OoSzzBhJjEFnr1AQADAgADeQADNAQ", "unique_id": "AQADv9YxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKms2X1hjtWA0cNuIML-i_zLlX86MruAAK-1jEbn8OoS12pQpLIPny1AQADAgADeQADNAQ", "unique_id": "AQADvtYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtGX1hjuR72W1R5wCD9GG_whM2BvFAALA1jEbn8OoS3RMxWu28fn-AQADAgADeQADNAQ", "unique_id": "AQADwNYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtWX1hjsRDswVMXv59eL16psyE0VbAAK91jEbn8OoS6_UlLXZb3S1AQADAgADeAADNAQ", "unique_id": "AQADvdYxG5_DqEt9"}, {"id": "AgACAgIAAxkDAAKmtmX1hjtjl1IOMEdceL86grouatZDAALB1jEbn8OoS6jIZ6x1j52mAQADAgADeQADNAQ", "unique_id": "AQADwdYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmt2X1hju7zykYkaqlsYFi5WtCKwp1AALC1jEbn8OoS-5YRuQsYAG0AQADAgADeQADNAQ", "unique_id": "AQADwtYxG5_DqEt-"}]}'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis Ключ '902230076:can_edit_seller_boot_commodity' не найден
+rodis good_get {'902230076:language': 'ru'}
+rodis good {'902230076:boot_advert_ids_kwargs': '{"seller_id": 902230076, "state": 2, "engine_type": 2, "brand": 15, "model": 54, "complectation": "145", "year_of_release": 11, "mileage": 3, "color": 14, "sum_price": 465564, "dollar_price": null, "photos": [{"id": "AgACAgIAAxkDAAKmsmX1hjuzHYVWR42Z-ouETOmeeSqwAAK_1jEbn8OoSzzBhJjEFnr1AQADAgADeQADNAQ", "unique_id": "AQADv9YxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKms2X1hjtWA0cNuIML-i_zLlX86MruAAK-1jEbn8OoS12pQpLIPny1AQADAgADeQADNAQ", "unique_id": "AQADvtYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtGX1hjuR72W1R5wCD9GG_whM2BvFAALA1jEbn8OoS3RMxWu28fn-AQADAgADeQADNAQ", "unique_id": "AQADwNYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtWX1hjsRDswVMXv59eL16psyE0VbAAK91jEbn8OoS6_UlLXZb3S1AQADAgADeAADNAQ", "unique_id": "AQADvdYxG5_DqEt9"}, {"id": "AgACAgIAAxkDAAKmtmX1hjtjl1IOMEdceL86grouatZDAALB1jEbn8OoS6jIZ6x1j52mAQADAgADeQADNAQ", "unique_id": "AQADwdYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmt2X1hju7zykYkaqlsYFi5WtCKwp1AALC1jEbn8OoS-5YRuQsYAG0AQADAgADeQADNAQ", "unique_id": "AQADwtYxG5_DqEt-"}]}'}
+Таблицы успешно созданы
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'902230076:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis good_get {'902230076:bot_header_message': '42594'}
+rodis good_get {'902230076:user_state': 'sell'}
+rodis good_get {'user_ban:seller:902230076': 'no'}
+rodis Ключ '902230076:can_edit_seller_boot_commodity' не найден
+rodis good_get {'902230076:language': 'ru'}
+rodis good {'902230076:boot_advert_ids_kwargs': '{"seller_id": 902230076, "state": 2, "engine_type": 2, "brand": 15, "model": 54, "complectation": "145", "year_of_release": 11, "mileage": 3, "color": 14, "sum_price": 465564, "dollar_price": null, "photos": [{"id": "AgACAgIAAxkDAAKmsmX1hjuzHYVWR42Z-ouETOmeeSqwAAK_1jEbn8OoSzzBhJjEFnr1AQADAgADeQADNAQ", "unique_id": "AQADv9YxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKms2X1hjtWA0cNuIML-i_zLlX86MruAAK-1jEbn8OoS12pQpLIPny1AQADAgADeQADNAQ", "unique_id": "AQADvtYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtGX1hjuR72W1R5wCD9GG_whM2BvFAALA1jEbn8OoS3RMxWu28fn-AQADAgADeQADNAQ", "unique_id": "AQADwNYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmtWX1hjsRDswVMXv59eL16psyE0VbAAK91jEbn8OoS6_UlLXZb3S1AQADAgADeAADNAQ", "unique_id": "AQADvdYxG5_DqEt9"}, {"id": "AgACAgIAAxkDAAKmtmX1hjtjl1IOMEdceL86grouatZDAALB1jEbn8OoS6jIZ6x1j52mAQADAgADeQADNAQ", "unique_id": "AQADwdYxG5_DqEt-"}, {"id": "AgACAgIAAxkDAAKmt2X1hju7zykYkaqlsYFi5WtCKwp1AALC1jEbn8OoS-5YRuQsYAG0AQADAgADeQADNAQ", "unique_id": "AQADwtYxG5_DqEt-"}]}'}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good_get {'5058765403:language': 'ru'}
+rodis good_get {'develop_moment_flag': 't'}
+rodis error_get 5058765403:sended_develop_moment_info
+rodis good {'5058765403:sended_develop_moment_info': 42682}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12515}
+rodis good {'usd_to_sum_currency': 12520}
+rodis good {'usd_to_sum_currency': 12520}

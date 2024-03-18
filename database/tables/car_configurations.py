@@ -127,7 +127,7 @@ class CarAdvert(BaseModel):
     sleep_status = BooleanField(null=True)
 
     additional_info = TextField(null=True)
-    post_datetime = DateTimeField(default=datetime.now().strftime('%d-%m-%Y'))
+    post_datetime = DateTimeField(default=datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
 
 
     # def __str__(self):
