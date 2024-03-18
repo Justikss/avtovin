@@ -23,7 +23,7 @@ connect_data = {
 'port': os.getenv('port')
 }
 
-connect_dataa = {
+connect_data = {
     'database': 'testDB',
 'user': 'postgres',
 'password': 'red12red1212',

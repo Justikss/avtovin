@@ -137,3 +137,4 @@ config_data\.env
 db.db
 tests\.env
 database\.env
+database\db_connect.py
