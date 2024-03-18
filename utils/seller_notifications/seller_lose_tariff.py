@@ -12,4 +12,6 @@ async def send_notification_about_lose_tariff(seller_id, callback: CallbackQuery
         user_status = 'seller_lose_self_tariff'
     else:
         user_status = 'seller_without_tariff'
+    tstatuskey = user_status
+    ic(tstatuskey)
     await send_notification(callback, user_status=user_status, chat_id=seller_id, bot=bot)
