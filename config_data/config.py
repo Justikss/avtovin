@@ -13,7 +13,7 @@ if not platform.system() == "Windows":
     os.environ['TZ'] = 'Asia/Tashkent'
     time.tzset()  # Применяет изменения часового пояса (работает только на Unix/Linux)
 
-TEST_MOMENT = True
+TEST_MOMENT = False
 
 logger = logging.getLogger('peewee')
 logger.setLevel(logging.DEBUG)
