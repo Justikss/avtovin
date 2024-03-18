@@ -168,7 +168,7 @@ class TariffToSellerBinder:
         '''Асинхронный вспомогательный метод для извлечения и обработки данных'''
         tariff_requests_module = importlib.import_module('database.data_requests.tariff_requests')
         person_requester = importlib.import_module('database.data_requests.person_requests')
-        seconds = True
+        seconds = 5
         if isinstance(data, dict):
             config_module = importlib.import_module('config_data.config')
 
