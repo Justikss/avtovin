@@ -27,12 +27,12 @@ async def send_message_answer(request: Message | CallbackQuery, text: str, sleep
     # if isinstance(request, Message) or message:
     if isinstance(request, CallbackQuery):
 
-        if message == 'None':
-
-            ic(await request.answer(text, show_alert=show_alert))
-            return
-        else:
-            request = request.message
+        # if message == 'None':
+        #
+        #     ic(await request.answer(text, show_alert=show_alert))
+        #     return
+        # else:
+        request = request.message
 
     # await delete_message(request, last_message)
     await media_group_delete_module.delete_media_groups(request=request)
