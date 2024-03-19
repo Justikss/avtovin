@@ -43,6 +43,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
     if redis_sub_key:
         notification_message_id = await redis_module.redis_data.get_data(key=str(callback.from_user.id) + redis_sub_key,
                                                                          use_json=True)
+        ic(notification_message_id)
         if notification_message_id:
             try:
                 if isinstance(notification_message_id, list):
