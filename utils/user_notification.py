@@ -35,7 +35,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
     elif user_status == 'lose_tariff':
         redis_sub_key = ':seller_without_tariff_notification'
     elif user_status == 'delete_tariff':
-        redis_sub_key = ':seller_lose_self_tariff'
+        redis_sub_key = ':seller_lose_self_tariff_notification'
     elif user_status in ('sales', 'purchases'):
         redis_sub_key = f':{user_status}_notification'
     elif user_status == 'close_advert':
