@@ -51,6 +51,7 @@ async def try_delete_notification(callback: CallbackQuery, user_status: str=None
                 else:
                     await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=notification_message_id)
             except:
+                traceback.print_exc()
                 pass
 
         await redis_module.redis_data.delete_key(key=str(callback.from_user.id) + redis_sub_key)
