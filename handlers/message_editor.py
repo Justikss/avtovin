@@ -15,10 +15,43 @@ Lexicon_module = importlib.import_module('utils.lexicon_utils.Lexicon')
 
 class TravelEditor:
     @staticmethod
-    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False, send_chat=None, my_keyboard=None, need_media_caption=False, save_media_group=False, delete_media_group_mode = False, reply_message=None,
-                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True, reply_mode = False, lexicon_part: dict = None, bot=None, media_group=None, seller_boot=None, dynamic_buttons=False):
-        '''Высылальщик сообщений
-        [reply_mode[bool]]: Работает только при удалении сообщений '''
+    async def edit_message(lexicon_key: str, request, delete_mode=False, media_markup_mode=False, send_chat=None,
+                           my_keyboard=None,
+                           need_media_caption=False, save_media_group=False, delete_media_group_mode = False,
+                           reply_message=None,
+                           button_texts: Set[str] = None, callback_sign: str = None, lexicon_cache=True,
+                           reply_mode = False, lexicon_part: dict = None, bot=None, media_group=None,
+                           seller_boot=None, dynamic_buttons=False):
+        '''
+        Основной метод которым бот отправляет сообщения в чат.
+        Он соблюдает идею бота, что сообщения сменяют друг друга в чате(при этом в чате обязательно отображается
+        и контроллируется плашка с текстом `AVTOVIN Твой карманный автомаркет`,
+        для устранения багов с кнопкой старт у пользователей)
+
+        аргументы:
+
+        :lexicon_key:[str] - Подаётся ключ словаря от текста(актуально только тогда, если используется лексикон - `utils.lexicon_utils.Lexicon.LEXICON`
+        :request: - telegram event для взаимодействия с пользователем.
+        :delete_mode:[bool] - Удаление предыдущего сообщения, для отправки нового(без этого аргумента, бот редактирует прошлое сообщение, может вызывать ошибочный ввод если прошлое сообщение было ответом на какое либо прошлое)
+        :send_chat: - Чат для отправки сообщения(по дефолту - берётся с объекта telegram event)
+        :my_keyboard: - Возможно отправить отдельно сделанную клавиатуру(в аргумент reply_markup)
+        :need_media_caption:[Optional[str]] - Добавить подпись к сообщению с медиа-группой(по дефолту - высылается отдельно)
+        :save_media_group:[bool] - Сохранение прошлой медиагруппы в чате, высланной ботом.
+        :delete_media_group_mode:[bool] - Очистка чата от медиагрупп, перед отправкой сообщения.
+        :reply_message:[Optional[int]] - message id, на который нужно ответить новым сообщением.
+        :button_texts:  } текста инлайн кнопок(подставляются в коллбэк дату, после подстроки с аргумента callback_sign
+                +
+        :callback_sign: } подстрока коллбэк даты для inline кнопок
+        :reply_mode:[bool] - отправить сообщение через Message.reply
+        :lexicon_part:[Dict['message_text': str, 'buttons': Dict[callback_data: button_text, 'width': int]]] - Словарь
+                        для обозначения текстов(сообщения и кнопок) и коллбэк даты(инлайн кнопок).
+        :bot:[Bot] - можно передать aiogram.Bot и арг. send_chat (использовал для тестирования pytest)
+        :media_group:[Dict['id': str, 'unique_id': str]] - Медиа файлы для отправки
+                                                            (идентефикаторы ожидаются, назначенные от телеграм)
+        :seller_boot: - Вероятно, неактивный аргумент.
+        :dynamic_buttons:[Optional[int]] - Параметр для создания клавиатуры. Определяет количество кнопок, которые будут
+                            оставаться единственные в ряду(выстраивает их с конца)
+         '''
         from utils.context_managers import ignore_exceptions
 
         async with ignore_exceptions():
